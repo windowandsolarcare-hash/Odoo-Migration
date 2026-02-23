@@ -1,0 +1,23 @@
+[LIVE] Using production Odoo: window-solar-care
+(Log written to C:\Users\dj\Documents\Business\A Window and Solar Care\Migration to Odoo\2_Modular_Phase3_Components\migrate_property_brain_live.log)
+Odoo instance: https://window-solar-care.odoo.com/jsonrpc (DB: window-solar-care)
+SOs with partner_shipping_id set: 3273
+SOs where partner_id != partner_shipping_id (would set partner_id & partner_invoice_id = Property): 166
+  Updated SO 004126 (id 16899): partner_id = 23247
+  Updated SO 004149 (id 16882): partner_id = 25989
+  Updated SO 004149 (id 16881): partner_id = 25989
+  Updated SO 004141 (id 15802): partner_id = 26339
+  Updated SO 004127 (id 15958): partner_id = 23379
+  Updated SO 004096 (id 15796): partner_id = 26337
+  Updated SO 004041 (id 15985): partner_id = 26345
+  Updated SO 003808 (id 16903): partner_id = 24878
+  Updated SO 003826 (id 16904): partner_id = 24158
+  Updated SO 003864 (id 16905): partner_id = 25831
+
+[OK] Updated 166 sales orders. Customer (partner_id) and billing (partner_invoice_id) are now the Property.
+
+Invoices (out_invoice) with origin in SOs: 9; would set partner_id to SO's Property: 0 (skipped 7 posted — partner_id is readonly once posted).
+
+[OK] Updated 0 invoices. Customer (partner_id) now matches SO (Property). Contact link preserved via Property.parent_id.
+
+Phone on SO/Invoice and hiding 'United States' require Odoo form customization (Studio): add Contact phone from partner_id.parent_id, show as link.

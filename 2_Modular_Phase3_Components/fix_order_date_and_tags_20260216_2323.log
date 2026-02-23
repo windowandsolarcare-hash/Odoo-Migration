@@ -1,0 +1,28 @@
+# Fix order date and tags from Workiz — started 2026-02-16T23:23:40.484781
+# Business hours: 7:00 - 18:00 Pacific. Outside = candidate.
+
+# SOs with Workiz UUID: 3264
+# Candidates (outside 7AM-6PM Pacific): 2245
+# DRY RUN: listing candidates only (no Workiz fetch, no Odoo write).
+  would_process  SO=003993  UUID=G0M90B  current_date_order=2025-12-05 08:00:00
+  would_process  SO=003988  UUID=5HPZW2  current_date_order=2025-12-02 08:00:00
+  would_process  SO=003979  UUID=WMKG16  current_date_order=2025-12-09 08:00:00
+  would_process  SO=003964  UUID=XKFFOY  current_date_order=2025-12-08 08:00:00
+  would_process  SO=003962  UUID=WMZ156  current_date_order=2025-11-20 08:00:00
+  would_process  SO=003953  UUID=FRHIN3  current_date_order=2025-12-08 08:00:00
+  would_process  SO=003933  UUID=DF34GC  current_date_order=2025-11-14 08:00:00
+  would_process  SO=003932  UUID=Y5X3M9  current_date_order=2025-12-03 08:00:00
+  would_process  SO=003931  UUID=K8ZP12  current_date_order=2025-11-12 08:00:00
+  would_process  SO=003930  UUID=2SK7JX  current_date_order=2025-11-12 08:00:00
+  would_process  SO=003929  UUID=4RIAS4  current_date_order=2025-11-14 08:00:00
+  would_process  SO=003928  UUID=HJORU8  current_date_order=2025-11-12 08:00:00
+  would_process  SO=003925  UUID=31HBXQ  current_date_order=2025-12-03 08:00:00
+  would_process  SO=003924  UUID=20MBEU  current_date_order=2025-10-30 07:00:00
+  would_process  SO=003886  UUID=CB1TG0  current_date_order=2025-10-10 07:00:00
+  would_process  SO=003883  UUID=50U4H1  current_date_order=2025-11-04 08:00:00
+  would_process  SO=003881  UUID=QXB259  current_date_order=2025-10-17 07:00:00
+  would_process  SO=003867  UUID=AOZFJF  current_date_order=2025-12-09 08:00:00
+  would_process  SO=003859  UUID=WQA793  current_date_order=2025-09-15 07:00:00
+  would_process  SO=003851  UUID=MEIKPJ  current_date_order=2025-09-30 07:00:00
+  ... and 2225 more.
+# Log file: C:\Users\dj\Documents\Business\A Window and Solar Care\Migration to Odoo\2_Modular_Phase3_Components\fix_order_date_and_tags_20260216_2323.log
