@@ -1,0 +1,96 @@
+id,name,partner_id/id,date_order,order_line/price_unit,order_line/product_uom_qty,order_line/name,user_id/name,state,note
+__export__.sale_order_G0M90B,JOB-3993,__export__.res_partner_loc_59282090,2025-12-05 14:30:00,150.0,1,Windows In & Out - Full Service,Dan Saunders,sale,"Next door neighbor is 1242. Schedule at same time. Enter driveway D from Hermosa. Take the first left  pull into the first carport. 1242.  Robin Blackstone, referred by Kathy Sisnowski from Palm Regency complex, called Dan Saunders to request window cleaning services for her unit at 1242 East Andreas, Palm Springs. Dan agreed to check his schedule and text Robin a suitable date and time for the service, preferably before Christmas."
+__export__.sale_order_E6L9H3,JOB-3452,__export__.res_partner_loc_49153609,2025-12-05 14:30:00,150.0,1,Windows In & Out - Full Service,Dan Saunders,sale,"Next door neighbor is 1244. Enter driveway D from Hermosa. Take the first left & pull into the first carport. 1242.  Robin Blackstone, referred by Kathy Sisnowski from Palm Regency complex, called Dan Saunders to request window cleaning services for her unit at 1242 East Andreas, Palm Springs. Dan agreed to check his schedule and text Robin a suitable date and time for the service, preferably before Christmas."
+__export__.sale_order_Z9KG1I,JOB-3412,__export__.res_partner_loc_49153609,2024-12-19 12:00:00,150.0,1,Windows In & Out - Full Service,Dan Saunders,sale,"Robin Blackstone, referred by Kathy Sisnowski from Palm Regency complex, called Dan Saunders to request window cleaning services for her unit at 1242 East Andreas, Palm Springs. Dan agreed to check his schedule and text Robin a suitable date and time for the service, preferably before Christmas."
+__export__.sale_order_2MRQ9L,JOB-3337,__export__.res_partner_loc_36901280,2025-02-11 14:30:00,75.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_H0K48D,JOB-3020,__export__.res_partner_loc_36901280,2024-11-12 14:30:00,75.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_F75A7W,JOB-2979,__export__.res_partner_loc_36901280,2024-08-06 13:00:00,75.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_INSZPL,JOB-2425,__export__.res_partner_loc_36901280,2024-03-13 10:00:00,75.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_IS72ND,JOB-2197,__export__.res_partner_loc_11383901,2023-10-04 09:00:00,75.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_A7AE6T,JOB-1883,__export__.res_partner_loc_11383901,2023-06-21 12:00:00,75.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_HDZ6F7,JOB-1569,__export__.res_partner_loc_11383901,2023-03-07 16:00:00,75.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_XPL1K7,JOB-1246,__export__.res_partner_loc_11383901,2022-09-23 08:30:00,75.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_CA4M9U,JOB-1029,__export__.res_partner_loc_11383901,2022-05-12 09:00:00,75.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_35RTI2,JOB-843,__export__.res_partner_loc_11383901,2022-01-04 14:00:00,65.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_EOGLN2,JOB-581,__export__.res_partner_loc_11383901,2021-09-16 11:00:00,65.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_LJ3ZHT,JOB-422,__export__.res_partner_loc_11383901,2021-04-20 09:00:00,65.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_G4ROHG,JOB-333,__export__.res_partner_loc_11383901,2021-01-21 09:00:00,65.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open
+
+Last done 1/24/20"
+__export__.sale_order_X55RDX,JOB-262,__export__.res_partner_loc_11383901,2020-10-20 09:00:00,65.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open
+
+Last done 1/24/20"
+__export__.sale_order_CH05SO,JOB-198,__export__.res_partner_loc_11383901,2020-07-20 09:00:00,65.0,1,Outside Windows And Screens,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open
+
+Last done 1/24/20"
+__export__.sale_order_WWBEKC,JOB-8,__export__.res_partner_loc_11383901,2020-04-20 10:00:00,65.0,1,Outside windows and Screens,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open
+
+Last done 1/24/20"
+__export__.sale_order_UUCBMY,JOB-7,__export__.res_partner_loc_11383901,2020-01-24 12:00:00,65.0,1,Outside windows and Screens,Dan Saunders,sale,
+__export__.sale_order_18AD2H,JOB-6,__export__.res_partner_loc_11383901,2019-10-22 08:50:00,65.0,1,Outside windows and Screens,Dan Saunders,sale,
+__export__.sale_order_ME3I0N,JOB-5,__export__.res_partner_loc_11383901,2019-07-16 10:00:00,65.0,1,Outside windows and Screens,Dan Saunders,sale,
+__export__.sale_order_2MRQ9L,JOB-3337,__export__.res_partner_loc_36901280,2025-02-11 14:30:00,15.0,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_H0K48D,JOB-3020,__export__.res_partner_loc_36901280,2024-11-12 14:30:00,15.0,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_F75A7W,JOB-2979,__export__.res_partner_loc_36901280,2024-08-06 13:00:00,11.25,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_INSZPL,JOB-2425,__export__.res_partner_loc_36901280,2024-03-13 10:00:00,15.0,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_IS72ND,JOB-2197,__export__.res_partner_loc_11383901,2023-10-04 09:00:00,15.0,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_A7AE6T,JOB-1883,__export__.res_partner_loc_11383901,2023-06-21 12:00:00,13.409999999999997,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_HDZ6F7,JOB-1569,__export__.res_partner_loc_11383901,2023-03-07 16:00:00,11.25,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_XPL1K7,JOB-1246,__export__.res_partner_loc_11383901,2022-09-23 08:30:00,11.25,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $75.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_CA4M9U,JOB-1029,__export__.res_partner_loc_11383901,2022-05-12 09:00:00,11.25,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_35RTI2,JOB-843,__export__.res_partner_loc_11383901,2022-01-04 14:00:00,9.75,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"
+__export__.sale_order_LJ3ZHT,JOB-422,__export__.res_partner_loc_11383901,2021-04-20 09:00:00,6.5,1,Tip,Dan Saunders,sale,"Every 3months Always Outside $65.00
+His Cell (310) 874-0892
+Text Invoice if not home - gate is always open"

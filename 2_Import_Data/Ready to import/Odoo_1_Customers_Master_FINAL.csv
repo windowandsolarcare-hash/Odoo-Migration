@@ -1,0 +1,563 @@
+id,name,phone,all_tags,ok_to_text,pricing,frequency
+W_1001,Walter  Marsha Robinson,3108740892,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,$75.00 every 3 months Outside Only,3 Months
+W_1002,Nancy & Bob McDonald,9519661774,"Marketing Source / Ryan Fewster, Customer Status / CF",,100.00 Every 3 months,
+W_1003,Larry And Teresa Ballinger,9514405442,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,185.00 Every 4 months always in and out,4 Months
+W_1004,Tom Swanson,9519234077,Marketing Source / Ryan Fewster,,,
+W_1005,Tari  Harv Fischer,9515364995,Marketing Source / Ryan Fewster,,,
+W_1006,Roberta Davis,5109172050,"Marketing Source / Ryan Fewster, Customer Status / OK",Yes,140/70 every 4 months Alternating,4 Months
+W_1007,Marie Bach,9513255610,"Marketing Source / Ryan Fewster, Customer Status / CF",No,130 In & Out Every 3 months,
+W_1008,Hazel  Rick Farney,9513257858,"Marketing Source / Ryan Fewster, Customer Status / CF",No,,
+W_1009,David Soto,5625334807,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,$120 Every 3 Months,
+W_1010,Marilyn & Richard Short,9519253650,"Marketing Source / Ryan Fewster, Customer Status / CF",No,195.00 Every year in & out,
+W_1011,Mette Haydt,8184219286,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,$140.00 In & Out - $65.00 Every 3 months - Outside Only,3 Months
+W_1012,Diana & Herbert Ruppert,9515994021,Marketing Source / Ryan Fewster,,$50.00/Out Only,
+W_1013,Charles  Yraida Roberts,9514226171,Marketing Source / Repeat Client,Yes,,
+W_1014,Trudy & Randolph Rades,9515990237,"Marketing Source / Herald, Customer Status / CF",,135.00 in & out,
+W_1015,Marie White,9516920036,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,150 every 4 months,4 Months
+W_1016,Blair  Irene Becker,9512821793,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,85.00 Every 4 months,4 Months
+W_1017,Cindy & Ben Carlow,9513574598,"Marketing Source / Ryan Fewster, Customer Status / CF",No,100/50 Every 3 months - Alternating,
+W_1018,Zenaida De Jesus,8183036908,Marketing Source / NextDoor App,,,
+W_1019,Bill & Karen Robertson,9493223672,"Marketing Source / Repeat Client, Customer Status / CF",No,80.00 Outside every 6 months,
+W_1020,Pat Powers,9517583909,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,200/100 Every 3 Months,
+W_1022,Dena  Sidney Cohen,9512233681,Marketing Source / Herald,,,
+W_1023,Joseph Merritt,8583362033,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,110.00 Every 6 Months In & Out,6 Months
+W_1024,Jeanne  Robert Porter,5624207339,Marketing Source / Ryan Fewster,,,
+W_1025,Grace Kaelin,9512040179,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,110.00 In & Out Every 4 Months,4 Months
+W_1026,Patty Seabock,9092297017,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,$120 In & Out Every 4 months,
+W_1027,Carol  Jack Anderson,9518371761,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,$140 Every 6 months Always In & Out - April/Oct,6 Months
+W_1028,Sharon & Jeff Carow,8583543879,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,$130 Every 4 Months In & Out,
+W_1029,Cleta Calston,9492786765,"Marketing Source / Herald, Customer Status / CF",Yes,140/75,
+W_1030,Julie Beech,9513135365,"Marketing Source / Herald, Customer Status / TXT SENT",Yes,145/85,
+W_1031,Ruby Weaver,8013910068,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,100.00 In & Out Every 4 Months used to 3 months - my change,4 Months
+W_1032,Alice Hatcher,9516777166,"Marketing Source / Magnet/Drive By, Customer Status / TBD",Yes,145.00/80 Every 4 months Alternating,
+W_1033,Lanny And Sue Lund,9255960419,"Marketing Source / Note Card, Customer Status / CF",Yes,$160/$85 Every 4 Months In & Out,4 Months
+W_1034,Jeanne Farris,9516928912,"Marketing Source / Herald, Customer Status / CF",Yes,80.00 Outside,Unknown
+W_1035,Chris Pounders,9512494415,"Marketing Source / Note Card, Customer Status / CF",Yes,$130/$70 Every 4 months Alternating This time 145.00,
+W_1036,Janet & William Wichman,9516529605,Customer Status / CF,No,,
+W_1037,Dorothy & Robert Farmer,9514921218,"Marketing Source / EDDM, Customer Status / OK",Yes,$115.00 + 2.00/wet screen Every 4 months/ 85.00 Outside,4 Months
+W_1038,Jim & Suanne Harris,2533892247,"Marketing Source / Referral, Customer Status / CF",Yes,160/80 Every 4 months Alternating,
+W_1039,Sandy And John King,7073372886,"Marketing Source / Referral, Customer Status / CF",Yes,140/75 Every 4 months Alternating Service,4 Months
+W_1040,Jean Faenza,8058131909,Marketing Source / Referral,Yes,,
+W_1041,Joan Strickler,9513066924,"Marketing Source / EDDM, Customer Status / CF",Yes,100.00 in & out,
+W_1042,Dana Strickler,9518010422,"Marketing Source / EDDM, Customer Status / CF",Yes,34 Panels x 5 = 170.00,4 Months
+W_1043,Dianne Hourscht,9518181008,"Marketing Source / Repeat Client, Customer Status / CF",Yes,125.00/65.00 Every 3 months,3 Months
+W_1044,Linnea Rowden,6266224628,"Marketing Source / EDDM, Customer Status / CF",Yes,160/85 Every 3 months - Alternating,3 Months
+W_1045,Ronda Noriega,9095537042,Marketing Source / Herald,Yes,,
+W_1046,Ernie Way,9515999179,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,$70 Every 3 Months - Outside,
+W_1047,Mary Ellen & Ron Brogdon,8583367394,"Marketing Source / Ryan Fewster, Customer Status / CF",Yes,120/60 Every 3 Months,
+W_1048,Linda Ron Cordero,9098688449,"Marketing Source / Referral, Customer Status / CF",Yes,135,6 Months
+W_1050,Annette Smith,9516630949,Marketing Source / Ryan Fewster,,,
+W_1052,Van & Carole Eychaner,7145016456,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,145 Every 9 months,
+W_1053,Judy & Bob McManus,9512233376,Marketing Source / Ryan Fewster,,,
+W_1054,Bob Beech (2),9092282580,Marketing Source / EDDM,,,
+W_1055,Walter & Janice Hasbach,9519298489,Marketing Source / Ryan Fewster,,,
+W_1057,Debbie & Jim Barker,,Marketing Source / Ryan Fewster,,,
+W_1059,Toni Hernandez,9513157849,"Marketing Source / EDDM, Customer Status / CF",Yes,100.00 Yearly,12 Months
+W_1063,Bill Muncy,9515994972,Marketing Source / Note Card,Yes,,
+W_1064,Robert Mazochi,9517126060,Marketing Source / NextDoor App,,,
+W_1065,Kay Masonbrink,6192483706,"Marketing Source / NextDoor App, Customer Status / CF",Yes,140.00 Every 4 to 5 Months In & Out - New 145.00,4 Months
+W_1067,John & Seija Lewis,9497011247,"Marketing Source / Note Card, Customer Status / CF",Yes,145 In & out Every 4 months,
+W_1068,John Baily,3252015145,Marketing Source / NextDoor App,,,
+W_1069,Nita Staley,7604208980,Marketing Source / NextDoor App,Yes,,
+W_1071,Jonie Kipling,6319742289,"Marketing Source / Referral, Customer Status / CF",Yes,140.00/75 Every 4 to 5 months - Alternating,4 Months
+W_1072,Marti Bartlett,2398985234,"Marketing Source / Note Card, Customer Status / CF",Yes,"140 every 6 months, 15 x 5 =75 solar, 25 for gutters",6 Months
+W_1074,Caroline  Graham Ashford,9517645146,"Marketing Source / Note Card, Customer Status / CF",Yes,$145/$75 Every 4 months Alternating,4 Months
+W_1075,Jean & Charles Farr,7024206643,Marketing Source / Magnet/Drive By,Yes,,
+W_1076,Barbara Cameron,9519260725,"Marketing Source / Referral, Customer Status / CF",No,125.00 Every 6 months or so,Unknown
+W_1077,John  Sonia Duffy,9516402939,"Marketing Source / Referral, Customer Status / OK",Yes,75 & 145.00 Every 4 months Alternating,4 Months
+W_1079,Mark Seiler,9512369904,"Marketing Source / Referral, Customer Status / CF",Yes,150.00 + 125 solar,3 Months
+W_1080,Art Martel,9099738208,"Marketing Source / Referral, Customer Status / CF",Yes,140/75 Every 4 months Alternating,4 Months
+W_1081,Mamie Leaton,9515877014,Marketing Source / Ryan Fewster,No,,
+W_1082,Nanette Trentini,9512334681,Marketing Source / Referral,Yes,7.00/Pannel,
+W_1083,Bertha and Richard  Sanchez,6262903536,Marketing Source / Magnet/Drive By,,V,
+W_1084,Mary Ellen 1 & Ron Brogdon,8583367394,Marketing Source / Note Card,Yes,,
+W_1085,Larry Salinas,7609548785,"Marketing Source / EDDM, Customer Status / CF, Customer Status / WAIT",Yes,150.00 In and Out/ 85.00 out only - 2 times a year Alternating,6 Months
+W_1086,Dean & Linda Gordon,9516520810,Marketing Source / Referral,,,
+W_1088,Renee TenBruggencate,6267336265,Marketing Source / Referral,,90,
+W_1089,Bill & Nancy Ward,9092403066,"Marketing Source / Note Card, Customer Status / CF",Yes,$70 outside only & $5 per panel,
+W_1097,Maria Natenson,9519262098,Marketing Source / Referral,,,
+W_1098,Charles & Barbara Moorefew,7203418409,Marketing Source / Magnet/Drive By,,,
+W_1099,Roxanne Sullivan,9099817507,Marketing Source / NextDoor App,,140,
+W_1102,Dot Gallahan,9512172774,"Marketing Source / NextDoor App, Customer Status / CF",,145/75,Unknown
+W_1117,Barbara & John Bueler,9097546206,"Marketing Source / Referral, Customer Status / CF",Yes,150,6 Months
+W_1123,Toni Harris,6265103844,"Marketing Source / Note Card, Customer Status / CF",Yes,75.00 Every 6 months/145.00,6 Months
+W_1124,Ron Finnila,8058953918,Marketing Source / Herald,,,
+W_1126,Nancy Hughes,9512826191,"Marketing Source / Referral, Customer Status / OK",Yes,$145.00/$75 Every 4 months Alternating Services,4 Months
+W_1128,Vince Russo,4259412841,"Marketing Source / Referral, Customer Status / CF",Yes,Every 4 months - $145.00 In & Out $80.00 Out Only 6.00/Panel Solar $2.00/Wet Screen,4 Months
+W_1131,Barbara Bueler,9097546206,Marketing Source / Repeat Client,Yes,,
+W_1132,Cynthia & Orville Ellingworth,6196726777,Marketing Source / NextDoor App,,,
+W_1133,Tom Gruden,9092296519,"Marketing Source / Herald, Customer Status / CF",Yes,145/75 every 6 months alternating,
+W_1134,Mark Egge,9512350894,"Marketing Source / Referral, Customer Status / CF",Yes,,
+W_1135,Mark & Sarah Fredricksen,9515261488,"Marketing Source / Note Card, Customer Status / CF",Yes,150/85 every 4 months Alternating,4 Months
+W_1136,Janis Zimmerman,6783829209,"Marketing Source / NextDoor App, Customer Status / CF",,,
+W_1137,Leslie Bucari,3107143535,"Marketing Source / NextDoor App, Customer Status / CF",Yes,135,
+W_1138,Sharon Weissmann,3143690792,"Marketing Source / NextDoor App, Customer Status / CF",,$85.00 Not Sure of Freq./145,
+W_1140,Wayne Snyder,8184557728,"Marketing Source / Referral, Customer Status / CF",Yes,145/75 Every 6 Months... Alternating,
+W_1141,Nancee Gauthier,6266649696,"Marketing Source / Referral, Customer Status / TBD",Yes,90,12 Months
+W_1142,Barbra Balser,7604703968,"Marketing Source / Referral, Customer Status / CF",Yes,$150.00 every 4 months solar $85.00,4 Months
+W_1145,John Stafford,6197871602,Marketing Source / Herald,Yes,150.00 In & Out,Unknown
+W_1147,Fran Kaufman,7607747461,"Marketing Source / Home Advisor, Customer Status / CF",Yes,,
+W_1150,Karen Raker,5083693544,"Marketing Source / Home Advisor, Customer Status / CF",Yes,100,6 Months
+W_1151,Laura Gregory,7607033405,"Marketing Source / Home Advisor, Customer Status / CF, Customer Status / Snow Bird",Yes,275/140,6 Months
+W_1153,Kirstin Shiels,2069485801,"Marketing Source / Home Advisor, Customer Status / CF",Yes,70.00 In & Out,
+W_1154,Norbert & Bing Schreiber,9513760180,"Marketing Source / Home Advisor, Customer Status / CF",Yes,,
+W_1155,Joy Hodge,4802394292,"Marketing Source / Home Advisor, Customer Status / CF",Yes,$75.00 Quarterly,
+W_1158,Jose Merelies,9515901843,"Marketing Source / EDDM, Customer Status / CF",Yes,145/75,3 Months
+W_1159,Laura Patton,7607744110,"Marketing Source / Home Advisor, Customer Status / CF",,185,
+W_1160,Peggy Burlingham,5622048579,"Marketing Source / Home Advisor, Customer Status / CF",,155,
+W_1161,Jackie Macmillan,5033207027,"Marketing Source / Home Advisor, Customer Status / CF",Yes,$200 for both,
+W_1166,Stacey McDonald,5038282982,"Marketing Source / Referral, Customer Status / CF",,130,
+W_1171,Fred Nelson,6306616061,"Marketing Source / Home Advisor, Customer Status / TBD",Yes,285.00/150.00 Every 6 Months,
+W_1172,Claudette Bidgood,4157138815,"Marketing Source / Home Advisor, Customer Status / CF",Yes,175.00/100,Unknown
+W_1173,Chris Samish,6194811652,"Marketing Source / EDDM, Customer Status / CF",No,75,
+W_1174,Sally Davis,9518342260,"Marketing Source / Magnet/Drive By, Customer Status / CF",,,
+W_1178,Cam Gaudet,7603931748,"Marketing Source / Home Advisor, Customer Status / Fill",Yes,85,
+W_1179,Lori King,9492328649,"Marketing Source / Home Advisor, Customer Status / CF",Yes,Quoted 185 with dry brush,
+W_1180,Willard Sterling,7604061547,"Marketing Source / Home Advisor, Customer Status / CF",Yes,195.00 every Spring & 6 months,6 Months
+W_1181,Clifford Farm,9519738016,"Marketing Source / Referral, Customer Status / CF",Yes,140.00 In & out every 4 months,
+W_1182,Mary Tatomir,7607759895,"Marketing Source / Home Advisor, Customer Status / CF",No,140.00 In & Out,
+W_1183,Julie Muldoon,9513335526,"Marketing Source / Referral, Customer Status / CF",,$95,
+W_1185,Nectar Sagarnaga,9512599607,Marketing Source / Google,,$160,
+W_1186,Cheri Delucca,7149261162,"Marketing Source / Home Advisor, Customer Status / CF",Yes,$290/$150 Every 6 Months Alternating,
+W_1188,Keitia Smith,9516167171,"Marketing Source / Google, Customer Status / CF",Yes,285,
+W_1189,Scott Cunningham,2063532206,"Marketing Source / Home Advisor, Customer Status / CF",Yes,175.00 Every 6 months In & Out,6 Months
+W_1190,Bill Winkill,2486132423,"Marketing Source / Home Advisor, Customer Status / CF",Yes,250.00 x 2 months,3 Months
+W_1193,Loretta Goble,9519224773,Marketing Source / Home Advisor,,195,
+W_1196,Brenda McCallon,4257611301,"Marketing Source / Home Advisor, Customer Status / CF",,125.00 every 6 months ,
+W_1197,Jeff Jelineo,9175964639,"Marketing Source / EDDM, Customer Status / CF",,,
+W_1198,Pat Maldonado,9517951677,"Marketing Source / Herald, Customer Status / CF",Yes,$145/75 Every 4 months Alternating,4 Months
+W_1200,Myrna DuVall,9518056251,Customer Status / CF,,$75 & $135,
+W_1204,Kay Biederman,9097328190,"Marketing Source / EDDM, Customer Status / CF",,,
+W_1207,Sue Watt,9513255008,"Marketing Source / EDDM, Customer Status / CF",Yes,85.00 Out Only,
+W_1208,Stella Torres,9512658883,"Marketing Source / Herald, Customer Status / CF",Yes,5.00/Panel,Unknown
+W_1209,Eileen Ryan,9493386079,"Marketing Source / Home Advisor, Customer Status / CF",Yes,55.00 Min Charge,
+W_1210,Karen Bird,6262220332,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,$145 Annually In ,
+W_1212,Cheryl Johnson,9098212822,,,,
+W_1213,Candace Hawley,9514422022,Marketing Source / Referral,Yes,155/75 Every 4 Months - Alternating Service ???,
+W_1214,Suzy  Fred Voelkel,6024184993,"Marketing Source / Home Advisor, Customer Status / CF",Yes,250.00 every 4 months ???- She Calls Told him 100 extra for inside,
+W_1215,Andrew Teitel,2485612900,"Marketing Source / Home Advisor, Customer Status / CF",Yes,125.00 Every 3 months,
+W_1216,Richard Rodner,3104225011,"Marketing Source / Home Advisor, Customer Status / TBD",Yes,300 Every ??? months,
+W_1218,Marlene Cliff,5109080500,"Marketing Source / Home Advisor, Customer Status / CF",Yes,140.00 Outside only 275.00 In & out,6 Months
+W_1219,Dana Zusman,9492304223,"Marketing Source / Referral, Customer Status / CF",Yes,150/75 Every 6 months ?????,Unknown
+W_1222,Angela Rafferty,7605371211,"Marketing Source / Home Advisor, Customer Status / CF",Yes,39.00 Monthly,
+W_1223,Dave  Colleen Johnson,9492332489,"Marketing Source / Referral, Customer Status / CF",Yes,150.00/75 Every 4 months - Alternating Service,4 Months
+W_1224,Stephen Margetic,9495100262,"Marketing Source / Home Advisor, Customer Status / CF",Yes,185.00 Every 4 months In and Out,
+W_1225,Larry Tyner,7607744959,"Marketing Source / Home Advisor, Customer Status / CF",No,$135.00,
+W_1227,Jack Ginsberg,2066794035,"Marketing Source / Home Advisor, Customer Status / CF",Yes,285/150 Every 4 months Alternate,Unknown
+W_1230,Lisa Dernbach,5303070834,"Marketing Source / Referral, Customer Status / CF",Yes,70,Unknown
+W_1231,Micheal Keene,9515363974,"Marketing Source / WASC Web Site, Customer Status / CF",Yes,325 Yearly ???,
+W_1233,Mark Habeeb,8186792201,"Marketing Source / Home Advisor, Customer Status / CF",Yes,$325/175 Every 4 Months or so,Unknown
+W_1234,Steve Bluestein,3104299656,"Marketing Source / Referral, Customer Status / CF",Yes,295.00/155.00 every 3 to 4 months,4 Months
+W_1235,Diane Rabelo,9512075623,"Marketing Source / Home Advisor, Customer Status / CF",Yes,140 Every 6 month - discounted to 115 less outside windows,6 Months
+W_1236,Sherry Dibble,9512332617,"Marketing Source / Home Advisor, Customer Status / CF",Yes,245,
+W_1237,Donna & Keith Swanke,4146175373,"Marketing Source / Referral, Customer Status / CF",Yes,145/70 Every 4 months - Alternating Service,
+W_1240,Personal Time,9519726946,,,,
+W_1245,Steve Rudnick,9514926108,Marketing Source / EDDM,Yes,135,
+W_1246,Robyn Tagliareni,7602137229,Marketing Source / Home Advisor,Yes,$300,
+W_1250,Joseph Gerwig,7607791547,Marketing Source / Home Advisor,,,
+W_1252,Denyse Cecchetto,9097368113,"Marketing Source / Home Advisor, Customer Status / CF",,,
+W_1255,Stacey Speiser,9097322970,"Marketing Source / Home Advisor, Customer Status / CF",Yes,120.00 Every 3 Months In & Out,3 Months
+W_1256,Pam & Rick Ortega,7608830816,"Marketing Source / Referral, Customer Status / CF",Yes,200.00/Year In & Out - 100.00 outside Only,Unknown
+W_1257,Stacey McLeod,9513855347,"Marketing Source / Web Site, Customer Status / CF",Yes,5.00/Panel,
+W_1258,Nancy Mcintosh,6197337833,"Marketing Source / Referral, Customer Status / CF",,95,
+W_1259,Sheela Havas,6263541971,"Marketing Source / Home Advisor, Customer Status / CF",Yes,200/110,Unknown
+W_1260,Cindy Fuller,9516669965,"Marketing Source / Home Advisor, Customer Status / CF",Yes,173,12 Months
+W_1261,Gary  Vicki Hubbert,7604850144,"Marketing Source / Home Advisor, Customer Status / CF",Yes,200.00 Every 6 months - Used to be 175.00,
+W_1262,Marguerite Surovy,8188086598,"Marketing Source / Home Advisor, Customer Status / CF, Customer Status / Snow Bird",Yes,230/115,Unknown
+W_1263,Susan Briggs,3035497098,"Marketing Source / Herald, Customer Status / CF",Yes,5.00/16 Panels,
+W_1264,Harry Hart,7608363400,"Marketing Source / Home Advisor, Customer Status / CF",No,130.00 Every 5 Months ???,
+W_1265,Beverly Sparks,9285377054,Marketing Source / Home Advisor,,95,
+W_1266,Monica Johnson,9098156761,"Marketing Source / Home Advisor, Customer Status / CF",,,
+W_1268,Diane Rasmussen,7144013740,"Marketing Source / Herald, Customer Status / CF",Yes,$150/$80 alternating 4 monhs,4 Months
+W_1269,Linda Haynes,8186069981,Marketing Source / Referral,Yes,120,
+W_1270,Walter Keller,7602853764,"Marketing Source / Thumbtack, Customer Status / CF",Yes,26 x 6/panel,
+W_1272,Linda Lusk,5037201054,"Marketing Source / Referral, Customer Status / CF",Yes,85/hr basic 175.00 - 150/hr,Unknown
+W_1273,Robert Frederick,9499227794,"Marketing Source / Thumbtack, Customer Status / CF",Yes,$350.00 and $110.00 for the solar panels,Unknown
+W_1276,Geri Richmond,9518058834,Marketing Source / Magnet/Drive By,,,
+W_1277,Debbie Bygland,6195178223,Marketing Source / NextDoor App,Yes,,
+W_1280,Patty Moss,9257191612,"Marketing Source / Referral, Customer Status / CF",Yes,275.00/ 150.00,Unknown
+W_1282,Frank Abril,9092151725,"Marketing Source / Referral, Customer Status / CF",Yes,140/75 Every 4 Months -Alternating,6 Months
+W_1284,Stacey McPherson,9513127470,"Marketing Source / Web Site, Customer Status / CF",,,
+W_1285,Nancy Dakkak,9097289497,"Marketing Source / Thumbtack, Customer Status / CF",Yes,375.00 Dry Brush,
+W_1287,Gary Schwartz,3055056877,Marketing Source / Google,Yes,5.50 each,
+W_1288,Christine Miller,9516606441,,,,
+W_1290,Tony Bosco,5625057379,Customer Status / CF,,,
+W_1292,April Vidal,9092401212,Marketing Source / Google,,,
+W_1294,Barbara Patterson,9513922242,"Marketing Source / Referral, Customer Status / CF",,100,
+W_1295,Ed Paige,9516236109,Marketing Source / Home Advisor,Yes,320.00 - Discount,
+W_1296,Sylvia  Lane,6268406571,Marketing Source / Thumbtack,,,
+W_1297,Jackie Goodge,7603912422,"Marketing Source / Thumbtack, Customer Status / CF",Yes,175,Unknown
+W_1298,Kay Mitchell,9519266186,"Marketing Source / Herald, Customer Status / CF",No,120.00/80.00,6 Months
+W_1299,Betty Bullis,3039181249,"Marketing Source / NextDoor App, Customer Status / CF",Yes,140,
+W_1306,Robin Elder,7602210879,"Marketing Source / Thumbtack, Customer Status / CF",Yes,250/150,Unknown
+W_1307,Adam Ruelas,9094896431,"Marketing Source / Thumbtack, Customer Status / CF",Yes,,
+W_1308,Charles Ball,9517048402,Marketing Source / NextDoor App,,,
+W_1309,Carol Wakefield,6197422113,,,,
+W_1311,Paty Flohr,8585685365,"Marketing Source / Referral, Customer Status / CF",Yes,140 discounted to 125 this time,Unknown
+W_1313,Alexandria Arias,9519908094,Marketing Source / Thumbtack,Yes,250.00 every 4 months,
+W_1314,Tamera Infield,6264190553,Marketing Source / Thumbtack,,,
+W_1315,Susie Vanduyne,9497024146,Marketing Source / Thumbtack,Yes,5.00 Panel Min 60.00,
+W_1316,Lisa Johnson,7143228877,"Marketing Source / Thumbtack, Customer Status / TBD",Yes,240/125,Unknown
+W_1318,Gregg  Lisa Whitney,8582329469,"Marketing Source / Thumbtack, Customer Status / CF",Yes,300/150.00 every 6 months maybe 4 months,Unknown
+W_1319,Kathy Ofstad,9514928455,Marketing Source / Thumbtack,,,
+W_1320,Jim Stubbs,7602852425,"Marketing Source / Referral, Customer Status / CF",,250/150 Every 4 months,
+W_1321,Carole Lovett,6236408745,"Marketing Source / Referral, Customer Status / CF",,140.00 Every 4 months ???,
+W_1322,Darrell Mclaughlin,6193688014,"Marketing Source / Thumbtack, Customer Status / CF",Yes,235.00 In & Out,
+W_1323,Alison King,9512654528,"Marketing Source / Thumbtack, Customer Status / CF",Yes,125.00 In & Out every 6 months????,
+W_1324,Delatour Zimmer,7608809558,Marketing Source / Home Advisor,,"160.00 In & Out, no screens or vac every 6 months ????",
+W_1325,Jayne Reaburn,6048169907,"Marketing Source / Thumbtack, Customer Status / CF",Yes,200,
+W_1326,Katie Sullivan,7609603073,"Marketing Source / Home Advisor, Customer Status / CF",Yes,80.00 Out Only,Unknown
+W_1327,Nancy Bryant,4178606490,"Marketing Source / Home Advisor, Customer Status / CF",Yes,200,
+W_1328,Edie Becker,5627081809,"Marketing Source / Web Site, Customer Status / CF",Yes,200.00/100.00 Alternating every 4 months,Unknown
+W_1330,Carolyn & Chuck Talbot,2538207110,Marketing Source / Thumbtack,Yes,5.00/Panel,
+W_1331,Julius Conner,7026832835,Marketing Source / Thumbtack,Yes,,
+W_1332,John Thiers,7607837129,"Marketing Source / Thumbtack, Customer Status / CF",Yes,,
+W_1333,Christine Dobbings,3109716377,"Marketing Source / Home Advisor, Customer Status / CF",,90,
+W_1334,Ian Fitzgerald ,4243829733,Marketing Source / Thumbtack,,,
+W_1335,Cyd Kidwiler,9493702651,"Marketing Source / Referral, Customer Status / CF",,,
+W_1336,Jim Hitt,8055517471,"Marketing Source / EDDM, Customer Status / CF",Yes,90 Outside 75 Solar,Unknown
+W_1337,Leah Brown,,Marketing Source / Referral,,,
+W_1338,Nick Conway,6267100373,"Marketing Source / Home Advisor, Customer Status / CF",Yes,200.00 x 3 months,3 Months
+W_1339,Suzie Sites,9513151972,"Marketing Source / NextDoor App, Customer Status / CF",Yes,225/120 Alternating 6 months,6 Months
+W_1340,Mark Mitchell,9496772834,"Marketing Source / Referral, Customer Status / CF",Yes,150/85 4 months Alternating,4 Months
+W_1342,Nancy Whitley,9493099240,"Marketing Source / NextDoor App, Customer Status / CF",Yes,55.00 increase to 60.00,6 Months
+W_1344,Nigel Banister,4252192877,"Marketing Source / Home Advisor, Customer Status / CF",Yes,260/130,Unknown
+W_1346,Elsa Sandvold,5035054662,"Marketing Source / Referral, Customer Status / CF",Yes,175,Unknown
+W_1347,Dick Palomba,9253371000,"Marketing Source / Home Advisor, Customer Status / CF",Yes,275/145,12 Months
+W_1348,Christopher Gourlay,3107798044,Marketing Source / Home Advisor,Yes,175 to 240,
+W_1349,Donna Uchimura,9099861871,"Marketing Source / Home Advisor, Customer Status / CF",Yes,145,6 Months
+W_1350,Diane Rabin,6196651185,"Marketing Source / Home Advisor, Customer Status / CF",Yes,300 every 5 months ????,
+W_1351,Dwight Fichtner,9099960581,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,150,Unknown
+W_1352,Mike Mok,3133304290,Marketing Source / Referral,Yes,,
+W_1353,Steven Acuna,7148837140,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,,
+W_1354,Celine McCann,9512885937,"Marketing Source / Referral, Customer Status / CF",,,
+W_1355,Allyn Miller,3126226111,"Marketing Source / Referral, Customer Status / CF",Yes,250/125 Every 6 months,
+W_1356,Sheila Boulton,6045610890,"Marketing Source / Home Advisor, Customer Status / TBD, Customer Status / Snow Bird",Yes,190.00/90.00,Unknown
+W_1357,Fred Johns,2483909025,"Marketing Source / Referral, Customer Status / CF",Yes,300/160 Every 6 months Alternating,6 Months
+W_1358,Mabel Durand,7144764445,"Marketing Source / Magnet/Drive By, Customer Status / CF",,155/80,
+W_1359,Mike & Pat Dooley,9516094921,Customer Status / CF,,125 In & Out,
+W_1360,Rita Mitchell,9514967961,Marketing Source / Referral,Yes,,
+W_1361,Debbie Church,9516632195,"Marketing Source / Referral, Customer Status / CF",Yes,Quoted 160.00 Every 6 Months,6 Months
+W_1362,Marlene Pesqueira,5303555991,"Marketing Source / EDDM, Customer Status / CF",Yes,225.00 total,
+W_1363,Maddie Rossi,9512126423,"Marketing Source / Home Advisor, Customer Status / CF",,95.00 - 115.00 if wet screen,
+W_1364,William Chavez,8182719669,Marketing Source / Thumbtack,Yes,190,
+W_1365,Patti Lindquist,9516636470,"Marketing Source / Herald, Customer Status / CF",Yes,150,Unknown
+W_1370,Larry Clarke,7029852345,"Marketing Source / Home Advisor, Customer Status / Star",Yes,285.00/150.00 3 month Alternating ??? - trying for 6 months,
+W_1371,Lyn Rothmund,4802546483,Marketing Source / Magnet/Drive By,,135.00 6 Months maybe yearly,
+W_1372,Janet Lape,9514929273,Marketing Source / Referral,Yes,75,
+W_1373,Nick Dimas,5626661952,"Marketing Source / Home Advisor, Customer Status / CF",,285,
+W_1374,Linda & Fred Loetscher,5304091460,Marketing Source / Referral,,160,Unknown
+W_1375,Carole Levitzky,7147150189,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,,
+W_1376,Candy Gruber,9512825960,"Marketing Source / Herald, Customer Status / CF",Yes,150.00 + 99.00 Gutter,
+W_1377,Jeanni Stewart,,Marketing Source / Referral,,,
+W_1378,Ken Drew,9516928000,Marketing Source / Herald,Yes,,
+W_1380,Glenn Uhley,6192443337,"Marketing Source / Herald, Customer Status / CF",Yes,80,Unknown
+W_1381,Jean Taber,5419448315,"Marketing Source / Herald, Customer Status / CF",Yes,75.00 every 6 months?,
+W_1382,Richard Krajchir,8082267001,Marketing Source / Thumbtack,,5.00/each,
+W_1383,John Sanders,4152990659,"Marketing Source / Web Site, Customer Status / CF",Yes,175 + 100 Gutter Every 6 months,6 Months
+W_1384,Bonnie Silverwood,9513255060,"Marketing Source / Referral, Customer Status / CF",No,80/160,Unknown
+W_1385,Jim Piercy,9519410904,"Marketing Source / Herald, Customer Status / CF",Yes,120,
+W_1386,Wendy Bolduc,8177978189,"Marketing Source / Herald, Customer Status / CF",Yes,125.00 Every 5 months ?,
+W_1387,Aladar Barath,3104224569,"Marketing Source / Magnet/Drive By, Customer Status / CF",,135 - inc 10% discount - $150 normally,Unknown
+W_1388,Pat & Bob Radmacher,9514919210,"Marketing Source / Referral, Customer Status / CF",Yes,160,
+W_1389,Tony Taricco,4152259495,"Marketing Source / Thumbtack, Customer Status / CF",Yes,495/270 Every 6 months?,
+W_1390,Minio & Diann Garcia,9092405268,"Marketing Source / Referral, Customer Status / CF",Yes,145 + Solar,
+W_1391,Mike & Wendie Bowden,9513904224,Marketing Source / Magnet/Drive By,,150,
+W_1392,Mark Kushner,7606680557,Marketing Source / Referral,Yes,160.00 Every 4 months ?,
+W_1393,Beth Shelton,7074803008,"Marketing Source / Herald, Customer Status / CF",Yes,60 Solar/ 80 Outside,Unknown
+W_1394,Cheryl Shelton,9515755443,"Marketing Source / Referral, Customer Status / CF",,,
+W_1395,Mary Lyons,9517232287,Marketing Source / NextDoor App,No,130,
+W_1396,Beverly Butler,9165246209,Marketing Source / Home Advisor,Yes,150,
+W_1397,Jeffery Espinoza,8056677174,Marketing Source / Home Advisor,,,
+W_1398,Ross Snow,4152447687,"Marketing Source / Thumbtack, Customer Status / CF",Yes,170/90. 75 Solar,Unknown
+W_1399,John Volanti,4157136520,"Marketing Source / Referral, Customer Status / CF",Yes,"12 x 5.50 = 66 - Min $75.00, 150/75 Every 3 months Alternating",3 Months
+W_1400,Richard Blee,2022531181,"Marketing Source / Referral, Customer Status / CF",Yes,300/160,6 Months
+W_1401,Nancy Tohl,8188253066,"Marketing Source / Referral, Customer Status / CF",Yes,245.00/125.00 good enough pricing,4 Months
+W_1402,Pat Spurgeon,6197723731,"Marketing Source / Referral, Customer Status / CF",Yes,145.00 dry,
+W_1403,John & Janet Swindell,9514406529,"Marketing Source / Magnet/Drive By, Customer Status / CF",,150,
+W_1404,Jim Sutton,8183881962,"Marketing Source / Thumbtack, Customer Status / Fill",Yes,200.00 Dry,
+W_1405,Diane Highins,9092614796,"Marketing Source / Referral, Customer Status / CF",Yes,160 Every 5 months,6 Months
+W_1406,Trish & Graham Moorhouse,9098443852,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,145,Unknown
+W_1407,Velasquez Interiors,7605056438,Marketing Source / Google,,100,
+W_1408,Judi Simkin,7603281225,Marketing Source / Home Advisor,,70,
+W_1411,Eric Wildermuth,7604137908,"Marketing Source / Thumbtack, Customer Status / CF",Yes,125,
+W_1412,Rajeni Chajar,4253267201,"Marketing Source / Thumbtack, Customer Status / CF",Yes,350,Unknown
+W_1413,Margo Faulkner,6199253524,"Marketing Source / Thumbtack, Customer Status / OK",Yes,135.00 new price 140.00,Unknown
+W_1414,Ibrahim Shalhoub,7606160500,Marketing Source / Thumbtack,,,
+W_1415,Valerie Smith,4086741449,"Marketing Source / Thumbtack, Customer Status / CF",,,
+W_1416,Myra Lane,4155091018,"Marketing Source / Web Site, Customer Status / CF",Yes,35 x 5.00 Every 6 months,6 Months
+W_1417,Betsy Justice,7607992182,"Marketing Source / Thumbtack, Customer Status / CF",Yes,175/85,6 Months
+W_1418,Nanette Smalley,9713710596,"Marketing Source / Home Advisor, Customer Status / CF, Customer Status / Snow Bird",Yes,140 in & out - 260.00 everything,
+W_1419,Judith Gordon,2138199192,"Marketing Source / Thumbtack, Customer Status / CF",Yes,100.00 Every 3 months,3 Months
+W_1421,Karen Sebzda,9516605978,Marketing Source / Web Site,Yes,150.00 Every 6 months ???,6 Months
+W_1422,LINDA COBARRUBIAS,3109900993,"Marketing Source / Thumbtack, Customer Status / CF",Yes,185.00 Every 4 months ????,
+W_1423,Steve Kosta,9514429125,"Marketing Source / Herald, Customer Status / CF",Yes,145,Unknown
+W_1424,Bibi Silvas,3234458377,"Marketing Source / Referral, Customer Status / OK",Yes,250,6 Months
+W_1425,Eva Bauer Mcgovern,7607778444,"Marketing Source / Thumbtack, Customer Status / CF",Yes,340/175,
+W_1427,Peter Emond-Worline,7606682400,"Marketing Source / Thumbtack, Customer Status / CF",Yes,5.00 x 40 Panels = 200.00,6 Months
+W_1428,Alona Blakemore,3604904756,"Marketing Source / Thumbtack, Customer Status / CF, Customer Status / Snow Bird",Yes,"235 All windows, 170 no windows on second roof",Unknown
+W_1429,Bill Yost,6126692662,"Marketing Source / Referral, Customer Status / CF, Customer Status / Snow Bird",Yes,230/135 every season 100.00 out only downstairs,
+W_1430,Rik Ports,9493318795,"Marketing Source / Thumbtack, Customer Status / CF",Yes,160.00 Every 4 months ???? - 85.00 Out Only,4 Months
+W_1431,Dawn Hay,2138403296,Marketing Source / Thumbtack,Yes,200 Every ???,
+W_1432,Linda & Mike Pedersen,7603912159,Marketing Source / Home Advisor,Yes,190.00 increase to 200.00,Unknown
+W_1433,Sally & Scott Martin,7143080486,Marketing Source / Referral,,,
+W_1435,Linda  Ron Officer,9512064174,"Marketing Source / Referral, Customer Status / CF",Yes,140/80 every 6 months- Alternating,6 Months
+W_1436,Charon Smith,9518305655,"Marketing Source / Angi, Customer Status / CF",Yes,300 for both condos,
+W_1437,Marjean Powers,9095735796,"Marketing Source / Referral, Customer Status / CF",Yes,125.00 once a year ,12 Months
+W_1438,Shirley Fialko,9097317591,Marketing Source / Referral,Yes,140,
+W_1439,Judy Anderson,2483026358,"Marketing Source / Referral, Customer Status / CF, Customer Status / Snow Bird",Yes,quoted 130.00,12 Months
+W_1440,Barbara Sasman,7608988536,"Marketing Source / Home Advisor, Customer Status / CF",Yes,135,
+W_1441,Norma Gould,7072084735,"Marketing Source / Referral, Customer Status / CF",Yes,85.00 every 4 months,4 Months
+W_1443,Hector Gil,7605787116,"Marketing Source / Home Advisor, Customer Status / CF",Yes,150,
+W_1444,Brooke Coldren,7146068449,"Marketing Source / NextDoor App, Customer Status / CF, Customer Status / Snow Bird",Yes,,
+W_1445,Robert Weiner,9499030499,"Marketing Source / Home Advisor, Customer Status / CF",Yes,22 x 5 = 110.00 - 250/135,Unknown
+W_1448,Dan Saunders,9519726946,,,,
+W_1449,Christian Soto,9513901973,Marketing Source / Repeat Client,Yes,,
+W_1450,Michael Krauss,2135955495,Marketing Source / Home Advisor,,365/185,
+W_1452,Helen & Tom Stewart,6199577720,"Marketing Source / Referral, Customer Status / CF",Yes,140,12 Months
+W_1453,Judy Capps,9092392781,Marketing Source / Referral,Yes,125,
+W_1454,Priscilla Hieber,9512029011,Marketing Source / Referral,Yes,100,
+W_1461,Whitney Lackey,2065790920,"Marketing Source / Thumbtack, Customer Status / CF",Yes,$160.00 Solar -  $260/$130 windows,3 Months
+W_1462,RENEE ROY,9499397839,"Marketing Source / Thumbtack, Customer Status / CF",Yes,160,
+W_1463,Stephen Hatch,4153421396,"Marketing Source / Angi, Customer Status / CF",Yes,$190.00,
+W_1464,Edith Grossi,3124987745,Marketing Source / Angi,,,
+W_1465,Rui Ferreira,7604089994,"Marketing Source / Home Advisor, Customer Status / CF",Yes,210/120 every????,
+W_1466,Todd White,3104879333,"Marketing Source / Angi, Customer Status / CF",Yes,225 inc Mirrors,Unknown
+W_1469,Dottie Gough,7758302407,"Marketing Source / Angi, Customer Status / CF, Customer Status / Snow Bird",Yes,$155 - Atrium removed,Unknown
+W_1470,Anne Sandberg,3109800073,"Marketing Source / Angi, Customer Status / CF",,250.00 every 6 months,
+W_1472,Camille Davidson,6198462727,"Marketing Source / Angi, Customer Status / CF",Yes,"150 In & Out, 75 Solar, $85 exterior",Unknown
+W_1479,Rae Dallas,7608354349,Marketing Source / Angi,Yes,$175.00,
+W_1480,Doug Hardy,9786024547,"Marketing Source / Thumbtack, Customer Status / CF",Yes,80 Every 6 months,
+W_1482,Donna Jean Williams,7603234399,Marketing Source / Angi,,175,
+W_1484,Oscar Arredondo,3105280835,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,75.00 solar every 6 months,6 Months
+W_1486,Wayne Gerry,7608611614,"Marketing Source / Angi, Customer Status / CF",Yes,$90.00,
+W_1487,Kathie Nelson,4254222744,"Marketing Source / Thumbtack, Customer Status / CF, Customer Status / Snow Bird",Yes,145.00 Snowbirds,Unknown
+W_1488,Marvita Grimes,9515411714,Marketing Source / Referral,,75.00 Min,
+W_1493,Pauline Bohm,8184066560,"Marketing Source / Angi, Customer Status / Snow Bird",Yes,250,6 Months
+W_1494,Jeffery Jones,3237912770,"Marketing Source / Referral, Customer Status / TBD",Yes,185.00 Every 4 months ????,6 Months
+W_1498,Wayne Geringer,7609892466,"Marketing Source / Angi, Customer Status / CF",Yes,225.00 Every 6 months - old 200.00,6 Months
+W_1499,Agnes Smith,7145044683,"Marketing Source / Thumbtack, Customer Status / CF",,135.00/70 Every 6 months - Snowbird,
+W_1500,Greg Chevalier,7604067665,"Marketing Source / Springtime Del Webb, Customer Status / CF",Yes,$245+ 80,4 Months
+W_1501,Joan Greene,7245135780,"Marketing Source / Referral, Customer Status / CF",Yes,140/75,
+W_1502,George E Hartmeister,9515993921,"Marketing Source / Angi, Customer Status / TBD",Yes,125,
+W_1503,Mitch Colgan,4153087088,"Marketing Source / Thumbtack, Customer Status / CF",,$5 per panel,
+W_1504,James Krause,9403004505,"Marketing Source / Springtime Del Webb, Customer Status / CF",Yes,245,
+W_1505,Donna Maul,7608082240,"Marketing Source / Yelp, Customer Status / CF",Yes,,
+W_1507,Michelle Proffett,8054433886,"Marketing Source / Springtime Del Webb, Customer Status / CF",,,
+W_1508,Rose Brine,6048181790,"Marketing Source / Angi, Customer Status / CF",Yes,$625/$315,Unknown
+W_1510,Norman Woodel,2245311343,"Marketing Source / Thumbtack, Customer Status / CF",Yes,115.00 Outside; 21 panels x 5 = 105.00,Unknown
+W_1511,Yolanda Funes,9256991872,"Marketing Source / Referral, Customer Status / CF",,$80/160,Unknown
+W_1514,Dana Manciagli,2068491000,"Marketing Source / Thumbtack, Customer Status / CF",Yes,46 x 5 = 230,
+W_1516,Tom McCutchen,7603608686,"Marketing Source / Angi, Customer Status / CF",No,165,
+W_1517,Barbara Barry,2084731176,Marketing Source / Thumbtack,Yes,60 x 5 = 300 every 6 months,
+W_1519,Walter Bendick,6025717600,"Marketing Source / Springtime Del Webb, Customer Status / CF",Yes,,
+W_1520,Sally Rush,7148018836,"Marketing Source / Angi, Customer Status / CF",,,
+W_1521,Don Knutzen,6154813685,"Marketing Source / Thumbtack, Customer Status / CF",Yes,30 x 5 = 150,
+W_1522,Victoria Boehm,9512017499,"Marketing Source / NextDoor App, Customer Status / CF",Yes,160,
+W_1523,Susan Walker Bunnell,8184813491,Marketing Source / Angi,Yes,"$7.00/pane, 25/30/35",
+W_1524,George Frank,6618161071,"Marketing Source / Referral, Customer Status / CF",Yes,225,6 Months
+W_1525,Alice MacKinnon,6268251945,"Marketing Source / Home Advisor, Customer Status / CF",Yes,185/100  75.00 Solar,6 Months
+W_1526,Valerie Schnieders,9494002778,"Marketing Source / Thumbtack, Customer Status / CF",Yes,225.00 changed to 200,Unknown
+W_1527,Riva & Hank Alberts,8182574517,"Marketing Source / Referral, Customer Status / CF",Yes,145,
+W_1528,Gary Gorczyca,7149430628,Marketing Source / Springtime Del Webb,,,
+W_1529,Donna Parrish,7147472084,"Marketing Source / Angi, Customer Status / CF",Yes,120.00/65.00 every 3 months Alternating 400.00 for Pressure Washing,3 Months
+W_1530,Alice Bertaina,7609724168,"Marketing Source / Angi, Customer Status / CF",No,$200,6 Months
+W_1531,Cheryl Robinson,7609363935,"Marketing Source / Referral, Customer Status / CF",Yes,145,
+W_1532,John Ham,8583869551,"Marketing Source / Referral, Customer Status / CF",Yes,75.00 Every 6 Months,6 Months
+W_1533,Bev Hartin,7603184266,Marketing Source / Thumbtack,,,
+W_1534,Joel Mugge,6123849012,"Marketing Source / Thumbtack, Customer Status / CF",Yes,5.00/Panel x 27 Panels = $135.00,6 Months
+W_1535,Alexis Radecki,9497022830,Marketing Source / Thumbtack,Yes,145.00 Every 6 months,
+W_1539,Kerri Harlan,7607024740,Marketing Source / Magnet/Drive By,Yes,32 x 5 = 160,
+W_1542,Barbara Sisson,9072270023,"Marketing Source / Thumbtack, Customer Status / CF",Yes,90,6 Months
+W_1543,Mike Sullivan,7608518023,"Marketing Source / Thumbtack, Customer Status / CF",,90,6 Months
+W_1545,Pat Rotisky,6619045258,"Marketing Source / Referral, Customer Status / CF",,,
+W_1546,Robert Hughes,6199917529,"Marketing Source / Thumbtack, Customer Status / CF",Yes,200 every 6 months,6 Months
+W_1547,Casey Jones,7603092506,"Marketing Source / Thumbtack, Customer Status / OK",Yes,100,Unknown
+W_1548,Cheryl Moody,9493556320,"Marketing Source / Thumbtack, Customer Status / CF",Yes,,
+W_1549,Sylvia Zack,9513126988,"Marketing Source / Referral, Customer Status / CF",Yes,140.00 every 3 months,3 Months
+W_1551,Bob Goldware,4152355402,"Marketing Source / Referral, Customer Status / CF",Yes,225.00 + 90.00,12 Months
+W_1552,Jerry Smith,9518678650,"Marketing Source / Referral, Customer Status / CF",,75 Every 6 months,6 Months
+W_1553,Curtis Collins,3236461596,Customer Status / CF,Yes,255 every 6 months ????,
+W_1555,Kevin Armintrout,4254781782,"Marketing Source / Thumbtack, Customer Status / CF",Yes,300 + 125.00 Solar,6 Months
+W_1556,Michael Valdez,7146001603,"Marketing Source / Referral, Customer Status / CF",Yes,200 + 80 panels (16) + mirror + shower,6 Months
+W_1557,Janet Boyce,9513578560,Marketing Source / Herald,Yes,75,Unknown
+W_1558,Ted Lawe,4423073194,Marketing Source / Home Advisor,,,
+W_1559,Bonnie  Sam Martin,4065398650,"Marketing Source / Referral, Customer Status / CF",Yes,250,Unknown
+W_1560,Carol Wine,7147673023,"Marketing Source / Thumbtack, Customer Status / CF",,,
+W_1561,Adrienne Brailsford,7142255392,"Marketing Source / Thumbtack, Customer Status / CF",Yes,200.00 Per Dan Agreement,6 Months
+W_1562,Pat Whitworth,9514547575,"Marketing Source / Referral, Customer Status / CF",Yes,145.00 Every ???? Maria is the contact,
+W_1564,Jerry Holden,9512292443,Marketing Source / Referral,Yes,80,
+W_1565,Monica Scholl,7145882551,"Marketing Source / Home Advisor, Customer Status / CF",Yes,145,Unknown
+W_1567,Robert Raider,5168164803,Marketing Source / Yelp,Yes,100,
+W_1568,Andre Williams,7604644474,Marketing Source / Thumbtack,,125,
+W_1573,William Freyer,6198460581,"Marketing Source / Thumbtack, Customer Status / TBD",Yes,125,
+W_1574,Pat Sweeney,2068498246,"Marketing Source / Referral, Customer Status / TBD",Yes,90 Every ????,
+W_1575,Dennis Gladu,9513474015,"Marketing Source / NextDoor App, Customer Status / CF",Yes,145,Unknown
+W_1577,REMI KEAHEY,6197570694,"Marketing Source / Thumbtack, Customer Status / CF",Yes,200,
+W_1578,Khan Mahmood,9098556985,"Marketing Source / Referral, Customer Status / CF",Yes,,
+W_1580,Marilyn Wilson,9518130068,"Marketing Source / NextDoor App, Customer Status / CF",Yes,100,Unknown
+W_1581,Cindy Harris,9517044548,Marketing Source / Referral,Yes,160,
+W_1582,Russ Fleer,9515994764,Marketing Source / Referral,No,15 x 5 =75.00,Unknown
+W_1583,Joe Cerni,9496776212,"Marketing Source / Thumbtack, Customer Status / CF",,125,
+W_1584,Bob Hutton,7608083586,"Marketing Source / Referral, Customer Status / CF",Yes,,
+W_1586,Marilyn Edmonds,9517077487,Customer Status / CF,Yes,140,6 Months
+W_1587,Linda Gaddie,8652077798,Marketing Source / Thumbtack,,150,
+W_1588,Amy Pearson,7605077818,"Marketing Source / Thumbtack, Customer Status / CF",Yes,140,6 Months
+W_1591,Desiree Wesson,7602213392,Marketing Source / Referral,Yes,,
+W_1593,Sue Garcia,6304760561,"Marketing Source / Thumbtack, Customer Status / OK",Yes,795/410 try to charge $830.00/430.00,6 Months
+W_1594,Adria Molina,5627143618,Marketing Source / Thumbtack,Yes,160/85 Every 4 months,4 Months
+W_1595,Ed Dismukes,6145065131,"Marketing Source / Thumbtack, Customer Status / CF",Yes,250/125 - 200 solar,Unknown
+W_1596,Kimberly Knoller,3106007627,"Marketing Source / Thumbtack, Customer Status / CF",Yes,175,
+W_1597,Sally Suchil,3104221502,"Marketing Source / Thumbtack, Customer Status / CF",Yes,"80 Pressure wash, 65 out back windows, 115 out all windows",Unknown
+W_1598,Brenda Williams,3107225114,"Marketing Source / Thumbtack, Customer Status / CF",Yes,150/250 Every Month + 30.00 Hand scrub,Unknown
+W_1599,Susan Cornell,7605675210,Marketing Source / Thumbtack,Yes,20 Panels @ 125.00,
+W_1600,Suzanne Sylvester,3128104169,"Marketing Source / Thumbtack, Customer Status / CF",,,
+W_1601,Robert & Sandy Weiner Sr.,9492896871,Marketing Source / Referral,,100,
+W_1602,Ann Stone-Johnson,4036060369,"Marketing Source / Referral, Customer Status / CF",Yes,"300 Windows, 350 Soft Wash",
+W_1603,Paula Marzola,7142621774,"Marketing Source / Yelp, Customer Status / Snow Bird",Yes,,
+W_1604,Kay Legge,6046494267,Marketing Source / Thumbtack,Yes,,
+W_1605,Donna Sturgeon,7608618288,Marketing Source / Thumbtack,,150,
+W_1606,Shelley Bayer,8053415345,"Marketing Source / Thumbtack, Customer Status / CF",Yes,,
+W_1610,Mary Carolan,4159998704,"Marketing Source / Referral, Customer Status / Snow Bird",Yes,650,
+W_1611,Sharon Soper,6048802130,"Marketing Source / Referral, Customer Status / CF",Yes,175.00/95.00,Unknown
+W_1614,Linda Hacecky,2102682741,Marketing Source / Angi,,,
+W_1615,Shauna Holley,8015209464,Marketing Source / Thumbtack,,"140 win in&out;, 140 panels",4 Months
+W_1618,Lisa Scarpelli,7605788344,"Marketing Source / Google, Customer Status / OK",Yes,"155 every quarter windows, $100 every quarter solar",3 Months
+W_1621,Dave & Deborah  Cooper,3036011437,"Marketing Source / Thumbtack, Customer Status / CF, Customer Status / Moved",,,
+W_1623,John Dotinga,9519666057,Marketing Source / Referral,Yes,145/80,
+W_1625,Carol Callaghan,7606991133,"Marketing Source / Angi, Customer Status / Snow Bird",Yes,85,12 Months
+W_1626,Diana Hawley,7147428942,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,130 outside & 100.00 Solar,Unknown
+W_1627,Reggie Campbell,7802427126,"Marketing Source / Referral, Customer Status / Snow Bird",,150,
+W_1629,James Ashby,6046442254,"Marketing Source / Thumbtack, Customer Status / CF",,235,Unknown
+W_1631,Sarah Zender,3607393854,"Marketing Source / Referral, Customer Status / CF",Yes,300,
+W_1632,Philip Ham,8583869551,Marketing Source / Referral,Yes,80,12 Months
+W_1633,Jordan Hall,9096536351,"Marketing Source / Home Advisor, Customer Status / CF",Yes,250/150,3 Months
+W_1634,Tracy Rogers,8583420441,Marketing Source / Referral,,,
+W_1635,Tami Forester,9513250098,Marketing Source / Home Advisor,,,
+W_1637,Kathy Malarkey,6512781248,Marketing Source / Referral,Yes,145,Unknown
+W_1641,Ray Johnson,6614337050,"Marketing Source / Referral, Customer Status / CF, Customer Status / Snow Bird",Yes,240,12 Months
+W_1644,Bart & Sue Ogburn,2069154331,"Marketing Source / Angi, Customer Status / TBD",,150,Unknown
+W_1649,Stephanie Cooper,7609142250,"Marketing Source / Thumbtack, Customer Status / CF, Customer Status / Snow Bird, Customer Status / OK",Yes,500.00/225.00,Unknown
+W_1653,Jim & Pat Hayner,5093017038,"Marketing Source / Referral, Customer Status / CF, Customer Status / Snow Bird",Yes,290,Unknown
+W_1655,Mary O'Hagan,8053319700,"Marketing Source / Referral, Customer Status / CF",Yes,185,Unknown
+W_1663,Suzzane Spenser,8185155793,Marketing Source / Thumbtack,,,
+W_1664,Leon Hurwitz,4156867433,Marketing Source / Thumbtack,,,
+W_1665,Jeff Barber,6262338770,"Marketing Source / Referral, Customer Status / CF",Yes,$250.00/$140.00 + 32 Panels @ 5.00,3 Months
+W_1666,Anthony & Suzy Filippi,7168675696,"Marketing Source / Referral, Customer Status / CF, Customer Status / Snow Bird",Yes,185.00/95.00,4 Months
+W_1667,Donna Gagnon,2042261913,"Marketing Source / Thumbtack, Customer Status / CF",Yes,320.00/170.00,Unknown
+W_1668,Linda Stoddart,7605744026,"Marketing Source / Thumbtack, Customer Status / OK",Yes,195,6 Months
+W_1669,Vaughn Spofford,7608348885,"Marketing Source / Thumbtack, Customer Status / CF, Customer Status / Snow Bird",,,
+W_1672,Roni Palmetier,7603903414,"Marketing Source / Referral, Customer Status / CF",Yes,150,Unknown
+W_1673,David Cox,7747228434,Marketing Source / Thumbtack,Yes,$415.00/220,Unknown
+W_1674,Kathy Anderson,9515994039,"Marketing Source / Referral, Customer Status / CF",No,150.00/80.00,3 Months
+W_1675,Betty Young,5306352922,,,145,
+W_1676,Alexander Burck,7073910234,Marketing Source / Thumbtack,Yes,200,Unknown
+W_1678,Stacey Eisner,4129770057,Marketing Source / Magnet/Drive By,Yes,250 Special Price - Competition,Unknown
+W_1679,Maxine Newlove,9512369729,"Marketing Source / Referral, Customer Status / CF",,150/85,6 Months
+W_1681,Linda Rawlings,7607998811,Customer Status / CF,,180,
+W_1684,Valerie Odell,4106103384,"Marketing Source / Referral, Customer Status / CF",Yes,150/80 Qtr Alt - I told her we raised prices - old was 140/70,3 Months
+W_1685,Carolyn Straub,9517195354,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,"160.00/85.00, also clean French doors - 100.00 total",Unknown
+W_1686,Susan McKenna,2485061804,Marketing Source / Referral,Yes,120????,Unknown
+W_1687,Shaun Wright,9095395684,"Marketing Source / Thumbtack, Customer Status / CF",Yes,5 x 16 = 80,3 Months
+W_1688,Mick Scharbrough,9285669582,Marketing Source / Referral,Yes,80 5 x 16,Unknown
+W_1689,Russ Williamson,9512043970,"Marketing Source / Referral, Customer Status / CF",Yes,150,Unknown
+W_1690,Rosemary Endress,4692516288,Customer Status / CF,Yes,150,3 Months
+W_1691,Gary Marsalone,8586631201,"Marketing Source / Thumbtack, Customer Status / CF",Yes,145/85    75,6 Months
+W_1693,Brenda Napier,7143341387,Marketing Source / Angi,Yes,155,Unknown
+W_1694,Iver/Glenn Nielsen,2022572567,"Marketing Source / Thumbtack, Customer Status / CF",Yes,190.00/100.00 & 75.00 Solar - Solar 6 months also May/Oct,6 Months
+W_1695,Joan Flickinger,9516639743,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,80,3 Months
+W_1696,Tom Melody,6193167691,Marketing Source / Thumbtack,,185 est,
+W_1697,Theodore Flegel,5418154235,"Marketing Source / Thumbtack, Customer Status / CF",,150,6 Months
+W_1698,Leo Bodrov,8182316513,"Marketing Source / Referral, Customer Status / CF",Yes,100,6 Months
+W_1699,Tracy Harper,9494668004,Marketing Source / Thumbtack,Yes,150,Unknown
+W_1700,Gayle Ormond,9492828300,"Marketing Source / Referral, Customer Status / CF",Yes,175 + 20 shower,3 Months
+W_1701,Fernando Hernandez,5625724648,Marketing Source / Thumbtack,,125,
+W_1702,Randy DeWeese,9512828197,Marketing Source / Thumbtack,,80,
+W_1703,Oren Adar,4074628884,"Marketing Source / Thumbtack, Customer Status / CF",Yes,175,Unknown
+W_1706,Rhonda Phillips,8478005385,"Marketing Source / Referral, Customer Status / CF",Yes,"$150 Windows In & Out, Solar $75.00, 85.00 Exterior",Unknown
+W_1707,Gary Houck,7073072383,Marketing Source / Referral,,95,4 Months
+W_1710,Maggie Picker,9514909856,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,,
+W_1712,Clark Argeris,7608084703,"Marketing Source / Thumbtack, Customer Status / CF",Yes,220 agreement this time only,
+W_1713,Terence Maguire,2062952737,"Marketing Source / WASC Web Site, Customer Status / CF",Yes,150,Unknown
+W_1714,Kenneth Theriault,5104354854,Marketing Source / Thumbtack,,,
+W_1717,Henry Salvidor,7144128284,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,$145/$75,Unknown
+W_1718,Bob Fussell,9513887641,"Marketing Source / Referral, Customer Status / CF, Customer Status / Moved",Yes,140,Unknown
+W_1720,Rita Johnson,6307151602,"Marketing Source / Thumbtack, Customer Status / CF",Yes,185,4 Months
+W_1721,Naresh Bellara,9515228796,"Marketing Source / Referral, Customer Status / CF",Yes,5 * 23 = 115,12 Months
+W_1724,Kevin Odenbaugh,7606259992,Marketing Source / Thumbtack,Yes,125,3 Months
+W_1725,Steven Hess,7075375287,Marketing Source / Thumbtack,Yes,$200.00 Solar - $90.00 Outside,Unknown
+W_1727,Chris Swift,6198572211,"Marketing Source / Referral, Customer Status / CF",,160,Unknown
+W_1728,Rod & Becky Hahn,3233695008,"Marketing Source / Thumbtack, Customer Status / CF",Yes,350.00 includes 2 skylights,Unknown
+W_1729,Debbie Frazier,9492462196,Marketing Source / Referral,Yes,22 x 5 = 110,
+W_1731,Ellen Stutz,6193185058,Marketing Source / Thumbtack,Yes,5,Unknown
+W_1733,John & Dawson Bullock,5026495321,"Marketing Source / Referral, Customer Status / CF",Yes,295,Unknown
+W_1735,William Johnston,7606739366,"Marketing Source / Thumbtack, Customer Status / CF",Yes,80.00 (10 Panels),6 Months
+W_1737,Rick Kammerer,5133652826,"Marketing Source / Referral, Customer Status / CF",Yes,175 changed to 150 by Dans S.,Unknown
+W_1739,Danette Rodgers,9513034014,Marketing Source / Magnet/Drive By,Yes,,
+W_1740,Sharon Odenbaugh,7602183774,Customer Status / CF,Yes,$5.00/panel,Unknown
+W_1741,Janice Record,9167045576,"Marketing Source / Referral, Customer Status / CF",Yes,145,6 Months
+W_1745,Bill Schroeder,9175824953,"Marketing Source / Thumbtack, Customer Status / OK",,300/150,6 Months
+W_1746,Karen Bellamy,2535797099,"Marketing Source / Thumbtack, Customer Status / CF",Yes,"220 Solar, 580 Window inside & outside",3 Months
+W_1747,Minia Esparza,9092627341,Marketing Source / Referral,Yes,145,Unknown
+W_1753,Suzy Callahan,8473310017,Marketing Source / Magnet/Drive By,Yes,200 - Cash 180,Unknown
+W_1759,Annie Marsalone,9098169499,Customer Status / CF,Yes,,
+W_1760,Jessica Johnson,7605676895,"Marketing Source / Thumbtack, Customer Status / CF",,225,Unknown
+W_1761,Dan Brouilley,9522212595,"Marketing Source / Thumbtack, Customer Status / CF",Yes,200,3 Months
+W_1763,Rochelle Lozdon,8182098609,Customer Status / CF,Yes,,
+W_1764,Toney Lawson,2096492587,Marketing Source / Referral,,,
+W_1765,Darlean Sugameli,7608092242,Customer Status / CF,,,
+W_1766,Al Garces,5626314484,,Yes,70,Unknown
+W_1767,Art Clifford,5096701242,"Marketing Source / Thumbtack, Customer Status / CF",,,
+W_1769,Anita Saunders,9514404567,,Yes,,
+W_1772,Ken Morris,7604224770,"Marketing Source / Thumbtack, Customer Status / CF",Yes,150,Unknown
+W_1773,Chuck McBride,7602755481,"Marketing Source / Thumbtack, Customer Status / CF",Yes,230 In & Out,4 Months
+W_1775,Christopher Brown,3233500225,"Marketing Source / Thumbtack, Customer Status / CF",Yes,250.00 Est,Unknown
+W_1777,Barbara Rago,9512641516,"Marketing Source / Referral, Customer Status / CF",Yes,25 x 5/panel,6 Months
+W_1778,Les Berkey,7608995770,Marketing Source / Referral,Yes,,
+W_1779,Kelly Dower,7148764559,Marketing Source / Referral,Yes,,
+W_1780,Trudy Roony,9132205536,"Marketing Source / Referral, Customer Status / CF",Yes,400/150,Unknown
+W_1781,Gene Hurtig,4086857217,"Marketing Source / Home Advisor, Customer Status / Ok",,75,6 Months
+W_1783,Bud Piraino,9512654217,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,85,12 Months
+W_1784,Robyn Pierce,5035932013,"Marketing Source / Referral, Customer Status / Snow Bird",Yes,150,12 Months
+W_1785,Andy Willinger,3107131952,"Marketing Source / Thumbtack, Customer Status / CF",Yes,190,6 Months
+W_1786,Steve Acree,4425292983,"Marketing Source / Thumbtack, Customer Status / CF",Yes,250-295,6 Months
+W_1787,Juanita Godwin,7605416878,Marketing Source / Home Advisor,Yes,,
+W_1791,Walter  Garrison,6619728580,Customer Status / CF,,,
+W_1792,Jose Bugarin,9492357977,Marketing Source / Thumbtack,,175,Unknown
+W_1794,Barbara Little,4157263535,Marketing Source / Referral,Yes,195,Unknown
+W_1796,Terri Jones,7144698710,,,,
+W_1797,Ed Bakosh,9518678506,,,,
+W_1799,Sharon Sims,9516642784,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,150,6 Months
+W_1800,Sally Walsh,9515378421,"Marketing Source / Referral, Customer Status / CF",Yes,150,3 Months
+W_1801,Steve Witters ,7075709044,Marketing Source / Referral,,,
+W_1802,Bill Mayhall,9099386611,"Marketing Source / Referral, Customer Status / CF",,,
+W_1804,Eliza Prall,3035884174,"Marketing Source / Home Advisor, Customer Status / CF",Yes,,
+W_1806,Diane Billings,7604977772,Marketing Source / Referral,Yes,140,Unknown
+W_1807,Larry Sanberg,9516394750,"Marketing Source / Magnet/Drive By, Customer Status / CF, Customer Status / Star",Yes,160,Unknown
+W_1808,Linda Willingham,9092395516,"Marketing Source / Home Advisor, Customer Status / CF",Yes,145,Unknown
+W_1809,Kevin Hile,7606198882,"Marketing Source / Thumbtack, Customer Status / CF",,,
+W_1812,Jackie Peterson,9515999904,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,150 + 10.00 garage,Unknown
+W_1813,Robert Wilcox,3125055264,"Marketing Source / Web Site, Customer Status / CF",Yes,$75,6 Months
+W_1815,Bill Blane,4077123047,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,185.00 plus 75.00 solar,6 Months
+W_1817,Kristin Acker,2069310667,Customer Status / Ok,,200,
+W_1822,Tom Kelly,9517646074,Customer Status / CF,Yes,75.00 min - 5.00/panel,Unknown
+W_1823,Larry Fraser,4155151040,"Marketing Source / Thumbtack, Customer Status / CF",,,
+W_1824,Bruce Johnson,9516094161,Customer Status / CF,,min $75.00 5.00 per panel,Unknown
+W_1825,Anny & Karl Hogquist,3106632906,"Marketing Source / Referral, Customer Status / CF",Yes,24 x 5 =120.00,Unknown
+W_1827,Tom John,9519702840,"Marketing Source / Referral, Customer Status / OK",,290 Actual Quote,
+W_1828,Steve Kosta,9514429125,Customer Status / Moved,,160,
+W_1830,Andy Kustas,6039860249,"Marketing Source / Referral, Customer Status / CF",Yes,175.00 Est,Unknown
+W_1831,Sydney Ann Leonard,7603453105,"Marketing Source / Thumbtack, Customer Status / CF",,,
+W_1832,LD Fowler,9514898621,"Marketing Source / Magnet/Drive By, Customer Status / CF",Yes,5*18=90.00,Unknown
+W_1833,Jerome King ,6194109499,Customer Status / CF,,75,
+W_1835,Lilian  Togo,6268410076,"Marketing Source / Referral, Customer Status / CF",Yes,,
+W_1836,William Smith,7604085907,"Marketing Source / Angi, Customer Status / CF",,,
+W_1837,Jim Leal,5107145638,"Marketing Source / Referral, Customer Status / CF",Yes,160,
+W_1838,Sue Johnson,5623046370,Marketing Source / Home Advisor,Yes,185,3 Months
+W_1840,Mary Lou Caldwell,9515159173,Customer Status / CF,,,
+W_1841,Rosemary Villegas,7144226134,Customer Status / CF,Yes,185-230,Unknown
+W_1845,Marilyn Mason,4356699745,"Marketing Source / Referral, Customer Status / CF",,95,Unknown
+W_1846,John Evanoff,7603997922,"Marketing Source / Thumbtack, Customer Status / CF",,,
+W_1847,Phil & Fran Ciulla,6265240862,"Marketing Source / Referral, Customer Status / CF",Yes,$225 should be $275.00 min,Unknown
+W_1849,Ron Dilaura,7608760704,"Marketing Source / Home Advisor, Customer Status / CF",,170-195,
+W_1853,Barbara Garner,4084168482,"Marketing Source / Referral, Customer Status / CF",Yes,150,Unknown

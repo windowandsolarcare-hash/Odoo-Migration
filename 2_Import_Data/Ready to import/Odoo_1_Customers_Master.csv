@@ -1,0 +1,563 @@
+id,name,email,mobile,category_id,x_is_landline,comment,is_company,x_ok_to_text,x_frequency,x_type_of_service,x_alternating,x_pricing
+__export__.res_partner_client_1001,Walter  Marsha Robinson,wrobinson875@yahoo.com,3108740892.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,,False,Yes,3 Months,Maintenance,No,$75.00 every 3 months Outside Only
+__export__.res_partner_client_1002,Nancy & Bob McDonald,bobomc@msn.com,9519661774.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,100.00 Every 3 months
+__export__.res_partner_client_1003,Larry And Teresa Ballinger,,9514405442.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,,False,Yes,4 Months,Maintenance,No,185.00 Every 4 months always in and out
+__export__.res_partner_client_1004,Tom Swanson,tswanson26@live.com,9519234077.0,"Service Area / All areas,Marketing Source / Ryan Fewster",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1005,Tari  Harv Fischer,,9515364995.0,"Service Area / All areas,Marketing Source / Ryan Fewster",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1006,Roberta Davis,Misserdog@outlook.com,5109172050.0,"Marketing Source / Ryan Fewster,Service Area / Hemet,Customer Status / OK",False,Alt Phone: 9512233836.0,False,Yes,4 Months,Maintenance,1.0,140/70 every 4 months Alternating
+__export__.res_partner_client_1007,Marie Bach,,9513255610.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",True,Alt Phone: 9517195084.0,False,No,On Request,Unknown,No,130 In & Out Every 3 months
+__export__.res_partner_client_1008,Hazel  Rick Farney,,9513257858.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",True,Alt Phone: 9512609490.0,False,No,On Request,Unknown,No,
+__export__.res_partner_client_1009,David Soto,,5625334807.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9519261968.0,False,Yes,On Request,Unknown,No,$120 Every 3 Months
+__export__.res_partner_client_1010,Marilyn & Richard Short,,9519253650.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",True,,False,No,On Request,Unknown,No,195.00 Every year in & out
+__export__.res_partner_client_1011,Mette Haydt,mettehaydt@outlook.com,8184219286.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9513255479.0,False,Yes,3 Months,Maintenance,No,$140.00 In & Out - $65.00 Every 3 months - Outside Only
+__export__.res_partner_client_1012,Diana & Herbert Ruppert,,9515994021.0,"Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9516925790.0,False,Unknown,On Request,Unknown,No,$50.00/Out Only
+__export__.res_partner_client_1013,Charles  Yraida Roberts,,9514226171.0,"Service Area / All areas,Marketing Source / Repeat Client",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1014,Trudy & Randolph Rades,,9515990237.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,Alt Phone: 7602133794.0,False,Unknown,On Request,Unknown,No,135.00 in & out
+__export__.res_partner_client_1015,Marie White,cwmw430@yahoo.com,9516920036.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9519261868.0,False,Yes,4 Months,Maintenance,No,150 every 4 months
+__export__.res_partner_client_1016,Blair  Irene Becker,163blair@gmail.com,9512821793.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,,False,Yes,4 Months,Maintenance,No,85.00 Every 4 months
+__export__.res_partner_client_1017,Cindy & Ben Carlow,,9513574598.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",True,,False,No,On Request,Unknown,No,100/50 Every 3 months - Alternating
+__export__.res_partner_client_1018,Zenaida De Jesus,,8183036908.0,"Marketing Source / NextDoor App,Service Area / All areas",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1019,Bill & Karen Robertson,krobertson45@cox.net,9493223672.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Repeat Client",True,Alt Phone: 9493223672.0,False,No,On Request,Unknown,No,80.00 Outside every 6 months
+__export__.res_partner_client_1020,Pat Powers,powersful85@yahoo.com,9517583909.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,200/100 Every 3 Months
+__export__.res_partner_client_1022,Dena  Sidney Cohen,,9512233681.0,"Service Area / Hemet,Marketing Source / Herald",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1023,Joseph Merritt,,8583362033.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9513923345.0,False,Yes,6 Months,Maintenance,No,110.00 Every 6 Months In & Out
+__export__.res_partner_client_1024,Jeanne  Robert Porter,,5624207339.0,"Service Area / All areas,Marketing Source / Ryan Fewster",False,Alt Phone: 9513250842.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1025,Grace Kaelin,tomngrace@yahoo.com,9512040179.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9512600394.0,False,Yes,4 Months,Maintenance,No,110.00 In & Out Every 4 Months
+__export__.res_partner_client_1026,Patty Seabock,club.pattyann@gmail.com,9092297017.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,$120 In & Out Every 4 months
+__export__.res_partner_client_1027,Carol  Jack Anderson,carola52@verizon.net,9518371761.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9519234372.0,False,Yes,6 Months,Maintenance,No,$140 Every 6 months Always In & Out - April/Oct
+__export__.res_partner_client_1028,Sharon & Jeff Carow,,8583543879.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9519262512.0,False,Yes,On Request,Unknown,No,$130 Every 4 Months In & Out
+__export__.res_partner_client_1029,Cleta Calston,,9492786765.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,On Request,Unknown,No,140/75
+__export__.res_partner_client_1030,Julie Beech,bobbeechsr@yahoo.com,9513135365.0,"Customer Status / TXT SENT,Service Area / Hemet,Marketing Source / Herald",False,Alt Phone: 9513135365.0,False,Yes,On Request,Unknown,No,145/85
+__export__.res_partner_client_1031,Ruby Weaver,rahweaver@gmail.com,8013910068.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9519267553.0,False,Yes,4 Months,Maintenance,No,100.00 In & Out Every 4 Months used to 3 months - my change
+__export__.res_partner_client_1032,Alice Hatcher,ladeepoo3@yahoo.com,9516777166.0,"Customer Status / TBD,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,On Request,Unknown,No,145.00/80 Every 4 months Alternating
+__export__.res_partner_client_1033,Lanny And Sue Lund,Sandllund@msn.com,9255960419.0,"Customer Status / CF,Marketing Source / Note Card,Service Area / Hemet",False,Alt Phone: 9255960419.0,False,Yes,4 Months,Maintenance,No,$160/$85 Every 4 Months In & Out
+__export__.res_partner_client_1034,Jeanne Farris,,9516928912.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,Alt Phone: 9512233295.0,False,Yes,Unknown,Unknown,No,80.00 Outside
+__export__.res_partner_client_1035,Chris Pounders,chrissypounders@gmail.com,9512494415.0,"Customer Status / CF,Marketing Source / Note Card,Service Area / Hemet",False,Alt Phone: 9515994626.0,False,Yes,On Request,Unknown,No,$130/$70 Every 4 months Alternating This time 145.00
+__export__.res_partner_client_1036,Janet & William Wichman,janggma@gmail.com,9516529605.0,"Customer Status / CF,Service Area / Hemet",True,,False,No,On Request,Unknown,No,
+__export__.res_partner_client_1037,Dorothy & Robert Farmer,bfsunshine88@gmail.com,9514921218.0,"Service Area / Hemet,Customer Status / OK,Marketing Source / EDDM",False,,False,Yes,4 Months,Maintenance,No,$115.00 + 2.00/wet screen Every 4 months/ 85.00 Outside
+__export__.res_partner_client_1038,Jim & Suanne Harris,jimandsuanne@hotmail.com,2533892247.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,160/80 Every 4 months Alternating
+__export__.res_partner_client_1039,Sandy And John King,sniel2000@yahoo.com,7073372886.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 7073375464.0,False,Yes,4 Months,Maintenance,1.0,140/75 Every 4 months Alternating Service
+__export__.res_partner_client_1040,Jean Faenza,,8058131909.0,"Marketing Source / Referral,Service Area / All areas",False,Alt Phone: 9514922380.0,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1041,Joan Strickler,,9513066924.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / EDDM",False,,False,Yes,On Request,Unknown,No,100.00 in & out
+__export__.res_partner_client_1042,Dana Strickler,,9518010422.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / EDDM",False,Alt Phone: 9093765268.0,False,Yes,4 Months,On Request,No,34 Panels x 5 = 170.00
+__export__.res_partner_client_1043,Dianne Hourscht,diannevaezhours@aol.com,9518181008.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Repeat Client",False,Alt Phone: 9518182658.0,False,Yes,3 Months,Maintenance,1.0,125.00/65.00 Every 3 months
+__export__.res_partner_client_1044,Linnea Rowden,hrlr8780@Yahoo.com,6266224628.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / EDDM",False,Alt Phone: 9515994894.0,False,Yes,3 Months,Maintenance,1.0,160/85 Every 3 months - Alternating
+__export__.res_partner_client_1045,Ronda Noriega,Rondanoriega@yahoo.com,9095537042.0,"Service Area / All areas,Marketing Source / Herald",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1046,Ernie Way,lonewolf513m@hotmail.com,9515999179.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,$70 Every 3 Months - Outside
+__export__.res_partner_client_1047,Mary Ellen & Ron Brogdon,,8583367394.0,"Customer Status / CF,Marketing Source / Ryan Fewster,Service Area / Hemet",False,Alt Phone: 9516581361.0,False,Yes,On Request,Unknown,No,120/60 Every 3 Months
+__export__.res_partner_client_1048,Linda Ron Cordero,lindaruthcordero@gmail.com,9098688449.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,135
+__export__.res_partner_client_1050,Annette Smith,,9516630949.0,"Service Area / All areas,Marketing Source / Ryan Fewster",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1052,Van & Carole Eychaner,ceychaner001@roadrunner.com,7145016456.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,Alt Phone: 9519267391.0,False,Yes,On Request,Maintenance,No,145 Every 9 months
+__export__.res_partner_client_1053,Judy & Bob McManus,,9512233376.0,"Service Area / All areas,Marketing Source / Ryan Fewster",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1054,Bob Beech (2),,9092282580.0,"Service Area / All areas,Marketing Source / EDDM",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1055,Walter & Janice Hasbach,w_hasbach@verizon.net,9519298489.0,"Service Area / All areas,Marketing Source / Ryan Fewster",False,Alt Phone: 9512145743.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1057,Debbie & Jim Barker,,,"Service Area / All areas,Marketing Source / Ryan Fewster",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1059,Toni Hernandez,leonardtoni@gmail.com,9513157849.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / EDDM",False,,False,Yes,12 Months,On Request,No,100.00 Yearly
+__export__.res_partner_client_1063,Bill Muncy,amgysgt@earthlink.net,9515994972.0,"Service Area / All areas,Marketing Source / Note Card",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1064,Robert Mazochi,,9517126060.0,"Marketing Source / NextDoor App,Service Area / All areas",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1065,Kay Masonbrink,kmasonbrink@roadrunner.com,6192483706.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 9512233047.0,False,Yes,4 Months,Maintenance,No,140.00 Every 4 to 5 Months In & Out - New 145.00
+__export__.res_partner_client_1067,John & Seija Lewis,jhlewis5@gmail.com,9497011247.0,"Customer Status / CF,Marketing Source / Note Card,Service Area / Hemet",False,Alt Phone: 9515994569.0,False,Yes,On Request,Unknown,No,145 In & out Every 4 months
+__export__.res_partner_client_1068,John Baily,,3252015145.0,"Marketing Source / NextDoor App,Service Area / All areas",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1069,Nita Staley,chocl8lab12@yahoo.com,7604208980.0,"Marketing Source / NextDoor App,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1071,Jonie Kipling,,6319742289.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 9515994387.0,False,Yes,4 Months,Maintenance,1.0,140.00/75 Every 4 to 5 months - Alternating
+__export__.res_partner_client_1072,Marti Bartlett,bartlettmarti@gmail.com,2398985234.0,"Customer Status / CF,Marketing Source / Note Card,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,"140 every 6 months, 15 x 5 =75 solar, 25 for gutters"
+__export__.res_partner_client_1074,Caroline  Graham Ashford,ashfordmail4@gmail.com,9517645146.0,"Customer Status / CF,Marketing Source / Note Card,Service Area / Hemet",False,Alt Phone: 9517643973.0,False,Yes,4 Months,Maintenance,1.0,$145/$75 Every 4 months Alternating
+__export__.res_partner_client_1075,Jean & Charles Farr,jarfarr@gmail.com,7024206643.0,"Service Area / All areas,Marketing Source / Magnet/Drive By",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1076,Barbara Cameron,,9519260725.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",True,,False,No,Unknown,On Request,No,125.00 Every 6 months or so
+__export__.res_partner_client_1077,John  Sonia Duffy,sskiermejd@yahoo.com,9516402939.0,"Marketing Source / Referral,Service Area / Hemet,Customer Status / OK",False,,False,Yes,4 Months,Maintenance,1.0,75 & 145.00 Every 4 months Alternating
+__export__.res_partner_client_1079,Mark Seiler,,9512369904.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,3 Months,Maintenance,No,150.00 + 125 solar
+__export__.res_partner_client_1080,Art Martel,,9099738208.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,4 Months,Maintenance,1.0,140/75 Every 4 months Alternating
+__export__.res_partner_client_1081,Mamie Leaton,,9515877014.0,"Service Area / All areas,Marketing Source / Ryan Fewster",True,Alt Phone: 9515877014.0,False,No,On Request,Unknown,No,
+__export__.res_partner_client_1082,Nanette Trentini,trentini92545@yahoo.com,9512334681.0,"Marketing Source / Referral,Service Area / All areas",False,,False,Yes,On Request,Unknown,No,7.00/Pannel
+__export__.res_partner_client_1083,Bertha and Richard  Sanchez,ricsanz1@earthlink.net,6262903536.0,Marketing Source / Magnet/Drive By,False,,False,Unknown,On Request,Unknown,No,V
+__export__.res_partner_client_1084,Mary Ellen 1 & Ron Brogdon,,8583367394.0,"Service Area / All areas,Marketing Source / Note Card",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1085,Larry Salinas,salinasaerospace@aol.com,7609548785.0,"Customer Status / CF,Customer Status / WAIT,Service Area / Desert,Marketing Source / EDDM",False,,False,Yes,6 Months,Maintenance,1.0,150.00 In and Out/ 85.00 out only - 2 times a year Alternating
+__export__.res_partner_client_1086,Dean & Linda Gordon,gordonschatter@gmail.com,9516520810.0,"Marketing Source / Referral,Service Area / All areas",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1088,Renee TenBruggencate,reneetb61@gmail.com,6267336265.0,"Marketing Source / Referral,Service Area / All areas",False,,False,Unknown,On Request,Unknown,No,90
+__export__.res_partner_client_1089,Bill & Nancy Ward,billynanc03@gmail.com,9092403066.0,"Customer Status / CF,Marketing Source / Note Card,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,$70 outside only & $5 per panel
+__export__.res_partner_client_1097,Maria Natenson,,9519262098.0,"Marketing Source / Referral,Service Area / All areas",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1098,Charles & Barbara Moorefew,Cmbm49@msn.com,7203418409.0,"Service Area / All areas,Marketing Source / Magnet/Drive By",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1099,Roxanne Sullivan,,9099817507.0,"Marketing Source / NextDoor App,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,140
+__export__.res_partner_client_1102,Dot Gallahan,,9512172774.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,Unknown,Unknown,No,145/75
+__export__.res_partner_client_1117,Barbara & John Bueler,barbuel7@yahoo.com,9097546206.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,On Request,No,150
+__export__.res_partner_client_1123,Toni Harris,,6265103844.0,"Customer Status / CF,Marketing Source / Note Card,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,1.0,75.00 Every 6 months/145.00
+__export__.res_partner_client_1124,Ron Finnila,Ronald_finnila@yahoo.com,8058953918.0,"Service Area / All areas,Marketing Source / Herald",False,Alt Phone: 9513906546.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1126,Nancy Hughes,nkhughes1@aol.com,9512826191.0,"Marketing Source / Referral,Service Area / Hemet,Customer Status / OK",False,,False,Yes,4 Months,Maintenance,1.0,$145.00/$75 Every 4 months Alternating Services
+__export__.res_partner_client_1128,Vince Russo,Vince.barb46@gmail.com,4259412841.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,4 Months,Maintenance,1.0,Every 4 months - $145.00 In & Out $80.00 Out Only 6.00/Panel Solar $2.00/Wet Screen
+__export__.res_partner_client_1131,Barbara Bueler,barbuel7@yahoo.com,9097546206.0,"Service Area / All areas,Marketing Source / Repeat Client",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1132,Cynthia & Orville Ellingworth,Cynthia0430@verizon.net,6196726777.0,"Marketing Source / NextDoor App,Service Area / All areas",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1133,Tom Gruden,Grudentom@gmail.com,9092296519.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,On Request,Unknown,No,145/75 every 6 months alternating
+__export__.res_partner_client_1134,Mark Egge,,9512350894.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1135,Mark & Sarah Fredricksen,,9515261488.0,"Customer Status / CF,Marketing Source / Note Card,Service Area / Hemet",False,Alt Phone: 9515264919.0,False,Yes,4 Months,Maintenance,1.0,150/85 every 4 months Alternating
+__export__.res_partner_client_1136,Janis Zimmerman,Janzmr.chgo@yahoo.com,6783829209.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1137,Leslie Bucari,Lbucari@yahoo.com,3107143535.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,140 Every ????
+__export__.res_partner_client_1138,Sharon Weissmann,fweissmann@sbcglobal.net,3143690792.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 9515990103.0,False,Unknown,On Request,Unknown,No,$85.00 Not Sure of Freq./145
+__export__.res_partner_client_1140,Wayne Snyder,wtskas@gmail.com,8184557728.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,145/75 Every 6 Months... Alternating
+__export__.res_partner_client_1141,Nancee Gauthier,Nancee.gauthier@yahoo.com,6266649696.0,"Marketing Source / Referral,Service Area / Hemet,Customer Status / TBD",False,,False,Yes,12 Months,On Request,No,90
+__export__.res_partner_client_1142,Barbra Balser,,7604703968.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,4 Months,Maintenance,No,$150.00 every 4 months solar $85.00
+__export__.res_partner_client_1145,John Stafford,Jcsconstr@cox.net,6197871602.0,"Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,Unknown,On Request,No,150.00 In & Out
+__export__.res_partner_client_1147,Fran Kaufman,cstokid1@aol.com,7607747461.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1150,Karen Raker,karenlraker@gmail.com,5083693544.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,Alt Phone: 5083693544.0,False,Yes,6 Months,On Request,No,100
+__export__.res_partner_client_1151,Laura Gregory,88princetondrive@gmail.com,7607033405.0,"Customer Status / Snow Bird,Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,Alt Phone: 7603186541.0,False,Yes,6 Months,On Request,No,275/140
+__export__.res_partner_client_1153,Kirstin Shiels,kserendipity@msn.com,2069485801.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,70.00 In & Out
+__export__.res_partner_client_1154,Norbert & Bing Schreiber,npusa@earthlink.net,9513760180.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 6612025672.0,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1155,Joy Hodge,joyrux@me.com,4802394292.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,$75.00 Quarterly
+__export__.res_partner_client_1158,Jose Merelies,Mireles1955@icloud.com,9515901843.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / EDDM",False,,False,Yes,3 Months,Maintenance,1.0,145/75
+__export__.res_partner_client_1159,Laura Patton,laquintalaurie@hotmail.com,7607744110.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,185
+__export__.res_partner_client_1160,Peggy Burlingham,peggy@yahoo.com,5622048579.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,155
+__export__.res_partner_client_1161,Jackie Macmillan,5_macs@comcast.net,5033207027.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,$200 for both
+__export__.res_partner_client_1166,Stacey McDonald,,5038282982.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,130
+__export__.res_partner_client_1171,Fred Nelson,fnelson487@sbcglobal.net,6306616061.0,"Marketing Source / Home Advisor,Service Area / Desert,Customer Status / TBD",False,Alt Phone: 7606567385.0,False,Yes,On Request,Unknown,No,285.00/150.00 Every 6 Months
+__export__.res_partner_client_1172,Claudette Bidgood,fireants@h0tmail.com,4157138815.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,175.00/100
+__export__.res_partner_client_1173,Chris Samish,,6194811652.0,"Customer Status / CF,Service Area / Desert,Marketing Source / EDDM",True,Alt Phone: 7605348706.0,False,No,On Request,Unknown,No,75
+__export__.res_partner_client_1174,Sally Davis,,9518342260.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,Alt Phone: 9519260033.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1178,Cam Gaudet,nansielou@yahoo.com,7603931748.0,"Marketing Source / Home Advisor,Customer Status / Fill,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,85
+__export__.res_partner_client_1179,Lori King,skyhostess46@gmail.com,9492328649.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,Quoted 185 with dry brush
+__export__.res_partner_client_1180,Willard Sterling,huxley433@cs.com,7604061547.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,Maintenance,No,195.00 every Spring & 6 months
+__export__.res_partner_client_1181,Clifford Farm,,9519738016.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,140.00 In & out every 4 months
+__export__.res_partner_client_1182,Mary Tatomir,jtatomir@yahoo.com,7607759895.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",True,,False,No,On Request,Unknown,No,140.00 In & Out
+__export__.res_partner_client_1183,Julie Muldoon,Muldoon_julie@hotmail.com,9513335526.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,$95
+__export__.res_partner_client_1185,Nectar Sagarnaga,,9512599607.0,"Service Area / Hemet,Marketing Source / Google",False,,False,Unknown,On Request,Unknown,No,$160
+__export__.res_partner_client_1186,Cheri Delucca,pclc1952@gmail.com,7149261162.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,$290/$150 Every 6 Months Alternating
+__export__.res_partner_client_1188,Keitia Smith,,9516167171.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Google",False,,False,Yes,On Request,Unknown,No,285
+__export__.res_partner_client_1189,Scott Cunningham,seaprime@aol.com,2063532206.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,Alt Phone: 7605078741.0,False,Yes,6 Months,Maintenance,No,175.00 Every 6 months In & Out
+__export__.res_partner_client_1190,Bill Winkill,billwink@billwinkauto.com,2486132423.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,250.00 x 2 months
+__export__.res_partner_client_1193,Loretta Goble,lgoblewk@msn.com,9519224773.0,"Marketing Source / Home Advisor,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,195
+__export__.res_partner_client_1196,Brenda McCallon,brendamccallon@hotmail.com,4257611301.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,Alt Phone: 7608327593.0,False,Unknown,On Request,Unknown,No,125.00 every 6 months 
+__export__.res_partner_client_1197,Jeff Jelineo,Jeff.jelineo@gmail.com,9175964639.0,"Customer Status / CF,Service Area / Desert,Marketing Source / EDDM",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1198,Pat Maldonado,Ptmaldo@yahoo.com,9517951677.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,4 Months,Maintenance,1.0,$145/75 Every 4 months Alternating
+__export__.res_partner_client_1200,Myrna DuVall,mqduval@aol.com,9518056251.0,"Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,$75 & $135
+__export__.res_partner_client_1204,Kay Biederman,Kaystagg@msn.com,9097328190.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / EDDM",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1207,Sue Watt,Suewatt2019@gmail.com,9513255008.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / EDDM",False,Alt Phone: 9513255008.0,False,Yes,On Request,Unknown,No,85.00 Out Only
+__export__.res_partner_client_1208,Stella Torres,stella.stella.torres@gmail.com,9512658883.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,Unknown,On Request,No,5.00/Panel
+__export__.res_partner_client_1209,Eileen Ryan,esrtab444@gmail.com,9493386079.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,55.00 Min Charge
+__export__.res_partner_client_1210,Karen Bird,,6262220332.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,On Request,Unknown,No,$145 Annually In 
+__export__.res_partner_client_1212,Cheryl Johnson,markethouses@gmail.com,9098212822.0,Service Area / Desert,False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1213,Candace Hawley,,9514422022.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,155/75 Every 4 Months - Alternating Service ???
+__export__.res_partner_client_1214,Suzy  Fred Voelkel,spvinc@msn.com,6024184993.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,250.00 every 4 months ???- She Calls Told him 100 extra for inside
+__export__.res_partner_client_1215,Andrew Teitel,andrew.teitel@gmail.com,2485612900.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,125.00 Every 3 months
+__export__.res_partner_client_1216,Richard Rodner,rrodner@cox.net,3104225011.0,"Marketing Source / Home Advisor,Service Area / Desert,Customer Status / TBD",False,,False,Yes,On Request,Unknown,No,300 Every ??? months
+__export__.res_partner_client_1218,Marlene Cliff,marlenecliff@icloud.com,5109080500.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,On Request,No,140.00 Outside only 275.00 In & out
+__export__.res_partner_client_1219,Dana Zusman,Danazusman@icloud.com,9492304223.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,150/75 Every 6 months ?????
+__export__.res_partner_client_1222,Angela Rafferty,info@chakraesthetics.com,7605371211.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,39.00 Monthly
+__export__.res_partner_client_1223,Dave  Colleen Johnson,Colleen1-johnson@outlook.com,9492332489.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 9512605963.0,False,Yes,4 Months,Maintenance,1.0,150.00/75 Every 4 months - Alternating Service
+__export__.res_partner_client_1224,Stephen Margetic,smargetic13@yahoo.com,9495100262.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,185.00 Every 4 months In and Out
+__export__.res_partner_client_1225,Larry Tyner,larry.tyner@yahoo.com,7607744959.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",True,,False,No,On Request,Unknown,No,$135.00
+__export__.res_partner_client_1227,Jack Ginsberg,jag1748@yahoo.com,2066794035.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,Alt Phone: 7606105438.0,False,Yes,Unknown,On Request,1.0,285/150 Every 4 months Alternate
+__export__.res_partner_client_1230,Lisa Dernbach,ldern50@gmail.com,5303070834.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,70
+__export__.res_partner_client_1231,Micheal Keene,Mkeene5142@yahoo.com,9515363974.0,"Marketing Source / WASC Web Site,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,325 Yearly ???
+__export__.res_partner_client_1233,Mark Habeeb,markhabeeb@gmail.com,8186792201.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,$325/175 Every 4 Months or so
+__export__.res_partner_client_1234,Steve Bluestein,,3104299656.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,4 Months,On Request,1.0,295.00/155.00 every 3 to 4 months
+__export__.res_partner_client_1235,Diane Rabelo,fishoutofwater2000@yahoo.com,9512075623.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 9513590749.0,False,Yes,6 Months,Maintenance,No,140 Every 6 month - discounted to 115 less outside windows
+__export__.res_partner_client_1236,Sherry Dibble,shedib1123@yahoo.com,9512332617.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,245
+__export__.res_partner_client_1237,Donna & Keith Swanke,,4146175373.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,145/70 Every 4 months - Alternating Service
+__export__.res_partner_client_1240,Personal Time,,9519726946.0,Service Area / Desert,False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1245,Steve Rudnick,,9514926108.0,"Service Area / Hemet,Marketing Source / EDDM",False,,False,Yes,On Request,Unknown,No,135
+__export__.res_partner_client_1246,Robyn Tagliareni,nybor59@gmail.com,7602137229.0,"Marketing Source / Home Advisor,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,$300
+__export__.res_partner_client_1250,Joseph Gerwig,ginfox@msn.com,7607791547.0,"Marketing Source / Home Advisor,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1252,Denyse Cecchetto,denyse41@icloud.com,9097368113.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1255,Stacey Speiser,sspeiser40@yahoo.com,9097322970.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,120.00 Every 3 Months In & Out
+__export__.res_partner_client_1256,Pam & Rick Ortega,,7608830816.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,Alt Phone: 7605746804.0,False,Yes,Unknown,On Request,No,200.00/Year In & Out - 100.00 outside Only
+__export__.res_partner_client_1257,Stacey McLeod,stacey.a.mcleod@gmail.com,9513855347.0,"Marketing Source / WASC Web Site,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,110
+__export__.res_partner_client_1258,Nancy Mcintosh,,6197337833.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,95
+__export__.res_partner_client_1259,Sheela Havas,sdhavas@gmail.com,6263541971.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,200/110
+__export__.res_partner_client_1260,Cindy Fuller,cindy_psalm40@yahoo.com,9516669965.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Hemet",False,,False,Yes,12 Months,On Request,No,173
+__export__.res_partner_client_1261,Gary  Vicki Hubbert,hubbertgary@gmail.com,7604850144.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,200.00 Every 6 months - Used to be 175.00
+__export__.res_partner_client_1262,Marguerite Surovy,m_surovy@sbcglobal.net,8188086598.0,"Customer Status / Snow Bird,Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,230/115
+__export__.res_partner_client_1263,Susan Briggs,,3035497098.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,On Request,Unknown,No,5.00/16 Panels
+__export__.res_partner_client_1264,Harry Hart,harrynragshart@aol.com,7608363400.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",True,,False,No,On Request,Unknown,No,130.00 Every 5 Months ???
+__export__.res_partner_client_1265,Beverly Sparks,bevs4sale@aol.com,9285377054.0,"Marketing Source / Home Advisor,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,95
+__export__.res_partner_client_1266,Monica Johnson,monika.johnson849@gmail.com,9098156761.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1268,Diane Rasmussen,Ddras@frontiernet.net,7144013740.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,4 Months,Maintenance,1.0,$150/$80 alternating 4 monhs
+__export__.res_partner_client_1269,Linda Haynes,,8186069981.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,120
+__export__.res_partner_client_1270,Walter Keller,,7602853764.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,26 x 6/panel
+__export__.res_partner_client_1272,Linda Lusk,,5037201054.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,85/hr basic 175.00 - 150/hr
+__export__.res_partner_client_1273,Robert Frederick,Robert.frederick@me.com,9499227794.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,$350.00 and $110.00 for the solar panels
+__export__.res_partner_client_1276,Geri Richmond,geririchmond1@gmail.com,9518058834.0,"Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1277,Debbie Bygland,,6195178223.0,"Marketing Source / NextDoor App,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1280,Patty Moss,,9257191612.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,275.00/ 150.00
+__export__.res_partner_client_1282,Frank Abril,,9092151725.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,140/75 Every 4 Months -Alternating
+__export__.res_partner_client_1284,Stacey McPherson,,9513127470.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Web Site",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1285,Nancy Dakkak,,9097289497.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,375.00 Dry Brush
+__export__.res_partner_client_1287,Gary Schwartz,,3055056877.0,"Service Area / Desert,Marketing Source / Google",False,,False,Yes,On Request,Unknown,No,5.50 each
+__export__.res_partner_client_1288,Christine Miller,,9516606441.0,Service Area / Hemet,False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1290,Tony Bosco,,5625057379.0,"Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1292,April Vidal,,9092401212.0,"Service Area / Hemet,Marketing Source / Google",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1294,Barbara Patterson,,9513922242.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,100
+__export__.res_partner_client_1295,Ed Paige,edpaige61@gmail.com,9516236109.0,"Marketing Source / Home Advisor,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,320.00 - Discount
+__export__.res_partner_client_1296,Sylvia  Lane,,6268406571.0,"Marketing Source / Thumbtack,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1297,Jackie Goodge,,7603912422.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,175
+__export__.res_partner_client_1298,Kay Mitchell,,9519266186.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",True,Alt Phone: 9096368175.0,False,No,6 Months,Maintenance,1.0,120.00/80.00
+__export__.res_partner_client_1299,Betty Bullis,,3039181249.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,140
+__export__.res_partner_client_1306,Robin Elder,,7602210879.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,250/150
+__export__.res_partner_client_1307,Adam Ruelas,,9094896431.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1308,Charles Ball,,9517048402.0,"Marketing Source / NextDoor App,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1309,Carol Wakefield,,6197422113.0,Service Area / Hemet,False,Alt Phone: 9519260244.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1311,Paty Flohr,,8585685365.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,140 discounted to 125 this time
+__export__.res_partner_client_1313,Alexandria Arias,,9519908094.0,"Marketing Source / Thumbtack,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,250.00 every 4 months
+__export__.res_partner_client_1314,Tamera Infield,flipflopdiva51@gmail.com,6264190553.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1315,Susie Vanduyne,,9497024146.0,"Marketing Source / Thumbtack,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,5.00 Panel Min 60.00
+__export__.res_partner_client_1316,Lisa Johnson,lisajohnson710@gmail.com,7143228877.0,"Marketing Source / Thumbtack,Customer Status / TBD,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,240/125
+__export__.res_partner_client_1318,Gregg  Lisa Whitney,gregg@greggwhitney.com,8582329469.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,Alt Phone: 8582046161.0,False,Yes,Unknown,On Request,No,300/150.00 every 6 months maybe 4 months
+__export__.res_partner_client_1319,Kathy Ofstad,,9514928455.0,"Marketing Source / Thumbtack,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1320,Jim Stubbs,Stubbsjim@icloud.com,7602852425.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,250/150 Every 4 months
+__export__.res_partner_client_1321,Carole Lovett,clovitt0811@yahoo.com,6236408745.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,140.00 Every 4 months ???
+__export__.res_partner_client_1322,Darrell Mclaughlin,,6193688014.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,235.00 In & Out
+__export__.res_partner_client_1323,Alison King,,9512654528.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,125.00 In & Out every 6 months????
+__export__.res_partner_client_1324,Delatour Zimmer,,7608809558.0,"Marketing Source / Home Advisor,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,"160.00 In & Out, no screens or vac every 6 months ????"
+__export__.res_partner_client_1325,Jayne Reaburn,Jayneraeburn@me.com,6048169907.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,200
+__export__.res_partner_client_1326,Katie Sullivan,katiesullivan@msn.com,7609603073.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,80.00 Out Only
+__export__.res_partner_client_1327,Nancy Bryant,bryantgal31@gmail.com,4178606490.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,200
+__export__.res_partner_client_1328,Edie Becker,Dan@scenicartprint.com,5627081809.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Web Site",False,,False,Yes,Unknown,On Request,No,200.00/100.00 Alternating every 4 months
+__export__.res_partner_client_1330,Carolyn & Chuck Talbot,,2538207110.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,5.00/Panel
+__export__.res_partner_client_1331,Julius Conner,,7026832835.0,"Marketing Source / Thumbtack,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1332,John Thiers,,7607837129.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,Alt Phone: 7603454068.0,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1333,Christine Dobbings,christine.dobbings77@gmail.com,3109716377.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,90
+__export__.res_partner_client_1334,Ian Fitzgerald ,,4243829733.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1335,Cyd Kidwiler,,9493702651.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1336,Jim Hitt,Jvhitt@hotmail.com,8055517471.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / EDDM",False,,False,Yes,Unknown,On Request,No,90 Outside 75 Solar
+__export__.res_partner_client_1337,Leah Brown,,,"Marketing Source / Referral,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1338,Nick Conway,nconway@roadrunner.com,6267100373.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,200.00 x 3 months
+__export__.res_partner_client_1339,Suzie Sites,,9513151972.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,Maintenance,1.0,225/120 Alternating 6 months
+__export__.res_partner_client_1340,Mark Mitchell,,9496772834.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,4 Months,Maintenance,No,150/85 4 months Alternating
+__export__.res_partner_client_1342,Nancy Whitley,,9493099240.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,55.00 increase to 60.00
+__export__.res_partner_client_1344,Nigel Banister,nigelbusiness684@gmail.com,4252192877.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,260/130
+__export__.res_partner_client_1346,Elsa Sandvold,,5035054662.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,175
+__export__.res_partner_client_1347,Dick Palomba,dickpalomba@att.net,9253371000.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,12 Months,Maintenance,No,275/145
+__export__.res_partner_client_1348,Christopher Gourlay,cdgprod@gmail.com,3107798044.0,"Marketing Source / Home Advisor,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,175 to 240
+__export__.res_partner_client_1349,Donna Uchimura,donnauchimura@gmail.com,9099861871.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,145
+__export__.res_partner_client_1350,Diane Rabin,diane.m.rabin@gmail.com,6196651185.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,300 every 5 months ????
+__export__.res_partner_client_1351,Dwight Fichtner,dwightfichtuer@yahoo.com,9099960581.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,Unknown,On Request,No,150
+__export__.res_partner_client_1352,Mike Mok,Mlmok@comcast.net,3133304290.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1353,Steven Acuna,,7148837140.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1354,Celine McCann,,9512885937.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1355,Allyn Miller,MillerAllyn@gmail.com,3126226111.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,250/125 Every 6 months
+__export__.res_partner_client_1356,Sheila Boulton,boultons@shaw.ca,6045610890.0,"Customer Status / Snow Bird,Marketing Source / Home Advisor,Service Area / Desert,Customer Status / TBD",False,,False,Yes,Unknown,On Request,No,190.00/90.00
+__export__.res_partner_client_1357,Fred Johns,,2483909025.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,Maintenance,1.0,300/160 Every 6 months Alternating
+__export__.res_partner_client_1358,Mabel Durand,mapejes.heart@gmail.com,7144764445.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Unknown,On Request,Unknown,No,155/80
+__export__.res_partner_client_1359,Mike & Pat Dooley,,9516094921.0,"Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,125 In & Out
+__export__.res_partner_client_1360,Rita Mitchell,Rita@ritaandersen.com,9514967961.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1361,Debbie Church,,9516632195.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,On Request,No,Quoted 160.00 Every 6 Months
+__export__.res_partner_client_1362,Marlene Pesqueira,,5303555991.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / EDDM",False,,False,Yes,On Request,Unknown,No,225.00 total
+__export__.res_partner_client_1363,Maddie Rossi,rossi.maddie@yahoo.com,9512126423.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,95.00 - 115.00 if wet screen
+__export__.res_partner_client_1364,William Chavez,williamchavez75@yahoo.com,8182719669.0,"Marketing Source / Thumbtack,Service Area / Hemet",False,Alt Phone: 9512671059.0,False,Yes,On Request,Unknown,No,190
+__export__.res_partner_client_1365,Patti Lindquist,Pattilindquist1@gmail.com,9516636470.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,Unknown,On Request,No,150
+__export__.res_partner_client_1370,Larry Clarke,lc9700@msn.com,7029852345.0,"Marketing Source / Home Advisor,Customer Status / Star,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,285.00/150.00 3 month Alternating ??? - trying for 6 months
+__export__.res_partner_client_1371,Lyn Rothmund,,4802546483.0,"Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Unknown,On Request,Unknown,No,135.00 6 Months maybe yearly
+__export__.res_partner_client_1372,Janet Lape,,9514929273.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,75
+__export__.res_partner_client_1373,Nick Dimas,nick@dimas.net,5626661952.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,285
+__export__.res_partner_client_1374,Linda & Fred Loetscher,,5304091460.0,"Marketing Source / Referral,Service Area / Desert",False,Alt Phone: 7608326899.0,False,Unknown,Unknown,On Request,No,160
+__export__.res_partner_client_1375,Carole Levitzky,,7147150189.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Magnet/Drive By",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1376,Candy Gruber,,9512825960.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,On Request,Unknown,No,150.00 + 99.00 Gutter
+__export__.res_partner_client_1377,Jeanni Stewart,,,"Marketing Source / Referral,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1378,Ken Drew,,9516928000.0,"Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1380,Glenn Uhley,,6192443337.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,Alt Phone: 9514670287.0,False,Yes,Unknown,On Request,No,80
+__export__.res_partner_client_1381,Jean Taber,,5419448315.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,On Request,Unknown,No,75.00 every 6 months?
+__export__.res_partner_client_1382,Richard Krajchir,Rck1952@gmail.com,8082267001.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,5.00/each
+__export__.res_partner_client_1383,John Sanders,john.sanders@comcast.net,4152990659.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Web Site",False,,False,Yes,6 Months,Maintenance,No,175 + 100 Gutter Every 6 months
+__export__.res_partner_client_1384,Bonnie Silverwood,,9513255060.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",True,,False,No,Unknown,On Request,No,80/160
+__export__.res_partner_client_1385,Jim Piercy,,9519410904.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,On Request,Unknown,No,120
+__export__.res_partner_client_1386,Wendy Bolduc,,8177978189.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,On Request,Unknown,No,125.00 Every 5 months ?
+__export__.res_partner_client_1387,Aladar Barath,,3104224569.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Unknown,Unknown,On Request,No,135 - inc 10% discount - $150 normally
+__export__.res_partner_client_1388,Pat & Bob Radmacher,,9514919210.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,160
+__export__.res_partner_client_1389,Tony Taricco,Sftonyt@gmail.com,4152259495.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,495/270 Every 6 months?
+__export__.res_partner_client_1390,Minio & Diann Garcia,,9092405268.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 9092603522.0,False,Yes,On Request,Unknown,No,145 + Solar
+__export__.res_partner_client_1391,Mike & Wendie Bowden,,9513904224.0,"Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Unknown,On Request,Unknown,No,150
+__export__.res_partner_client_1392,Mark Kushner,,7606680557.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,160.00 Every 4 months ?
+__export__.res_partner_client_1393,Beth Shelton,,7074803008.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,Unknown,On Request,No,60 Solar/ 80 Outside
+__export__.res_partner_client_1394,Cheryl Shelton,,9515755443.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 9516504219.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1395,Mary Lyons,marylyonspc@yahoo.com,9517232287.0,"Marketing Source / NextDoor App,Service Area / Hemet",True,,False,No,On Request,Unknown,No,130
+__export__.res_partner_client_1396,Beverly Butler,bevbutler@gmail.com,9165246209.0,"Marketing Source / Home Advisor,Service Area / Hemet",False,Alt Phone: 9516729313.0,False,Yes,On Request,Unknown,No,150
+__export__.res_partner_client_1397,Jeffery Espinoza,jkerrt@aol.com,8056677174.0,"Marketing Source / Home Advisor,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1398,Ross Snow,,4152447687.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,170/90. 75 Solar
+__export__.res_partner_client_1399,John Volanti,,4157136520.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,1.0,"12 x 5.50 = 66 - Min $75.00, 150/75 Every 3 months Alternating"
+__export__.res_partner_client_1400,Richard Blee,,2022531181.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,300/160
+__export__.res_partner_client_1401,Nancy Tohl,,8188253066.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,4 Months,On Request,1.0,245.00/125.00 good enough pricing
+__export__.res_partner_client_1402,Pat Spurgeon,,6197723731.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,145.00 dry
+__export__.res_partner_client_1403,John & Janet Swindell,,9514406529.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,Alt Phone: 9517750624.0,False,Unknown,On Request,Unknown,No,150
+__export__.res_partner_client_1404,Jim Sutton,,8183881962.0,"Marketing Source / Thumbtack,Customer Status / Fill,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,200.00 Dry
+__export__.res_partner_client_1405,Diane Highins,,9092614796.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,160 Every 5 months
+__export__.res_partner_client_1406,Trish & Graham Moorhouse,,9098443852.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,Alt Phone: 9094385233.0,False,Yes,Unknown,On Request,No,145
+__export__.res_partner_client_1407,Velasquez Interiors,invoices@velasquezinteriors.com,7605056438.0,"Service Area / Desert,Marketing Source / Google",False,Alt Phone: 7609290444.0,False,Unknown,On Request,Unknown,No,100
+__export__.res_partner_client_1408,Judi Simkin,,7603281225.0,"Marketing Source / Home Advisor,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,70
+__export__.res_partner_client_1411,Eric Wildermuth,,7604137908.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,125
+__export__.res_partner_client_1412,Rajeni Chajar,,4253267201.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,350
+__export__.res_partner_client_1413,Margo Faulkner,,6199253524.0,"Marketing Source / Thumbtack,Service Area / Desert,Customer Status / OK",False,,False,Yes,Unknown,On Request,No,135.00 new price 140.00
+__export__.res_partner_client_1414,Ibrahim Shalhoub,,7606160500.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1415,Valerie Smith,,4086741449.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1416,Myra Lane,,4155091018.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Web Site",False,,False,Yes,6 Months,Maintenance,No,35 x 5.00 Every 6 months
+__export__.res_partner_client_1417,Betsy Justice,,7607992182.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,On Request,No,175/85
+__export__.res_partner_client_1418,Nanette Smalley,,9713710596.0,"Customer Status / Snow Bird,Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,140 in & out - 260.00 everything
+__export__.res_partner_client_1419,Judith Gordon,Jagbiz@sbcglobal.net,2138199192.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,100.00 Every 3 months
+__export__.res_partner_client_1421,Karen Sebzda,Ksebzda@msn.com,9516605978.0,"Service Area / Hemet,Marketing Source / Web Site",False,,False,Yes,6 Months,Maintenance,No,150.00 Every 6 months ???
+__export__.res_partner_client_1422,LINDA COBARRUBIAS,,3109900993.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,185.00 Every 4 months ????
+__export__.res_partner_client_1423,Steve Kosta,,9514429125.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,Unknown,On Request,No,145
+__export__.res_partner_client_1424,Bibi Silvas,,3234458377.0,"Marketing Source / Referral,Service Area / Desert,Customer Status / OK",False,,False,Yes,6 Months,On Request,No,250
+__export__.res_partner_client_1425,Eva Bauer Mcgovern,,7607778444.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,340/175
+__export__.res_partner_client_1427,Peter Emond-Worline,,7606682400.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,Alt Phone: 7609021850.0,False,Yes,6 Months,Maintenance,No,5.00 x 40 Panels = 200.00
+__export__.res_partner_client_1428,Alona Blakemore,Edblakemore@hotmail.com,3604904756.0,"Marketing Source / Thumbtack,Customer Status / Snow Bird,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,"235 All windows, 170 no windows on second roof"
+__export__.res_partner_client_1429,Bill Yost,,6126692662.0,"Customer Status / Snow Bird,Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,230/135 every season 100.00 out only downstairs
+__export__.res_partner_client_1430,Rik Ports,,9493318795.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,4 Months,Maintenance,No,160.00 Every 4 months ???? - 85.00 Out Only
+__export__.res_partner_client_1431,Dawn Hay,,2138403296.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,200 Every ???
+__export__.res_partner_client_1432,Linda & Mike Pedersen,woodtuck@gmail.com,7603912159.0,"Marketing Source / Home Advisor,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,190.00 increase to 200.00
+__export__.res_partner_client_1433,Sally & Scott Martin,,7143080486.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1435,Linda  Ron Officer,,9512064174.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,1.0,140/80 every 6 months- Alternating
+__export__.res_partner_client_1436,Charon Smith,charons49@sbcglobal.net,9518305655.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,300 for both condos
+__export__.res_partner_client_1437,Marjean Powers,,9095735796.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,Alt Phone: 9512233113.0,False,Yes,12 Months,Maintenance,No,125.00 once a year 
+__export__.res_partner_client_1438,Shirley Fialko,,9097317591.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,140
+__export__.res_partner_client_1439,Judy Anderson,,2483026358.0,"Customer Status / Snow Bird,Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,12 Months,On Request,No,quoted 130.00
+__export__.res_partner_client_1440,Barbara Sasman,baseman1941@gmail.com,7608988536.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,135
+__export__.res_partner_client_1441,Norma Gould,,7072084735.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,4 Months,Maintenance,No,85.00 every 4 months
+__export__.res_partner_client_1443,Hector Gil,,7605787116.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,150
+__export__.res_partner_client_1444,Brooke Coldren,brookecoldren@gmail.com,7146068449.0,"Customer Status / Snow Bird,Marketing Source / NextDoor App,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1445,Robert Weiner,Rweiner@gmail.com,9499030499.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,22 x 5 = 110.00 - 250/135
+__export__.res_partner_client_1448,Dan Saunders,,9519726946.0,Service Area / Hemet,False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1449,Christian Soto,,9513901973.0,"Service Area / Hemet,Marketing Source / Repeat Client",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1450,Michael Krauss,,2135955495.0,"Marketing Source / Home Advisor,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,365/185
+__export__.res_partner_client_1452,Helen & Tom Stewart,,6199577720.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,12 Months,On Request,No,140
+__export__.res_partner_client_1453,Judy Capps,,9092392781.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,125
+__export__.res_partner_client_1454,Priscilla Hieber,pvhieber@gmail.com,9512029011.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,100
+__export__.res_partner_client_1461,Whitney Lackey,,2065790920.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,$160.00 Solar -  $260/$130 windows
+__export__.res_partner_client_1462,RENEE ROY,,9499397839.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,160
+__export__.res_partner_client_1463,Stephen Hatch,stephen_hatch@comcast.net,4153421396.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,$190.00
+__export__.res_partner_client_1464,Edith Grossi,chiro79@dc.rr.com,3124987745.0,"Marketing Source / Angi,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1465,Rui Ferreira,ruiferreira1026@gmail.com,7604089994.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,210/120 every????
+__export__.res_partner_client_1466,Todd White,toddpalmsprings@aol.com,3104879333.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,225 inc Mirrors
+__export__.res_partner_client_1469,Dottie Gough,dottie75me@gmail.com,7758302407.0,"Customer Status / Snow Bird,Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,$155 - Atrium removed
+__export__.res_partner_client_1470,Anne Sandberg,annesandberg@predictsuccess.com,3109800073.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,250.00 every 6 months
+__export__.res_partner_client_1472,Camille Davidson,camsalot13@gmail.com,6198462727.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,,False,Yes,Unknown,On Request,1.0,"150 In & Out, 75 Solar, $85 exterior"
+__export__.res_partner_client_1479,Rae Dallas,psrae1@gmail.com,7608354349.0,"Marketing Source / Angi,Service Area / Desert",False,Alt Phone: 7608354349.0,False,Yes,On Request,Unknown,No,$175.00
+__export__.res_partner_client_1480,Doug Hardy,,9786024547.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,80 Every 6 months
+__export__.res_partner_client_1482,Donna Jean Williams,trustasst@aol.com,7603234399.0,"Marketing Source / Angi,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,175
+__export__.res_partner_client_1484,Oscar Arredondo,,3105280835.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Magnet/Drive By",False,,False,Yes,6 Months,Maintenance,No,195.00 in & out - 75.00 solar every 6 months
+__export__.res_partner_client_1486,Wayne Gerry,wayne.gerry@hotmail.com,7608611614.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,Alt Phone: 7608611614.0,False,Yes,On Request,Unknown,No,$90.00
+__export__.res_partner_client_1487,Kathie Nelson,,4254222744.0,"Marketing Source / Thumbtack,Customer Status / Snow Bird,Customer Status / CF,Service Area / Desert",False,Alt Phone: 4254222743.0,False,Yes,Unknown,On Request,No,145.00 Snowbirds
+__export__.res_partner_client_1488,Marvita Grimes,,9515411714.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,75.00 Min
+__export__.res_partner_client_1493,Pauline Bohm,bohmpauline@gmail.com,8184066560.0,"Customer Status / Snow Bird,Marketing Source / Angi,Service Area / Desert",False,,False,Yes,6 Months,On Request,No,250
+__export__.res_partner_client_1494,Jeffery Jones,,3237912770.0,"Marketing Source / Referral,Service Area / Desert,Customer Status / TBD",False,,False,Yes,6 Months,On Request,No,185.00 Every 4 months ????
+__export__.res_partner_client_1498,Wayne Geringer,wlg1231@aol.com,7609892466.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,Alt Phone: 7609892466.0,False,Yes,6 Months,Maintenance,No,225.00 Every 6 months - old 200.00
+__export__.res_partner_client_1499,Agnes Smith,,7145044683.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,135.00/70 Every 6 months - Snowbird
+__export__.res_partner_client_1500,Greg Chevalier,,7604067665.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Springtime Del Webb",False,,False,Yes,4 Months,Maintenance,No,$245+ 80
+__export__.res_partner_client_1501,Joan Greene,,7245135780.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,140/75
+__export__.res_partner_client_1502,George E Hartmeister,wicked_tongue_n@yahoo.com,9515993921.0,"Customer Status / TBD,Marketing Source / Angi,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,125
+__export__.res_partner_client_1503,Mitch Colgan,,4153087088.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,Alt Phone: 7607741351.0,False,Unknown,On Request,Unknown,No,$5 per panel
+__export__.res_partner_client_1504,James Krause,jim_krause@yahoo.com,9403004505.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Springtime Del Webb",False,,False,Yes,On Request,Unknown,No,245
+__export__.res_partner_client_1505,Donna Maul,chubbykitty7@gmail.com,7608082240.0,"Customer Status / CF,Marketing Source / Yelp,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1507,Michelle Proffett,,8054433886.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Springtime Del Webb",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1508,Rose Brine,villadesign@telus.net,6048181790.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,$625/$315
+__export__.res_partner_client_1510,Norman Woodel,,2245311343.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,Maintenance,No,115.00 Outside; 21 panels x 5 = 105.00
+__export__.res_partner_client_1511,Yolanda Funes,,9256991872.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,Unknown,On Request,No,$80/160
+__export__.res_partner_client_1514,Dana Manciagli,Danamanciagli@hotmail.com,2068491000.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,46 x 5 = 230
+__export__.res_partner_client_1516,Tom McCutchen,psdap24@gmail.com,7603608686.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",True,,False,No,On Request,Unknown,No,165
+__export__.res_partner_client_1517,Barbara Barry,,2084731176.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,60 x 5 = 300 every 6 months
+__export__.res_partner_client_1519,Walter Bendick,,6025717600.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Springtime Del Webb",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1520,Sally Rush,sallyrush29@yahoo.com,7148018836.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1521,Don Knutzen,,6154813685.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,30 x 5 = 150
+__export__.res_partner_client_1522,Victoria Boehm,Stormvicv@yahoo.com,9512017499.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,160
+__export__.res_partner_client_1523,Susan Walker Bunnell,piuma@aol.com,8184813491.0,"Marketing Source / Angi,Service Area / Desert",False,Alt Phone: 8184813491.0,False,Yes,On Request,Unknown,No,"$7.00/pane, 25/30/35"
+__export__.res_partner_client_1524,George Frank,,6618161071.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,Maintenance,No,225
+__export__.res_partner_client_1525,Alice MacKinnon,,6268251945.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,On Request,No,185/100  75.00 Solar
+__export__.res_partner_client_1526,Valerie Schnieders,,9494002778.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,225.00 changed to 200
+__export__.res_partner_client_1527,Riva & Hank Alberts,hank6ter@aol.com,8182574517.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,145
+__export__.res_partner_client_1528,Gary Gorczyca,,7149430628.0,"Service Area / Desert,Marketing Source / Springtime Del Webb",False,Alt Phone: 7149430252.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1529,Donna Parrish,,7147472084.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,Alt Phone: 7607757557.0,False,Yes,3 Months,Maintenance,1.0,120.00/65.00 every 3 months Alternating 400.00 for Pressure Washing
+__export__.res_partner_client_1530,Alice Bertaina,alicat2500@gmail.com,7609724168.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",True,,False,No,6 Months,Maintenance,No,$200
+__export__.res_partner_client_1531,Cheryl Robinson,,7609363935.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,145
+__export__.res_partner_client_1532,John Ham,,8583869551.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,75.00 Every 6 Months
+__export__.res_partner_client_1533,Bev Hartin,,8186528629.0,"Marketing Source / Thumbtack,Service Area / Desert",False,Alt Phone: 7603184266.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1534,Joel Mugge,,6123849012.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,Maintenance,No,5.00/Panel x 27 Panels = $135.00
+__export__.res_partner_client_1535,Alexis Radecki,,9497022830.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,145.00 Every 6 months
+__export__.res_partner_client_1539,Kerri Harlan,,7607024740.0,"Service Area / Desert,Marketing Source / Magnet/Drive By",False,,False,Yes,On Request,Unknown,No,32 x 5 = 160
+__export__.res_partner_client_1542,Barbara Sisson,,9072270023.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,Maintenance,No,90
+__export__.res_partner_client_1543,Mike Sullivan,,7608518023.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,6 Months,Maintenance,No,90
+__export__.res_partner_client_1545,Pat Rotisky,,6619045258.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1546,Robert Hughes,,6199917529.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,On Request,No,200 every 6 months
+__export__.res_partner_client_1547,Casey Jones,,7603092506.0,"Marketing Source / Thumbtack,Service Area / Desert,Customer Status / OK",False,,False,Yes,Unknown,On Request,No,100
+__export__.res_partner_client_1548,Cheryl Moody,,9493556320.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1549,Sylvia Zack,,9513126988.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,3 Months,Maintenance,No,140.00 every 3 months
+__export__.res_partner_client_1551,Bob Goldware,,4152355402.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,12 Months,On Request,No,225.00 + 90.00
+__export__.res_partner_client_1552,Jerry Smith,,9518678650.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,6 Months,Maintenance,No,75 Every 6 months
+__export__.res_partner_client_1553,Curtis Collins,,3236461596.0,"Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,255 every 6 months ????
+__export__.res_partner_client_1555,Kevin Armintrout,,4254781782.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,On Request,No,300 + 125.00 Solar
+__export__.res_partner_client_1556,Michael Valdez,,7146001603.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,Maintenance,No,200 + 80 panels + mirror + shower
+__export__.res_partner_client_1557,Janet Boyce,,9513578560.0,"Service Area / Hemet,Marketing Source / Herald",False,,False,Yes,Unknown,On Request,No,75
+__export__.res_partner_client_1558,Ted Lawe,,4423073194.0,"Marketing Source / Home Advisor,Service Area / Desert",False,Alt Phone: 7603462295.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1559,Bonnie  Sam Martin,Martin6217@gmail.com,4065398650.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,250
+__export__.res_partner_client_1560,Carol Wine,,7147673023.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1561,Adrienne Brailsford,,7142255392.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,200.00 Per Dan Agreement
+__export__.res_partner_client_1562,Pat Whitworth,,9514547575.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,145.00 Every ???? Maria is the contact
+__export__.res_partner_client_1564,Jerry Holden,,9512292443.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,80
+__export__.res_partner_client_1565,Monica Scholl,,7145882551.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,145
+__export__.res_partner_client_1567,Robert Raider,,5168164803.0,"Marketing Source / Yelp,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,100
+__export__.res_partner_client_1568,Andre Williams,,7604644474.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,125
+__export__.res_partner_client_1573,William Freyer,,6198460581.0,"Marketing Source / Thumbtack,Customer Status / TBD,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,125
+__export__.res_partner_client_1574,Pat Sweeney,,2068498246.0,"Marketing Source / Referral,Service Area / Hemet,Customer Status / TBD",False,,False,Yes,On Request,Unknown,No,90 Every ????
+__export__.res_partner_client_1575,Dennis Gladu,,9513474015.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,145
+__export__.res_partner_client_1577,REMI KEAHEY,,6197570694.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,200
+__export__.res_partner_client_1578,Khan Mahmood,,9098556985.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1580,Marilyn Wilson,,9518130068.0,"Marketing Source / NextDoor App,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,100
+__export__.res_partner_client_1581,Cindy Harris,,9517044548.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,160
+__export__.res_partner_client_1582,Russ Fleer,russfleersr@gmail.com,9515994764.0,"Marketing Source / Referral,Service Area / Hemet",True,,False,No,Unknown,On Request,No,15 x 5 =75.00
+__export__.res_partner_client_1583,Joe Cerni,,9496776212.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,125
+__export__.res_partner_client_1584,Bob Hutton,bhutt58@yahoo.com,7608083586.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1586,Marilyn Edmonds,,9517077487.0,"Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,140
+__export__.res_partner_client_1587,Linda Gaddie,,8652077798.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,150
+__export__.res_partner_client_1588,Amy Pearson,,7605077818.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,On Request,No,140
+__export__.res_partner_client_1591,Desiree Wesson,,7602213392.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1593,Sue Garcia,SuGarc299@gmail.com,6304760561.0,"Marketing Source / Thumbtack,Service Area / Desert,Customer Status / OK",False,,False,Yes,6 Months,On Request,No,795/410 try to charge $830.00/430.00
+__export__.res_partner_client_1594,Adria Molina,Wbbamo@gmail.com,5627143618.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,4 Months,Maintenance,1.0,160/85 Every 4 months
+__export__.res_partner_client_1595,Ed Dismukes,,6145065131.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,250/125 - 200 solar
+__export__.res_partner_client_1596,Kimberly Knoller,,3106007627.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,175
+__export__.res_partner_client_1597,Sally Suchil,,3104221502.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,"80 Pressure wash, 65 out back windows, 115 out all windows"
+__export__.res_partner_client_1598,Brenda Williams,,3107225114.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,Maintenance,No,150/250 Every Month + 30.00 Hand scrub
+__export__.res_partner_client_1599,Susan Cornell,,7605675210.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,20 Panels @ 125.00
+__export__.res_partner_client_1600,Suzanne Sylvester,,3128104169.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1601,Robert & Sandy Weiner Sr.,,9492896871.0,"Marketing Source / Referral,Service Area / Desert",False,Alt Phone: 9492896872.0,False,Unknown,On Request,Unknown,No,100
+__export__.res_partner_client_1602,Ann Stone-Johnson,,4036060369.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,"300 Windows, 350 Soft Wash"
+__export__.res_partner_client_1603,Paula Marzola,,7142621774.0,"Customer Status / Snow Bird,Marketing Source / Yelp,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1604,Kay Legge,,6046494267.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1605,Donna Sturgeon,,7608618288.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,150
+__export__.res_partner_client_1606,Shelley Bayer,,8053415345.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1610,Mary Carolan,,4159998704.0,"Customer Status / Snow Bird,Marketing Source / Referral,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,650
+__export__.res_partner_client_1611,Sharon Soper,,6048802130.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,175.00/95.00
+__export__.res_partner_client_1614,Linda Hacecky,stricklandlinda34@gmail.com,2102682741.0,"Marketing Source / Angi,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1615,Shauna Holley,,8015209464.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,4 Months,Maintenance,No,"140 win in&out;, 140 panels"
+__export__.res_partner_client_1618,Lisa Scarpelli,,7605788344.0,"Service Area / Desert,Customer Status / OK,Marketing Source / Google",False,,False,Yes,3 Months,Maintenance,No,"155 every quarter windows, $100 every quarter solar"
+__export__.res_partner_client_1621,Dave & Deborah  Cooper,,3036011437.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert,Customer Status / Moved",False,Alt Phone: 3038819634.0,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1623,John Dotinga,,9519666057.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,145/80
+__export__.res_partner_client_1625,Carol Callaghan,carolcall@me.com,7606991133.0,"Customer Status / Snow Bird,Marketing Source / Angi,Service Area / Desert",False,,False,Yes,12 Months,On Request,No,85
+__export__.res_partner_client_1626,Diana Hawley,,7147428942.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Magnet/Drive By",False,,False,Yes,Unknown,On Request,No,130 outside & 100.00 Solar
+__export__.res_partner_client_1627,Reggie Campbell,,7802427126.0,"Customer Status / Snow Bird,Marketing Source / Referral,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,150
+__export__.res_partner_client_1629,James Ashby,Jbapack@aol.com,6046442254.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,Unknown,On Request,No,235
+__export__.res_partner_client_1631,Sarah Zender,,3607393854.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,300
+__export__.res_partner_client_1632,Philip Ham,,8583869551.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,12 Months,On Request,No,80
+__export__.res_partner_client_1633,Jordan Hall,,9096536351.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,1.0,250/150
+__export__.res_partner_client_1634,Tracy Rogers,,8583420441.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1635,Tami Forester,tami@tamistastytreats.com,9513250098.0,"Marketing Source / Home Advisor,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1637,Kathy Malarkey,,6512781248.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,145
+__export__.res_partner_client_1641,Ray Johnson,,6614337050.0,"Customer Status / Snow Bird,Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,12 Months,On Request,No,240
+__export__.res_partner_client_1644,Bart & Sue Ogburn,daddinbi@aol.com,2069154331.0,"Customer Status / TBD,Marketing Source / Angi,Service Area / Desert",False,,False,Unknown,Unknown,On Request,No,150
+__export__.res_partner_client_1649,Stephanie Cooper,,7609142250.0,"Customer Status / Snow Bird,Customer Status / CF,Service Area / Desert,Customer Status / OK,Marketing Source / Thumbtack",False,,False,Yes,Unknown,On Request,No,500.00/225.00
+__export__.res_partner_client_1653,Jim & Pat Hayner,,5093017038.0,"Customer Status / Snow Bird,Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,290
+__export__.res_partner_client_1655,Mary O'Hagan,,8053319700.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,185
+__export__.res_partner_client_1663,Suzzane Spenser,,8185155793.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1664,Leon Hurwitz,,4156867433.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1665,Jeff Barber,,6262338770.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,1.0,$250.00/$140.00 + 32 Panels @ 5.00
+__export__.res_partner_client_1666,Anthony & Suzy Filippi,,7168675696.0,"Customer Status / Snow Bird,Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,Alt Phone: 7168641138.0,False,Yes,4 Months,Maintenance,1.0,185.00/95.00
+__export__.res_partner_client_1667,Donna Gagnon,,2042261913.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,320.00/170.00
+__export__.res_partner_client_1668,Linda Stoddart,,7605744026.0,"Marketing Source / Thumbtack,Service Area / Desert,Customer Status / OK",False,,False,Yes,6 Months,Maintenance,No,195
+__export__.res_partner_client_1669,Vaughn Spofford,,7608348885.0,"Marketing Source / Thumbtack,Customer Status / Snow Bird,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1672,Roni Palmetier,,7603903414.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,150
+__export__.res_partner_client_1673,David Cox,,7747228434.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,$415.00/220
+__export__.res_partner_client_1674,Kathy Anderson,kma475@icloud.com,9515994039.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",True,,False,No,3 Months,Maintenance,1.0,150.00/80.00
+__export__.res_partner_client_1675,Betty Young,,5306352922.0,Service Area / Hemet,False,,False,Unknown,On Request,Unknown,No,145
+__export__.res_partner_client_1676,Alexander Burck,,7073910234.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,200
+__export__.res_partner_client_1678,Stacey Eisner,,4129770057.0,"Service Area / Desert,Marketing Source / Magnet/Drive By",False,,False,Yes,Unknown,On Request,No,250 Special Price - Competition
+__export__.res_partner_client_1679,Maxine Newlove,,9512369729.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,6 Months,On Request,No,150/85
+__export__.res_partner_client_1681,Linda Rawlings,,7607998811.0,"Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,180
+__export__.res_partner_client_1684,Valerie Odell,,4106103384.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,3 Months,Maintenance,1.0,150/80 Qtr Alt - I told her we raised prices - old was 140/70
+__export__.res_partner_client_1685,Carolyn Straub,sycspgs@msn.com,9517195354.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,Unknown,On Request,No,"160.00/85.00, also clean French doors - 100.00 total"
+__export__.res_partner_client_1686,Susan McKenna,,2485061804.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,120????
+__export__.res_partner_client_1687,Shaun Wright,,9095395684.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Hemet",False,,False,Yes,3 Months,Maintenance,No,5 x 16 = 80
+__export__.res_partner_client_1688,Mick Scharbrough,,9285669582.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,80 5 x 16
+__export__.res_partner_client_1689,Russ Williamson,,9512043970.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,150
+__export__.res_partner_client_1690,Rosemary Endress,,4692516288.0,"Customer Status / CF,Service Area / Hemet",False,,False,Yes,3 Months,Maintenance,No,150
+__export__.res_partner_client_1691,Gary Marsalone,,8586631201.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,145/85    75
+__export__.res_partner_client_1693,Brenda Napier,brinner1963@yahoo.com,7143341387.0,"Marketing Source / Angi,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,155
+__export__.res_partner_client_1694,Iver/Glenn Nielsen,,2022572567.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,Alt Phone: 2022572567.0,False,Yes,6 Months,Maintenance,1.0,190.00/100.00 & 75.00 Solar - Solar 6 months also May/Oct
+__export__.res_partner_client_1695,Joan Flickinger,,9516639743.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,4 Months,Maintenance,1.0,75
+__export__.res_partner_client_1696,Tom Melody,,6193167691.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,185 est
+__export__.res_partner_client_1697,Theodore Flegel,,5418154235.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,6 Months,On Request,No,150
+__export__.res_partner_client_1698,Leo Bodrov,,8182316513.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,Maintenance,No,100
+__export__.res_partner_client_1699,Tracy Harper,,9494668004.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,150
+__export__.res_partner_client_1700,Gayle Ormond,,9492828300.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,175 + 20 shower
+__export__.res_partner_client_1701,Fernando Hernandez,,5625724648.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,125
+__export__.res_partner_client_1702,Randy DeWeese,,9512828197.0,"Marketing Source / Thumbtack,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,80
+__export__.res_partner_client_1703,Oren Adar,,4074628884.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,175
+__export__.res_partner_client_1706,Rhonda Phillips,,8478005385.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,"$150 Windows In & Out, Solar $75.00, 85.00 Exterior"
+__export__.res_partner_client_1707,Gary Houck,,7073072383.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Unknown,4 Months,Maintenance,No,95
+__export__.res_partner_client_1710,Maggie Picker,,9514909856.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1712,Clark Argeris,,7608084703.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,220 agreement this time only
+__export__.res_partner_client_1713,Terence Maguire,terencemaguire@comcast.net,2062952737.0,"Marketing Source / WASC Web Site,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,150
+__export__.res_partner_client_1714,Kenneth Theriault,,5104354854.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1717,Henry Salvidor,,7144128284.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,Unknown,On Request,No,$145/$75
+__export__.res_partner_client_1718,Bob Fussell,,9513887641.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet,Customer Status / Moved",False,,False,Yes,Unknown,Maintenance,No,140
+__export__.res_partner_client_1720,Rita Johnson,,6307151602.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,4 Months,On Request,No,185
+__export__.res_partner_client_1721,Naresh Bellara,,9515228796.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,12 Months,On Request,No,5 * 23 = 115
+__export__.res_partner_client_1724,Kevin Odenbaugh,,7606259992.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,125
+__export__.res_partner_client_1725,Steven Hess,,7075375287.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,$200.00 Solar - $90.00 Outside
+__export__.res_partner_client_1727,Chris Swift,,6198572211.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,Unknown,On Request,No,160
+__export__.res_partner_client_1728,Rod & Becky Hahn,,3233695008.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,350.00 includes 2 skylights
+__export__.res_partner_client_1729,Debbie Frazier,,9492462196.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,22 x 5 = 110
+__export__.res_partner_client_1731,Ellen Stutz,,6193185058.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,5
+__export__.res_partner_client_1733,John & Dawson Bullock,,5026495321.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,Alt Phone: 5026495320.0,False,Yes,Unknown,On Request,No,295
+__export__.res_partner_client_1735,William Johnston,,7606739366.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,Maintenance,No,80.00 (10 Panels)
+__export__.res_partner_client_1737,Rick Kammerer,,5133652826.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,175 changed to 150 by Dans S.
+__export__.res_partner_client_1739,Danette Rodgers,,9513034014.0,"Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1740,Sharon Odenbaugh,,7602183774.0,"Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,$5.00/panel
+__export__.res_partner_client_1741,Janice Record,,9167045576.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,6 Months,On Request,No,145
+__export__.res_partner_client_1745,Bill Schroeder,,9175824953.0,"Marketing Source / Thumbtack,Service Area / Desert,Customer Status / OK",False,,False,Unknown,6 Months,Maintenance,1.0,300/150
+__export__.res_partner_client_1746,Karen Bellamy,,2535797099.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,"220 Solar, 580 Window inside & outside"
+__export__.res_partner_client_1747,Minia Esparza,,9092627341.0,"Marketing Source / Referral,Service Area / Hemet",False,Alt Phone: 9514670094.0,False,Yes,Unknown,On Request,No,145
+__export__.res_partner_client_1753,Suzy Callahan,,8473310017.0,"Service Area / Desert,Marketing Source / Magnet/Drive By",False,,False,Yes,Unknown,On Request,No,200 - Cash 180
+__export__.res_partner_client_1759,Annie Marsalone,,9098169499.0,"Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1760,Jessica Johnson,,7605676895.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,Unknown,On Request,No,225
+__export__.res_partner_client_1761,Dan Brouilley,,9522212595.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,200
+__export__.res_partner_client_1763,Rochelle Lozdon,EXBRITSHEL@AOL.COM,8182098609.0,Customer Status / CF,False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1764,Toney Lawson,,2096492587.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1765,Darlean Sugameli,,7608092242.0,"Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1766,Al Garces,,5626314484.0,Service Area / Hemet,False,,False,Yes,Unknown,On Request,No,70
+__export__.res_partner_client_1767,Art Clifford,,5096701242.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1769,Anita Saunders,,9514404567.0,Service Area / Desert,False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1772,Ken Morris,,7604224770.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,150
+__export__.res_partner_client_1773,Chuck McBride,,7602755481.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,4 Months,Maintenance,No,230 In & Out
+__export__.res_partner_client_1775,Christopher Brown,,3233500225.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,250.00 Est
+__export__.res_partner_client_1777,Barbara Rago,,9512641516.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,4 Months,On Request,No,150
+__export__.res_partner_client_1778,Les Berkey,,7608995770.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1779,Kelly Dower,,7148764559.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1780,Trudy Roony,,9132205536.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,400/150
+__export__.res_partner_client_1781,Gene Hurtig,,4086857217.0,"Marketing Source / Home Advisor,Service Area / Desert,Customer Status / OK",False,,False,Unknown,6 Months,On Request,No,75
+__export__.res_partner_client_1783,Bud Piraino,,9512654217.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,12 Months,On Request,No,85
+__export__.res_partner_client_1784,Robyn Pierce,,5035932013.0,"Customer Status / Snow Bird,Marketing Source / Referral,Service Area / Desert",False,,False,Yes,12 Months,On Request,No,150
+__export__.res_partner_client_1785,Andy Willinger,Andy_willinger@yahoo.com,3107131952.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,On Request,No,190
+__export__.res_partner_client_1786,Steve Acree,,4425292983.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Yes,6 Months,On Request,No,250-295
+__export__.res_partner_client_1787,Juanita Godwin,,7605416878.0,"Marketing Source / Home Advisor,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1791,Walter  Garrison,,6619728580.0,"Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1792,Jose Bugarin,,9492357977.0,"Marketing Source / Thumbtack,Service Area / Desert",False,,False,Unknown,Unknown,On Request,No,175
+__export__.res_partner_client_1794,Barbara Little,,4157263535.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Yes,Unknown,On Request,No,195
+__export__.res_partner_client_1796,Terri Jones,,7144698710.0,Service Area / Desert,False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1797,Ed Bakosh,,9518678506.0,Service Area / Hemet,False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1799,Sharon Sims,,9516642784.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,6 Months,Maintenance,No,150
+__export__.res_partner_client_1800,Sally Walsh,,9515378421.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,3 Months,Maintenance,No,150
+__export__.res_partner_client_1801,Steve Witters ,,7075709044.0,"Marketing Source / Referral,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1802,Bill Mayhall,,9099386611.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1804,Eliza Prall,,3035884174.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,Alt Phone: 3035140855.0,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1806,Diane Billings,,7604977772.0,"Marketing Source / Referral,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,140
+__export__.res_partner_client_1807,Larry Sanberg,,9516394750.0,"Customer Status / CF,Customer Status / Star,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,Unknown,Unknown,No,160
+__export__.res_partner_client_1808,Linda Willingham,dansyourrealtor@gmail.com,9092395516.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,On Request,No,145
+__export__.res_partner_client_1809,Kevin Hile,,7606198882.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1812,Jackie Peterson,,9515999904.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,Alt Phone: 9519260152.0,False,Yes,Unknown,Unknown,No,150 + 10.00 garage
+__export__.res_partner_client_1813,Robert Wilcox,rjwilcox@rcn.com,3125055264.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Web Site",False,,False,Yes,6 Months,Maintenance,No,$75
+__export__.res_partner_client_1815,Bill Blane,,4077123047.0,"Customer Status / CF,Service Area / Desert,Marketing Source / Magnet/Drive By",False,,False,Yes,6 Months,Maintenance,No,185.00 plus 75.00 solar
+__export__.res_partner_client_1817,Kristin Acker,,2069310667.0,"Service Area / Desert,Customer Status / OK",False,,False,Unknown,On Request,Unknown,No,200
+__export__.res_partner_client_1822,Tom Kelly,,9517646074.0,"Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,Unknown,No,75.00 min - 5.00/panel
+__export__.res_partner_client_1823,Larry Fraser,,4155151040.0,"Marketing Source / Thumbtack,Customer Status / CF",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1824,Bruce Johnson,,9516094161.0,"Customer Status / CF,Service Area / Hemet",False,,False,Unknown,Unknown,Unknown,No,min $75.00 5.00 per panel
+__export__.res_partner_client_1825,Anny & Karl Hogquist,khogquist@verizon.net,3106632906.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,Unknown,No,24 x 5 =120.00
+__export__.res_partner_client_1827,Tom John,,9519702840.0,"Marketing Source / Referral,Service Area / Hemet,Customer Status / OK",False,,False,Unknown,On Request,Unknown,No,290 Actual Quote
+__export__.res_partner_client_1828,Steve Kosta,,9514429125.0,"Service Area / Hemet,Customer Status / Moved",False,,False,Unknown,On Request,Unknown,No,160
+__export__.res_partner_client_1830,Andy Kustas,,6039860249.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,Unknown,No,175.00 Est
+__export__.res_partner_client_1831,Sydney Ann Leonard,,7603453105.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1832,LD Fowler,,9514898621.0,"Customer Status / CF,Service Area / Hemet,Marketing Source / Magnet/Drive By",False,,False,Yes,Unknown,Unknown,No,5*18=90.00
+__export__.res_partner_client_1833,Jerome King ,,6194109499.0,"Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,75
+__export__.res_partner_client_1835,Lilian  Togo,,6268410076.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,On Request,Unknown,No,
+__export__.res_partner_client_1836,William Smith,bills1947@sbcglobal.net,7604085907.0,"Customer Status / CF,Marketing Source / Angi,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1837,Jim Leal,,5107145638.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Yes,On Request,Unknown,No,160
+__export__.res_partner_client_1838,Sue Johnson,,5623046370.0,"Marketing Source / Home Advisor,Service Area / Desert",False,,False,Yes,3 Months,Maintenance,No,185
+__export__.res_partner_client_1840,Mary Lou Caldwell,,9515159173.0,"Customer Status / CF,Service Area / Hemet",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1841,Rosemary Villegas,,7144226134.0,"Customer Status / CF,Service Area / Desert",False,,False,Yes,Unknown,Unknown,No,185-230
+__export__.res_partner_client_1845,Marilyn Mason,,4356699745.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,,False,Unknown,Unknown,Unknown,No,95
+__export__.res_partner_client_1846,John Evanoff,,7603997922.0,"Marketing Source / Thumbtack,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,
+__export__.res_partner_client_1847,Phil & Fran Ciulla,,6265240862.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Desert",False,Alt Phone: 6268184152.0,False,Yes,Unknown,On Request,No,$225 should be $275.00 min
+__export__.res_partner_client_1849,Ron Dilaura,,7608760704.0,"Marketing Source / Home Advisor,Customer Status / CF,Service Area / Desert",False,,False,Unknown,On Request,Unknown,No,170-195
+__export__.res_partner_client_1853,Barbara Garner,,4084168482.0,"Marketing Source / Referral,Customer Status / CF,Service Area / Hemet",False,,False,Yes,Unknown,Unknown,No,150

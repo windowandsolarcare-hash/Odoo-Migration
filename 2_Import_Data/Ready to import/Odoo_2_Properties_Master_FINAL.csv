@@ -1,0 +1,748 @@
+ClientId,Address,City,State,PostalCode,gate_code,parent_id,property_id
+1784,1244 E Andreas Rd,Palm Springs,California,92262,,W_1784,P_0
+1034,240 4 Seasons Blvd,Hemet,California,92545,,W_1034,P_1
+1853,239 Firestone Lane,Hemet,California,92545,,W_1853,P_2
+1838,21 Chardonnay,Rancho Mirage,California,92270,,W_1838,P_3
+1849,73450 Country Club Dr,Palm Desert,California,92260,#2605,W_1849,P_4
+1356,48553 Via Amistad,La Quinta,California,92253,,W_1356,P_5
+1598,559 Soriano Way,Palm Springs,California,92262,Gate Code: 0145,W_1598,P_6
+1746,2724 Anza Trail,Palm Springs,California,92264,0733#,W_1746,P_7
+1847,49915 Vía Katalina,La Quinta,California,92253,,W_1847,P_8
+1846,74420 Angels Camp Rd,Palm Desert,California,92260,1727,W_1846,P_9
+1845,2830 Calle Loreto,Palm Springs,California,92264,"The gate code to the development is 1310, and the code for our front door is 9157. Press the checkmark after you enter the code on the front door.",W_1845,P_10
+1272,160 S Saturmino Dr,Palm Springs,California,92262,1970,W_1272,P_11
+1841,3611 Savannah Way,Palm Springs,,92262,,W_1841,P_12
+1808,8292 Campbell Court,Hemet,California,92545,,W_1808,P_15
+1840,593 Zaharias Circle,Hemet,California,92545,,W_1840,P_16
+1593,815 W Panorama Rd,Palm Springs,California,92262,,W_1593,P_17
+1690,8757 Stephenson Ln,Hemet,California,92545,,W_1690,P_18
+1079,5534 Corte del Mar,Hemet,California,92545,,W_1079,P_19
+1338,76201 Vía Mariposa,Indian Wells,California,92210,,W_1338,P_20
+1340,5267 Via Bajamar,Hemet,California,92545,,W_1340,P_21
+1584,74614 Palo Verde Drive,Indian Wells,California,92210,,W_1584,P_22
+1500,21 Riesling,Rancho Mirage,California,92270,,W_1500,P_23
+1836,1939 Fan Palm Way,Palm Springs,California,92262,6220#,W_1836,P_24
+1837,54688 Tanglewood,La Quinta,California,92253,,W_1837,P_25
+1472,78843 Fortuna Pl,Palm Desert,California,92211,247,W_1472,P_26
+1832,7693 Dutra Dr,Hemet,California,92545,,W_1832,P_29
+1510,3586 Date Palm Trail,Palm Springs,California,92262,5729 - side gate 1913,W_1510,P_30
+1665,94 Princeton Drive,Rancho Mirage,California,92270,,W_1665,P_31
+1835,7695 Gibson Circle,Hemet,California,92545,,W_1835,P_32
+1833,8060 Bay Hill Ave,Four Seasons,,92545,,W_1833,P_33
+1831,42585 Kansas Street,Palm Desert,California,92211,,W_1831,P_35
+1031,7829 January Dr,Hemet,California,92545,,W_1031,P_36
+1684,225 Furyk Way,Hemet,California,92545,,W_1684,P_37
+1044,560 Tewell Dr,Hemet,California,92545,,W_1044,P_38
+1043,197 Furyk Way,Hemet,California,92545,,W_1043,P_39
+1830,48571 Via Carisma,Indio,California,92201,#0072,W_1830,P_40
+1674,475 Vardon Circle,Hemet,California,92545,,W_1674,P_41
+1700,78959 Stansbury Ct,Palm Desert,California,92211,,W_1700,P_42
+1828,465 Lyle Drive,Hemet,California,92545,,W_1828,P_43
+1827,1353 Rabbit Peak Way,Hemet,California,92545,,W_1827,P_44
+1525,30 Syrah,Rancho Mirage,California,92270,,W_1525,P_45
+1825,7855 Gibson Cir,Hemet,California,92545.,,W_1825,P_46
+1824,5580 Corte Benisa,Hemet,California,92545,,W_1824,P_47
+1822,5462 Corte del Mar,Hemet,California,92545,,W_1822,P_48
+1823,156 Hilligoss Drive,Cathedral City,California,92234,Gate code is 156,W_1823,P_49
+1076,8170 Pavin Lane,Hemet,California,92545,,W_1076,P_50
+1529,39283 Camino Piscina,Indio,California,92203,,W_1529,P_51
+1190,10309 Sunningdale Drive,Rancho Mirage,California,92270,,W_1190,P_54
+1006,8100 Bay Hill Ave,Hemet,California,92545,,W_1006,P_55
+1142,470 Garcia Dr,Hemet,California,92545,,W_1142,P_56
+1380,409 Casper Dr,Hemet,California,92545,,W_1380,P_57
+1003,618 Zaharias Circle,Hemet,California,92545,,W_1003,P_59
+1761,7 Taylor Avenue,Palm Desert,California,92260,,W_1761,P_60
+1706,78831 Fortuna Place,Palm Desert,California,92211,,W_1706,P_61
+1405,1868 Terrace Dr,Hemet,California,92544,,W_1405,P_62
+1393,452 Casper Dr,Hemet,California,92545,,W_1393,P_63
+1126,7840 January Dr,Hemet,California,92545,,W_1126,P_64
+1441,7940 January Dr,Hemet,California,92545,,W_1441,P_65
+1435,1640 Paseo Diamonte,Hemet,California,92545,,W_1435,P_66
+1542,39564 Ciega Creek Drive,Palm Desert,California,92260,,W_1542,P_67
+1546,36291 Corta Aguila,Cathedral City,California,92234,,W_1546,P_68
+1813,42734 Gordola Place,Indio,California,92203,,W_1813,P_70
+1074,7740 Gibson Circle,Hemet,California,92545,,W_1074,P_71
+1691,8855 Stephenson Ln,Hemet,California,92545,,W_1691,P_72
+1817,81594 Ronda,La Quinta,California,92253,,W_1817,P_74
+1815,57 Grenache,Rancho Mirage,California,92270,,W_1815,P_75
+1214,22 Taylor Ave,Palm Desert,California,92260,,W_1214,P_76
+1347,94 Hudson Court,Palm Desert,California,92211,00909 enter,W_1347,P_77
+1800,7810 Gibson Circle,Hemet,California,92545,,W_1800,P_78
+1298,8159 Doral Lane,Hemet,California,92545,,W_1298,P_79
+1339,81785 Via San Clemente,La Quinta,California,92253,3551 enter,W_1339,P_80
+1383,12128 Turnberry Dr,Rancho Mirage,California,92270,,W_1383,P_81
+1158,436 Bjorn Court,Hemet,California,92545,,W_1158,P_82
+1427,30480 Keith Ave,Cathedral City,California,92234,,W_1427,P_85
+1198,8743 Stephenson Ln,Hemet,California,92545,,W_1198,P_88
+1812,650 Zaharia Circle,Hemet,California,92545,,W_1812,P_90
+1582,609 Zaharias Circle,Hemet,California,92545,,W_1582,P_91
+1697,268 South Paseo Laredo,Cathedral City,California,92234,,W_1697,P_92
+1016,163 Lehman Way,Hemet,California,92545,,W_1016,P_96
+1679,425 Vardon Circle,Hemet,California,92545,,W_1679,P_97
+1807,8444 Maruyama Dr,Hemet,California,92545,,W_1807,P_98
+1552,8244 Parry Drive,Hemet,California,92545,,W_1552,P_99
+1342,8138 Doral Lane,Hemet,California,92545,,W_1342,P_100
+1065,7746 Dutra Dr,Hemet,California,92545,,W_1065,P_101
+1532,8226 Parry Dr,Hemet,California,92545,,W_1532,P_102
+1547,1407 N Sunrise Way UNIT 30,Palm Springs,California,92262,291 or #5877.  920,W_1547,P_105
+1240,8401 Maruyama Drive,Hemet,California,92545,,W_1240,P_106
+1015,339 Casper Dr,Hemet,California,92545,,W_1015,P_107
+1025,410 Tewell Dr,Hemet,California,92545,,W_1025,P_108
+1023,5608 Corte Ruiz,Hemet,California,92545,,W_1023,P_109
+1401,23 Calais Cir,Rancho Mirage,California,92270,#3066 or 3066#,W_1401,P_110
+1556,85379 Giorno Court,Indio,California,92203,,W_1556,P_112
+1207,8214 Maruyama Drive,Hemet,California,92545,,W_1207,P_114
+1809,68089 Risueno Road,Cathedral City,California,92234,,W_1809,P_115
+1048,8424 Maruyama Drive,Hemet,California,92545,,W_1048,P_117
+1011,270 Cog Hill Ln,Hemet,California,92545,,W_1011,P_118
+1559,952 Alejo Vista,Palm Springs,California,92262,Gate Code #6217,W_1559,P_119
+1416,8 Mission Palms Drive West,Rancho Mirage,California,92270,8,W_1416,P_120
+1559,952 Alejo Vista,Palm Springs,California,92262,#6217,W_1559,P_121
+1806,370 Casper Drive,Hemet,California,92545,,W_1806,P_122
+1033,600 Olazabal Drive,Hemet,California,92545,,W_1033,P_123
+1123,8108 Hazeltine Lane,Hemet,California,92545,,W_1123,P_124
+1072,8030 Bay Hill Avenue,Hemet,California,92545,,W_1072,P_125
+1399,56 Grenache,Rancho Mirage,California,92270,,W_1399,P_127
+1484,55 Grenache,Rancho Mirage,California,92270,,W_1484,P_130
+1559,952 Alejo Vista,Palm Springs,California,92262,,W_1559,P_132
+1413,19 Araby St,Palm Springs,California,92264,,W_1413,P_133
+1398,58 Grenache,Rancho Mirage,California,92270,,W_1398,P_134
+1430,55282 Tanglewood,La Quinta,California,92253,,W_1430,P_135
+1618,43042 Balsam Ln,Palm Desert,California,92260,,W_1618,P_137
+1588,2810 Calle Loreto,Palm Springs,California,92264,Look up Pearson on directory,W_1588,P_138
+1727,5267 Paseo Callado,Hemet,California,92545,,W_1727,P_139
+1268,472 Casper Dr,Hemet,California,92545,,W_1268,P_141
+1128,7724 Gibson Cir,Hemet,California,92545,,W_1128,P_142
+1649,81-594 Ronda,La Quinta,California,92253,,W_1649,P_143
+1799,531 Casper Dr,Hemet,California,92545,,W_1799,P_145
+1077,7879 Rawls Drive,Hemet,California,92545,,W_1077,P_148
+1685,8481 Maruyama Dr,Hemet,California,92545,,W_1685,P_149
+1027,7970 Doyle Circle,Hemet,California,92545,,W_1027,P_150
+1223,1656 Paseo Diamante,Hemet,California,92545,,W_1223,P_152
+1595,44835 Guadalupe Dr,Indian Wells,California,92210,Off Elderodo Dr,W_1595,P_153
+1150,3629 Savanna Way,Palm Springs,California,92262,8060,W_1150,P_154
+1255,39440 Bel Air Dr,Cathedral City,California,92234,,W_1255,P_155
+1625,48871 Cassia Pl,Palm Desert,California,92260,,W_1625,P_157
+1804,636 Hospitality Dr,Rancho Mirage,California,92270,,W_1804,P_160
+1448,8481 Maruyama Dr,Hemet,,92545,,W_1448,P_161
+1080,8404 Maruyama Dr,Hemet,California,92545,,W_1080,P_163
+1071,7760 Dutra Dr,Hemet,California,92545,,W_1071,P_166
+1802,8425 Singh Ct,Hemet,California,92545,,W_1802,P_169
+1655,24 Riesling,Rancho Mirage,California,92270,,W_1655,P_170
+1786,4466 Via del Pellegrino,Palm Desert,California,92260,Gate code is #6999,W_1786,P_171
+1801,2231 North Leonard Road,Palm Springs,California,92262,,W_1801,P_174
+1687,28356 Patches Dr,Menifee,California,92585,,W_1687,P_182
+1234,5 University Cir,Rancho Mirage,California,92270,#1910,W_1234,P_183
+1384,258 Lakewood Ln,Hemet,California,92545,,W_1384,P_187
+1775,67888 Valley Vista Dr,Cathedral City,California,92234,,W_1775,P_191
+1419,42098 Diadomite Way,Palm Desert,California,92260,Use Donahue as name,W_1419,P_193
+1746,2724 Anza Trail,Palm Springs,California,92264,,W_1746,P_195
+1134,1597 Willow Leaf Drive,Hemet,California,92545,,W_1134,P_196
+1797,8151 Carnoustie,Hemet,,92545,,W_1797,P_199
+1796,43631 Adria Drive,Indio,California,92203,,W_1796,P_200
+1351,404 Tewell Drive,Hemet,California,92545,,W_1351,P_201
+1794,109 Claret,Rancho Mirage,California,92270,,W_1794,P_202
+1792,40448 Corte Placitas,Palm Desert,California,92260,,W_1792,P_203
+1791,240 Firestone Lane,Hemet,California,92545,,W_1791,P_204
+1787,85396 Giorno Ct,Indio,California,92203,,W_1787,P_207
+1784,1242 East Andreas,Palm Springs,California,,,W_1784,P_208
+1218,75930 Sarazen Way,Palm Desert,California,92211,18464,W_1218,P_209
+1785,310 Vía Don Benito,Cathedral City,California,92234,can use #3636,W_1785,P_210
+1694,36508 Calle Esperanza,Cathedral City,California,92234,720 or 722,W_1694,P_211
+1349,27315 Arabian Ct,Menifee,California,92584,,W_1349,P_212
+1361,7615 Watson Circle,Hemet,California,9245,,W_1361,P_213
+1437,9253 Stephenson Ln,Hemet,California,92545,,W_1437,P_216
+1472,78843 Fortuna Pl,Palm Desert,California,92211,2727,W_1472,P_221
+1773,73015 Bursera Way,Palm Desert,California,92260,,W_1773,P_222
+1597,81544 Avenida Sombra,Indio,California,92203,Gate offJefferson,W_1597,P_224
+1783,159 Lehman Way,Hemet,California,92545,,W_1783,P_225
+1781,85441 Giorno Court,Indio,California,,,W_1781,P_233
+1439,1273 E Amado Rd,Palm Springs,California,92262,,W_1439,P_235
+1777,187 Hoch Way,Hemet,California,92545,,W_1777,P_236
+1780,41860 Hogan Drive,Palm Desert,California,92211,"01527
+41860 Hogan Dr
+Palm Desert CA 92211
+913 220 5536",W_1780,P_240
+1339,81785 Via San Clemente,La Quinta,California,92253,,W_1339,P_246
+1779,68697 Calle Tolosa,Cathedral City,California,92234,date Palm and the code is #3952,W_1779,P_249
+1778,84942 Corso Court,Indio,California,92203,#1108,W_1778,P_250
+1487,80567 Knightswood Rd,Indio,California,92201,,W_1487,P_253
+1510,3586 Date Palm Trail,Palm Springs,California,92262,5729,W_1510,P_254
+1593,801 W Panorama Rd,Palm Springs,California,92262,Gate code: #1990 or 1999,W_1593,P_255
+1318,45380 Mesa Cove,Indian Wells,California,92210,#2020 or #1723,W_1318,P_256
+1262,110 Mission Hills Dr,Rancho Mirage,California,92270,,W_1262,P_258
+1469,345 Red River Rd,Palm Desert,California,92211,,W_1469,P_259
+1698,204 Gamez Way,Hemet,California,92545,,W_1698,P_264
+1089,573 Pooley Drive,Hemet,California,92545,,W_1089,P_266
+1158,436 Bjorn Ct,Hemet,California,92545,,W_1158,P_271
+1001,8274 Maruyama Dr,Hemet,California,92545,,W_1001,P_272
+1586,394 Casper Dr,Hemet,California,92545,,W_1586,P_273
+1772,69469 Serenity Road,Cathedral City,California,92234,Gate code #1531,W_1772,P_278
+1672,7819 Hagen Cir,Hemet,California,92545,,W_1672,P_281
+1769,33720 Bell Road,Thousand Palms,California,92276,,W_1769,P_282
+1767,3909 Blue Sky Way,Palm Springs,california,92262,9110#,W_1767,P_285
+1355,1635 Candela Ct,Palm Springs,California,92262,,W_1355,P_286
+1580,455 Vardon Cir,Hemet,California,92545,,W_1580,P_287
+1342,8138 Doral Ln,Hemet,California,92545,,W_1342,P_289
+1552,8244 Parry Dr,Hemet,California,92545,,W_1552,P_292
+1417,47446 Rabat Dr,Palm Desert,California,92260,,W_1417,P_294
+1470,902 Alejo Vista,Palm Springs,California,92262,#1984,W_1470,P_295
+1668,79120 Diane Dr,La Quinta,California,92253,,W_1668,P_297
+1444,70465 Sunny Ln,Rancho Mirage,California,92270,,W_1444,P_298
+1766,247 Oak Valley Lane,Hemet,California,92545,,W_1766,P_299
+1212,32569 San Miguelito Drive,Thousand Palms,California,92276,,W_1212,P_300
+1069,238 Cog Hill Lane,Hemet,California,92545,,W_1069,P_301
+1737,372 South Monte Vista Drive,Palm Springs,California,92262,,W_1737,P_303
+1357,75945 Sarazen Way,Palm Desert,California,92211,Gate Code 14054,W_1357,P_307
+1498,29857 Sandy Ct,Cathedral City,California,92234,,W_1498,P_309
+1233,4 University Circle,Rancho Mirage,California,92270,#1910,W_1233,P_318
+1189,1392 Crystal Court,Palm Springs,California,92264,#1115,W_1189,P_319
+1588,2810 Calle Loreto,Palm Springs,California,92264,Push 125 and the phone sign,W_1588,P_321
+1611,34750 Mission Hills Dr,Rancho Mirage,California,92270,,W_1611,P_325
+1653,153 Yale Dr,Rancho Mirage,California,92270,,W_1653,P_326
+1555,17 Stonecrest Cir,Rancho Mirage,California,92270,#1880,W_1555,P_329
+1765,85413 Giorno Court,Indio,California,92203,,W_1765,P_330
+1764,85378 Giorno Court,Indio,California,92203,,W_1764,P_331
+1763,27550 Avenida Quintana,Cathedral City,California,92234,,W_1763,P_333
+1412,80174 Barcelona Avenue,Indio,California,92201,,W_1412,P_334
+1261,1288 Primavera Dr W,Palm Springs,California,92264,,W_1261,P_336
+1745,1245 Pasatiempo,Palm Springs,california,92262,2020,W_1745,P_337
+1524,2120 E Bellamy Rd,Palm Springs,California,92262,,W_1524,P_340
+1272,160 South Saturmino Drive,Palm Springs,California,92262,,W_1272,P_343
+1282,7727 Gibson Circle,Hemet,California,92545,,W_1282,P_344
+1695,5531 Corte del Mar,Hemet,California,92545,,W_1695,P_347
+1357,75945 Sarazen Way,Palm Desert,California,92211,#2517,W_1357,P_348
+1760,38489 Nasturtium Way,Palm Desert,california,92211,,W_1760,P_349
+1450,12 University Cir,Rancho Mirage,California,92270,#1910,W_1450,P_350
+1759,8855 Stephenson Lane,Hemet,California,92545,,W_1759,P_351
+1747,7955 Bogey Ave,Hemet,California,92545,,W_1747,P_352
+1753,70401 Sunny Lane,Rancho Mirage,California,92270,,W_1753,P_354
+1346,78770 Falsetto Drive,Sun City,California,92253,,W_1346,P_357
+1042,771 Suncup Cir,Hemet,California,92545,,W_1042,P_363
+1326,1250 North Kirby Street,Hemet,California,92545,722 (C) Call,W_1326,P_364
+1365,8305 Carnoustie Ave,Hemet,California,92545,,W_1365,P_365
+1400,116 Cabernet,Rancho Mirage,California,92270,,W_1400,P_372
+1745,1245 Pasatiempo,Palm Springs,california,92262,,W_1745,P_374
+1401,23 Calais Cir,Rancho Mirage,California,92270,#3066 or 3066# 3066 enter,W_1401,P_375
+1741,192 Inkster Way,Hemet,California,92545,,W_1741,P_376
+1389,72294 Ginger Rogers Rd,Rancho Mirage,California,92270,,W_1389,P_380
+1740,73450 Country Club Dr,Palm Desert,California,92260,#9944 off Country Club,W_1740,P_382
+1739,31268 Frans Hals Dr,Winchester,California,92596,,W_1739,P_383
+1733,727 Inverness Dr,Rancho Mirage,California,92270,,W_1733,P_384
+1735,81519 Avenida Montura,Indio,California,92203,,W_1735,P_385
+1316,1476 Peters Canyon Park,Beaumont,California,92223,,W_1316,P_386
+1728,10507 Sunningdale Dr,Rancho Mirage,California,92270,,W_1728,P_392
+1565,133 Lopez Way,Hemet,California,92545,,W_1565,P_394
+1713,77308 Olympic Way,Palm Desert,California,92211,,W_1713,P_399
+1731,42812 Adalin Way,Palm Desert,California,92211,,W_1731,P_401
+1729,625 Parnavik Drive,Hemet,California,92545,,W_1729,P_402
+1344,51358 Mystic Tyme Drive,Indio,California,92201,,W_1344,P_403
+1140,8421 Maruyama Drive,Hemet,California,92545,,W_1140,P_406
+1720,299 Tolosa Circle,Palm Desert,california,92260,please use the North entrance at Avenida del Sol.,W_1720,P_408
+1151,88 Princeton Dr,Rancho Mirage,California,92270,,W_1151,P_410
+1597,81544 Avenida Sombra,Indio,California,92203,,W_1597,P_411
+1575,348 Casper Dr,Hemet,California,92545,,W_1575,P_414
+1725,30376 Avenida Alvera,Cathedral City,California,92234,,W_1725,P_418
+1724,73450 Country Club Drive,Palm Desert,California,92260,#9944 off Country Club,W_1724,P_420
+1219,899 Island Dr,Rancho Mirage,California,92270,,W_1219,P_421
+1235,196 Inkster Way,Hemet,California,92545,,W_1235,P_422
+1117,8919 Stephenson Ln,Hemet,California,92545,,W_1117,P_427
+1721,8344 Maruyama Dr,Hemet,California,92545,,W_1721,P_428
+1717,7721 Armour Dr,Hemet,California,92545,,W_1717,P_429
+1423,7877 Littler Dr,Hemet,California,92545,,W_1423,P_430
+1712,1 Via Santa Ramona,Rancho Mirage,California,92270,Scroll to either name: Argeris or Moore #8123,W_1712,P_431
+1551,572 N Plaza Amigo,Palm Springs,California,92262,,W_1551,P_435
+1350,606 Cache Ln,Palm Springs,California,92262,,W_1350,P_437
+1227,3 University Circle,Rancho Mirage,California,92270,Gate code is #1910,W_1227,P_438
+1461,73101 Skyward Way,Palm Desert,California,92260,,W_1461,P_439
+1326,1250 North Kirby Street,Hemet,California,92545,,W_1326,P_440
+1311,260 Glenview Lane,Hemet,California,92545,,W_1311,P_441
+1208,230 Cog Hill Ln,Hemet,California,92545,,W_1208,P_442
+1306,2415 Casitas Way,Palm Springs,California,92264,,W_1306,P_445
+1718,130 Lopez Way,Hemet,California,92545,,W_1718,P_448
+1387,578 Zaharias Circle,Hemet,California,92545,,W_1387,P_449
+1432,47310 Blazing Star Lane,Palm Desert,California,92260,,W_1432,P_451
+1547,1407 N Sunrise Way UNIT 30,Palm Springs,California,92262,291 or #5877,W_1547,P_452
+1584,74045 Mockingbird Trail,Indian Wells,California,92210,,W_1584,P_453
+1501,8245 Faldo Ave,Hemet,California,92545,,W_1501,P_457
+1510,3586 Date Palm Trail,Palm Springs,California,92262,,W_1510,P_460
+1534,355 W Chino Canyon Rd,Palm Springs,California,92262,,W_1534,P_463
+1466,1821 S La Paloma,Palm Springs,California,92264,,W_1466,P_467
+1714,2051 E Calle Felicia,Palm Springs,California,92262,,W_1714,P_470
+1712,1 Via Santa Ramona,Rancho Mirage,California,92270,Scroll to either name: Argeris or Moore,W_1712,P_472
+1230,8324 Maruyama Dr,Hemet,California,92545,,W_1230,P_473
+1710,5532 Corte Portico,Hemet,California,92545,,W_1710,P_476
+1258,1452 Trinidad St,Hemet,California,92543,Gate code #1472,W_1258,P_481
+1052,8975 Stephenson Ln,Hemet,California,92545,,W_1052,P_483
+1703,100 N Cerritos Dr #2 ,Palm Springs,California,92262,2060,W_1703,P_487
+1336,669 Weir Drive,Hemet,California,92545,,W_1336,P_489
+1472,78843 Fortuna Pl,Palm Desert,California,92211,,W_1472,P_494
+1707,401 El Cielo Rd,Palm Springs,California,92262,47,W_1707,P_498
+1699,70130 Sun Valley Drive,Rancho Mirage,California,92270,,W_1699,P_501
+1318,45380 Mesa Cove,Indian Wells,California,92210,,W_1318,P_504
+1511,5484 Corte del Mar,Hemet,California,92545,,W_1511,P_506
+1673,16 Lincoln Place,Rancho Mirage,California,92270,,W_1673,P_516
+1702,26511 Ash Summit Circle,Menifee ,California,92584,,W_1702,P_518
+1701,82173 Modena Rd,82173 Modena Rd,Indio,92203,#2483,W_1701,P_519
+1452,8161 Carnoustie Avenue,Hemet,California,92545,,W_1452,P_520
+1059,26290 Amen St,Hemet,California,92544,,W_1059,P_528
+1561,228 E Newport Rd,Hemet,California,92543,,W_1561,P_529
+1696,3624 Cliffrose Trail,3624 Cliffrose Trail,Palm Springs,92262,9417#,W_1696,P_535
+1693,620 Bahama Drive,Hemet,California,92543,,W_1693,P_540
+1039,1664 Paseo Diamante,Hemet,California,92545,,W_1039,P_542
+1508,279 W Camino Alturas,Palm Springs,California,92264,,W_1508,P_547
+1689,5462 Corte del Mar,Hemet,California,92545,,W_1689,P_551
+1688,28368 Patches Dr,Menifee,California,92585,,W_1688,P_553
+1595,44835 Guadalupe Drive,Indian Wells,California,92210,,W_1595,P_554
+1686,41865 Harrison Dr,Palm Desert,California,92211,#2517,W_1686,P_565
+1463,1154 Tiffany Cir N,Palm Springs,California,92262,,W_1463,P_566
+1543,82 Conejo Cir,Palm Desert,California,92260,,W_1543,P_568
+1494,141 Desert W Dr,Rancho Mirage,California,92270,,W_1494,P_570
+1424,550 W Sepulveda Rd,Palm Springs,California,92262,,W_1424,P_576
+1633,636 Cache Ln,Palm Springs,California,92262,0972#,W_1633,P_583
+1416,8 Mission Palms Dr W,Rancho Mirage,California,92270,8,W_1416,P_584
+1037,1450 Camino Hidalgo,Hemet,California,92545,,W_1037,P_587
+1180,647 Bedford Drive,Palm Springs,California,92264,,W_1180,P_597
+1681,74431 Chicory Street,Palm Desert,California,92260,,W_1681,P_603
+1526,837 E Alexander Way,Palm Springs,California,92262,,W_1526,P_613
+1085,1820 Fan Palm Way,Palm Springs,California,92262,6070#,W_1085,P_616
+1328,82536 Grant Drive,Indio,California,92201,,W_1328,P_618
+1493,96 Princeton Drive,Rancho Mirage,California,92270,,W_1493,P_621
+1135,468 Olazabal Drive,Hemet,California,92545,,W_1135,P_623
+1678,605 Cache Ln,Palm Springs,California,92262,,W_1678,P_627
+1401,23 Calais Cir,Rancho Mirage,California,92270,#3066,W_1401,P_628
+1673,16 Lincoln Place,Rancho Mirage,California,92270,8713,W_1673,P_631
+1666,111 Claret,Rancho Mirage,California,92270,,W_1666,P_642
+1676,1835 North Vía Miraleste,Palm Springs,California,92262,,W_1676,P_643
+1675,7858 Rawls Drive,Hemet,California,92545,,W_1675,P_644
+1672,380 Garcia Drive,Hemet,California,92545,,W_1672,P_648
+1297,77176 California Dr,Palm Desert,California,92211,,W_1297,P_649
+1452,8161 Carnoustie Ave,Hemet,California,92545,,W_1452,P_653
+1669,101 Celano Circle,Palm Desert,california,92211,,W_1669,P_655
+1667,79989 Rancho La Quinta Drive,La Quinta,California,92253,,W_1667,P_658
+1644,75 Colgate,Rancho Mirage,California,92270,,W_1644,P_667
+1664,1569 South La Brea Road,Palm Springs,California,92264,,W_1664,P_678
+1663,68688 Calle Tolosa,Cathedral City,California,92234,372,W_1663,P_679
+1325,80806 Via Puerta Azul,La Quinta,California,92253,,W_1325,P_683
+1190,10309 Sunningdale Dr,Rancho Mirage,California,92270,,W_1190,P_700
+1256,73811 Mondrian Pl,Palm Desert,California,92211,#0488,W_1256,P_702
+1641,35308 Rush Ln,Cathedral City,California,92234,24#,W_1641,P_703
+1637,226 Cog Hill Ln,Hemet,California,92545,,W_1637,P_710
+1135,8500 Maruyama Drive,Hemet,California,92545,,W_1135,P_711
+1618,43042 Balsam Lane,Palm Desert,California,92260,,W_1618,P_712
+1439,1273 E Amado Rd,Palm Springs,California,92262,#0488,W_1439,P_713
+1637,226 Cog Hill Lane,Hemet,California,92545,,W_1637,P_714
+1280,37255 Pineknoll Ave,Palm Desert,California,92211,,W_1280,P_719
+1635,260 Firestone Lane,Hemet,California,92545,,W_1635,P_723
+1418,1457 E Amado Rd,Palm Springs,California,92262,,W_1418,P_728
+1634,635 Cache Lane,Palm Springs,California,92262,,W_1634,P_735
+1633,636 Cache Lane,Palm Springs,California,92262,0972#    0713 front yard,W_1633,P_736
+1632,8170 Doral Ln,Hemet,California,92545,,W_1632,P_737
+1631,69 Prosecco,Rancho Mirage,California,92270,,W_1631,P_739
+1259,47655 Vía Montigo,La Quinta,California,92253,,W_1259,P_743
+1629,44225 Kings Canyon Ln,Palm Desert,California,92260,,W_1629,P_744
+1234,5 University Circle,Rancho Mirage,California,92270,,W_1234,P_745
+1429,80931 Via Puerta Azul,La Quinta,California,92253,#044,W_1429,P_746
+1494,35078 Mission Hills Drive,Rancho Mirage,California,92270,,W_1494,P_748
+1555,17 Stonecrest Cir,Rancho Mirage,California,92270,,W_1555,P_750
+1594,76964 Kybar Rd,Palm Desert,California,92211,,W_1594,P_753
+1318,45380 Mesa Cove,Indian Wells,California,92210,#1723,W_1318,P_754
+1627,5583 Corte Ruiz,Hemet,California,92545,,W_1627,P_755
+1626,3419 Via Leonardo,Palm Desert,California,,,W_1626,P_756
+1625,48871 Cassia Place,Palm Desert,California,92260,,W_1625,P_757
+1470,902 Alejo Vista,Palm Springs,California,92262,,W_1470,P_759
+1623,426 Bjorn Ct,Hemet,California,92545,,W_1623,P_760
+1621,3449 Via Leonardo,Palm Desert,California,92260,,W_1621,P_761
+1216,880 Deer Haven Cir,Palm Desert,California,92211,,W_1216,P_764
+1416,8 Mission Palms Dr W,Rancho Mirage,California,92270,,W_1416,P_765
+1615,43380 Illinois Avenue,Palm Desert,California,92211,,W_1615,P_768
+1614,5001 W Florida Ave sp266,Hemet,California,92545,,W_1614,P_769
+1036,5388 Corte Cidra,Hemet,California,92545,,W_1036,P_770
+1032,7555 Whitworth Dr,Hemet,California,92545,,W_1032,P_777
+1610,70435 Sunny Ln,Rancho Mirage,California,92270,,W_1610,P_779
+1421,7807 Gibson Cir,Hemet,California,92545,,W_1421,P_782
+1602,36781 Palm View Rd,Rancho Mirage,California,92270,,W_1602,P_789
+1603,4 Duke Dr,Rancho Mirage,California,92270,,W_1603,P_792
+1429,80931 Via Puerta Azul,La Quinta,California,92253,,W_1429,P_796
+1606,1 Varsity Circle,Rancho Mirage,California,92270,,W_1606,P_798
+1605,72425 Glenview Circle,Palm Desert,California,92260,,W_1605,P_799
+1207,8214 Maruyama Dr,Hemet,California,92545,,W_1207,P_802
+1428,73485 Dalea Ln,Palm Desert,California,92260,,W_1428,P_806
+1601,36830 Pinto Palm Way,Rancho Mirage,California,92270,,W_1601,P_807
+1445,70400 Los Pueblos Way,Rancho Mirage,California,92270,,W_1445,P_808
+1406,8305 Bogey Ave,Hemet,California,92545,,W_1406,P_812
+1604,10 Normandy Way,Rancho Mirage,California,92270,,W_1604,P_817
+1480,85366 Giorno Court,Indio,California,92203,,W_1480,P_823
+1223,1656 Paseo Diamonte,Hemet,California,92545,,W_1223,P_825
+1602,36781 Palm View Road,Rancho Mirage,California,92270,,W_1602,P_832
+1029,590 Olazabal Drive,Hemet,California,92545,,W_1029,P_834
+1600,81611 Rancho Santana Drive,La Quinta,California,92253,,W_1600,P_835
+1599,69960 Pomegranate Lane,Cathedral City,California,92234,,W_1599,P_837
+1598,559 Soriano Way,Palm Springs,California,92262,,W_1598,P_838
+1596,72797 Skyward Way,Palm Desert,California,92260,,W_1596,P_840
+1594,76964 Kybar Road,Palm Desert,California,92211,,W_1594,P_842
+1419,42098 Diadomite Way,Palm Desert,California,92260,,W_1419,P_843
+1198,8743 Stephenson Lane,Hemet,California,92545,,W_1198,P_844
+1076,8170 Pavin Ln,Hemet,California,92545,,W_1076,P_850
+1593,801 W Panorama Rd,Palm Springs,California,92262,,W_1593,P_851
+1412,82174 W Helio Ct,Indio,California,92201,,W_1412,P_853
+1346,48585 Capistrano Way,La Quinta,California,92253,,W_1346,P_856
+1465,30823 Sterling Rd,Cathedral City,California,92234,,W_1465,P_858
+1591,41183 Doyle Street,Indio,California,92203,,W_1591,P_860
+1580,455 Vardon Circle,Hemet,California,92545,,W_1580,P_861
+1138,465 Vardon Circle,Hemet,California,92545,,W_1138,P_862
+1401,23 Calais Cir,Rancho Mirage,California,92270,,W_1401,P_868
+1584,47152 El Menara Cir,Palm Desert,California,92260,,W_1584,P_869
+1227,3 University Circle,Rancho Mirage,California,92270,,W_1227,P_873
+1588,2810 Calle Loreto,Palm Springs,California,92264,,W_1588,P_874
+1587,38239 Grand Oaks Avenue,Palm Desert,California,92211,,W_1587,P_876
+1582,609 Zaharias Cir,Hemet,California,92545,,W_1582,P_878
+1465,30823 Sterling Road,Cathedral City,California,92234,,W_1465,P_883
+1548,28 Vía Valverde,Cathedral City,California,92234,,W_1548,P_891
+1370,8 Calais Cir,Rancho Mirage,California,92270,8985,W_1370,P_893
+1138,465 Vardon Cir,Hemet,California,92545,,W_1138,P_898
+1583,3039 Via Hado,Palm Springs,California,92264,,W_1583,P_899
+1218,75930 Sarazen Way,Palm Desert,California,92211,2517,W_1218,P_902
+1522,489 Garcia Dr,Hemet,California,92545,,W_1522,P_904
+1003,618 Zaharias Cir,Hemet,California,92545,,W_1003,P_905
+1581,1639 Via Simpatico,Hemet,California,92545,,W_1581,P_910
+1102,295 Baugh Ln,Hemet,California,92545,,W_1102,P_913
+1065,7746 Dutra Drive,Hemet,California,92545,,W_1065,P_914
+1574,550 Olazabal Dr,Hemet,California,92545,,W_1574,P_915
+1573,127 Hester Dr,Cathedral City,California,92234,,W_1573,P_916
+1562,8905 Stephenson Ln,Hemet,California,92545,,W_1562,P_918
+1578,369 Ashbury Ln,Upland,California,91784,,W_1578,P_920
+1577,28371 Northmoore Pl,Menifee,California,92584,,W_1577,P_922
+1371,29383 Hidden Lake Dr,Menifee,California,92584,,W_1371,P_923
+1574,550 Olazabal Drive,Hemet,California,92545,,W_1574,P_927
+1573,127 Hester Dr,Cathedral City,california,92234,,W_1573,P_928
+1008,8281 Carnoustie Avenue,Hemet,California,92545,,W_1008,P_929
+1044,560 Tewell Drive,Hemet,California,92545,,W_1044,P_931
+1006,8100 Bay Hill Avenue,Hemet,California,92545,,W_1006,P_933
+1561,228 Newport Rd,Hemet,California,92543,,W_1561,P_937
+1263,5667 Paseo Famosa,Hemet,California,92545,,W_1263,P_938
+1557,1625 Via Borrego,Hemet,California,92545,,W_1557,P_939
+1568,68640 Durango Rd,Cathedral City,California,92234,,W_1568,P_940
+1230,8324 Maruyama Drive,Hemet,California,92545,,W_1230,P_941
+1567,2 Cll Encinitas,Rancho Mirage,California,92270,,W_1567,P_942
+1564,1686 Camino Sueno,Hemet,California,92545,,W_1564,P_944
+1561,228 Newport Road,Hemet,California,92543,,W_1561,P_946
+1559,401 El Cielo Rd,Palm Springs,California,92262,,W_1559,P_947
+1268,472 Casper Drive,Hemet,California,92545,,W_1268,P_950
+1151,88 Princeton Drive,Rancho Mirage,California,92270,,W_1151,P_953
+1560,375 E. Bogert Trail,Palm Springs,California,92264,,W_1560,P_954
+1558,71558 Estellita Dr,Rancho Mirage,California,92270,,W_1558,P_956
+1553,504 S Calle Encilia,Palm Springs,California,92264,,W_1553,P_961
+1258,1452 Trinidad St,Hemet,California,92543,,W_1258,P_963
+1549,184 Lehman Way,Hemet,California,92545,,W_1549,P_964
+1555,17 Stonecrest Circle,Rancho Mirage,California,92270,,W_1555,P_974
+1553,504 South Calle Encilia,Palm Springs,California,92264,,W_1553,P_976
+1001,8274 Maruyama Drive,Hemet,California,92545,,W_1001,P_982
+1542,39564 Ciega Creek Dr,Palm Desert,California,92260,,W_1542,P_985
+1549,171 Lehman Way,Hemet,California,92545,,W_1549,P_988
+1422,2943 E Los Posas Cir,Palm Springs,California,92264,,W_1422,P_995
+1137,246 Carner Ln,Hemet,California,92545,,W_1137,P_996
+1548,28 Via Valverde,Cathedral City,California,92234,,W_1548,P_999
+1547,1407 N Sunrise Way unit 30,Palm Springs,California,92262,,W_1547,P_1000
+1545,230 Eagle Ln,Hemet,California,92545,,W_1545,P_1002
+1539,41183 Rawling Ct,Indio,California,92203,,W_1539,P_1006
+1535,104 Don Miguel Cir,Palm Desert,California,92260,,W_1535,P_1015
+1530,49484 Gila River St,Indio,California,92201,,W_1530,P_1016
+1189,1392 Crystal Court,Palm Springs,California,92264,,W_1189,P_1017
+1307,82378 Stradivari Rd,Indio,California,92203,,W_1307,P_1021
+1533,29 Toscana Way E,Rancho Mirage,California,92270,,W_1533,P_1024
+1384,258 Lakewood Lane,Hemet,California,92545,,W_1384,P_1026
+1531,7995 Bogey Ave,Hemet,California,92545,,W_1531,P_1030
+1237,5336 Via Bajamar,Hemet,California,92545,,W_1237,P_1031
+1400,54790 Forest Knoll Dr,Idyllwild-Pine Cove,California,92549,,W_1400,P_1032
+1218,75930 Sarazen Way,Palm Desert,California,92211,,W_1218,P_1036
+1443,83155 Greenbrier Dr,Indio,California,92203,,W_1443,P_1046
+1528,22 Barolo,Rancho Mirage,California,92270,,W_1528,P_1048
+1527,8208 Parry Dr,Hemet,California,92545,,W_1527,P_1051
+1370,8 Calais Cir,Rancho Mirage,California,92270,,W_1370,P_1052
+1260,22 Helen Avenue,Beaumont,California,92223,,W_1260,P_1056
+1347,94 Hudson Court,Palm Desert,California,92211,909,W_1347,P_1060
+1216,880 Deer Haven Circle,Palm Desert,California,92211,,W_1216,P_1063
+1526,837 East Alexander Way,Palm Springs,California,92262,,W_1526,P_1064
+1524,2120 East Bellamy Road,Palm Springs,California,92262,,W_1524,P_1066
+1523,78917 Oasis Spring Lane,Palm Desert,California,92211,,W_1523,P_1067
+1020,5001 West Florida Avenue,Hemet,California,92545,,W_1020,P_1068
+1480,85366 Giorno Ct,Indio,California,92203,,W_1480,P_1070
+1521,2090 S Broadmoor Dr,Palm Springs,California,92264,,W_1521,P_1071
+1505,4751 Jones Way,Palm Springs,California,92262,,W_1505,P_1074
+1102,295 Baugh Lane,Hemet,California,92545,,W_1102,P_1081
+1189,1392 Crystal Ct,Palm Springs,California,92264,,W_1189,P_1083
+1171,64 Vía Las Flores,Rancho Mirage,California,92270,,W_1171,P_1084
+1514,5 Othello Ct,Rancho Mirage,California,92270,,W_1514,P_1088
+1521,S Broadmoor Dr,Palm Springs,California,92264,,W_1521,P_1092
+1520,37291 bosley,Indio,California,92203,,W_1520,P_1093
+1519,75 Cabernet,Rancho Mirage,California,92270,,W_1519,P_1095
+1280,78720 Cabrillo Way,La Quinta,California,92253,,W_1280,P_1096
+1085,1820 Fan Palm Way,Palm Springs,California,92262,,W_1085,P_1100
+1031,7829 January Drive,Hemet,California,92545,,W_1031,P_1102
+1260,22 Helen Ave,Beaumont,California,92223,,W_1260,P_1107
+1256,73811 Mondrian Pl,Palm Desert,California,92211,,W_1256,P_1108
+1517,246 Loch Lomond Rd,Rancho Mirage,California,92270,,W_1517,P_1109
+1516,2200 Via Calderia UNIT 2211,Palm Desert,California,92260,,W_1516,P_1110
+1508,279 Camino Alturas,Palm Springs,California,92264,,W_1508,P_1117
+1507,110 Cabernet,Rancho Mirage,California,92270,,W_1507,P_1118
+1504,122 Cabernet,Rancho Mirage,California,92270,,W_1504,P_1123
+1503,2129 George Dr,Palm Springs,California,92262,,W_1503,P_1126
+1502,603 Corona St,Hemet,California,92545,,W_1502,P_1128
+1019,553 Vardon Cir,Hemet,California,92545,,W_1019,P_1130
+1011,270 Cog Hill Lane,Hemet,California,92545,,W_1011,P_1139
+1355,560 West Sepulveda Road,Palm Springs,California,92262,,W_1355,P_1141
+1499,41441 Woodhaven Dr W,Palm Desert,California,92211,,W_1499,P_1144
+1498,29857 sandy court,Cathedral City,California,92234,,W_1498,P_1145
+1126,7840 January Dr.,Hemet,California,92545,,W_1126,P_1148
+1214,22 Taylor Avenue,Palm Desert,California,92260,,W_1214,P_1149
+1272,160 S Saturmino Dr,Palm Springs,California,92262,,W_1272,P_1157
+1357,75945 Sarazen Way,Palm Desert,California,92211,,W_1357,P_1162
+1472,4441 Via del Pellegrino,Palm Desert,California,92260,,W_1472,P_1165
+1488,29261 Nectarine St,Menifee,California,92584,,W_1488,P_1170
+1486,35248 Bandana Rd,Thousand Palms,California,92276,,W_1486,P_1172
+1233,4 University Circle,Rancho Mirage,California,92270,,W_1233,P_1177
+1482,2887 Andalucia Court,Palm Springs,California,92264,,W_1482,P_1178
+1270,197 Shepard Drive,Cathedral City,California,92234,,W_1270,P_1182
+1255,39440 Bel Air Drive,Cathedral City,California,92234,,W_1255,P_1183
+1269,8160 Pavin Ln,Hemet,California,92545,,W_1269,P_1187
+1438,557 Pooley Dr,Hemet,California,92545,,W_1438,P_1188
+1479,68744 Durango Rd,Cathedral city,California,92234,,W_1479,P_1189
+1224,78403 Koslow Ct,Bermuda Dunes,California,92203,,W_1224,P_1204
+1374,321 Loch Lomond Rd,Rancho Mirage,California,92270,,W_1374,P_1207
+1419,42098 Diadomite Way,Palm Desert,California,92260,Use last name Donahue on call box,W_1419,P_1211
+1464,49235 Vista Estrella,La Quinta,California,92253,,W_1464,P_1220
+1026,184 Lehman Way,Hemet,California,92545,,W_1026,P_1221
+1141,369 Cabrera Dr,Hemet,California,92545,,W_1141,P_1222
+1431,48365 Alan Cir,Palm Desert,California,92260,,W_1431,P_1225
+1404,39317 Fernwood Glen Ct,Palm Desert,California,92211,,W_1404,P_1226
+1172,71605 Mirage Rd,Rancho Mirage,California,92270,,W_1172,P_1231
+1227,3 University Cir,Rancho Mirage,California,92270,,W_1227,P_1233
+1178,48985 Taylor St,Indio,California,92201,,W_1178,P_1237
+1038,1672 Paseo Diamonte,Hemet,California,92545,,W_1038,P_1238
+1462,50505 Harps Canyon Dr,Indio,California,92201,,W_1462,P_1242
+1181,168 Leonard Way,Hemet,California,92545,,W_1181,P_1247
+1383,12128 Turnberry Drive,Rancho Mirage,California,92270,,W_1383,P_1248
+1030,561 Vardon Circle,Hemet,California,92545,,W_1030,P_1249
+1454,8115 Doral Ln,Hemet,California,92545,,W_1454,P_1251
+1453,8171 Carnoustie Ave,Hemet,California,92545,,W_1453,P_1252
+1450,12 University Cir,Rancho Mirage,California,92270,,W_1450,P_1258
+1449,8118 Hazeltine Ln,Hemet,California,92545,,W_1449,P_1259
+1017,1344 Via La Presa,Hemet,California,92545,,W_1017,P_1262
+1071,7760 Dutra Drive,Hemet,California,92545,,W_1071,P_1263
+1438,2961 Live Oak St,Hemet,California,92545,,W_1438,P_1267
+1347,94 Hudson Court,Palm Desert,California,92211,,W_1347,P_1270
+1313,737 Kilbourne Drive,Upland,California,91784,,W_1313,P_1272
+1440,494 Cll Madrigal,Cathedral City,California,92234,,W_1440,P_1273
+1436,114 Don Miguel Cir,Palm Desert,California,92260,,W_1436,P_1279
+1431,48365 Alan Circle,Palm Desert,California,92260,,W_1431,P_1284
+1435,1640 Paseo Diamante,Hemet,California,92545,,W_1435,P_1286
+1433,212 Gamez Way,Hemet,California,92545,,W_1433,P_1291
+1425,55649 Pinehurst,La Quinta,California,92253,,W_1425,P_1304
+1428,73485 Dalea Lane,Palm Desert,California,92260,,W_1428,P_1305
+1427,30480 Keith Avenue,Cathedral City,California,92234,,W_1427,P_1306
+1424,550 West Sepulveda Road,Palm Springs,California,92262,,W_1424,P_1308
+1423,266 Cog Hill Lane,Hemet,California,92545,,W_1423,P_1309
+1421,7807 Gibson Cir,Hemet,CA,92545,,W_1421,P_1310
+1128,7724 Gibson Circle,Hemet,California,92545,,W_1128,P_1312
+1417,47446 Rabat Drive,Palm Desert,California,92260,,W_1417,P_1319
+1416,8 Mission Palms Drive West,Rancho Mirage,California,92270,,W_1416,P_1320
+1415,75550 Cll Del Sur,Indian Wells,California,92210,,W_1415,P_1321
+1414,40290 Barington Drive,Palm Desert,California,92211,,W_1414,P_1322
+1412,48640 Gibraltar St,Indio,California,92201,,W_1412,P_1324
+1080,8404 Maruyama Drive,Hemet,California,92545,,W_1080,P_1327
+1413,19 Araby Street,Palm Springs,California,92264,,W_1413,P_1328
+1025,410 Tewell Drive,Hemet,California,92545,,W_1025,P_1334
+1012,135 Mccarron Way,Hemet,California,92545,,W_1012,P_1338
+1411,546 N Farrell Dr,Palm Springs,California,92262,,W_1411,P_1340
+1408,68005 Seven Oaks Pl,Cathedral City,California,92234,,W_1408,P_1344
+1407,Coral View Way,La Quinta,California,92253,,W_1407,P_1345
+1407,82088 Paradiso Dr,Indio,California,92203,,W_1407,P_1350
+1407,35439 Domani Dr,Palm Desert,California,92211,,W_1407,P_1351
+1099,33294 Big Range Dr,Winchester,California,92596,,W_1099,P_1355
+1173,1041 East Vía San Dimas Road,Palm Springs,California,92262,,W_1173,P_1356
+1407,39530 Taffala Dr,Indio,California,92203,,W_1407,P_1362
+1405,1868 Terrace Drive,Hemet,California,92544,,W_1405,P_1369
+1403,511 Garcia Drive,Hemet,California,92545,,W_1403,P_1375
+1402,7615 Whitworth Drive,Hemet,California,92545,,W_1402,P_1376
+1186,326 Villaggio South,Palm Springs,California,92262,,W_1186,P_1378
+1373,80305 Cedar Crest,La Quinta,California,92253,,W_1373,P_1384
+1172,71605 Mirage Road,Rancho Mirage,California,92270,,W_1172,P_1386
+1397,9085 Oak Glen Rd,Cherry Valley,California,92223,,W_1397,P_1389
+1396,29800 Mimosa Ct,Menifee,California,92584,,W_1396,P_1390
+1395,29134 Granite Circle,Menifee,California,92584,,W_1395,P_1396
+1394,2024 Whispering Bells Road,San Jacinto,California,92582,,W_1394,P_1400
+1385,8770 Duval Ln,Hemet,California,92545,,W_1385,P_1404
+1392,223 W Overlook Rd,Palm Springs,California,92264,,W_1392,P_1408
+1391,8384 Maruyama Drive,Hemet,California,92545,,W_1391,P_1410
+1390,1624 Paseo Diamante,Hemet,California,92545,,W_1390,P_1413
+1389,72294 Ginger Rogers Road,Rancho Mirage,California,92270,,W_1389,P_1414
+1388,1616 Paseo Diamante,Hemet,California,92545,,W_1388,P_1419
+1386,1536 Via Rojas,Hemet,California,92545,,W_1386,P_1421
+1385,8770 Duval Lane,Hemet,California,92545,,W_1385,P_1422
+1222,73200 El Paseo,Palm Desert,California,92260,,W_1222,P_1428
+1339,49465 Lewis Road,Indio,California,92201,,W_1339,P_1430
+1382,44540 Lakeside Dr,Indian Wells,California,92210,,W_1382,P_1443
+1381,5114 Corte Cercado,Hemet,California,92545,,W_1381,P_1444
+1378,9295 Stephenson Ln,Hemet,California,92545,,W_1378,P_1448
+1375,319 Loch Lomond Road,Rancho Mirage,California,92270,,W_1375,P_1449
+1377,2056 Roanoke St,San Jacinto,California,92582,,W_1377,P_1450
+1257,3726 Getty Court,Hemet,CA,92545,,W_1257,P_1458
+1142,470 Garcia Drive,Hemet,California,92545,,W_1142,P_1461
+1376,1372 Via Rivas,Hemet,California,92545,,W_1376,P_1463
+1372,7685 Armour Dr,Hemet,California,92545,,W_1372,P_1467
+1374,321 Loch Lomond Road,Rancho Mirage,California,92270,,W_1374,P_1469
+1009,8118 Hazeltine Lane,Hemet,California,92545,,W_1009,P_1482
+1370,8 Calais Circle,Rancho Mirage,California,92270,,W_1370,P_1484
+1038,1672 Paseo Diamante,Hemet,California,92545,,W_1038,P_1486
+1365,8305 Carnoustie Avenue,Hemet,California,92545,,W_1365,P_1488
+1364,1457 Poppy Court,Beaumont,California,92223,,W_1364,P_1493
+1363,29373 Hidden Lake Drive,Menifee,California,92584,,W_1363,P_1494
+1362,7675 Armour Drive,Hemet,California,92545,,W_1362,P_1495
+1361,1715 San Simeon Drive,Hemet,California,92545,,W_1361,P_1501
+1360,31526 Railroad Canyon Road,Canyon Lake,California,92587,,W_1360,P_1511
+1359,8771 Mann Lane,Hemet,California,92545,,W_1359,P_1514
+1145,495 Casper Drive,Hemet,California,92545,,W_1145,P_1515
+1358,1648 Paseo Diamante,Hemet,California,92545,,W_1358,P_1522
+1320,3711 Serenity Trail,Palm Springs,California,92262,,W_1320,P_1542
+1350,606 Cache Lane,Palm Springs,California,92262,,W_1350,P_1553
+1349,27315 Arabian Court,Menifee,California,92584,,W_1349,P_1555
+1261,1288 Primavera Drive West,Palm Springs,California,92264,,W_1261,P_1557
+1354,175 Lehman Way,Hemet,California,92545,,W_1354,P_1562
+1353,31814 MAPSTON Court,Menifee,California,92584,,W_1353,P_1563
+1352,2223 Casitas Way,Palm Springs,California,92264,,W_1352,P_1564
+1052,8975 Stephenson Lane,Hemet,California,92545,,W_1052,P_1565
+1348,47 Juan Carlos Street,Rancho Mirage,California,92270,,W_1348,P_1571
+1262,110 Mission Hills Drive,Rancho Mirage,California,92270,,W_1262,P_1576
+1337,81620 Avenue 49,Indio,California,92201,,W_1337,P_1595
+1335,81081 Barrel Cactus Road,La Quinta,California,92253,,W_1335,P_1602
+1334,80735 Weiskopf,La Quinta,California,92253,,W_1334,P_1613
+1333,54020 Avenue Mendoza,La Quinta,California,92253,,W_1333,P_1615
+1332,42275 Liolios Drive,Palm Desert,California,92211,,W_1332,P_1617
+1331,27891 Huron Court,Menifee,California,92585,,W_1331,P_1618
+1330,61205 Living Stone Drive,La Quinta,California,92253,,W_1330,P_1619
+1327,78685 Morning Star,Palm Desert,California,92211,,W_1327,P_1622
+1323,30381 Town Square Drive,Menifee,California,92584,,W_1323,P_1625
+1224,78403 Koslow Court,Bermuda Dunes,California,92203,,W_1224,P_1627
+1067,8071 Hazeltine Lane,Hemet,California,92545,,W_1067,P_1629
+1324,73435 Buckboard Trail,Palm Desert,California,92260,,W_1324,P_1643
+1322,24129 Esmeralda Court,Wildomar,California,92595,,W_1322,P_1645
+1321,39254 Calle Negrete,Indio,California,92203,,W_1321,P_1651
+1319,23840 Outrigger Drive,Canyon Lake,California,92587,,W_1319,P_1655
+1314,72626 Bel Air Road,Palm Desert,California,92260,,W_1314,P_1657
+1155,42829 Cook Street,Palm Desert,California,92211,,W_1155,P_1660
+1035,180 Lehman Way,Hemet,California,92545,,W_1035,P_1662
+1315,834 Saint Alban Road,San Jacinto,California,92583,,W_1315,P_1666
+1047,1439 Camino Sueno,Hemet,California,92545,,W_1047,P_1676
+1046,7895 Rawls Drive,Hemet,California,92545,,W_1046,P_1679
+1297,77176 California Drive,Palm Desert,California,92211,,W_1297,P_1685
+1309,7791 Gibson Circle,Hemet,California,92545,,W_1309,P_1687
+1308,164 Leonard Way,Hemet,California,92545,,W_1308,P_1688
+1307,18166 Andrea Court,Perris,California,92570,,W_1307,P_1689
+1007,8041 Hazeltine Lane,Hemet,California,92545,,W_1007,P_1693
+1019,553 Vardon Circle,Hemet,California,92545,,W_1019,P_1694
+1299,176 Janzen Way,Hemet,California,92545,,W_1299,P_1696
+1296,11713 Chamomile Circle,Moreno Valley,California,92557,,W_1296,P_1701
+1295,35062 Hulihee Street,Winchester,California,92596,,W_1295,P_1702
+1294,8384 Maruyama Drive,Hemet,California,92545,,W_1294,P_1703
+1287,813 Inverness Drive,Rancho Mirage,California,92270,,W_1287,P_1704
+1033,600 Olazabal Dr,Hemet,California,92545,,W_1033,P_1709
+1117,8919 Stephenson Lane,Hemet,California,92545,,W_1117,P_1710
+1292,24644 Lincoln Avenue,Murrieta,California,92562,,W_1292,P_1714
+1290,3660 Serenity Trail,Palm Springs,California,92262,,W_1290,P_1715
+1288,43802 Mandarin Drive,Hemet,California,92544,,W_1288,P_1716
+1285,13393 Redwood Drive,Rancho Cucamonga,California,91739,,W_1285,P_1720
+1284,2730 Placentia Street,San Jacinto,California,92582,,W_1284,P_1721
+1273,29851 Glacier Bay Drive,Menifee,California,92585,,W_1273,P_1725
+1277,247 Firestone Lane,Hemet,California,92545,,W_1277,P_1728
+1015,339 Casper Drive,Hemet,California,92545,,W_1015,P_1732
+1276,8298 Parry Drive,Hemet,California,92545,,W_1276,P_1735
+1041,5352 Corte Cerro,Hemet,California,92545,,W_1041,P_1741
+1269,8160 Pavin Lane,Hemet,California,92545,,W_1269,P_1747
+1266,1316 Cardamom Court,Beaumont,California,92223,,W_1266,P_1752
+1265,5001 West Florida Avenue,Hemet,California,92545,,W_1265,P_1753
+1264,45900 Williams Road,Indian Wells,California,92210,,W_1264,P_1754
+1257,3726 GETTY CT,HEMET,CA,92545-9142,,W_1257,P_1762
+1258,1452 Trinidad Street,Hemet,California,92543,,W_1258,P_1764
+1029,590 Olazabal Dr,Hemet,California,92545,,W_1029,P_1768
+1256,73811 Mondrian Place,Palm Desert,California,92211,,W_1256,P_1769
+1252,1489 Birdie Drive,Banning,California,92220,,W_1252,P_1771
+1250,73520 Adobe Springs Drive,Palm Desert,California,92260,,W_1250,P_1774
+1246,30061 Crestview Court,Sun City,California,92585,,W_1246,P_1775
+1245,5590 Corte Viejo,Hemet,California,92545,,W_1245,P_1777
+1236,1551 Leland Street,Beaumont,California,92223,,W_1236,P_1785
+1225,68070 Durango Road,Cathedral City,California,92234,,W_1225,P_1793
+1231,35174 Begonia Lane,Winchester,California,92596,,W_1231,P_1796
+1213,8315 Parry Drive,Hemet,California,92545,,W_1213,P_1800
+1219,899 Island Drive,Rancho Mirage,California,92270,,W_1219,P_1810
+1215,899 Island Drive,Rancho Mirage,California,92270,,W_1215,P_1811
+1059,26290 Amen Street,Hemet,California,92544,,W_1059,P_1820
+1208,8587 Stephenson Lane,Hemet,California,92545,,W_1208,P_1822
+1210,8384 Maruyama Drive,Hemet,California,92545,,W_1210,P_1823
+1209,76142 Impatiens Circle,Palm Desert,California,92211,,W_1209,P_1824
+1204,439 Olazabal Drive,Hemet,California,92545,,W_1204,P_1826
+1200,27695 Camino Vacuna,Menifee,CA,92585,,W_1200,P_1830
+1197,3686 Serenity Trail,Palm Springs,California,92262,,W_1197,P_1838
+1183,7756 Gibson Circle,Hemet,California,92545,,W_1183,P_1839
+1196,35 Chianti,Rancho Mirage,California,92270,,W_1196,P_1840
+1002,194 Inkster Way,Hemet,California,92545,,W_1002,P_1841
+1193,47687 Twin Pines Road,Banning,California,92220,,W_1193,P_1847
+1028,615 Parnevik Drive,Hemet,California,92545,,W_1028,P_1849
+1188,32730 Newham Court,Winchester,California,92596,,W_1188,P_1852
+1155,48140 Calle Seranas,La Quinta,California,92253,,W_1155,P_1855
+1174,8060 Bay Hill Avenue,Hemet,California,92545,,W_1174,P_1858
+1185,2818 Eureka Road,San Jacinto,California,92582,,W_1185,P_1861
+1182,39375 Camino Piscina,Indio,California,92203,,W_1182,P_1864
+1179,60930 Living Stone Drive,La Quinta,California,92253,,W_1179,P_1868
+1178,48985 Taylor Street,Indio,California,92201,,W_1178,P_1869
+1166,160 South Saturmino Drive #7,Palm Springs,California,92262,,W_1166,P_1883
+1161,160 South Saturmino Drive,Palm Springs,California,92262,,W_1161,P_1884
+1160,10024 Sunningdale Drive,Rancho Mirage,California,92270,,W_1160,P_1885
+1159,51405 Avenue Rubio,La Quinta,California,92253,,W_1159,P_1886
+1154,3155 Sand Pine Tr,Hemet,California,92545,,W_1154,P_1889
+1153,78650 Avenue 42,Bermuda Dunes,California,92203,,W_1153,P_1890
+1151,480 East Valmonte Norte,Palm Springs,California,92262,,W_1151,P_1893
+1147,45740 Camino Del Rey,Indian Wells,California,92210,,W_1147,P_1895
+1012,135 Mccaron Way,Hemet,California,92545,,W_1012,P_1904
+1010,5587 Paseo Famosa,Hemet,California,92545,,W_1010,P_1905
+1020,Hemet West 159,Hemet,California,92545,,W_1020,P_1906
+1141,369 Cabrera Drive,Hemet,California,92545,,W_1141,P_1910
+1008,8281 Carnoustie Ave,Hemet,California,92545,,W_1008,P_1919
+1137,8181 Triplett Lane,Hemet,California,92545,,W_1137,P_1922
+1039,1664 Paseo Diamonte,Hemet,California,92545,,W_1039,P_1930
+1136,8031 Mickelson Way,Hemet,California,92545,,W_1136,P_1934
+1132,8105 Faldo Avenue,Hemet,California,92545,,W_1132,P_1945
+1134,8715 Stephenson Lane,Hemet,California,92545,,W_1134,P_1948
+1133,333 Chi Chi Circle,Hemet,California,92545,,W_1133,P_1950
+1088,242 Cog Hill,Hemet,California,92545,,W_1088,P_1953
+1131,8655 Stephenson Lane,Hemet,California,92545,,W_1131,P_1956
+1124,8345 Carnoustie,Hemet,California,92545,,W_1124,P_1962
+1063,7580 Watson Circle,Hemet,California,92545,,W_1063,P_1996
+1013,188 Inkster Way,Hemet,California,92545,,W_1013,P_1999
+1099,32600 California 74 #125,Hemet,California,92545,,W_1099,P_2006
+1098,5199 Corte Cercado,Hemet,California,92545,,W_1098,P_2007
+1097,9300 Stephenson Ln.,Hemet,California,92545,,W_1097,P_2010
+1086,5403 Corte Cercado,Hemet,California,92545,,W_1086,P_2024
+1084,1439 Camino Sueno,Hemet,California,92545,,W_1084,P_2030
+1083,367 Casper Drive,Hemet,California,92545,,W_1083,P_2031
+1081,266 Firestone Ln,Hemet,California,92545,,W_1081,P_2033
+1082,219 Caldera Lane,Hemet,California,92545,,W_1082,P_2038
+1082,8010 Bay Hill Avenue,Hemet,California,92545,,W_1082,P_2039
+1075,7636 Whitworth Drive,Hemet,California,92545,,W_1075,P_2047
+1068,495 Vardon Circle,Hemet,California,92545,,W_1068,P_2066
+1064,7821 Littler Drive,Hemet,California,92545,,W_1064,P_2074
+1045,8324 Maruyama Dr,Hemet,California,92545,,W_1045,P_2077
+1059,26290 Amen St,hemet,California,92544,,W_1059,P_2091
+1057,642 Weir Drive,Hemet,California,92545,,W_1057,P_2094
+1055,5156 Corte Del Cabo,Hemet,California,92545,,W_1055,P_2097
+1022,9284 Stephenson Ln,Hemet,California,92545,,W_1022,P_2099
+1014,8175 Faldo Ave,Hemet,California,92545,,W_1014,P_2112
+1024,5141 Corte Cercado,Hemet,California,92545,,W_1024,P_2113
+1054,29393 Honeywood Drive,Menifee,California,92584,,W_1054,P_2126
+1053,7899 Armour Drive,Hemet,California,92545,,W_1053,P_2136
+1030,561 Vardon Cir,Hemet,California,92545,,W_1030,P_2137
+1018,120 Mayfair Ln,Hemet,California,92545,,W_1018,P_2142
+1040,5481 Corte del Mar,Hemet,California,92545,,W_1040,P_2155
+1050,7735 Couples Way,Hemet,California,92545,,W_1050,P_2165
+1005,8271 Maruyama Drive,Hemet,California,92545,,W_1005,P_2207
+1004,7755 Couples Way,Hemet,California,92545,,W_1004,P_2209
