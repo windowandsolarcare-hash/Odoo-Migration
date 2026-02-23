@@ -1,0 +1,10 @@
+{
+  "type": "ir.actions.server",
+  "id": 349,
+  "name": "Switch into invoice/credit note",
+  "module": "account",
+  "external_id": "account.action_move_switch_move_type",
+  "state": "code",
+  "code": "\nif records:\n    action = records.action_switch_move_type()\n            ",
+  "binding_view_types": "form"
+}

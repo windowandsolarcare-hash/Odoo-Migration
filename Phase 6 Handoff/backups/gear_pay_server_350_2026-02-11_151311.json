@@ -1,0 +1,10 @@
+{
+  "type": "ir.actions.server",
+  "id": 350,
+  "name": "Pay",
+  "module": "account",
+  "external_id": "account.action_move_force_register_payment",
+  "state": "code",
+  "code": "\nif records:\n    action = records.action_force_register_payment()\n            ",
+  "binding_view_types": "form"
+}

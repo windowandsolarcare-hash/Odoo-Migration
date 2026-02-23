@@ -1,0 +1,10 @@
+{
+  "type": "ir.actions.server",
+  "id": 367,
+  "name": "Confirm Entries",
+  "module": "account",
+  "external_id": "account.action_validate_account_moves",
+  "state": "code",
+  "code": "action = records.action_validate_moves_with_confirmation()",
+  "binding_view_types": "list,kanban"
+}

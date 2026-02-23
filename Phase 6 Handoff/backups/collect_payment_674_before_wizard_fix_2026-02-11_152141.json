@@ -1,0 +1,6 @@
+{
+  "id": 674,
+  "name": "Collect Payment",
+  "code_before": "action = {\n    'type': 'ir.actions.act_window',\n    'name': 'Collect Payment',\n    'res_model': 'account.payment',\n    'view_mode': 'form',\n    'target': 'current',  # Open in current window, not popup\n    'context': {\n        'default_payment_type': 'inbound',\n        'default_partner_type': 'customer',\n        'default_partner_id': record.partner_id.id,\n        'default_amount': record.amount_residual,\n        'default_currency_id': record.currency_id.id if record.currency_id else record.company_id.currency_id.id,\n        'default_journal_id': env['account.journal'].search([('code', '=', 'BNK1')], limit=1).id,\n        'default_memo': record.name,\n        'default_invoice_ids': [(6, 0, [record.id])],\n    }\n}",
+  "fixed_at": "2026-02-11_152141"
+}

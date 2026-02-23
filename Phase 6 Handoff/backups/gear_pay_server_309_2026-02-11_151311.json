@@ -1,0 +1,10 @@
+{
+  "type": "ir.actions.server",
+  "id": 309,
+  "name": "Share",
+  "module": "account",
+  "external_id": "account.model_account_move_action_share",
+  "state": "code",
+  "code": "action = records.action_share()",
+  "binding_view_types": "form"
+}

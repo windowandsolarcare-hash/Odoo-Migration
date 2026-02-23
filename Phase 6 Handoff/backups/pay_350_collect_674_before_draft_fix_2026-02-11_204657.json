@@ -1,0 +1,15 @@
+{
+  "fixed_at": "2026-02-11_204657",
+  "actions": [
+    {
+      "id": 350,
+      "name": "Pay",
+      "code_before": "\nif records:\n    action = records.action_force_register_payment()\n            "
+    },
+    {
+      "id": 674,
+      "name": "Collect Payment",
+      "code_before": "\nif records:\n    action = records.action_force_register_payment()\n"
+    }
+  ]
+}

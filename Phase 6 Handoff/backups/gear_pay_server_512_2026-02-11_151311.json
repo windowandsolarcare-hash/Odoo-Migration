@@ -1,0 +1,10 @@
+{
+  "type": "ir.actions.server",
+  "id": 512,
+  "name": "Send Bills for digitization",
+  "module": "account_invoice_extract",
+  "external_id": "account_invoice_extract.model_account_send_for_digitalization",
+  "state": "code",
+  "code": "\n            if records:\n                action = records.action_send_batch_for_digitization()\n        ",
+  "binding_view_types": "list,kanban"
+}

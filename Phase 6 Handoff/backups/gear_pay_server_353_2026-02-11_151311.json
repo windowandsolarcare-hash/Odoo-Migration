@@ -1,0 +1,10 @@
+{
+  "type": "ir.actions.server",
+  "id": 353,
+  "name": "Review Entries",
+  "module": "account",
+  "external_id": "account.accountant_confirm_entries_action",
+  "state": "code",
+  "code": "action = model.check_selected_moves()",
+  "binding_view_types": "list,kanban"
+}
