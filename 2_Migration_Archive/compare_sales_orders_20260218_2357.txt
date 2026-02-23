@@ -1,0 +1,70 @@
+============================================================
+Workiz vs Odoo: SALES ORDERS (mirror check by Workiz UUID)
+Workiz CSV: C:\Users\dj\Documents\Business\A Window and Solar Care\Migration to Odoo\2_Migration_Archive\workiz_full_snapshot_20260218_merged.csv
+Odoo DB: window-solar-care
+Generated: 2026-02-18T23:57:04.715606+00:00
+============================================================
+
+--- COUNTS ---
+Workiz snapshot: 3301 unique job UUIDs
+Odoo total SOs: 3266
+Odoo SOs with Workiz UUID: 3257
+Matched (in both): 3255
+Only in Workiz (job in snapshot, no Odoo SO): 46
+Only in Odoo (SO has UUID not in this snapshot): 2
+
+--- ONLY IN WORKIZ (no Odoo SO for this UUID) ---
+  UUID=0F4P6A  ClientId=1022  9284 Stephenson Ln  2020-09-06 06:00:00
+  UUID=1C5YKA  ClientId=1676  1835 North Vía Miraleste  2025-12-18 10:00:00
+  UUID=1GYUWG  ClientId=1609  104 Esplanade Street  2023-11-04 13:00:24
+  UUID=1T807U  ClientId=1240  8401 Maruyama Drive  2022-11-15 16:10:46
+  UUID=4KUUT0  ClientId=1420  39002 Camino Las Hoyes  2022-10-28 12:00:43
+  UUID=517PMN  ClientId=1628  84392 Rodine Ave  2023-11-22 15:00:00
+  UUID=53K12N  ClientId=1349  27315 Arabian Court  2025-12-16 11:30:00
+  UUID=5TFCIM  ClientId=1379  1354 Via La Presa  2022-05-03 09:00:00
+  UUID=5UEWYA  ClientId=1240  8401 Maruyama Drive  2022-11-16 15:00:00
+  UUID=6PYY6U  ClientId=1406  8305 Bogey Ave  2025-12-16 08:30:00
+  UUID=7LECKG  ClientId=1024  5141 Corte Cercado  2020-05-21 14:00:00
+  UUID=7QSQMP  ClientId=1130  30744 Sterling Road  2020-11-18 09:00:09
+  UUID=7UBBAI  ClientId=1048  8424 Maruyama Drive  2020-12-07 08:30:00
+  UUID=84ALE9  ClientId=1077  7879 Rawls Drive  2025-12-16 14:30:00
+  UUID=AFWFR5  ClientId=1137  8181 Triplett Lane  2021-12-12 12:30:00
+  UUID=AQ673I  ClientId=1013  188 Inkster Way  2021-05-04 11:00:00
+  UUID=BJOSF3  ClientId=1704  (no address)  2024-07-18 10:00:06
+  UUID=BPE8E4  ClientId=1055  5156 Corte Del Cabo  2020-01-20 06:00:00
+  UUID=CD3HMR  ClientId=1279  8311 Maruyama Drive  2021-07-04 09:00:00
+  UUID=CMM4KF  ClientId=1198  8743 Stephenson Ln  2026-01-13 12:00:00
+  UUID=DP3P0Y  ClientId=1719  8304 Maruyama Dr  2024-08-14 08:00:00
+  UUID=E4212X  ClientId=1210  8384 Maruyama Drive  2021-05-20 16:00:00
+  UUID=F0POU5  ClientId=1045  36450 Alamar Mesa Drive  2021-05-05 12:00:00
+  UUID=HOKXTE  ClientId=1045  36450 Alamar Mesa Drive  2021-05-11 09:00:00
+  UUID=JQDJPD  ClientId=1240  8401 Maruyama Drive  2024-09-03 15:00:00
+  UUID=JZ6B5Y  ClientId=1045  8324 Maruyama Dr  2020-11-11 09:00:00
+  UUID=K6XI1F  ClientId=1800  7810 Gibson Circle  2026-01-13 13:00:00
+  UUID=KB9IH3  ClientId=1598  559 Soriano Way  2024-11-27 08:30:00
+  UUID=KUDTNL  ClientId=1412  80174 Barcelona Avenue  2022-09-19 08:30:47
+  UUID=MBFET9  ClientId=1183  7756 Gibson Circle  2022-01-03 14:30:00
+  UUID=NMY8IH  ClientId=1254  81406 Joshua Tree Court  2021-06-08 13:00:00
+  UUID=NR8AXU  ClientId=1374  321 Loch Lomond Rd  2022-10-18 07:30:00
+  UUID=NWG87W  ClientId=1240  8401 Maruyama Drive  2021-10-15 09:00:18
+  UUID=NZIDIU  ClientId=1164  48605 Vista Tierra  2021-03-16 16:00:00
+  UUID=OOKG2F  ClientId=1489  81659 Avenida Bolero  2023-04-14 09:00:00
+  UUID=OSKTXC  ClientId=1033  600 Olazabal Drive  2026-01-13 14:00:00
+  UUID=PRPSSH  ClientId=1041  5352 Corte Cerro  2021-02-25 09:00:00
+  UUID=PWOLWX  ClientId=1636  78109 Calle Norte  2023-11-29 13:00:08
+  UUID=R1BQ4I  ClientId=1317  30777 Butia Palm Drive  2021-09-22 16:00:00
+  UUID=RZ59SA  ClientId=1421  7807 Gibson Cir  2024-10-22 08:30:00
+  UUID=SBBIGM  ClientId=1183  7756 Gibson Circle  2021-08-15 14:30:00
+  UUID=SGZI2U  ClientId=1240  8401 Maruyama Drive  2022-01-07 11:00:36
+  UUID=UAKSF4  ClientId=1240  8401 Maruyama Drive  2025-04-28 13:00:02
+  UUID=XC1COF  ClientId=1240  8401 Maruyama Drive  2022-11-21 13:00:00
+  UUID=XX57EC  ClientId=1004  7755 Couples Way  2020-05-27 11:00:00
+  UUID=ZONZWF  ClientId=1382  44540 Lakeside Dr  2024-10-26 08:00:00
+
+--- ONLY IN ODOO (UUID not in Workiz snapshot) ---
+  UUID=4097  Odoo SO: 004097
+  UUID=4X3QJ8  Odoo SO: 003889
+
+--- SUMMARY ---
+  To mirror Workiz snapshot: create or link SOs for 46 job UUIDs missing in Odoo.
+  2 Odoo SOs have UUIDs not in this snapshot (older/newer data or different export).

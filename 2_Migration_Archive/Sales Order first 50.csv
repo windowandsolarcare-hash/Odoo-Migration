@@ -1,0 +1,157 @@
+id,name,partner_id/id,partner_shipping_id/id,date_order,state,amount_total,note,x_studio_x_studio_job_type,x_studio_lead_source,x_studio_workiz_tech,x_studio_workiz_uuid,order_line/product_id/name,order_line/name,order_line/price_unit,order_line/product_uom_qty
+order_G0M90B,3993,client_1784,property_59282090,12/5/2025 14:30,sale,150,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",G0M90B,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_5HPZW2,3988,client_1034,property_11384474,12/2/2025 10:00,sale,60,,Screen(s) - New,Herald,"[{'id': 238856, 'Name': 'Danny Saunders'}]",5HPZW2,Screens - New,,60,1
+order_WMKG16,3979,client_1853,property_59069819,12/9/2025 11:30,sale,150,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",WMKG16,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_XKFFOY,3964,client_1838,property_57226393,12/8/2025 8:30,sale,0,,Touch up,Home Advisor,"[{'id': 238856, 'Name': 'Danny Saunders'}]",XKFFOY,Touch Up,Back and side windows after rain,0,1
+order_WMZ156,3962,client_1849,property_58509699,11/20/2025 10:30,sale,185,tip 15.00,Windows Inside & Outside Plus Screens,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",WMZ156,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",185,1
+order_FRHIN3,3953,client_1356,property_21524373,12/8/2025 10:00,sale,45,,Windows Inside & Outside Plus Screens,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",FRHIN3,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens
+
+Inside Dining and Kitchen
+Outside Dining and Kitchen
+Garage Door",45,1
+order_DF34GC,3933,client_1598,property_36707753,11/14/2025 9:45,sale,180,,Outside Windows and Screens,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",DF34GC,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens
+
+Hand Scrub",180,1
+order_Y5X3M9,3932,client_1746,property_46607134,12/3/2025 9:30,sale,220,,Solar Panel Cleaning,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",Y5X3M9,Solar Panel Cleaning - Single Story,,220,1
+order_K8ZP12,3931,client_1847,property_58099422,11/12/2025 11:00,sale,225,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",K8ZP12,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",225,1
+order_2SK7JX,3930,client_1846,property_58093907,11/12/2025 10:00,sale,110,,Solar Panel Cleaning,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",2SK7JX,Solar Panel Cleaning - Single Story,,5,22
+order_4RIAS4,3929,client_1845,property_58075348,11/14/2025 10:30,sale,250,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",4RIAS4,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",175,1
+order_4RIAS4,3929,client_1845,property_58075348,11/14/2025 10:30,sale,250,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",4RIAS4,Mirrors Cleaned,please clean the mirrored wardrobes in the two bedrooms and the mirrored wall in the dining room?,25,3
+order_HJORU8,3928,client_1272,property_30407966,11/12/2025 8:30,sale,115,,Outside Windows and Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",HJORU8,Outside Windows And Screens,,115,1
+order_31HBXQ,3925,client_1841,property_57385552,12/3/2025 14:00,sale,90,,Screen Repair,,"[{'id': 238856, 'Name': 'Danny Saunders'}]",31HBXQ,Screen Repair,,90,1
+order_20MBEU,3924,client_1841,property_57385552,10/30/2025 14:00,sale,90,,Screen Repair,,"[{'id': 238856, 'Name': 'Danny Saunders'}]",20MBEU,Screen Repair,Re Mesh Door,90,1
+order_CB1TG0,3886,client_1841,property_57385552,10/10/2025 14:00,sale,220,,Windows Inside & Outside Plus Screens,,"[{'id': 75737, 'Name': 'Dan Saunders'}]",CB1TG0,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",220,1
+order_8I0ZFL,3885,client_1808,property_52771113,12/2/2025 13:00,sale,175,,Windows Inside & Outside Plus Screens,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",8I0ZFL,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_8I0ZFL,3885,client_1808,property_52771113,12/2/2025 13:00,sale,175,,Windows Inside & Outside Plus Screens,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",8I0ZFL,Tip,,25,1
+order_50U4H1,3883,client_1840,property_57362754,11/4/2025 12:00,sale,150,,Windows Inside & Outside Plus Screens,,"[{'id': 75737, 'Name': 'Dan Saunders'}]",50U4H1,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_QXB259,3881,client_1593,property_36163074,10/17/2025 8:00,sale,495,,Windows Inside & Outside Plus Screens,,"[{'id': 75737, 'Name': 'Dan Saunders'}]",QXB259,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",495,1
+order_AOZFJF,3867,client_1690,property_42751863,12/9/2025 13:30,sale,170,,Windows Inside & Outside Plus Screens,,"[{'id': 75737, 'Name': 'Dan Saunders'}]",AOZFJF,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_AOZFJF,3867,client_1690,property_42751863,12/9/2025 13:30,sale,170,,Windows Inside & Outside Plus Screens,,"[{'id': 75737, 'Name': 'Dan Saunders'}]",AOZFJF,Tip,,20,1
+order_LKLH6D,3865,client_1079,property_12445030,12/9/2025 9:30,sale,275,"20.00 me, 20.00 Danny Holiday Tip",Combination of Services,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",LKLH6D,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_LKLH6D,3865,client_1079,property_12445030,12/9/2025 9:30,sale,275,"20.00 me, 20.00 Danny Holiday Tip",Combination of Services,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",LKLH6D,Solar Panel Cleaning - Single Story,,125,1
+order_WQA793,3859,client_1338,property_20309514,9/15/2025 8:30,sale,0,,Quote,,"[{'id': 238856, 'Name': 'Danny Saunders'}]",WQA793,Legacy Service,Legacy Service,0,1
+order_MEIKPJ,3851,client_1340,property_20325167,9/30/2025 8:30,sale,150,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",MEIKPJ,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_IOY1F2,3847,client_1584,property_56523997,9/15/2025 9:00,sale,650,,Windows Inside & Outside Plus Screens,,"[{'id': 238856, 'Name': 'Danny Saunders'}, {'id': 75737, 'Name': 'Dan Saunders'}]",IOY1F2,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",650,1
+order_RTX9B0,3844,client_1500,property_32579207,11/21/2025 10:00,sale,245,(503) 927-2206 Old number,Windows Inside & Outside Plus Screens,Springtime Del Webb,"[{'id': 75737, 'Name': 'Dan Saunders'}]",RTX9B0,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",245,1
+order_IAOKW1,3842,client_1836,property_56305941,9/12/2025 10:30,sale,250,,Windows Inside & Out - No Screens,Angi,"[{'id': 75737, 'Name': 'Dan Saunders'}]",IAOKW1,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",220,1
+order_IAOKW1,3842,client_1836,property_56305941,9/12/2025 10:30,sale,250,,Windows Inside & Out - No Screens,Angi,"[{'id': 75737, 'Name': 'Dan Saunders'}]",IAOKW1,Tip,,30,1
+order_3J1UO6,3840,client_1837,property_56386340,10/16/2025 12:30,sale,160,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",3J1UO6,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",160,1
+order_IJG9Y4,3837,client_1472,property_43837211,11/12/2025 14:30,sale,160,,Combination of Services,Angi,"[{'id': 75737, 'Name': 'Dan Saunders'}]",IJG9Y4,Outside Windows And Screens,,85,1
+order_IJG9Y4,3837,client_1472,property_43837211,11/12/2025 14:30,sale,160,,Combination of Services,Angi,"[{'id': 75737, 'Name': 'Dan Saunders'}]",IJG9Y4,Solar Panel Cleaning - Single Story,,75,1
+order_J35BWB,3836,client_1598,property_36707753,9/12/2025 8:30,sale,180,,Outside Windows and Screens,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",J35BWB,Outside Windows And Screens,,150,1
+order_J35BWB,3836,client_1598,property_36707753,9/12/2025 8:30,sale,180,,Outside Windows and Screens,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",J35BWB,Miscellaneous,Hand Scrub,30,1
+order_72J51T,3835,client_1338,property_20309514,9/12/2025 8:30,sale,200,,Solar Panel Cleaning,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",72J51T,Solar Panel Cleaning - Single Story,,200,1
+order_3HBBGA,3834,client_1832,property_56056594,9/23/2025 9:30,sale,85,,Outside Windows and Screens,Magnet/Drive By,"[{'id': 75737, 'Name': 'Dan Saunders'}]",3HBBGA,Outside Windows And Screens,,85,1
+order_UF2T4N,3832,client_1510,property_32728156,9/3/2025 9:30,sale,130,,Outside Windows and Screens,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",UF2T4N,Outside Windows And Screens,,115,1
+order_UF2T4N,3832,client_1510,property_32728156,9/3/2025 9:30,sale,130,,Outside Windows and Screens,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",UF2T4N,Tip,,15,1
+order_DB6MBC,3825,client_1665,property_39757668,11/21/2025 8:30,sale,250,,Combination of Services,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",DB6MBC,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",250,1
+order_R9MUD3,3818,client_1835,property_56163036,8/26/2025 8:30,sale,75,,Solar Panel Cleaning,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",R9MUD3,Solar Panel Cleaning - First Story,,75,1
+order_OZ7T6G,3815,client_1833,property_56056861,8/26/2025 8:00,sale,75,"Voicemail: ""hello Don um Dan I'm sorry Dan Mr Sanders my name is uh Jerome King
+ let me get it right Jerome King I live at uh 80060 Bay Hill ab and over here in uh the 4 Seasons and I talked to you before um I like to get my panels clean um I have 12 panels um could you call me and uh give me a quote
+ um phone number area code 619-410-9499 again my name is Jerome King
+ thank you sir have a great day bye
+""",Solar Panel Cleaning,,"[{'id': 75737, 'Name': 'Dan Saunders'}]",OZ7T6G,Solar Panel Cleaning - Single Story,,75,1
+order_CQQ6I0,3814,client_1832,property_56056594,8/19/2025 8:00,sale,90,Schedule him for mid-september for outside. Only windows also send Before & After pictures of the solars.,Solar Panel Cleaning,Magnet/Drive By,"[{'id': 75737, 'Name': 'Dan Saunders'}]",CQQ6I0,Solar Panel Cleaning - Single Story,,5,18
+order_NP8ZYH,3813,client_1831,property_55977031,8/18/2025 8:00,sale,120,,Solar Panel Cleaning,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",NP8ZYH,Solar Panel Cleaning - Single Story,,5,24
+order_P8BQHJ,3812,client_1031,property_35170549,12/9/2025 12:30,sale,100,,Windows Inside & Outside Plus Screens,Ryan Fewster,"[{'id': 75737, 'Name': 'Dan Saunders'}]",P8BQHJ,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",100,1
+order_Z0TEWP,3811,client_1684,property_41763151,11/11/2025 14:00,sale,150,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",Z0TEWP,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_6MDZIB,3810,client_1044,property_11384484,11/11/2025 12:00,sale,165,,Windows Inside & Outside Plus Screens,EDDM,"[{'id': 75737, 'Name': 'Dan Saunders'}]",6MDZIB,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",165,1
+order_1O1QUG,3807,client_1043,property_11384483,10/28/2025 10:30,sale,65,,Outside Windows and Screens,Repeat Client,"[{'id': 75737, 'Name': 'Dan Saunders'}]",1O1QUG,Outside Windows And Screens,,65,1
+order_P88EGA,3799,client_1830,property_55842651,8/15/2025 8:00,sale,310,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",P88EGA,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",300,1
+order_P88EGA,3799,client_1830,property_55842651,8/15/2025 8:00,sale,310,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",P88EGA,Tip,,10,1
+order_ZEAEAY,3795,client_1674,property_40371418,11/4/2025 10:30,sale,150,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",ZEAEAY,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_OKII5I,3794,client_1700,property_43335032,12/12/2025 12:00,sale,175,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",OKII5I,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",175,1
+order_KK0O6Y,3793,client_1828,property_55663497,8/5/2025 10:45,sale,160,,Windows Inside & Outside Plus Screens,,"[{'id': 238856, 'Name': 'Danny Saunders'}]",KK0O6Y,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",160,1
+order_XIIFY8,3792,client_1827,property_55460263,8/19/2025 8:30,sale,290,"Voicemail: ""hi Dan this is Tom John uh
+ Arthur's Strickland gave me your number um
+ we're looking to get our windows washed
+ please call me at 951-970-2840 thank you
+""",Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",XIIFY8,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",290,1
+order_RO8XLE,3786,client_1525,property_33123299,11/13/2025 11:30,sale,175,,Combination of Services,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",RO8XLE,Outside Windows And Screens,,100,1
+order_RO8XLE,3786,client_1525,property_33123299,11/13/2025 11:30,sale,175,,Combination of Services,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",RO8XLE,Solar Panel Cleaning - Single Story,,75,1
+order_BEUDPN,3781,client_1825,property_54957575,7/29/2025 9:30,sale,120,,Solar Panel Cleaning,Referral,"[{'id': 238856, 'Name': 'Danny Saunders'}]",BEUDPN,Solar Panel Cleaning - Single Story,,5,24
+order_REMFAF,3780,client_1824,property_54853463,7/15/2025 9:00,sale,75,,Solar Panel Cleaning,,"[{'id': 238856, 'Name': 'Danny Saunders'}]",REMFAF,Solar Panel Cleaning - Single Story,,75,1
+order_KO8XMY,3779,client_1822,property_54853416,7/15/2025 8:00,sale,120,,Solar Panel Cleaning,,"[{'id': 238856, 'Name': 'Danny Saunders'}]",KO8XMY,Solar Panel Cleaning - Single Story,,5,24
+order_8DOOHM,3778,client_1823,property_54810400,7/14/2025 8:30,sale,120,,Solar Panel Cleaning,Thumbtack,"[{'id': 238856, 'Name': 'Danny Saunders'}]",8DOOHM,Solar Panel Cleaning - Single Story,,5,24
+order_XO2ODN,3776,client_1076,property_12404911,7/10/2025 12:00,sale,125,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",XO2ODN,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",125,1
+order_JNQR4L,3775,client_1529,property_33335324,10/10/2025 10:00,sale,140,,Windows Inside & Outside Plus Screens,Angi,"[{'id': 75737, 'Name': 'Dan Saunders'}]",JNQR4L,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",120,1
+order_JNQR4L,3775,client_1529,property_33335324,10/10/2025 10:00,sale,140,,Windows Inside & Outside Plus Screens,Angi,"[{'id': 75737, 'Name': 'Dan Saunders'}]",JNQR4L,Tip,,20,1
+order_Q6N9X6,3774,client_1338,property_20309514,8/1/2025 8:00,sale,400,,Windows Inside & Outside Plus Screens,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",Q6N9X6,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",400,1
+order_RLI89B,3773,client_1510,property_32728156,7/10/2025 7:00,sale,220,,Combination of Services,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",RLI89B,Outside Windows And Screens,,115,1
+order_RLI89B,3773,client_1510,property_32728156,7/10/2025 7:00,sale,220,,Combination of Services,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",RLI89B,Solar Panel Cleaning - Single Story,,105,1
+order_P4IRHX,3771,client_1190,property_16322237,9/19/2025 12:00,sale,250,Tip 50.00,Windows Inside & Outside Plus Screens,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",P4IRHX,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens
+
+Includes 3 showers",250,1
+order_S1ZFBE,3768,client_1006,property_11384444,10/28/2025 11:00,sale,140,,Windows Inside & Outside Plus Screens,Ryan Fewster,"[{'id': 75737, 'Name': 'Dan Saunders'}]",S1ZFBE,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",140,1
+order_A0MYL5,3767,client_1142,property_30877368,12/2/2025 10:00,sale,155,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",A0MYL5,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",155,1
+order_N995FT,3765,client_1380,property_24206619,9/2/2025 8:30,sale,220,Tip 20.00,Combination of Services,Herald,"[{'id': 75737, 'Name': 'Dan Saunders'}]",N995FT,Outside Windows And Screens,,80,1
+order_N995FT,3765,client_1380,property_24206619,9/2/2025 8:30,sale,220,Tip 20.00,Combination of Services,Herald,"[{'id': 75737, 'Name': 'Dan Saunders'}]",N995FT,Solar Panel Cleaning - Single Story,,140,1
+order_K525S3,3763,client_1690,property_42751863,9/16/2025 13:30,sale,150,,Windows Inside & Outside Plus Screens,,"[{'id': 75737, 'Name': 'Dan Saunders'}]",K525S3,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_KCM11F,3762,client_1003,property_16897906,11/25/2025 10:00,sale,185,,Windows Inside & Outside Plus Screens,Ryan Fewster,"[{'id': 75737, 'Name': 'Dan Saunders'}]",KCM11F,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",185,1
+order_EJ91HU,3761,client_1761,property_47430417,9/11/2025 8:00,sale,200,,Solar Panel Cleaning,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",EJ91HU,Solar Panel Cleaning - First Story,,200,1
+order_FDTOC5,3759,client_1706,property_43853613,11/12/2025 15:30,sale,160,,Combination of Services,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",FDTOC5,Solar Panel Cleaning - Single Story,,75,1
+order_FDTOC5,3759,client_1706,property_43853613,11/12/2025 15:30,sale,160,,Combination of Services,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",FDTOC5,Outside Windows And Screens,,85,1
+order_TME66W,3757,client_1405,property_26162331,12/2/2025 8:30,sale,160,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",TME66W,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",160,1
+order_1APQS8,3755,client_1393,property_25051546,7/29/2025 8:30,sale,60,,Solar Panel Cleaning,Herald,"[{'id': 75737, 'Name': 'Dan Saunders'}]",1APQS8,Solar Panel Cleaning - Single Story,,60,1
+order_LLNYDO,3753,client_1126,property_32844324,10/21/2025 12:00,sale,145,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",LLNYDO,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",145,1
+order_AIY6W3,3752,client_1441,property_29361435,10/7/2025 10:00,sale,85,,Outside Windows and Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",AIY6W3,Outside Windows And Screens,,85,1
+order_4758C6,3751,client_1435,property_29401544,12/9/2025 8:30,sale,140,,Windows Inside & Outside Plus Screens,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",4758C6,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",140,1
+order_92ACZ6,3748,client_1542,property_33834263,12/5/2025 8:30,sale,90,,Solar Panel Cleaning,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",92ACZ6,Solar Panel Cleaning - Single Story,,90,1
+order_XQ2DN7,3747,client_1546,property_33951359,6/24/2025 8:00,sale,275,,Combination of Services,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",XQ2DN7,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",200,1
+order_XQ2DN7,3747,client_1546,property_33951359,6/24/2025 8:00,sale,275,,Combination of Services,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",XQ2DN7,Solar Panel Cleaning - First Story,,75,1
+order_C65GEF,3740,client_1598,property_36707753,7/3/2025 8:00,sale,250,,Outside Windows and Screens,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",C65GEF,Outside Windows And Screens,,150,1
+order_C65GEF,3740,client_1598,property_36707753,7/3/2025 8:00,sale,250,,Outside Windows and Screens,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",C65GEF,Miscellaneous,hand scrubbing back windows ,30,1
+order_C65GEF,3740,client_1598,property_36707753,7/3/2025 8:00,sale,250,,Outside Windows and Screens,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",C65GEF,Tip,,70,1
+order_A3LB8R,3739,client_1813,property_53385766,10/31/2025 10:00,sale,75,,Solar Panel Cleaning,Web Site,"[{'id': 75737, 'Name': 'Dan Saunders'}]",A3LB8R,Solar Panel Cleaning - Single Story,,5,15
+order_46IYWG,3738,client_1074,property_12238171,10/7/2025 11:30,sale,145,New Zealand late January for 1 month,Windows Inside & Outside Plus Screens,Note Card,"[{'id': 75737, 'Name': 'Dan Saunders'}]",46IYWG,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",145,1
+order_59D5KQ,3737,client_1691,property_42938042,10/28/2025 9:00,sale,245,,Combination of Services,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",59D5KQ,Outside Windows And Screens,,85,1
+order_59D5KQ,3737,client_1691,property_42938042,10/28/2025 9:00,sale,245,,Combination of Services,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",59D5KQ,Solar Panel Cleaning - Single Story,,75,1
+order_59D5KQ,3737,client_1691,property_42938042,10/28/2025 9:00,sale,245,,Combination of Services,Thumbtack,"[{'id': 75737, 'Name': 'Dan Saunders'}]",59D5KQ,Clean Gutters,Inspect and Clean Gutters,85,1
+order_5E7Q8Q,3736,client_1079,property_12445030,9/16/2025 9:30,sale,275,,Combination of Services,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",5E7Q8Q,Windows In & Out - Full Service,"Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",150,1
+order_5E7Q8Q,3736,client_1079,property_12445030,9/16/2025 9:30,sale,275,,Combination of Services,Referral,"[{'id': 75737, 'Name': 'Dan Saunders'}]",5E7Q8Q,Solar Panel Cleaning - Single Story,,125,1
+order_OBJRMF,3734,client_1817,property_53826190,6/11/2025 8:30,sale,200,,Solar Panel Cleaning,,"[{'id': 75737, 'Name': 'Dan Saunders'}]",OBJRMF,Solar Panel Cleaning - Single Story,,200,1
+order_8AL3UI,3733,client_1815,property_53592552,12/3/2025 8:30,sale,115,,Outside Windows and Screens,Magnet/Drive By,"[{'id': 75737, 'Name': 'Dan Saunders'}]",8AL3UI,Outside Windows And Screens,,100,1
+order_8AL3UI,3733,client_1815,property_53592552,12/3/2025 8:30,sale,115,,Outside Windows and Screens,Magnet/Drive By,"[{'id': 75737, 'Name': 'Dan Saunders'}]",8AL3UI,Tip,,15,1
+order_W9T31E,3732,client_1214,property_32564653,12/5/2025 9:30,sale,250,,Outside Windows and Screens,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",W9T31E,Outside Windows And Screens,also main inside windows ,250,1
+order_ZM7KWZ,3730,client_1347,property_20625392,11/19/2025 9:30,sale,150,"end of May ,Ask if outside needed. Inside is May 2026",Outside Windows and Screens,Home Advisor,"[{'id': 75737, 'Name': 'Dan Saunders'}]",ZM7KWZ,Outside Windows And Screens,,150,1

@@ -1,0 +1,52 @@
+================================================================================
+Workiz jobs with NO Odoo Sales Order (39 real customers — Personal Time excluded)
+Source: workiz_full_snapshot_20260218_merged.csv
+Generated: 2026-02-19
+================================================================================
+
+Customer Name              | UUID    | Date       | Status
+----------------------------|---------|------------|----------
+Lanny And Sue Lund         | OSKTXC  | 2026-01-13 | Done
+Sally Walsh                | K6XI1F  | 2026-01-13 | Done
+Pat Maldonado              | CMM4KF  | 2026-01-13 | Done
+Alexander Burck            | 1C5YKA  | 2025-12-18 | Done
+John Sonia Duffy           | 84ALE9  | 2025-12-16 | Done
+Donna Uchimura             | 53K12N  | 2025-12-16 | Done
+Trish & Graham Moorhouse   | 6PYY6U  | 2025-12-16 | Done
+Santya Parker              | BJOSF3  | 2024-07-18 | Pending
+Brenda Williams            | KB9IH3  | 2024-11-27 | Canceled
+Richard Krajchir           | ZONZWF  | 2024-10-26 | Canceled
+Karen Sebzda               | RZ59SA  | 2024-10-22 | Canceled
+John Richardson            | DP3P0Y  | 2024-08-14 | Canceled
+John Young                 | PWOLWX  | 2023-11-29 | Canceled
+Howard Simon               | 517PMN  | 2023-11-22 | Canceled
+Carolyn Bussard-Lamb       | 1GYUWG  | 2023-11-04 | Canceled
+Tony Helgemoe              | OOKG2F  | 2023-04-14 | Canceled
+Sherri Fleming             | 4KUUT0  | 2022-10-28 | Canceled
+Linda & Fred Loetscher     | NR8AXU  | 2022-10-18 | Canceled
+Rajeni Chajar              | KUDTNL  | 2022-09-19 | Canceled
+Shirley Ferruzzi           | 5TFCIM  | 2022-05-03 | Canceled
+Julie Muldoon              | MBFET9  | 2022-01-03 | Canceled
+Leslie Bucari              | AFWFR5  | 2021-12-12 | Canceled
+Brenda D                   | R1BQ4I  | 2021-09-22 | Canceled
+Julie Muldoon              | SBBIGM  | 2021-08-15 | Canceled
+Valerie Young              | CD3HMR  | 2021-07-04 | Canceled
+Evie Bryant                | NMY8IH  | 2021-06-08 | Canceled
+Karen Bird                 | E4212X  | 2021-05-20 | Canceled
+Ronda Noriega              | HOKXTE  | 2021-05-11 | Canceled
+Ronda Noriega              | F0POU5  | 2021-05-05 | Canceled
+Charles & Yraida Roberts   | AQ673I  | 2021-05-04 | Canceled
+Margaret McLennan          | NZIDIU  | 2021-03-16 | Canceled
+Joan Strickler             | PRPSSH  | 2021-02-25 | Canceled
+Ron & Linda Cordero        | 7UBBAI  | 2020-12-07 | Canceled
+Patrick Evans              | 7QSQMP  | 2020-11-18 | Canceled
+Ronda Noriega              | JZ6B5Y  | 2020-11-11 | Canceled
+Dena Sidney Cohen          | 0F4P6A  | 2020-09-06 | Canceled
+Tom Swanson                | XX57EC  | 2020-05-27 | Canceled
+Jeanne Robert Porter       | 7LECKG  | 2020-05-21 | Canceled
+Walter & Janice Hasbach    | BPE8E4  | 2020-01-20 | Canceled
+
+--------------------------------------------------------------------------------
+Summary: 39 jobs in Workiz with no Odoo SO (excluding 7 Personal Time jobs).
+Done: 7   Pending: 1   Canceled: 31
+================================================================================

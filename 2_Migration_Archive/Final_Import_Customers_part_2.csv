@@ -1,0 +1,101 @@
+id,name,x_studio_first_name,x_studio_last_name,phone,x_studio_second_phone,email,type,is_company,ref,x_studio_record_category
+client_1123,Toni Harris,Toni,Harris,6265103844,,,contact,False,1123,Contact
+client_1072,Marti Bartlett,Marti,Bartlett,2398985234,,bartlettmarti@gmail.com,contact,False,1072,Contact
+client_1399,John Volanti,John,Volanti,4157136520,,,contact,False,1399,Contact
+client_1484,Oscar Arredondo,Oscar,Arredondo,3105280835,,,contact,False,1484,Contact
+client_1413,Margo Faulkner,Margo,Faulkner,6199253524,,,contact,False,1413,Contact
+client_1398,Ross Snow,Ross,Snow,4152447687,,,contact,False,1398,Contact
+client_1430,Rik Ports,Rik,Ports,9493318795,,,contact,False,1430,Contact
+client_1618,Lisa Scarpelli,Lisa,Scarpelli,7605788344,,,contact,False,1618,Contact
+client_1588,Amy Pearson,Amy,Pearson,7605077818,,,contact,False,1588,Contact
+client_1727,Chris Swift,Chris,Swift,6198572211,,,contact,False,1727,Contact
+client_1268,Diane Rasmussen,Diane,Rasmussen,7144013740,,Ddras@frontiernet.net,contact,False,1268,Contact
+client_1128,Vince Russo,Vince,Russo,4259412841,,Vince.barb46@gmail.com,contact,False,1128,Contact
+client_1649,Stephanie Cooper,Stephanie,Cooper,7609142250,,,contact,False,1649,Contact
+client_1799,Sharon Sims,Sharon,Sims,9516642784,,,contact,False,1799,Contact
+client_1077,John  Sonia Duffy,John  Sonia,Duffy,9516402939,,sskiermejd@yahoo.com,contact,False,1077,Contact
+client_1685,Carolyn Straub,Carolyn,Straub,9517195354,,sycspgs@msn.com,contact,False,1685,Contact
+client_1027,Carol  Jack Anderson,Carol  Jack,Anderson,9518371761,9519234372,carola52@verizon.net,contact,False,1027,Contact
+client_1223,Dave  Colleen Johnson,Dave  Colleen,Johnson,9492332489,9512605963,Colleen1-johnson@outlook.com,contact,False,1223,Contact
+client_1595,Ed Dismukes,Ed,Dismukes,6145065131,,,contact,False,1595,Contact
+client_1150,Karen Raker,Karen,Raker,5083693544,5083693544,karenlraker@gmail.com,contact,False,1150,Contact
+client_1255,Stacey Speiser,Stacey,Speiser,9097322970,,sspeiser40@yahoo.com,contact,False,1255,Contact
+client_1625,Carol Callaghan,Carol,Callaghan,7606991133,,carolcall@me.com,contact,False,1625,Contact
+client_1804,Eliza Prall,Eliza,Prall,3035884174,3035140855,,contact,False,1804,Contact
+client_1448,Dan Saunders,Dan,Saunders,9519726946,,,contact,False,1448,Contact
+client_1080,Art Martel,Art,Martel,9099738208,,,contact,False,1080,Contact
+client_1071,Jonie Kipling,Jonie,Kipling,6319742289,9515994387,,contact,False,1071,Contact
+client_1802,Bill Mayhall,Bill,Mayhall,9099386611,,,contact,False,1802,Contact
+client_1655,Mary O'Hagan,Mary,O'Hagan,8053319700,,,contact,False,1655,Contact
+client_1786,Steve Acree,Steve,Acree,4425292983,,,contact,False,1786,Contact
+client_1801,Steve Witters,Steve Witters,,7075709044,,,contact,False,1801,Contact
+client_1687,Shaun Wright,Shaun,Wright,9095395684,,,contact,False,1687,Contact
+client_1234,Steve Bluestein,Steve,Bluestein,3104299656,,,contact,False,1234,Contact
+client_1384,Bonnie Silverwood,Bonnie,Silverwood,9513255060,,,contact,False,1384,Contact
+client_1775,Christopher Brown,Christopher,Brown,3233500225,,,contact,False,1775,Contact
+client_1419,Judith Gordon,Judith,Gordon,2138199192,,Jagbiz@sbcglobal.net,contact,False,1419,Contact
+client_1134,Mark Egge,Mark,Egge,9512350894,,,contact,False,1134,Contact
+client_1797,Ed Bakosh,Ed,Bakosh,9518678506,,,contact,False,1797,Contact
+client_1796,Terri Jones,Terri,Jones,7144698710,,,contact,False,1796,Contact
+client_1351,Dwight Fichtner,Dwight,Fichtner,9099960581,,dwightfichtuer@yahoo.com,contact,False,1351,Contact
+client_1794,Barbara Little,Barbara,Little,4157263535,,,contact,False,1794,Contact
+client_1792,Jose Bugarin,Jose,Bugarin,9492357977,,,contact,False,1792,Contact
+client_1791,Walter Garrison,Walter,Garrison,6619728580,,,contact,False,1791,Contact
+client_1787,Juanita Godwin,Juanita,Godwin,7605416878,,,contact,False,1787,Contact
+client_1218,Marlene Cliff,Marlene,Cliff,5109080500,,marlenecliff@icloud.com,contact,False,1218,Contact
+client_1785,Andy Willinger,Andy,Willinger,3107131952,,Andy_willinger@yahoo.com,contact,False,1785,Contact
+client_1694,Iver/Glenn Nielsen,Iver/Glenn,Nielsen,2022572567,2022572567,,contact,False,1694,Contact
+client_1349,Donna Uchimura,Donna,Uchimura,9099861871,,donnauchimura@gmail.com,contact,False,1349,Contact
+client_1361,Debbie Church,Debbie,Church,9516632195,,,contact,False,1361,Contact
+client_1437,Marjean Powers,Marjean,Powers,9095735796,9512233113,,contact,False,1437,Contact
+client_1773,Chuck McBride,Chuck,McBride,7602755481,,,contact,False,1773,Contact
+client_1597,Sally Suchil,Sally,Suchil,3104221502,,,contact,False,1597,Contact
+client_1783,Bud Piraino,Bud,Piraino,9512654217,,,contact,False,1783,Contact
+client_1781,Gene Hurtig,Gene,Hurtig,4086857217,,,contact,False,1781,Contact
+client_1439,Judy Anderson,Judy,Anderson,2483026358,,,contact,False,1439,Contact
+client_1777,Barbara Rago,Barbara,Rago,9512641516,,,contact,False,1777,Contact
+client_1780,Trudy Roony,Trudy,Roony,9132205536,,,contact,False,1780,Contact
+client_1779,Kelly Dower,Kelly,Dower,7148764559,,,contact,False,1779,Contact
+client_1778,Les Berkey,Les,Berkey,7608995770,,,contact,False,1778,Contact
+client_1487,Kathie Nelson,Kathie,Nelson,4254222744,,,contact,False,1487,Contact
+client_1318,Gregg  Lisa Whitney,Gregg  Lisa,Whitney,8582329469,8582046161,gregg@greggwhitney.com,contact,False,1318,Contact
+client_1262,Marguerite Surovy,Marguerite,Surovy,8188086598,,m_surovy@sbcglobal.net,contact,False,1262,Contact
+client_1469,Dottie Gough,Dottie,Gough,7758302407,,dottie75me@gmail.com,contact,False,1469,Contact
+client_1698,Leo Bodrov,Leo,Bodrov,8182316513,,,contact,False,1698,Contact
+client_1089,Bill & Nancy Ward,Bill & Nancy,Ward,9092403066,,billynanc03@gmail.com,contact,False,1089,Contact
+client_1001,Walter  Marsha Robinson,Walter  Marsha,Robinson,3108740892,,wrobinson875@yahoo.com,contact,False,1001,Contact
+client_1586,Marilyn Edmonds,Marilyn,Edmonds,9517077487,,,contact,False,1586,Contact
+client_1772,Ken Morris,Ken,Morris,7604224770,,,contact,False,1772,Contact
+client_1672,Roni Palmetier,Roni,Palmetier,7603903414,,,contact,False,1672,Contact
+client_1769,Anita Saunders,Anita,Saunders,9514404567,,,contact,False,1769,Contact
+client_1767,Art Clifford,Art,Clifford,5096701242,,,contact,False,1767,Contact
+client_1355,Allyn Miller,Allyn,Miller,3126226111,,MillerAllyn@gmail.com,contact,False,1355,Contact
+client_1580,Marilyn Wilson,Marilyn,Wilson,9518130068,,,contact,False,1580,Contact
+client_1417,Betsy Justice,Betsy,Justice,7607992182,,,contact,False,1417,Contact
+client_1470,Anne Sandberg,Anne,Sandberg,3109800073,,annesandberg@predictsuccess.com,contact,False,1470,Contact
+client_1668,Linda Stoddart,Linda,Stoddart,7605744026,,,contact,False,1668,Contact
+client_1444,Brooke Coldren,Brooke,Coldren,7146068449,,brookecoldren@gmail.com,contact,False,1444,Contact
+client_1766,Al Garces,Al,Garces,5626314484,,,contact,False,1766,Contact
+client_1212,Cheryl Johnson,Cheryl,Johnson,9098212822,,markethouses@gmail.com,contact,False,1212,Contact
+client_1069,Nita Staley,Nita,Staley,7604208980,,chocl8lab12@yahoo.com,contact,False,1069,Contact
+client_1737,Rick Kammerer,Rick,Kammerer,5133652826,,,contact,False,1737,Contact
+client_1357,Fred Johns,Fred,Johns,2483909025,,,contact,False,1357,Contact
+client_1498,Wayne Geringer,Wayne,Geringer,7609892466,7609892466,wlg1231@aol.com,contact,False,1498,Contact
+client_1233,Mark Habeeb,Mark,Habeeb,8186792201,,markhabeeb@gmail.com,contact,False,1233,Contact
+client_1189,Scott Cunningham,Scott,Cunningham,2063532206,7605078741,seaprime@aol.com,contact,False,1189,Contact
+client_1611,Sharon Soper,Sharon,Soper,6048802130,,,contact,False,1611,Contact
+client_1653,Jim & Pat Hayner,Jim & Pat,Hayner,5093017038,,,contact,False,1653,Contact
+client_1555,Kevin Armintrout,Kevin,Armintrout,4254781782,,,contact,False,1555,Contact
+client_1765,Darlean Sugameli,Darlean,Sugameli,7608092242,,,contact,False,1765,Contact
+client_1764,Toney Lawson,Toney,Lawson,2096492587,,,contact,False,1764,Contact
+client_1763,Rochelle Lozdon,Rochelle,Lozdon,8182098609,,EXBRITSHEL@AOL.COM,contact,False,1763,Contact
+client_1412,Rajeni Chajar,Rajeni,Chajar,4253267201,,,contact,False,1412,Contact
+client_1261,Gary  Vicki Hubbert,Gary  Vicki,Hubbert,7604850144,,hubbertgary@gmail.com,contact,False,1261,Contact
+client_1745,Bill Schroeder,Bill,Schroeder,9175824953,,,contact,False,1745,Contact
+client_1524,George Frank,George,Frank,6618161071,,,contact,False,1524,Contact
+client_1282,Frank Abril,Frank,Abril,9092151725,,,contact,False,1282,Contact
+client_1695,Joan Flickinger,Joan,Flickinger,9516639743,,,contact,False,1695,Contact
+client_1760,Jessica Johnson,Jessica,Johnson,7605676895,,,contact,False,1760,Contact
+client_1450,Michael Krauss,Michael,Krauss,2135955495,,,contact,False,1450,Contact
+client_1759,Annie Marsalone,Annie,Marsalone,9098169499,,,contact,False,1759,Contact
+client_1747,Minia Esparza,Minia,Esparza,9092627341,9514670094,,contact,False,1747,Contact

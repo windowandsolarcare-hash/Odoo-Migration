@@ -1,0 +1,11 @@
+id,name,x_studio_first_name,x_studio_last_name,phone,x_studio_second_phone,email,type,is_company,ref,x_studio_record_category
+client_1784,Robyn Pierce,Robyn,Pierce,5035932013,,,contact,False,1784,Contact
+client_1034,Jeanne Farris,Jeanne,Farris,9516928912,9512233295,,contact,False,1034,Contact
+client_1853,Barbara Garner,Barbara,Garner,4084168482,,,contact,False,1853,Contact
+client_1838,Sue Johnson,Sue,Johnson,5623046370,,,contact,False,1838,Contact
+client_1849,Ron Dilaura,Ron,Dilaura,7608760704,,,contact,False,1849,Contact
+client_1356,Sheila Boulton,Sheila,Boulton,6045610890,,boultons@shaw.ca,contact,False,1356,Contact
+client_1598,Brenda Williams,Brenda,Williams,3107225114,,,contact,False,1598,Contact
+client_1746,Karen Bellamy,Karen,Bellamy,2535797099,,,contact,False,1746,Contact
+client_1847,Phil & Fran Ciulla,Phil & Fran,Ciulla,6265240862,6268184152,,contact,False,1847,Contact
+client_1846,John Evanoff,John,Evanoff,7603997922,,,contact,False,1846,Contact

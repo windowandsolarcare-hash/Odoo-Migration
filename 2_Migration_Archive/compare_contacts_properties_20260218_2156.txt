@@ -1,0 +1,80 @@
+============================================================
+Workiz vs Odoo: CONTACTS and PROPERTIES (read-only, no changes made)
+Workiz CSV: C:\Users\dj\Documents\Business\A Window and Solar Care\Migration to Odoo\2_Migration_Archive\workiz_full_snapshot_20260218_merged.csv
+Odoo DB: window-solar-care
+Generated: 2026-02-18T21:56:58.540333+00:00
+============================================================
+
+--- CONTACTS ---
+Workiz unique ClientIds: 650
+Odoo Contacts (with ref): 637
+Workiz ClientIds with NO Odoo contact (would add/fix): 13
+  ClientId=1254  Workiz: Evie Bryant  address: 81406 Joshua Tree Court
+  ClientId=1609  Workiz: Carolyn Bussard-Lamb  address: 104 Esplanade Street
+  ClientId=1317  Workiz: Brenda D  address: 30777 Butia Palm Drive
+  ClientId=1130  Workiz: Patrick Evans  address: 30744 Sterling Road
+  ClientId=1379  Workiz: Shirley Ferruzzi  address: 1354 Via La Presa
+  ClientId=1420  Workiz: Sherri Fleming  address: 39002 Camino Las Hoyes
+  ClientId=1489  Workiz: Tony Helgemoe  address: 81659 Avenida Bolero
+  ClientId=1164  Workiz: Margaret McLennan  address: 48605 Vista Tierra
+  ClientId=1704  Workiz: Santya Parker  address: 
+  ClientId=1719  Workiz: John Richardson  address: 8304 Maruyama Dr
+  ClientId=1628  Workiz: Howard Simon  address: 84392 Rodine Ave
+  ClientId=1636  Workiz: John Young  address: 78109 Calle Norte
+  ClientId=1279  Workiz: Valerie Young  address: 8311 Maruyama Drive
+Odoo contacts (ref) with NO Workiz ClientId (extra in Odoo): 0
+Contact name MISMATCH (same ClientId, different name): 25
+  ClientId=1504  Workiz: 'Cindy & James Krause'  Odoo: 'James Krause'
+  ClientId=1016  Workiz: 'Blair Irene Becker'  Odoo: 'Blair  Irene Becker'
+  ClientId=1452  Workiz: 'Helen  Tom Stewart'  Odoo: 'Helen & Tom Stewart'
+  ClientId=1077  Workiz: 'John Sonia Duffy'  Odoo: 'John  Sonia Duffy'
+  ClientId=1117  Workiz: 'Barbara  John Bueler'  Odoo: 'Barbara & John Bueler'
+  ClientId=1374  Workiz: 'Linda  Fred Loetscher'  Odoo: 'Linda & Fred Loetscher'
+  ClientId=1666  Workiz: 'Anthony  Suzy Filippi'  Odoo: 'Anthony & Suzy Filippi'
+  ClientId=1406  Workiz: 'Trish Graham Moorhouse'  Odoo: 'Trish & Graham Moorhouse'
+  ClientId=1825  Workiz: 'Anny  Karl Hogquist'  Odoo: 'Anny & Karl Hogquist'
+  ClientId=1064  Workiz: 'Robert & Louise Mazochi'  Odoo: 'Robert Mazochi'
+  ClientId=1193  Workiz: 'Lorretta Goble'  Odoo: 'Loretta Goble'
+  ClientId=1655  Workiz: 'Mary OHagan'  Odoo: 'Mary O'Hagan'
+  ClientId=1089  Workiz: 'Bill  Nancy Ward'  Odoo: 'Bill & Nancy Ward'
+  ClientId=1256  Workiz: 'Pam  Rick Ortega'  Odoo: 'Pam & Rick Ortega'
+  ClientId=1013  Workiz: 'Charles & Yraida Roberts'  Odoo: 'Charles  Yraida Roberts'
+  ClientId=1052  Workiz: 'Van  Carole Eychaner'  Odoo: 'Van & Carole Eychaner'
+  ClientId=1432  Workiz: 'Linda  Mike Pedersen'  Odoo: 'Linda & Mike Pedersen'
+  ClientId=1847  Workiz: 'Phil  Fran Ciulla'  Odoo: 'Phil & Fran Ciulla'
+  ClientId=1528  Workiz: 'Gary & Patricia Gorczyca'  Odoo: 'Gary Gorczyca'
+  ClientId=1784  Workiz: 'Robin Blackstone'  Odoo: 'Robyn Pierce'
+  ClientId=1237  Workiz: 'Donna  Keith Swanke'  Odoo: 'Donna & Keith Swanke'
+  ClientId=1728  Workiz: 'Rod Becky Hahn'  Odoo: 'Rod & Becky Hahn'
+  ClientId=1135  Workiz: 'Mark  Sarah Fredricksen'  Odoo: 'Mark & Sarah Fredricksen'
+  ClientId=1037  Workiz: 'Dorothy  Robert Farmer'  Odoo: 'Dorothy & Robert Farmer'
+  ClientId=1653  Workiz: 'Jim Pat Hayner'  Odoo: 'Jim & Pat Hayner'
+
+--- PROPERTIES ---
+Workiz unique addresses: 813
+Odoo Properties: 800
+Workiz addresses with NO Odoo property (would add/fix): 16
+  Address: 104 Esplanade Street, Rancho Mirage, California 92270  ClientId=1609
+  Address: 1354 Via La Presa, Hemet, California 92545  ClientId=1379
+  Address: 2056 Roanoke St, San Jacinto, California 92582  ClientId=1377
+  Address: 30061 Crestview Court, , California 92585  ClientId=1246
+  Address: 30744 Sterling Road, Cathedral City, California 92234  ClientId=1130
+  Address: 30777 Butia Palm Drive, Homeland, California 92548  ClientId=1317
+  Address: 36450 Alamar Mesa Drive, Hemet, California 92545  ClientId=1045
+  Address: 39002 Camino Las Hoyes, Indio, California 92203  ClientId=1420
+  Address: 48605 Vista Tierra, La Quinta, California 92253  ClientId=1164
+  Address: 78109 Calle Norte, La Quinta, california 92253  ClientId=1636
+  Address: 7855 Gibson Cir, Hemet, California 92545.  ClientId=1825
+  Address: 81406 Joshua Tree Court, La Quinta, California 92253  ClientId=1254
+  Address: 81659 Avenida Bolero, Indio, California 92203  ClientId=1489
+  Address: 8304 Maruyama Dr, Hemet, California 92545  ClientId=1719
+  Address: 8311 Maruyama Drive, Hemet, California 92545  ClientId=1279
+  Address: 84392 Rodine Ave, Indio, California 92203  ClientId=1628
+Odoo properties with NO Workiz address (extra in Odoo): 3
+  Odoo id=26326  street=123456 Main St  city=False  zip=False
+  Odoo id=26029  street=2056 Roanoke St  city=Hemet  zip=92582
+  Odoo id=24131  street=7855 Gibson Cir  city=Hemet  zip=92545
+
+--- SUMMARY (what you would change if needed) ---
+  Contacts: 13 missing in Odoo, 0 only in Odoo, 25 name mismatches.
+  Properties: 16 missing in Odoo, 3 only in Odoo.

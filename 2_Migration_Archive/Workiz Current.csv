@@ -1,0 +1,78 @@
+id,Name,Description,Price,Cost,Type,Category,"Model #",Brand,Booking,Inventory,Taxable
+1003,Sales,,0.00,0.00,service,,,,0,0,0
+1000,"Outside Windows And Screens",,65.00,0.00,service,,,,0,0,0
+1001,"Windows In & Out - Full Service","Includes: Inside - Vacuuming tracks on the inside, clean windows
+                 Outside - Brush Tracks & Frames, clean windows, dry brush screens",100.00,0.00,service,,,,0,0,0
+1002,"Pressure Wash",,100.00,0.00,service,,,,0,0,0
+1004,"Clean Gutters","Inspect and Clean Gutters",100.00,0.00,service,,,,0,0,0
+1005,Tip,,10.00,0.00,service,,,,0,0,0
+1006,"Garage Door Windows Cleaned - No Cut Outs",,10.00,0.00,service,,,,0,0,0
+1007,"Ceiling Fans Cleaned",,5.00,0.00,service,,,,0,0,0
+1008,"Install Downspout",,200.00,0.00,service,,,,0,0,0
+1009,"Solar Panel Cleaning - Single Story",,6.00,0.00,service,,,,0,0,0
+1010,"Mirrors Cleaned",,10.00,0.00,service,,,,0,0,0
+1011,"WD-40 Tracks",,75.00,0.00,service,,,,0,0,0
+1013,"Per Window Price","Includes clean windows inside and out, vacuum tracks, dry brush screens",10.00,0.00,service,,,,0,0,0
+1014,"Per Pane Price",,2.00,0.00,service,,,,0,0,0
+1015,"Wet Brush Screen",,4.00,0.00,service,,,,0,0,0
+1016,"Clean Tracks",,3.00,0.00,service,,,,0,0,0
+1017,Discount,"15% Discount",'-15.00,0.00,service,,,,0,0,0
+1018,"Install Gutter Guard",,150.00,0.00,service,,,,0,0,0
+1019,"XERO PURE Screen Clean","XERO PURE Screen Cleaning system uses state of the art technology to gently & thoroughly clean your screens & frames.  The long, soft bristles & secure cleaning base allows your technician to clean more extensively while giving even more care to your screen frames.",45.00,0.00,service,,,,0,0,1
+1020,"Lights And Ceiling Fan Cleaned",,90.00,0.00,service,,,,0,0,0
+1021,"Re-Seal Concrete","Includes sealer material",100.00,0.00,service,,,,0,0,0
+1022,"Gutter Inspection","Inspect Gutter",50.00,0.00,service,,,,0,0,0
+1023,"Clean Blinds",,20.00,0.00,service,,,,0,0,0
+1024,"Move Furniture","Includes Moving all furniture in Sun Room.",0.00,0.00,service,,,,0,0,0
+1012,"Repair Roof Tile(s)",,50.00,0.00,service,,,,0,0,0
+1025,"Single Story Window Panes - Outside Only",,2.50,0.00,service,,,,0,0,0
+1026,"Single Story Window Panes - Inside & Outside",,5.00,0.00,service,,,,0,0,0
+1027,"Vacuum Tracks - Per Track",,1.00,0.00,service,,,,0,0,0
+1029,"Garage Door Windows Cleaned - Cut Outs",,20.00,0.00,service,,,,0,0,0
+1030,"Second Story Window Panes - Outside Only",,3.00,0.00,service,,,,0,0,0
+1031,"Second Story Window Panes - Inside & Outside",,6.00,0.00,service,,,,0,0,0
+1032,"Solar Panel Cleaning - Second Story",,7.00,0.00,service,,,,0,0,0
+1033,"CARE® Program Discount",,'-10.00,0.00,service,,,,0,0,0
+1034,"Glass Sliding Doors - Outside Only",,8.00,0.00,service,,,,0,0,0
+1035,"Glass Sliding Doors - Inside & Outside",,15.00,0.00,service,,,,0,0,0
+1036,"Screen Repair",,25.00,0.00,service,,,,0,0,0
+1037,"Gutter Foam Install","Install Foam insert to stop debris from getting into the enclosed Allumiwood Gutter. Labor and Material.",99.00,0.00,service,,,,0,0,0
+1038,"Clean Up Yard","Pickup and Bag all the leaves on the property",85.00,0.00,service,,,,0,0,0
+1039,"Screens - New",,49.00,0.00,service,,,,0,0,0
+1040,"Allumawood Patio Cover - Gutter Clean","Enclosed Gutter - clean and remove all debris from rooftop",275.00,0.00,service,,,,0,0,0
+1041,"Multiple Services Discount",,'-100.00,0.00,service,,,,0,0,0
+1042,"Cob Web Cleaning",,55.00,0.00,service,,,,0,0,0
+1028,"Xero WET SCREEN Cleaner","A Cleaning service for your Screens. The device is similar to a car wash for your screens. Not only cleans the mesh but also scrubs the frames of the screens. Gets the fine dirt particles out of the screen.",49.00,0.00,service,,,,0,0,0
+1043,Quote,"Provide in person quote to client",0.00,0.00,service,,,,0,0,0
+1044,"Clean Patio Cover",,275.00,0.00,service,,,,0,0,0
+1045,"Commercial Window Cleaning",,50.00,0.00,service,,,,0,0,0
+1046,"Screen Doors",,275.00,0.00,service,,,,0,0,0
+1047,"Screen Door Grille",,70.00,0.00,service,,,,0,0,0
+1048,"Install New Track","This is dependent upon the measurements I will take - See note at bottom of estimate. If the solution I researched does not fit your threshold, there is no charge.",45.00,0.00,service,,,,0,0,0
+1049,"Rush Priority Service",,50.00,0.00,service,,,,0,0,0
+1050,"Senior Discount","10% Senior Discount",'-15.00,0.00,service,,,,0,0,0
+1051,"Hard Water Stain Removal",,75.00,0.00,service,,,,0,0,0
+1052,Tracks,,20.00,0.00,service,,,,0,0,0
+1053,"Shower Glass",,25.00,0.00,service,,,,0,0,0
+1054,"Weekend Appointment",,25.00,0.00,service,,,,0,0,0
+1055,"French Door Or Window",,1.75,0.00,service,,,,0,0,0
+1056,"Dry Brush Screens",,30.00,0.00,service,,,,0,0,1
+1057,"Weather Stripping - Bug Flap",,20.00,0.00,service,,,,0,0,0
+1058,"Sky Light",,15.00,0.00,service,,,,0,0,0
+1059,"Screen Door Wheels",,20.00,0.00,service,,,,0,0,0
+1061,"Clean Plexi Glass","Remove from house, clean both sides and put back on house - Customer to supply cleaner",20.00,0.00,service,,,,0,0,0
+1062,"Construction Cleanup",,75.00,0.00,service,,,,0,0,0
+1063,"Outside Windows Only",,100.00,0.00,service,,,,0,0,0
+1064,"Velasquez Interiors",,100.00,0.00,service,,,,0,0,0
+1065,"Windows Full",,100.00,0.00,service,,,,0,0,0
+1066,"First Story Window Panes - Inside & Outside",,5.00,0.00,service,,,,0,0,0
+1067,"Vacuum Tracks",,30.00,0.00,service,,,,0,0,0
+1068,"Shower Enclosure","This price is PER shower enclosure",25.00,0.00,service,,,,0,0,0
+1069,"Pre-Soak Panels",,30.00,0.00,service,,,,0,0,0
+1070,"Soft Wash","Soft Wash Home",100.00,0.00,service,,,,0,0,0
+1073,"Workiz service fee","Workiz service fee",1.00,1.00,service,,1,,0,0,0
+1074,"Workiz tip","Workiz tip",1.00,1.00,service,,1,,0,0,0
+1076,Miscellaneous,,100.00,0.00,service,,,,0,0,0
+1077,"Install Screen Door & Delivery",,0.00,0.00,service,,,,0,0,0
+1078,"Touch Up","Back and side windows after rain",0.00,0.00,product,,,,0,0,0
+1075,"Solar Panel Cleaning - First Story",,5.00,0.00,service,,,,0,0,0

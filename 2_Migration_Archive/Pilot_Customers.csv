@@ -1,0 +1,3 @@
+id,name,x_studio_first_name,x_studio_last_name,phone,x_studio_second_phone,email,type,is_company,ref
+client_1784,Robyn Pierce,Robyn,Pierce,5035932013,,,contact,False,1784
+client_1034,Jeanne Farris,Jeanne,Farris,9516928912,9512233295,,contact,False,1034
