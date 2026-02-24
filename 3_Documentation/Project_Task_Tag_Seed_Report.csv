@@ -1,4 +1,4 @@
-mode,DRY RUN
+mode,APPLY
 
 section,model,source_id,tag_name,status,project_tag_id
 source_scan,res.partner.category,246,Fill,missing_from_project_tags,
@@ -31,15 +31,15 @@ source_scan,crm.tag,13,Star,missing_from_project_tags,
 source_scan,crm.tag,14,TBD,missing_from_project_tags,
 source_scan,crm.tag,15,TXT SENT,missing_from_project_tags,
 source_scan,crm.tag,16,WAIT,missing_from_project_tags,
-create_action,project.tags,,CF,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,Fill,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,Moved,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,OK,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,Ok,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,Snow Bird,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,Star,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,TBD,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,TXT SENT,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,Test,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,WAIT,dry_run,DRY_RUN_NO_CREATE
-create_action,project.tags,,test1,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,CF,created,1
+create_action,project.tags,,Fill,created,2
+create_action,project.tags,,Moved,created,3
+create_action,project.tags,,OK,created,4
+create_action,project.tags,,Ok,created,5
+create_action,project.tags,,Snow Bird,created,6
+create_action,project.tags,,Star,created,7
+create_action,project.tags,,TBD,created,8
+create_action,project.tags,,TXT SENT,created,9
+create_action,project.tags,,Test,created,10
+create_action,project.tags,,WAIT,created,11
+create_action,project.tags,,test1,created,12
