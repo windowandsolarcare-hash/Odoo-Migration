@@ -206,11 +206,11 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 end_val = task_vals[ODOO_TASK_END_DATETIME_FIELD]
         except Exception:
             pass
-    # When we set start+end, set date_deadline from end date (not start) so Odoo's "planned start before end" constraint passes
+    # Keep deadline coherent with end datetime. In this DB date_deadline is datetime, so write full end datetime.
     if task_vals.get(ODOO_TASK_END_DATETIME_FIELD) and ODOO_TASK_PLANNED_DATE_FIELD:
         end_val = task_vals[ODOO_TASK_END_DATETIME_FIELD]
         if end_val:
-            task_vals[ODOO_TASK_PLANNED_DATE_FIELD] = (str(end_val).split()[0] if " " in str(end_val) else str(end_val))
+            task_vals[ODOO_TASK_PLANNED_DATE_FIELD] = str(end_val)
 
     # SO: partner_id = Property (customer); partner_shipping_id = Property. Contact = Property.parent_id.
     so_list = _odoo_search_read("sale.order", [["id", "=", so_id]], ["partner_id", "partner_shipping_id", "tag_ids"], limit=1)
@@ -377,6 +377,125 @@ def convert_pacific_to_utc(pacific_datetime_str):
         offset_hours = 8 if dt_naive.month in (11, 12, 1, 2) or (dt_naive.month == 3 and dt_naive.day < 10) else 7
         dt_utc = dt_naive + timedelta(hours=offset_hours)
         return dt_utc.strftime('%Y-%m-%d %H:%M:%S')
+
+
+
+def is_task_trigger_status(status_value, substatus_value):
+    """Return True only for explicit scheduling states/substates that should create/sync tasks."""
+    allowed_values = {
+        "next appointment - text",
+        "send confirmation - text",
+        "scheduled",
+    }
+
+    def _norm(v):
+        return " ".join((v or "").strip().lower().split())
+
+    status_text = _norm(status_value)
+    substatus_text = _norm(substatus_value)
+    return status_text in allowed_values or substatus_text in allowed_values
+
+
+
+def _normalize_address_for_match(address):
+    """Normalize street text for robust property matching (Ct vs Court, punctuation, spacing)."""
+    if not address:
+        return ""
+    text = str(address).strip().lower()
+    replacements = {
+        ".": " ",
+        ",": " ",
+        "#": " ",
+    }
+    for a, b in replacements.items():
+        text = text.replace(a, b)
+    tokens = [t for t in text.split() if t]
+    norm_map = {
+        "ct": "court",
+        "rd": "road",
+        "dr": "drive",
+        "ln": "lane",
+        "ave": "avenue",
+        "blvd": "boulevard",
+        "st": "street",
+    }
+    normalized = [norm_map.get(tok, tok) for tok in tokens]
+    return " ".join(normalized)
+
+
+def _rebind_so_to_matching_property_if_needed(so_id, workiz_job):
+    """If UUID-matched SO is bound to wrong property, rebind partner/shipping to the contact's matching property."""
+    service_address = (workiz_job.get('Address') or '').strip()
+    if not service_address:
+        return None
+
+    so_rows = _odoo_search_read('sale.order', [["id", "=", so_id]], ["partner_id", "partner_shipping_id"], limit=1)
+    if not so_rows:
+        return None
+
+    so = so_rows[0]
+    shipping = so.get('partner_shipping_id') or so.get('partner_id')
+    shipping_id = shipping[0] if isinstance(shipping, (list, tuple)) else shipping
+    if not shipping_id:
+        return None
+
+    prop_rows = _odoo_search_read('res.partner', [["id", "=", shipping_id]], ["id", "street", "parent_id"], limit=1)
+    if not prop_rows:
+        return None
+
+    current_prop = prop_rows[0]
+    current_street = (current_prop.get('street') or '').strip()
+    contact = current_prop.get('parent_id')
+    contact_id = contact[0] if isinstance(contact, (list, tuple)) else contact
+    if not contact_id:
+        return None
+
+    if _normalize_address_for_match(current_street) == _normalize_address_for_match(service_address):
+        return None
+
+    # Try exact first, then normalized contains-match on this contact's properties.
+    exact = _odoo_search_read(
+        'res.partner',
+        [["street", "=", service_address], ["parent_id", "=", contact_id], ["x_studio_x_studio_record_category", "=", "Property"]],
+        ["id", "street"],
+        limit=1,
+    )
+    target = exact[0] if exact else None
+
+    if not target:
+        candidates = _odoo_search_read(
+            'res.partner',
+            [["parent_id", "=", contact_id], ["x_studio_x_studio_record_category", "=", "Property"]],
+            ["id", "street"],
+            limit=100,
+        )
+        target_norm = _normalize_address_for_match(service_address)
+        for c in candidates:
+            c_norm = _normalize_address_for_match(c.get('street') or '')
+            if c_norm == target_norm:
+                target = c
+                break
+
+    if not target:
+        print(f"[!] SO {so_id} property mismatch detected, but no matching property found for address: {service_address}")
+        return None
+
+    target_id = target['id']
+    if target_id == shipping_id:
+        return None
+
+    updates = {
+        'partner_id': int(target_id),
+        'partner_invoice_id': int(target_id),
+        'partner_shipping_id': int(target_id),
+    }
+    ok = update_sales_order(so_id, updates)
+    if ok:
+        print(f"[OK] Rebound SO {so_id} to property {target_id} for address '{service_address}'")
+        return target_id
+
+    print(f"[!] Failed to rebind SO {so_id} to property {target_id}")
+    return None
 
 def format_team_names(team_raw):
     """Extract team member names from Workiz team data."""
@@ -1228,6 +1347,9 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
     """Update an existing Sales Order with latest Workiz data. Skips order_line when SO is confirmed (sale/done) since Odoo locks lines.
     Property as brain: if SO has Contact as customer (partner_id != partner_shipping_id), we correct to Property on every update."""
     print(f"\n[*] Updating existing Sales Order ID: {so_id}")
+
+    # Ensure UUID-matched SO is bound to the correct property for the incoming Workiz address.
+    _rebind_so_to_matching_property_if_needed(so_id, workiz_job)
     
     # Fetch state and partner fields (for property-as-brain correction)
     read_payload = {
@@ -1458,9 +1580,7 @@ def main(input_data):
     print(f"\n[*] Searching for existing Sales Order with UUID: {job_uuid}")
     existing_so = search_sales_order_by_uuid(job_uuid)
     
-    TASK_TRIGGER_VALUES = ('next appointment', 'send confirmation text', 'scheduled')
-    status_lower = (status or '').strip().lower()
-    substatus_lower = (substatus or '').strip().lower()
+    should_trigger_tasks = is_task_trigger_status(status, substatus)
     
     if existing_so:
         so_id = existing_so['id']
@@ -1470,7 +1590,7 @@ def main(input_data):
         result = update_existing_sales_order(so_id, workiz_job, so_state=so_state)
         
         # When SO was quotation (draft) and job is now scheduled, confirm SO so tasks are created, then sync task fields.
-        if so_state == 'draft' and (status_lower in TASK_TRIGGER_VALUES or substatus_lower in TASK_TRIGGER_VALUES):
+        if so_state == 'draft' and should_trigger_tasks:
             print("[*] Quotation → scheduling: confirming SO and syncing tasks (assignee, planned date, start/end, phone).")
             confirm_sales_order(so_id)
             job_datetime_str = workiz_job.get('JobDateTime', '')
@@ -1502,7 +1622,7 @@ def main(input_data):
             if not result.get('success'):
                 return result
             # When SO was draft and job is now scheduled, confirm and sync tasks.
-            if so_state == 'draft' and (status_lower in TASK_TRIGGER_VALUES or substatus_lower in TASK_TRIGGER_VALUES):
+            if so_state == 'draft' and should_trigger_tasks:
                 print("[*] Quotation → scheduling: confirming SO and syncing tasks.")
                 confirm_sales_order(so_id)
                 job_datetime_str = workiz_job.get('JobDateTime', '')
@@ -1524,7 +1644,7 @@ def main(input_data):
         print("[!] Sales Order not found - calling Phase 3 to create it")
         print("="*70)
         # Only create task (confirm SO) when Status or SubStatus is one of: Next appointment, Send confirmation text, Scheduled. All other statuses → draft SO, no task.
-        if status_lower in TASK_TRIGGER_VALUES or substatus_lower in TASK_TRIGGER_VALUES:
+        if should_trigger_tasks:
             input_data['_skip_confirm'] = False
         else:
             input_data['_skip_confirm'] = True
@@ -1534,6 +1654,16 @@ def main(input_data):
             return phase3_result
         
         so_id = phase3_result.get('sales_order_id')
+
+        # If we created/confirmed a scheduled SO in this branch, run task sync now so new tasks get exact
+        # datetime/tag/assignee values immediately (instead of waiting for a second webhook run).
+        if so_id and should_trigger_tasks:
+            job_datetime_str = workiz_job.get('JobDateTime', '')
+            job_datetime_utc = convert_pacific_to_utc(job_datetime_str) if job_datetime_str else None
+            ts = sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
+            if ts:
+                phase3_result.update(ts)
+
         # When status is Done, do NOT push payment fields from Workiz to Odoo (payment originates in Odoo via 6A).
         # Phase 5 is not triggered from Phase 4 when Done (Phase 6 triggers it once when payment is recorded in Odoo) to avoid duplicate next jobs.
         
