@@ -1,0 +1,45 @@
+mode,DRY RUN
+
+section,model,source_id,tag_name,status,project_tag_id
+source_scan,res.partner.category,246,Fill,missing_from_project_tags,
+source_scan,res.partner.category,248,Moved,missing_from_project_tags,
+source_scan,res.partner.category,245,Snow Bird,missing_from_project_tags,
+source_scan,res.partner.category,233,Star,missing_from_project_tags,
+source_scan,res.partner.category,222,CF,missing_from_project_tags,
+source_scan,res.partner.category,223,Fill,missing_from_project_tags,
+source_scan,res.partner.category,224,Moved,missing_from_project_tags,
+source_scan,res.partner.category,225,OK,missing_from_project_tags,
+source_scan,res.partner.category,226,Ok,missing_from_project_tags,
+source_scan,res.partner.category,227,Snow Bird,missing_from_project_tags,
+source_scan,res.partner.category,228,Star,missing_from_project_tags,
+source_scan,res.partner.category,229,TBD,missing_from_project_tags,
+source_scan,res.partner.category,230,TXT SENT,missing_from_project_tags,
+source_scan,res.partner.category,231,WAIT,missing_from_project_tags,
+source_scan,crm.tag,1,Test,missing_from_project_tags,
+source_scan,crm.tag,2,test1,missing_from_project_tags,
+source_scan,crm.tag,3,Fill,missing_from_project_tags,
+source_scan,crm.tag,4,Moved,missing_from_project_tags,
+source_scan,crm.tag,5,Snow Bird,missing_from_project_tags,
+source_scan,crm.tag,6,Star,missing_from_project_tags,
+source_scan,crm.tag,7,CF,missing_from_project_tags,
+source_scan,crm.tag,8,Fill,missing_from_project_tags,
+source_scan,crm.tag,9,Moved,missing_from_project_tags,
+source_scan,crm.tag,10,OK,missing_from_project_tags,
+source_scan,crm.tag,11,Ok,missing_from_project_tags,
+source_scan,crm.tag,12,Snow Bird,missing_from_project_tags,
+source_scan,crm.tag,13,Star,missing_from_project_tags,
+source_scan,crm.tag,14,TBD,missing_from_project_tags,
+source_scan,crm.tag,15,TXT SENT,missing_from_project_tags,
+source_scan,crm.tag,16,WAIT,missing_from_project_tags,
+create_action,project.tags,,CF,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,Fill,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,Moved,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,OK,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,Ok,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,Snow Bird,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,Star,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,TBD,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,TXT SENT,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,Test,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,WAIT,dry_run,DRY_RUN_NO_CREATE
+create_action,project.tags,,test1,dry_run,DRY_RUN_NO_CREATE
