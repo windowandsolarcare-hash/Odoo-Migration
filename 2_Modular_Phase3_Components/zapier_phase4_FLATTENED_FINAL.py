@@ -103,6 +103,41 @@ def _odoo_find_user_id_by_name(tech_name):
     return None
 
 
+def fetch_recent_jobs(n=5):
+    """
+    Return the n most-recent Workiz jobs across all statuses.
+
+    Uses GET /job/all/ (sorted by JobDateTime descending, only_open=false so
+    Done/Canceled jobs are included). A 2-year lookback ensures results even
+    during slow periods.
+    """
+    from datetime import timezone
+    start_date = (datetime.now(timezone.utc) - timedelta(days=730)).strftime("%Y-%m-%d")
+    url = (
+        f"{WORKIZ_BASE_URL.rstrip('/')}/job/all/"
+        f"?auth_secret={WORKIZ_AUTH_SECRET}"
+        f"&start_date={start_date}"
+        f"&records={n}"
+        f"&only_open=false"
+    )
+    try:
+        r = requests.get(url, timeout=15)
+    except requests.RequestException as exc:
+        print(f"[ERROR] fetch_recent_jobs network error: {exc}")
+        return []
+    if r.status_code != 200:
+        print(f"[ERROR] fetch_recent_jobs HTTP {r.status_code}: {r.text}")
+        return []
+    payload = r.json()
+    if isinstance(payload, list):
+        jobs = payload
+    elif isinstance(payload, dict):
+        jobs = payload.get("data", [])
+    else:
+        jobs = []
+    return jobs[:n]
+
+
 def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
     """
     Sync all tasks linked to this SO. job_datetime_utc must be UTC (Workiz JobDateTime converted via convert_pacific_to_utc for DST).
