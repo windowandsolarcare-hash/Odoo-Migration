@@ -24,5 +24,7 @@ To migrate 6 years of historical data from Workiz to Odoo and establish a bi-dir
 - **Pathing Rule**: Hardcode exact filenames provided in documentation. Assume all input/output files are located in the same directory as the script.
 
 ## 5. GIT WORKFLOW
-- When the user approves code changes, push them directly to the `main` branch.
-- No pull requests, no feature branches — commit and push directly to `main`.
+- Make all code changes locally in the workspace first.
+- Before pushing, clearly show the user what changed (before vs. after).
+- Always ask: "Ready to push to main — approve?" and wait for explicit user approval.
+- Once approved, push directly to the `main` branch. No pull requests, no feature branches.
