@@ -23,7 +23,12 @@ To migrate 6 years of historical data from Workiz to Odoo and establish a bi-dir
 - **Zero-Edit Scripting**: Generate single, complete Python scripts. 
 - **Pathing Rule**: Hardcode exact filenames provided in documentation. Assume all input/output files are located in the same directory as the script.
 
-## 5. GIT WORKFLOW
+## 5. SOURCE OF TRUTH
+- GitHub repository (`windowandsolarcare-hash/Odoo-Migration`) is the ONLY source of truth.
+- Always read files directly from GitHub. Never rely on local workspace files.
+- All edits are made locally as a temporary workspace, then pushed to GitHub main upon user approval.
+
+## 6. GIT WORKFLOW
 - Make all code changes locally in the workspace first.
 - Before pushing, clearly show the user what changed (before vs. after).
 - Always ask: "Ready to push to main — approve?" and wait for explicit user approval.
