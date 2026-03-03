@@ -22,3 +22,7 @@ To migrate 6 years of historical data from Workiz to Odoo and establish a bi-dir
 - **Visual Verification**: Before generating or changing code, provide a Markdown table (5-10 rows) comparing Source (Odoo) vs. Destination (Workiz) logic for approval.
 - **Zero-Edit Scripting**: Generate single, complete Python scripts. 
 - **Pathing Rule**: Hardcode exact filenames provided in documentation. Assume all input/output files are located in the same directory as the script.
+
+## 5. GIT WORKFLOW
+- When the user approves code changes, push them directly to the `main` branch.
+- No pull requests, no feature branches — commit and push directly to `main`.
