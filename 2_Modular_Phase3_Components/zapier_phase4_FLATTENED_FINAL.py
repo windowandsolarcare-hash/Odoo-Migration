@@ -1,5 +1,5 @@
 """
-Author: Dan Saunders
+Author: Daniel Joseph Saunders
 
 ZAPIER PHASE 4 FLATTENED SCRIPT - FINAL
 =======================================
