@@ -87,73 +87,128 @@ def extract_job_from_input(input_data):
     - If webhook with full data: returns (uuid, full_job_dict)
     - If polling/simple: returns (uuid, None) - caller must fetch via API
     """
-    # Check for Workiz webhook format (nested under 'data')
-    if 'data' in input_data and isinstance(input_data['data'], dict):
-        webhook_data = input_data['data']
-        job_uuid = webhook_data.get('uuid')
+    try:
+        # Check for Workiz webhook format (nested under 'data')
+        if 'data' in input_data and isinstance(input_data['data'], dict):
+            webhook_data = input_data['data']
+            job_uuid = webhook_data.get('uuid')
+            
+            if job_uuid:
+                print("[*] Detected Workiz webhook format (real-time)")
+                # Map webhook structure to our expected format
+                client_info = webhook_data.get('clientInfo', {})
+                if not isinstance(client_info, dict):
+                    client_info = {}
+                
+                address_details = client_info.get('addressDetails', {})
+                if not isinstance(address_details, dict):
+                    address_details = {}
+                
+                # Safely extract clientId and strip CL- prefix
+                client_id_raw = client_info.get('clientId', '')
+                client_id = str(client_id_raw).replace('CL-', '') if client_id_raw else ''
+                
+                # Safely extract subStatus name
+                substatus_raw = webhook_data.get('subStatus', {})
+                if isinstance(substatus_raw, dict):
+                    substatus = substatus_raw.get('name', '')
+                else:
+                    substatus = str(substatus_raw) if substatus_raw else ''
+                
+                # Safely extract jobType name
+                jobtype_raw = webhook_data.get('jobType', {})
+                if isinstance(jobtype_raw, dict):
+                    jobtype = jobtype_raw.get('name', '')
+                else:
+                    jobtype = str(jobtype_raw) if jobtype_raw else ''
+                
+                # Safely extract adGroup name
+                adgroup_raw = webhook_data.get('adGroup', {})
+                if isinstance(adgroup_raw, dict):
+                    adgroup = adgroup_raw.get('name', '')
+                else:
+                    adgroup = str(adgroup_raw) if adgroup_raw else ''
+                
+                # Build job data dict matching our existing code expectations
+                workiz_job = {
+                    'UUID': job_uuid,
+                    'SerialId': webhook_data.get('serialId'),
+                    'Status': webhook_data.get('status', ''),
+                    'SubStatus': substatus,
+                    'JobDateTime': webhook_data.get('date', ''),
+                    'JobType': jobtype,
+                    'JobSource': adgroup,
+                    'ClientId': client_id,
+                    'FirstName': client_info.get('firstName', ''),
+                    'LastName': client_info.get('lastName', ''),
+                    'Phone': client_info.get('primaryPhone', ''),
+                    'Email': client_info.get('email', ''),
+                    'Address': address_details.get('address', ''),
+                    'City': address_details.get('city', ''),
+                    'PostalCode': address_details.get('zipCode', ''),
+                    'LocationId': address_details.get('locationKey', ''),
+                    'Team': webhook_data.get('team', []),
+                    'LineItems': webhook_data.get('lineItems', []),
+                    'Tags': [],
+                    'JobNotes': '',
+                    'Comments': '',
+                    'gate_code': '',
+                    'pricing': '',
+                    'frequency': '',
+                    'alternating': '',
+                    'type_of_service': '',
+                }
+                
+                # Safely extract tags
+                tags_list = webhook_data.get('tags', [])
+                if isinstance(tags_list, list):
+                    workiz_job['Tags'] = [tag.get('name', '') for tag in tags_list if isinstance(tag, dict) and tag.get('name')]
+                
+                # Safely extract notes
+                notes_list = webhook_data.get('notes', [])
+                if isinstance(notes_list, list):
+                    notes = [note.get('note', '') for note in notes_list if isinstance(note, dict) and note.get('note')]
+                    workiz_job['JobNotes'] = '\n'.join(notes)
+                
+                # Extract custom fields (gate_code, pricing, etc.)
+                custom_fields = webhook_data.get('customFields', [])
+                if isinstance(custom_fields, list):
+                    for cf in custom_fields:
+                        if isinstance(cf, dict):
+                            field_name = (cf.get('fieldName', '') or '').lower().strip()
+                            value = cf.get('value', '')
+                            if 'gate' in field_name:
+                                workiz_job['gate_code'] = value
+                            elif 'pricing' in field_name or 'price' in field_name:
+                                workiz_job['pricing'] = value
+                            elif 'frequency' in field_name or 'freq' in field_name:
+                                workiz_job['frequency'] = value
+                            elif 'alternating' in field_name:
+                                workiz_job['alternating'] = value
+                            elif 'type' in field_name and 'service' in field_name:
+                                workiz_job['type_of_service'] = value
+                
+                print(f"[*] Webhook parsed successfully: UUID={job_uuid}, ClientId={client_id}")
+                return (job_uuid, workiz_job)
+        
+        # Fallback to Zapier polling format (flat structure)
+        job_uuid = input_data.get('job_uuid') or input_data.get('UUID')
         
         if job_uuid:
-            print("[*] Detected Workiz webhook format (real-time)")
-            # Map webhook structure to our expected format
-            client_info = webhook_data.get('clientInfo', {})
-            address_details = client_info.get('addressDetails', {})
-            
-            # Build job data dict matching our existing code expectations
-            workiz_job = {
-                'UUID': job_uuid,
-                'SerialId': webhook_data.get('serialId'),
-                'Status': webhook_data.get('status', ''),
-                'SubStatus': webhook_data.get('subStatus', {}).get('name', '') if isinstance(webhook_data.get('subStatus'), dict) else webhook_data.get('subStatus', ''),
-                'JobDateTime': webhook_data.get('date', ''),
-                'JobType': webhook_data.get('jobType', {}).get('name', '') if isinstance(webhook_data.get('jobType'), dict) else '',
-                'JobSource': webhook_data.get('adGroup', {}).get('name', '') if isinstance(webhook_data.get('adGroup'), dict) else '',
-                'ClientId': client_info.get('clientId', '').replace('CL-', ''),  # Strip CL- prefix if present
-                'FirstName': client_info.get('firstName', ''),
-                'LastName': client_info.get('lastName', ''),
-                'Phone': client_info.get('primaryPhone', ''),
-                'Email': client_info.get('email', ''),
-                'Address': address_details.get('address', ''),
-                'City': address_details.get('city', ''),
-                'PostalCode': address_details.get('zipCode', ''),
-                'LocationId': address_details.get('locationKey', ''),
-                'Team': webhook_data.get('team', []),
-                'LineItems': webhook_data.get('lineItems', []),
-                'Tags': [tag.get('name', '') for tag in webhook_data.get('tags', []) if isinstance(tag, dict)],
-                'JobNotes': '\n'.join([note.get('note', '') for note in webhook_data.get('notes', []) if isinstance(note, dict)]),
-                'Comments': '',  # Not typically in webhook payload
-                'gate_code': '',  # Custom field - extract below
-                'pricing': '',  # Custom field - extract below
-                'frequency': '',  # Custom field - extract below
-                'alternating': '',  # Custom field - extract below
-                'type_of_service': '',  # Custom field - extract below
-            }
-            
-            # Extract custom fields (gate_code, pricing, frequency, etc.)
-            for cf in webhook_data.get('customFields', []):
-                if isinstance(cf, dict):
-                    field_name = (cf.get('fieldName', '') or '').lower().strip()
-                    value = cf.get('value', '')
-                    if 'gate' in field_name:
-                        workiz_job['gate_code'] = value
-                    elif 'pricing' in field_name or 'price' in field_name:
-                        workiz_job['pricing'] = value
-                    elif 'frequency' in field_name or 'freq' in field_name:
-                        workiz_job['frequency'] = value
-                    elif 'alternating' in field_name:
-                        workiz_job['alternating'] = value
-                    elif 'type' in field_name and 'service' in field_name:
-                        workiz_job['type_of_service'] = value
-            
-            return (job_uuid, workiz_job)
-    
-    # Fallback to Zapier polling format (flat structure)
-    job_uuid = input_data.get('job_uuid') or input_data.get('UUID')
-    
-    if job_uuid:
-        print("[*] Detected Zapier polling format (may be delayed)")
-        return (job_uuid, None)
-    
-    return (None, None)
+            print("[*] Detected Zapier polling format (may be delayed)")
+            return (job_uuid, None)
+        
+        return (None, None)
+        
+    except Exception as e:
+        print(f"[ERROR] extract_job_from_input failed: {e}")
+        import traceback
+        traceback.print_exc()
+        # Try fallback to simple job_uuid extraction
+        job_uuid = input_data.get('job_uuid') or input_data.get('UUID')
+        if job_uuid:
+            return (job_uuid, None)
+        return (None, None)
 
 
 def _odoo_search_read(model, domain, fields, limit=1):
