@@ -44,6 +44,9 @@ WORKIZ_API_TOKEN = "api_1hu6lroiy5zxomcpptuwsg8heju97iwg"
 WORKIZ_AUTH_SECRET = "sec_334084295850678330105471548"
 WORKIZ_BASE_URL = f"https://api.workiz.com/api/v1/{WORKIZ_API_TOKEN}"
 
+# Phase 3 Webhook URL (for Phase 4 to call when SO doesn't exist)
+PHASE3_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/9761276/ueyjr41/"
+
 # Phase 5 Webhook URL (set this after deploying Phase 5 Zap)
 PHASE5_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/9761276/ue4o0az/"  # TODO: Replace with actual webhook URL
 
@@ -73,6 +76,85 @@ WORKIZ_JOB_END_DATETIME_FIELD = ""              # e.g. "JobEndDateTime" or "EndT
 # ==============================================================================
 # UTILITY FUNCTIONS
 # ==============================================================================
+
+def extract_job_from_input(input_data):
+    """
+    Extract job UUID and data from either:
+    1. Workiz webhook format (nested under 'data')
+    2. Zapier polling format (flat structure with 'job_uuid' or 'UUID')
+    
+    Returns: (job_uuid, workiz_job_data_or_none)
+    - If webhook with full data: returns (uuid, full_job_dict)
+    - If polling/simple: returns (uuid, None) - caller must fetch via API
+    """
+    # Check for Workiz webhook format (nested under 'data')
+    if 'data' in input_data and isinstance(input_data['data'], dict):
+        webhook_data = input_data['data']
+        job_uuid = webhook_data.get('uuid')
+        
+        if job_uuid:
+            print("[*] Detected Workiz webhook format (real-time)")
+            # Map webhook structure to our expected format
+            client_info = webhook_data.get('clientInfo', {})
+            address_details = client_info.get('addressDetails', {})
+            
+            # Build job data dict matching our existing code expectations
+            workiz_job = {
+                'UUID': job_uuid,
+                'SerialId': webhook_data.get('serialId'),
+                'Status': webhook_data.get('status', ''),
+                'SubStatus': webhook_data.get('subStatus', {}).get('name', '') if isinstance(webhook_data.get('subStatus'), dict) else webhook_data.get('subStatus', ''),
+                'JobDateTime': webhook_data.get('date', ''),
+                'JobType': webhook_data.get('jobType', {}).get('name', '') if isinstance(webhook_data.get('jobType'), dict) else '',
+                'JobSource': webhook_data.get('adGroup', {}).get('name', '') if isinstance(webhook_data.get('adGroup'), dict) else '',
+                'ClientId': client_info.get('clientId', '').replace('CL-', ''),  # Strip CL- prefix if present
+                'FirstName': client_info.get('firstName', ''),
+                'LastName': client_info.get('lastName', ''),
+                'Phone': client_info.get('primaryPhone', ''),
+                'Email': client_info.get('email', ''),
+                'Address': address_details.get('address', ''),
+                'City': address_details.get('city', ''),
+                'PostalCode': address_details.get('zipCode', ''),
+                'LocationId': address_details.get('locationKey', ''),
+                'Team': webhook_data.get('team', []),
+                'LineItems': webhook_data.get('lineItems', []),
+                'Tags': [tag.get('name', '') for tag in webhook_data.get('tags', []) if isinstance(tag, dict)],
+                'JobNotes': '\n'.join([note.get('note', '') for note in webhook_data.get('notes', []) if isinstance(note, dict)]),
+                'Comments': '',  # Not typically in webhook payload
+                'gate_code': '',  # Custom field - extract below
+                'pricing': '',  # Custom field - extract below
+                'frequency': '',  # Custom field - extract below
+                'alternating': '',  # Custom field - extract below
+                'type_of_service': '',  # Custom field - extract below
+            }
+            
+            # Extract custom fields (gate_code, pricing, frequency, etc.)
+            for cf in webhook_data.get('customFields', []):
+                if isinstance(cf, dict):
+                    field_name = (cf.get('fieldName', '') or '').lower().strip()
+                    value = cf.get('value', '')
+                    if 'gate' in field_name:
+                        workiz_job['gate_code'] = value
+                    elif 'pricing' in field_name or 'price' in field_name:
+                        workiz_job['pricing'] = value
+                    elif 'frequency' in field_name or 'freq' in field_name:
+                        workiz_job['frequency'] = value
+                    elif 'alternating' in field_name:
+                        workiz_job['alternating'] = value
+                    elif 'type' in field_name and 'service' in field_name:
+                        workiz_job['type_of_service'] = value
+            
+            return (job_uuid, workiz_job)
+    
+    # Fallback to Zapier polling format (flat structure)
+    job_uuid = input_data.get('job_uuid') or input_data.get('UUID')
+    
+    if job_uuid:
+        print("[*] Detected Zapier polling format (may be delayed)")
+        return (job_uuid, None)
+    
+    return (None, None)
+
 
 def _odoo_search_read(model, domain, fields, limit=1):
     """Helper: search_read and return result list."""
@@ -1646,23 +1728,28 @@ def main(input_data):
     """
     Phase 4 Main Router: Handle Workiz job status updates.
     
-    Expected input_data from Zapier:
-    {
-        'job_uuid': 'ABC123'
-    }
+    Expected input_data formats:
+    1. Workiz webhook (real-time): {'data': {'uuid': '...', 'status': '...', ...}}
+    2. Zapier polling (legacy): {'job_uuid': 'ABC123'}
     """
     print("\n" + "="*70)
     print("PHASE 4: WORKIZ JOB STATUS UPDATE")
     print("="*70)
     
-    job_uuid = input_data.get('job_uuid')
+    # Extract job UUID and data from input (supports both webhook and polling formats)
+    job_uuid, workiz_job = extract_job_from_input(input_data)
+    
     if not job_uuid:
         return {'success': False, 'error': 'No job_uuid provided'}
     
-    print(f"\n[*] Fetching Workiz job: {job_uuid}")
-    workiz_job = get_job_details(job_uuid)
+    # If webhook didn't provide full data, fetch from Workiz API
     if not workiz_job:
-        return {'success': False, 'error': 'Failed to fetch Workiz job'}
+        print(f"\n[*] Fetching Workiz job details: {job_uuid}")
+        workiz_job = get_job_details(job_uuid)
+        if not workiz_job:
+            return {'success': False, 'error': 'Failed to fetch Workiz job'}
+    else:
+        print(f"\n[*] Using Workiz webhook data (no API call needed)")
     
     status = workiz_job.get('Status', '')
     substatus = workiz_job.get('SubStatus', '')
@@ -1740,36 +1827,37 @@ def main(input_data):
             print("="*70)
             return result
         
-        print("[!] Sales Order not found - calling Phase 3 to create it")
+        print("[!] Sales Order not found - triggering Phase 3 webhook to create it")
         print("="*70)
-        # Only create task (confirm SO) when Status or SubStatus is one of: Next appointment, Send confirmation text, Scheduled. All other statuses → draft SO, no task.
-        if should_trigger_tasks:
-            input_data['_skip_confirm'] = False
-        else:
-            input_data['_skip_confirm'] = True
-        phase3_result = phase3_create_so(input_data)
         
-        if not phase3_result.get('success'):
-            return phase3_result
+        # Call Phase 3 via webhook (creates separate Zapier run for better logging)
+        phase3_payload = {'job_uuid': job_uuid}
         
-        so_id = phase3_result.get('sales_order_id')
-
-        # If we created/confirmed a scheduled SO in this branch, run task sync now so new tasks get exact
-        # datetime/tag/assignee values immediately (instead of waiting for a second webhook run).
-        if so_id and should_trigger_tasks:
-            job_datetime_str = workiz_job.get('JobDateTime', '')
-            job_datetime_utc = convert_pacific_to_utc(job_datetime_str) if job_datetime_str else None
-            ts = sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
-            if ts:
-                phase3_result.update(ts)
-
-        # When status is Done, do NOT push payment fields from Workiz to Odoo (payment originates in Odoo via 6A).
-        # Phase 5 is not triggered from Phase 4 when Done (Phase 6 triggers it once when payment is recorded in Odoo) to avoid duplicate next jobs.
-        
-        print("="*70)
-        print("[OK] PHASE 4 COMPLETE - SALES ORDER CREATED & UPDATED")
-        print("="*70)
-        return phase3_result
+        try:
+            print(f"[*] Sending webhook to Phase 3: {PHASE3_WEBHOOK_URL}")
+            webhook_response = requests.post(PHASE3_WEBHOOK_URL, json=phase3_payload, timeout=10)
+            
+            if webhook_response.status_code in (200, 201):
+                print("[OK] Phase 3 webhook triggered successfully")
+                print("[*] Phase 3 will run as separate Zap and create the Sales Order")
+                print("="*70)
+                print("[OK] PHASE 4 COMPLETE - DELEGATED TO PHASE 3")
+                print("="*70)
+                return {
+                    'success': True,
+                    'delegated_to_phase3': True,
+                    'job_uuid': job_uuid,
+                    'message': 'SO creation delegated to Phase 3 webhook'
+                }
+            else:
+                print(f"[ERROR] Phase 3 webhook failed: HTTP {webhook_response.status_code}")
+                return {
+                    'success': False,
+                    'error': f'Phase 3 webhook failed: HTTP {webhook_response.status_code}'
+                }
+        except Exception as e:
+            print(f"[ERROR] Failed to call Phase 3 webhook: {e}")
+            return {'success': False, 'error': f'Phase 3 webhook error: {e}'}
 
 
 # ==============================================================================
