@@ -1,9 +1,9 @@
 """
-Author: Daniel Joseph Saunders
-
 ZAPIER PHASE 4 FLATTENED SCRIPT - FINAL
 =======================================
 Workiz Job Status Update -> Odoo Integration
+
+Author: DJ Sanders
 
 Triggered by: Workiz job status change (any status).
 If your Zap uses "Job Updated" (every field change), Phase 4 will run often (e.g. adding line items, assigning time). To reduce runs, use "Job Status Changed" only if Workiz offers it.
@@ -103,39 +103,56 @@ def _odoo_find_user_id_by_name(tech_name):
     return None
 
 
-def fetch_recent_jobs(n=5):
-    """
-    Return the n most-recent Workiz jobs across all statuses.
+def _parse_workiz_tag_names(raw_tags):
+    """Normalize Workiz tags payload to a clean list of tag names."""
+    if not raw_tags:
+        return []
+    if isinstance(raw_tags, str):
+        try:
+            parsed = ast.literal_eval(raw_tags)
+            raw_tags = parsed
+        except Exception:
+            raw_tags = [t.strip() for t in raw_tags.split(",") if t.strip()]
+    if not isinstance(raw_tags, list):
+        return []
+    names = []
+    for t in raw_tags:
+        if isinstance(t, dict):
+            name = t.get("Name") or t.get("name") or t.get("Tag") or t.get("tag")
+        else:
+            name = str(t) if t is not None else ""
+        name = (name or "").strip()
+        if name:
+            names.append(name)
+    # preserve order while removing duplicates
+    return list(dict.fromkeys(names))
 
-    Uses GET /job/all/ (sorted by JobDateTime descending, only_open=false so
-    Done/Canceled jobs are included). A 2-year lookback ensures results even
-    during slow periods.
+
+def _resolve_task_tag_ids_from_workiz(workiz_job):
     """
-    from datetime import timezone
-    start_date = (datetime.now(timezone.utc) - timedelta(days=730)).strftime("%Y-%m-%d")
-    url = (
-        f"{WORKIZ_BASE_URL.rstrip('/')}/job/all/"
-        f"?auth_secret={WORKIZ_AUTH_SECRET}"
-        f"&start_date={start_date}"
-        f"&records={n}"
-        f"&only_open=false"
-    )
-    try:
-        r = requests.get(url, timeout=15)
-    except requests.RequestException as exc:
-        print(f"[ERROR] fetch_recent_jobs network error: {exc}")
+    Map Workiz tag names to Odoo task tags (project.tags) IDs.
+    Fallback to crm.tag lookup only when project.tags doesn't contain the name.
+    """
+    tag_names = _parse_workiz_tag_names(workiz_job.get("Tags") or workiz_job.get("JobTags"))
+    if not tag_names:
         return []
-    if r.status_code != 200:
-        print(f"[ERROR] fetch_recent_jobs HTTP {r.status_code}: {r.text}")
-        return []
-    payload = r.json()
-    if isinstance(payload, list):
-        jobs = payload
-    elif isinstance(payload, dict):
-        jobs = payload.get("data", [])
-    else:
-        jobs = []
-    return jobs[:n]
+    ids = []
+    for tag_name in tag_names:
+        found = _odoo_search_read("project.tags", [["name", "=", tag_name]], ["id"], limit=1)
+        if not found:
+            found = _odoo_search_read("project.tags", [["name", "ilike", tag_name]], ["id"], limit=1)
+        if not found:
+            # Backward compatibility fallback if this DB still uses crm.tag IDs in task.tag_ids.
+            found = _odoo_search_read("crm.tag", [["name", "=", tag_name]], ["id"], limit=1)
+            if not found:
+                found = _odoo_search_read("crm.tag", [["name", "ilike", tag_name]], ["id"], limit=1)
+        if found:
+            tag_id = found[0].get("id")
+            if isinstance(tag_id, int):
+                ids.append(tag_id)
+        else:
+            print(f"[!] Workiz task tag not found in project.tags/crm.tag: '{tag_name}'")
+    return sorted(set(ids))
 
 
 def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
@@ -264,11 +281,19 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 sid = shipping[0] if isinstance(shipping, (list, tuple)) else shipping
                 if sid:
                     task_vals[ODOO_TASK_PROPERTY_PARTNER_FIELD] = sid
-        tag_ids = so.get("tag_ids") or []
-        if tag_ids and ODOO_TASK_TAG_IDS_FIELD:
-            ids = [t for t in tag_ids if isinstance(t, int)] or [t[0] for t in tag_ids if isinstance(t, (list, tuple)) and t]
-            if ids:
-                task_vals[ODOO_TASK_TAG_IDS_FIELD] = [(6, 0, ids)]
+        # Task tags should come from Workiz job tags (UUID payload), not stale SO tags.
+        # If no Workiz tags resolve, fallback to SO tags for compatibility.
+        if ODOO_TASK_TAG_IDS_FIELD:
+            task_tag_ids = _resolve_task_tag_ids_from_workiz(workiz_job)
+            if task_tag_ids:
+                task_vals[ODOO_TASK_TAG_IDS_FIELD] = [(6, 0, task_tag_ids)]
+                print(f"[*] Task tags from Workiz UUID payload: {task_tag_ids}")
+            else:
+                tag_ids = so.get("tag_ids") or []
+                ids = [t for t in tag_ids if isinstance(t, int)] or [t[0] for t in tag_ids if isinstance(t, (list, tuple)) and t]
+                if ids:
+                    task_vals[ODOO_TASK_TAG_IDS_FIELD] = [(6, 0, ids)]
+                    print(f"[*] Task tags fallback from SO: {ids}")
 
     pid = task_vals.get(ODOO_TASK_PARTNER_FIELD)
     if (pid is None or not pid) and so_list and so_list[0].get("partner_id"):
@@ -1389,6 +1414,7 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
     _rebind_so_to_matching_property_if_needed(so_id, workiz_job)
     
     # Fetch state and partner fields (for property-as-brain correction)
+    _so_property_id = None
     read_payload = {
         "jsonrpc": "2.0", "method": "call",
         "params": {
@@ -1407,6 +1433,7 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
             sid = res[0].get("partner_shipping_id")
             pid = pid[0] if isinstance(pid, (list, tuple)) else pid
             sid = sid[0] if isinstance(sid, (list, tuple)) else sid
+            _so_property_id = sid or pid
             if sid and pid != sid:
                 _correct_customer_to_property = sid  # used when building updates
             else:
@@ -1435,7 +1462,14 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
     frequency = workiz_job.get('frequency', '')
     type_of_service = workiz_job.get('type_of_service', '')
     team = workiz_job.get('Team', []) or workiz_job.get('team', [])
-    tags = workiz_job.get('Tags', [])
+    tags = workiz_job.get('Tags') or workiz_job.get('JobTags', [])
+    if isinstance(tags, str):
+        try:
+            tags = ast.literal_eval(tags)
+        except Exception:
+            tags = [t.strip() for t in tags.split(',') if t.strip()]
+    if not isinstance(tags, list):
+        tags = []
     line_items_raw = workiz_job.get('LineItems', [])
     status = workiz_job.get('Status', '')
     
@@ -1465,6 +1499,40 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
     if comments:
         notes_snapshot += f"[Comments]\n{comments}"
     notes_snapshot = notes_snapshot.strip()
+
+    # Keep SO tags current (contact tags + Workiz tags) so task sync gets correct tags from SO.
+    # Without this, task sync can write stale tags when only status/date changes.
+    contact_tag_ids = []
+    property_for_tags = _correct_customer_to_property or _so_property_id
+    if property_for_tags:
+        prop_read = _odoo_search_read("res.partner", [["id", "=", property_for_tags]], ["parent_id"], limit=1)
+        if prop_read and prop_read[0].get("parent_id"):
+            contact_id_for_tags = prop_read[0]["parent_id"]
+            contact_id_for_tags = contact_id_for_tags[0] if isinstance(contact_id_for_tags, (list, tuple)) else contact_id_for_tags
+            contact_read = _odoo_search_read("res.partner", [["id", "=", contact_id_for_tags]], ["category_id"], limit=1)
+            if contact_read:
+                category_id = contact_read[0].get("category_id") or []
+                if isinstance(category_id, list):
+                    if category_id and all(isinstance(x, int) for x in category_id):
+                        contact_tag_ids = category_id
+                    else:
+                        contact_tag_ids = [x[0] for x in category_id if isinstance(x, (list, tuple)) and x]
+                elif isinstance(category_id, int):
+                    contact_tag_ids = [category_id]
+
+    workiz_tag_ids = []
+    for tag_name in tags:
+        tag_name = str(tag_name).strip()
+        if not tag_name:
+            continue
+        tag_search = _odoo_search_read("crm.tag", [["name", "=", tag_name]], ["id"], limit=1)
+        if not tag_search:
+            tag_search = _odoo_search_read("crm.tag", [["name", "ilike", tag_name]], ["id"], limit=1)
+        if tag_search:
+            workiz_tag_ids.append(tag_search[0]["id"])
+        else:
+            print(f"[!] Workiz tag not found in Odoo crm.tag: '{tag_name}'")
+    all_tag_ids = sorted(set(contact_tag_ids + workiz_tag_ids))
     
     updates = {
         'x_studio_x_studio_workiz_status': workiz_substatus,
@@ -1473,6 +1541,9 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
         'x_studio_x_studio_pricing_snapshot': pricing,
         'x_studio_x_studio_notes_snapshot1': notes_snapshot,
     }
+    if all_tag_ids:
+        updates['tag_ids'] = [(6, 0, all_tag_ids)]
+        print(f"[*] SO tags refreshed for sync: {all_tag_ids}")
     
     # Property as brain: correct customer to Property if SO still has Contact (e.g. from older Zap or one-off)
     if _correct_customer_to_property:
