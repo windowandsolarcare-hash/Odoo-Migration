@@ -1122,6 +1122,12 @@ def create_sales_order(contact_id, property_id, workiz_job_data, skip_confirm=Fa
         "x_studio_x_studio_lead_source": job_source
     }
     
+    # Set date_order from JobDateTime BEFORE creating SO (so Odoo doesn't default to current time)
+    job_datetime_str = workiz_job_data.get('JobDateTime', '')
+    if job_datetime_str:
+        job_datetime_utc = convert_pacific_to_utc(job_datetime_str)
+        order_data['date_order'] = job_datetime_utc
+    
     if job_type:
         order_data["x_studio_x_studio_x_studio_job_type"] = job_type
     
@@ -1188,25 +1194,6 @@ def create_sales_order(contact_id, property_id, workiz_job_data, skip_confirm=Fa
         requests.post(ODOO_URL, json=confirm_payload, timeout=10)
     else:
         print("[*] SO left as draft (no confirm → no task created).")
-    
-    # Update date_order
-    job_datetime_str = workiz_job_data.get('JobDateTime', '')
-    if job_datetime_str:
-        job_datetime_utc = convert_pacific_to_utc(job_datetime_str)
-        update_date_payload = {
-            "jsonrpc": "2.0",
-            "method": "call",
-            "params": {
-                "service": "object",
-                "method": "execute_kw",
-                "args": [
-                    ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
-                    "sale.order", "write",
-                    [[so_id], {"date_order": job_datetime_utc}]
-                ]
-            }
-        }
-        requests.post(ODOO_URL, json=update_date_payload, timeout=10)
     
     return so_id
 
