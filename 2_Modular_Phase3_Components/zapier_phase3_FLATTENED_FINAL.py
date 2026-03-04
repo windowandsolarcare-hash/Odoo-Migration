@@ -806,7 +806,7 @@ def create_sales_order(contact_id, property_id, workiz_job_data, booking_datetim
     
     print(f"   Tags: {len(all_tag_names)} total ({', '.join(all_tag_names[:3])}...)" if all_tag_names else "   Tags: None")
     
-    # Build order data (WITHOUT date_order - will set AFTER confirmation)
+    # Build order data - set date_order BEFORE creating SO (so Odoo doesn't default to current time)
     # Property as brain: customer and billing on SO = Property. Contact remains linked via Property.parent_id.
     order_data = {
         "partner_id": property_id,
@@ -817,6 +817,11 @@ def create_sales_order(contact_id, property_id, workiz_job_data, booking_datetim
         "x_studio_x_studio_workiz_status": workiz_substatus,
         "x_studio_x_studio_lead_source": job_source
     }
+    
+    # Set date_order from booking_datetime BEFORE creating SO (so Odoo doesn't default to current time)
+    if booking_datetime:
+        order_data['date_order'] = booking_datetime
+        print(f"   Order Date: {booking_datetime}")
     
     # Add tags if any
     if tag_ids:
@@ -1069,10 +1074,10 @@ def execute_path_a(contact_id, property_id, workiz_job, skip_confirm=False):
     else:
         print("[*] Quotation only (no confirm → no task).")
     
-    # Step 4: Update date_order (fix Odoo override; works for draft or confirmed)
-    update_result = update_sales_order_date(sales_order_id, booking_datetime)
-    if not update_result:
-        print("[WARNING] Could not update date_order")
+    # Step 4: date_order is now set during SO creation (no longer need to update separately)
+    # update_result = update_sales_order_date(sales_order_id, booking_datetime)
+    # if not update_result:
+    #     print("[WARNING] Could not update date_order")
     # Step 4b: Sync tasks only when SO was confirmed
     if not skip_confirm:
         sync_tasks_from_so_and_job(sales_order_id, workiz_job, booking_datetime)
@@ -1153,10 +1158,10 @@ def execute_path_b(contact_id, service_address, workiz_job, skip_confirm=False):
     else:
         print("[*] Quotation only (no confirm → no task).")
     
-    # Step 7: Update date_order
-    update_result = update_sales_order_date(sales_order_id, booking_datetime)
-    if not update_result:
-        print("[WARNING] Could not update date_order")
+    # Step 7: date_order is now set during SO creation (no longer need to update separately)
+    # update_result = update_sales_order_date(sales_order_id, booking_datetime)
+    # if not update_result:
+    #     print("[WARNING] Could not update date_order")
     if not skip_confirm:
         sync_tasks_from_so_and_job(sales_order_id, workiz_job, booking_datetime)
     
@@ -1241,10 +1246,10 @@ def execute_path_c(customer_name, service_address, workiz_job, client_id, skip_c
     else:
         print("[*] Quotation only (no confirm → no task).")
     
-    # Step 8: Update date_order
-    update_result = update_sales_order_date(sales_order_id, booking_datetime)
-    if not update_result:
-        print("[WARNING] Could not update date_order")
+    # Step 8: date_order is now set during SO creation (no longer need to update separately)
+    # update_result = update_sales_order_date(sales_order_id, booking_datetime)
+    # if not update_result:
+    #     print("[WARNING] Could not update date_order")
     if not skip_confirm:
         sync_tasks_from_so_and_job(sales_order_id, workiz_job, booking_datetime)
     
