@@ -70,7 +70,7 @@ def main(input_data):
     def _extract_id(name, val):
         """
         Accept int, numeric string, or Odoo webhook payload string.
-        Odoo sometimes sends e.g. '49{"_action": "...", "id": 49, ...}' — we extract 49.
+        Odoo sometimes sends e.g. '49{"_action": "...", "id": 49, ...}' â€” we extract 49.
         """
         if val is None:
             return None
@@ -174,6 +174,9 @@ def main(input_data):
         amount_total = float(this_payment.get("amount", 0))
         payment_date = this_payment.get("date") or payment_date
         payment_ref = (this_payment.get("ref") or "").strip()
+        # DEBUG: Show payment data fields
+        print(f"[DEBUG] Payment fields available: {list(this_payment.keys())}")
+        print(f"[DEBUG] payment_ref from 'ref' field: '{payment_ref}'")
         mid = this_payment.get("payment_method_line_id")
         if isinstance(mid, (list, tuple)) and len(mid) >= 2:
             try:
@@ -232,6 +235,10 @@ def main(input_data):
     if payment_ref:
         ref_parts.append(payment_ref)
     workiz_reference = " - ".join(ref_parts) if ref_parts else None
+    
+    # DEBUG: Show reference building
+    print(f"[DEBUG] payment_type_raw='{payment_type_raw}', payment_type_lower='{payment_type_lower}'")
+    print(f"[DEBUG] payment_ref='{payment_ref}', workiz_reference='{workiz_reference}'")
 
     # 4) Workiz: add THIS payment (so each roommate's check posts separately; balance builds up in Workiz)
     add_pay_url = f"{WORKIZ_BASE_URL.rstrip('/')}/job/addPayment/{job_uuid}/"
@@ -244,6 +251,9 @@ def main(input_data):
     }
     if workiz_reference:
         add_pay_body["reference"] = workiz_reference[:255]
+        print(f"[DEBUG] Added 'reference' to Workiz payload: '{workiz_reference}'")
+    else:
+        print(f"[DEBUG] No reference to add (workiz_reference is None or empty)")
 
     try:
         resp = requests.post(add_pay_url, json=add_pay_body, timeout=15)
