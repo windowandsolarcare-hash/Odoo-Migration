@@ -398,8 +398,18 @@ LINE ITEMS TO ADD:
                 return {'success': False, 'message': f"HTTP {response.status_code}"}
 
         if created_ok:
-            # We don't need the UUID for Odoo — Phase 3 creates the SO when Workiz fires "New Job" and gets the job (incl. UUID) from that trigger. UUID from 200 is just for logging/Zap output if present.
-            return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid}
+            # Fetch job details to get SerialId (job number) for SO reference
+            new_serial_id = None
+            if new_uuid:
+                try:
+                    job_details = get_job_details(new_uuid)
+                    if job_details:
+                        new_serial_id = job_details.get('SerialId')
+                        print(f"[OK] Job SerialId: {new_serial_id}")
+                except Exception as e:
+                    print(f"[!] Could not fetch job details for SerialId: {e}")
+            
+            return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid, 'new_job_serial_id': new_serial_id}
     
     except Exception as e:
         return {'success': False, 'message': str(e)}
@@ -466,16 +476,19 @@ def search_all_sales_orders_for_property(property_id):
     return response.json().get("result", [])
 
 
-def post_new_job_link_to_invoice(invoice_id, new_job_uuid, customer_name, scheduled_date):
-    """Post link to new Workiz job in invoice chatter."""
-    if not invoice_id or not new_job_uuid:
+def post_new_job_so_reference_to_invoice(invoice_id, new_job_serial_id, customer_name, scheduled_date):
+    """Post Sales Order reference for new Workiz job in invoice chatter."""
+    if not invoice_id or not new_job_serial_id:
         return
     
-    workiz_link = f"https://app.workiz.com/root/job/{new_job_uuid}/1"
+    # Format SerialId as SO number (e.g., 4210 -> 004210)
+    so_reference = f"{int(new_job_serial_id):06d}"
+    
     message_body = f"""<p><strong>✅ Next Maintenance Job Created</strong></p>
 <p>Customer: <strong>{customer_name}</strong><br/>
 Scheduled: <strong>{scheduled_date}</strong></p>
-<p><a href="{workiz_link}" target="_blank">🔗 Open Job in Workiz</a></p>"""
+<p>Sales Order: <strong>{so_reference}</strong></p>
+<p><em>(Click the SO number above to view in Odoo - may take 5-10 seconds for webhook to create it)</em></p>"""
     
     try:
         odoo_rpc("account.move", "message_post", [[invoice_id]], {
@@ -483,7 +496,7 @@ Scheduled: <strong>{scheduled_date}</strong></p>
             "message_type": "comment",
             "subtype_xmlid": "mail.mt_note"
         })
-        print(f"[OK] Posted new job link to invoice chatter: {workiz_link}")
+        print(f"[OK] Posted SO reference to invoice chatter: {so_reference}")
     except Exception as e:
         print(f"[!] Failed to post to invoice chatter: {e}")
 
@@ -654,11 +667,11 @@ def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoic
     if result['success']:
         print("[OK] Job created and tech assigned. Manually: add line items, set time slot from schedule, then set status to 'Next Appointment - Text' to send the text.")
         
-        # Post link to invoice chatter if we have invoice_id and new job UUID
-        new_uuid = result.get('new_job_uuid')
-        if invoice_id and new_uuid:
+        # Post SO reference to invoice chatter if we have invoice_id and new job SerialId
+        new_serial_id = result.get('new_job_serial_id')
+        if invoice_id and new_serial_id:
             customer_name = f"{workiz_job.get('FirstName', '')} {workiz_job.get('LastName', '')}".strip()
-            post_new_job_link_to_invoice(invoice_id, new_uuid, customer_name, scheduled_datetime)
+            post_new_job_so_reference_to_invoice(invoice_id, new_serial_id, customer_name, scheduled_datetime)
     else:
         print(f"[ERROR] Failed: {result['message']}")
     
