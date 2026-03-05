@@ -119,7 +119,7 @@ def main(input_data):
             return {'success': False, 'error': str(e)}
         if payment_id is None:
             return {'success': False, 'error': 'No payment_id provided'}
-        pays = odoo_call("account.payment", "read", [[payment_id]], {"fields": ["amount", "date", "ref", "payment_method_line_id", "reconciled_invoice_ids"]})
+        pays = odoo_call("account.payment", "read", [[payment_id]], {"fields": ["amount", "date", "memo", "payment_method_line_id", "reconciled_invoice_ids"]})
         if not pays or not pays[0].get("reconciled_invoice_ids"):
             return {'success': False, 'error': 'Payment not found or has no reconciled invoice'}
         this_payment = pays[0]
@@ -173,10 +173,10 @@ def main(input_data):
     if triggered_by_payment and this_payment:
         amount_total = float(this_payment.get("amount", 0))
         payment_date = this_payment.get("date") or payment_date
-        payment_ref = (this_payment.get("ref") or "").strip()
+        payment_ref = (this_payment.get("memo") or "").strip()
         # DEBUG: Show payment data fields
         print(f"[DEBUG] Payment fields available: {list(this_payment.keys())}")
-        print(f"[DEBUG] payment_ref from 'ref' field: '{payment_ref}'")
+        print(f"[DEBUG] payment_ref from 'memo' field: '{payment_ref}'")
         mid = this_payment.get("payment_method_line_id")
         if isinstance(mid, (list, tuple)) and len(mid) >= 2:
             try:
@@ -189,12 +189,12 @@ def main(input_data):
             payment_type_raw = (mid.get("name") or "manual").strip()
     else:
         try:
-            payments = odoo_call("account.payment", "search_read", [[["reconciled_invoice_ids", "in", [invoice_id]]]], {"fields": ["amount", "date", "ref", "payment_method_line_id"], "limit": 5})
+            payments = odoo_call("account.payment", "search_read", [[["reconciled_invoice_ids", "in", [invoice_id]]]], {"fields": ["amount", "date", "memo", "payment_method_line_id"], "limit": 5})
             if payments:
                 p = payments[0]
                 amount_total = float(p.get("amount", amount_total))
                 payment_date = p.get("date") or payment_date
-                payment_ref = (p.get("ref") or "").strip()
+                payment_ref = (p.get("memo") or "").strip()
                 mid = p.get("payment_method_line_id")
                 if isinstance(mid, (list, tuple)) and len(mid) >= 2:
                     try:
