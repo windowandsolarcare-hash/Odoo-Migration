@@ -14,7 +14,7 @@ Features:
 - Idempotent create: if SO already exists for this job UUID, returns it (no duplicate SOs)
 - Re-check before create: if another run just created the SO, we update instead of creating again
 - Creates new SO via Phase 3 logic only when missing (Paths A/B/C)
-- When creating a missing SO: only confirms SO (creates task) when Status or SubStatus is one of: "Next appointment", "Send confirmation text", "Scheduled". All other statuses/substatuses → SO created as draft (no task).
+- When creating a missing SO: only confirms SO (creates task) when Status or SubStatus is one of: "Next appointment", "Send confirmation text", "Scheduled". All other statuses/substatuses â†’ SO created as draft (no task).
 - When updating an existing draft SO (quotation): if status becomes one of those three, we confirm the SO (so Odoo creates tasks), then sync task fields (assignee/tech, planned date, start/end in UTC from Workiz Pacific, phone from Contact).
 - Every time Phase 4 runs for an existing SO (any status/date/team change): we update the existing task(s) with current Workiz data (task name = "Customer Name - City", assignee, planned date, start/end, phone, tags). We never create a duplicate task; changing the date in Workiz moves the task to the new date.
 - When status = "Done": does NOT write payment fields to Odoo (payment originates in Odoo via Phase 6A)
@@ -54,7 +54,7 @@ PHASE5_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/9761276/ue4o0az/"  # 
 ODOO_PRODUCT_WORKIZ_CODE_FIELD = "x_studio_x_studio_workiz_product_number"
 
 # Default project ID for SOs when products create tasks (Odoo requires project on quotation).
-# Set to your Odoo project ID (integer). Find it: Project app → open project → URL has id=... or enable Developer Mode → View Metadata.
+# Set to your Odoo project ID (integer). Find it: Project app â†’ open project â†’ URL has id=... or enable Developer Mode â†’ View Metadata.
 # Renaming the project in Odoo does not change its ID, so this won't break.
 DEFAULT_PROJECT_ID = 2
 # Odoo field on sale.order for project (standard: project_id -> project.project)
@@ -63,20 +63,27 @@ ODOO_SO_PROJECT_FIELD = "project_id"
 ODOO_TASK_PLANNED_DATE_FIELD = "date_deadline"   # planned/end date (Date)
 ODOO_TASK_ASSIGNEE_FIELD = "user_ids"           # assignee(s); standard can be user_ids (many2many) or user_id (many2one)
 ODOO_TASK_TAG_IDS_FIELD = "tag_ids"             # tags from SO
-ODOO_TASK_PARTNER_FIELD = "partner_id"          # customer/contact (record category Contact — phone lives here)
+ODOO_TASK_PARTNER_FIELD = "partner_id"          # customer/contact (record category Contact â€” phone lives here)
 ODOO_TASK_PHONE_FIELD = "partner_phone"         # Contact Number on task: we fill from Odoo Contact (Property.parent_id). Studio label "Contact Number", technical name partner_phone.
 ODOO_TASK_PROPERTY_PARTNER_FIELD = False  # Odoo 19 FSM project.task has no 'partner_shipping_id'; set to field name if you add it (e.g. Studio)
 # Optional: planned start/end with time (Datetime). Set to False if not used.
 ODOO_TASK_START_DATETIME_FIELD = "planned_date_begin"  # Odoo 19 FSM: planned start datetime (UTC)
 ODOO_TASK_END_DATETIME_FIELD = "date_end"             # Odoo 19 FSM: planned end datetime (UTC); set False to skip
 # Workiz: job start = JobDateTime. End: if your Workiz job has end date/time, set the key here (e.g. "JobEndDateTime").
-WORKIZ_JOB_END_DATETIME_FIELD = ""              # e.g. "JobEndDateTime" or "EndTime" — leave "" if not in API
+WORKIZ_JOB_END_DATETIME_FIELD = ""              # e.g. "JobEndDateTime" or "EndTime" â€” leave "" if not in API
 
 
 # ==============================================================================
 # UTILITY FUNCTIONS
 # ==============================================================================
 
+def extract_job_from_input(input_data):
+    """
+    Extract job UUID and job data from Zapier input.
+    Supports both webhook format (flattened by Zapier) and polling format.
+    Returns: (job_uuid, workiz_job_dict or None)
+    """
+    try:
         # Check for Zapier's FLATTENED Workiz webhook format (keys like 'Data Uuid', 'Data Status', etc.)
         # Zapier flattens nested JSON: {'data': {'uuid': 'X'}} becomes {'Data Uuid': 'X'}
         if 'Data Uuid' in input_data or 'data__uuid' in input_data:
@@ -196,7 +203,7 @@ def _odoo_search_read(model, domain, fields, limit=1):
 
 
 def _odoo_find_user_id_by_name(tech_name):
-    """Return Odoo res.users id for a name (e.g. 'Dan Saunders'). Not hardcoded — lookup by name."""
+    """Return Odoo res.users id for a name (e.g. 'Dan Saunders'). Not hardcoded â€” lookup by name."""
     if not tech_name or not str(tech_name).strip():
         return None
     name = str(tech_name).strip()
@@ -264,7 +271,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
     """
     Sync all tasks linked to this SO. job_datetime_utc must be UTC (Workiz JobDateTime converted via convert_pacific_to_utc for DST).
     Sets: task name = "Customer Name - City" (from Contact + Property city), assignee (tech/team from Workiz),
-    planned date = date_order/JobDateTime, start datetime (date_planning), end datetime (if configured; Pacific→UTC),
+    planned date = date_order/JobDateTime, start datetime (date_planning), end datetime (if configured; Pacificâ†’UTC),
     tags from SO, customer (Property), service address (Property), contact phone (from Contact = Property.parent_id).
     """
     # Return dict so caller can put it in output (Zapier Data out); prints often not visible in Code step logs.
@@ -297,7 +304,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
 
     task_vals = {}
 
-    # Assignee = tech/team (first team member name → lookup res.users; not hardcoded)
+    # Assignee = tech/team (first team member name â†’ lookup res.users; not hardcoded)
     team_raw = workiz_job.get("Team") or workiz_job.get("team") or []
     if isinstance(team_raw, list) and team_raw:
         first_name = None
@@ -315,7 +322,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 else:
                     task_vals[ODOO_TASK_ASSIGNEE_FIELD] = user_id
 
-    # Planned start/end: Odoo FSM requires planned_date_begin < date_end. Do NOT set date_deadline (date only) when we set planned_date_begin — it becomes midnight and fails "start before end".
+    # Planned start/end: Odoo FSM requires planned_date_begin < date_end. Do NOT set date_deadline (date only) when we set planned_date_begin â€” it becomes midnight and fails "start before end".
     order_date_str = (job_datetime_utc or "").strip()
     if order_date_str:
         date_part = order_date_str.split()[0] if " " in order_date_str else order_date_str
@@ -461,7 +468,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
 
 
 def confirm_sales_order(so_id):
-    """Confirm a draft SO (quotation → sales order); Odoo then creates tasks for lines with 'Create on Order = Task'."""
+    """Confirm a draft SO (quotation â†’ sales order); Odoo then creates tasks for lines with 'Create on Order = Task'."""
     payload = {
         "jsonrpc": "2.0", "method": "call",
         "params": {
@@ -471,7 +478,7 @@ def confirm_sales_order(so_id):
     }
     try:
         requests.post(ODOO_URL, json=payload, timeout=10)
-        print("[OK] Confirmed draft SO → sales order (tasks created)")
+        print("[OK] Confirmed draft SO â†’ sales order (tasks created)")
         return True
     except Exception:
         return False
@@ -1102,7 +1109,7 @@ def post_chatter_message(so_id, message):
 
 def create_sales_order(contact_id, property_id, workiz_job_data, skip_confirm=False):
     """Create Sales Order in Odoo from Workiz job data. Idempotent: if SO already exists for this job UUID, returns it without creating duplicate.
-    skip_confirm=True: create SO as draft (no action_confirm) so Odoo does not auto-create tasks — use when Phase 4 is backfilling a missing SO."""
+    skip_confirm=True: create SO as draft (no action_confirm) so Odoo does not auto-create tasks â€” use when Phase 4 is backfilling a missing SO."""
     
     # Extract Workiz data
     workiz_uuid = workiz_job_data.get('UUID', '')
@@ -1302,7 +1309,7 @@ def create_sales_order(contact_id, property_id, workiz_job_data, skip_confirm=Fa
         }
         requests.post(ODOO_URL, json=confirm_payload, timeout=10)
     else:
-        print("[*] SO left as draft (no confirm → no task created).")
+        print("[*] SO left as draft (no confirm â†’ no task created).")
     
     return so_id
 
@@ -1312,7 +1319,7 @@ def create_sales_order(contact_id, property_id, workiz_job_data, skip_confirm=Fa
 # ==============================================================================
 
 def execute_path_a(contact_id, property_id, workiz_job, skip_confirm=False):
-    """PATH A: Both Contact and Property exist. skip_confirm=True = backfill (no confirm → no tasks)."""
+    """PATH A: Both Contact and Property exist. skip_confirm=True = backfill (no confirm â†’ no tasks)."""
     print("\n" + "="*70)
     print("EXECUTING PATH A: Existing Contact + Existing Property")
     print("="*70)
@@ -1701,7 +1708,7 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
     
     print("[OK] Sales Order updated successfully")
     
-    # Sync tasks: every status/date/team change updates the existing task(s) — we never create a second task or ignore. Overwrites assignee, planned date, start/end, customer, contact number, tags with current Workiz data (e.g. moving date in Workiz moves the task).
+    # Sync tasks: every status/date/team change updates the existing task(s) â€” we never create a second task or ignore. Overwrites assignee, planned date, start/end, customer, contact number, tags with current Workiz data (e.g. moving date in Workiz moves the task).
     order_date = job_datetime_utc or updates.get("date_order")
     task_sync_info = {"task_sync_tasks_found": 0, "task_sync_updated": False, "task_sync_error": "not_called"}
     if so_state != 'draft' or order_date or workiz_job.get("Team") or workiz_job.get("team"):
@@ -1780,7 +1787,7 @@ def main(input_data):
     if substatus:
         print(f"[*] Job SubStatus: {substatus}")
     
-    # Do not run when status is Submitted. Phase 5 creates the next job with status Submitted; if we run here we'd create/update SO for that new job before Phase 3 (New Job trigger) runs. Desired flow: Phase 6 → Phase 5 → Phase 3 (New Job) → later when you change status to send text, Phase 4 runs.
+    # Do not run when status is Submitted. Phase 5 creates the next job with status Submitted; if we run here we'd create/update SO for that new job before Phase 3 (New Job trigger) runs. Desired flow: Phase 6 â†’ Phase 5 â†’ Phase 3 (New Job) â†’ later when you change status to send text, Phase 4 runs.
     if (status or '').strip().lower() == 'submitted':
         print("[*] Skipping Phase 4 for status 'Submitted' (new job from Phase 5; Phase 3 will create SO when New Job triggers)")
         print("="*70)
@@ -1800,7 +1807,7 @@ def main(input_data):
         
         # When SO was quotation (draft) and job is now scheduled, confirm SO so tasks are created, then sync task fields.
         if so_state == 'draft' and should_trigger_tasks:
-            print("[*] Quotation → scheduling: confirming SO and syncing tasks (assignee, planned date, start/end, phone).")
+            print("[*] Quotation â†’ scheduling: confirming SO and syncing tasks (assignee, planned date, start/end, phone).")
             confirm_sales_order(so_id)
             job_datetime_str = workiz_job.get('JobDateTime', '')
             job_datetime_utc = convert_pacific_to_utc(job_datetime_str) if job_datetime_str else None
@@ -1813,7 +1820,7 @@ def main(input_data):
             update_property_from_job(property_id, workiz_job, is_done=(status.lower() == 'done'))
         
         # PHASE 5: Do NOT trigger when status is Done. Phase 6 already triggers Phase 5 when it marks the job Done (payment in Odoo). If we also trigger here, we get duplicate next jobs (e.g. two jobs for same SO 004153). So only Phase 6 calls Phase 5 for "job done" flow.
-        # If you ever mark a job Done manually in Workiz (without recording payment in Odoo first), you will not get the next job/activity automatically; record payment in Odoo to trigger Phase 6 → Phase 5.
+        # If you ever mark a job Done manually in Workiz (without recording payment in Odoo first), you will not get the next job/activity automatically; record payment in Odoo to trigger Phase 6 â†’ Phase 5.
         
         print("="*70)
         print("[OK] PHASE 4 COMPLETE - SALES ORDER UPDATED")
@@ -1821,7 +1828,7 @@ def main(input_data):
         return result
     
     else:
-        # Re-check for SO before creating (another Phase 4 run may have just created it → avoids duplicate SOs)
+        # Re-check for SO before creating (another Phase 4 run may have just created it â†’ avoids duplicate SOs)
         so_record = search_sales_order_by_uuid(job_uuid)
         if so_record:
             so_id = so_record['id']
@@ -1832,7 +1839,7 @@ def main(input_data):
                 return result
             # When SO was draft and job is now scheduled, confirm and sync tasks.
             if so_state == 'draft' and should_trigger_tasks:
-                print("[*] Quotation → scheduling: confirming SO and syncing tasks.")
+                print("[*] Quotation â†’ scheduling: confirming SO and syncing tasks.")
                 confirm_sales_order(so_id)
                 job_datetime_str = workiz_job.get('JobDateTime', '')
                 job_datetime_utc = convert_pacific_to_utc(job_datetime_str) if job_datetime_str else None
