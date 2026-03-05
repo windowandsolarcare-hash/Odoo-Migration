@@ -72,6 +72,9 @@ ODOO_TASK_END_DATETIME_FIELD = "date_end"             # Odoo 19 FSM: planned end
 # Workiz: job start = JobDateTime. End: if your Workiz job has end date/time, set the key here (e.g. "JobEndDateTime").
 WORKIZ_JOB_END_DATETIME_FIELD = ""              # e.g. "JobEndDateTime" or "EndTime" â€” leave "" if not in API
 
+# Line item matching for confirmed SOs: Set to False to disable "set qty=0 for removed items" behavior
+ENABLE_LINE_ITEM_REMOVAL_ON_CONFIRMED_SO = True  # True = set qty=0 for items not in Workiz; False = only update/add
+
 
 # ==============================================================================
 # UTILITY FUNCTIONS
@@ -1164,11 +1167,14 @@ def build_confirmed_so_line_commands(so_id, line_items):
             commands.append((0, 0, line_vals))
             print(f"[*] Adding new line: {item_name} - ${item_price}")
     
-    # Set qty to 0 for Odoo lines NOT matched to any Workiz item
-    for line in existing_lines:
-        if line['id'] not in updated_line_ids and line['product_uom_qty'] > 0:
-            commands.append((1, line['id'], {'product_uom_qty': 0}))
-            print(f"[*] Setting qty to 0 for unmatched line {line['id']}: {line['name']}")
+    # Set qty to 0 for Odoo lines NOT matched to any Workiz item (controlled by flag)
+    if ENABLE_LINE_ITEM_REMOVAL_ON_CONFIRMED_SO:
+        for line in existing_lines:
+            if line['id'] not in updated_line_ids and line['product_uom_qty'] > 0:
+                commands.append((1, line['id'], {'product_uom_qty': 0}))
+                print(f"[*] Setting qty to 0 for unmatched line {line['id']}: {line['name']}")
+    else:
+        print("[*] ENABLE_LINE_ITEM_REMOVAL_ON_CONFIRMED_SO=False; skipping qty=0 for unmatched lines")
     
     return commands
 
