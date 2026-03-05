@@ -314,7 +314,7 @@ LINE ITEMS TO ADD:
         'PostalCode': completed_job_data.get('PostalCode'),
         'Phone': completed_job_data.get('Phone'),
         'JobDateTime': scheduled_datetime,
-        'JobType': completed_job_data.get('JobType'),
+        'JobType': get_next_job_type(completed_job_data),
         
         # Service area: desert vs Hemet (required for routing)
         'ServiceArea': _service_area_for_job(completed_job_data),
@@ -536,6 +536,40 @@ Workiz Job: {workiz_job.get('UUID', 'N/A')}"""
         return {'success': True, 'activity_id': activity_id}
     except Exception as e:
         return {'success': False, 'error': str(e)}
+
+
+def get_next_job_type(completed_job_data):
+    """
+    Determine next job type (handles alternating service).
+    
+    If alternating=Yes:
+    - "Outside Windows and Screens" → "Windows Inside & Outside Plus Screens"
+    - "Windows Inside & Outside Plus Screens" → "Outside Windows and Screens"
+    
+    Otherwise: keep same job type
+    """
+    current_job_type = completed_job_data.get('JobType', '')
+    alternating = str(completed_job_data.get('alternating', '')).lower()
+    is_alternating = alternating in ['yes', '1', 'true']
+    
+    if not is_alternating:
+        return current_job_type
+    
+    # Alternating logic: toggle between inside+out and outside-only
+    current_lower = current_job_type.lower()
+    
+    if 'outside windows and screens' == current_lower:
+        next_type = 'Windows Inside & Outside Plus Screens'
+        print(f"[*] Alternating Job Type: '{current_job_type}' → '{next_type}'")
+        return next_type
+    elif 'windows inside & outside plus screens' == current_lower:
+        next_type = 'Outside Windows and Screens'
+        print(f"[*] Alternating Job Type: '{current_job_type}' → '{next_type}'")
+        return next_type
+    else:
+        # Unrecognized job type - keep same
+        print(f"[!] Alternating enabled but job type '{current_job_type}' not recognized for toggle")
+        return current_job_type
 
 
 def get_line_items_for_next_job(workiz_job, property_id):
