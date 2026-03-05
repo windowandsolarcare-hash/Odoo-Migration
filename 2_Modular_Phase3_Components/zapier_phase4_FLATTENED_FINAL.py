@@ -1064,6 +1064,16 @@ def build_confirmed_so_line_commands(so_id, line_items):
     Returns: list of Odoo write commands [(1, line_id, vals), (0, 0, vals), ...]
     """
     if not line_items or not isinstance(line_items, list):
+        # No line items from Workiz - set all existing lines to qty=0
+        existing_lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], 
+                                           ["id", "name", "product_uom_qty"])
+        if existing_lines:
+            commands = []
+            for line in existing_lines:
+                if line['product_uom_qty'] > 0:
+                    commands.append((1, line['id'], {'product_uom_qty': 0}))
+                    print(f"[*] Setting qty to 0 (no Workiz items): line {line['id']}")
+            return commands
         return []
     
     # Fetch existing SO lines with their product IDs
@@ -1074,16 +1084,11 @@ def build_confirmed_so_line_commands(so_id, line_items):
         print("[*] No existing lines found on SO - will add new lines")
         existing_lines = []
     
-    # Map existing lines by product_id for easy lookup
-    existing_by_product = {}
-    for line in existing_lines:
-        pid = line['product_id']
-        product_id = pid[0] if isinstance(pid, (list, tuple)) else pid
-        existing_by_product[product_id] = line
+    # Track which line IDs we've updated (to know which ones to set qty=0)
+    updated_line_ids = set()
     
     # Build commands
     commands = []
-    workiz_product_ids = set()
     
     # Process each Workiz line item
     for item in line_items:
@@ -1107,37 +1112,49 @@ def build_confirmed_so_line_commands(so_id, line_items):
             print(f"[!] Skipping line item '{item_name}': no matching product in Odoo")
             continue
         
-        workiz_product_ids.add(product_id)
+        # Find best matching existing line (prefer matching product_id, then first unused line with qty > 0)
+        best_match = None
+        for line in existing_lines:
+            if line['id'] in updated_line_ids:
+                continue  # Already matched to a Workiz item
+            
+            pid = line['product_id']
+            line_product_id = pid[0] if isinstance(pid, (list, tuple)) else pid
+            
+            if line_product_id == product_id:
+                best_match = line
+                break
         
-        # Check if this product already exists in SO
-        if product_id in existing_by_product:
+        if best_match:
             # UPDATE existing line
-            existing_line = existing_by_product[product_id]
-            line_id = existing_line['id']
+            line_id = best_match['id']
+            updated_line_ids.add(line_id)
             
             # Only update if price or qty changed
             needs_update = False
             update_vals = {}
             
-            if abs(existing_line['price_unit'] - item_price) > 0.01:
+            if abs(best_match['price_unit'] - item_price) > 0.01:
                 update_vals['price_unit'] = item_price
                 needs_update = True
             
-            if abs(existing_line['product_uom_qty'] - item_qty) > 0.01:
+            if abs(best_match['product_uom_qty'] - item_qty) > 0.01:
                 update_vals['product_uom_qty'] = item_qty
                 needs_update = True
             
             # Update description if changed
             new_desc = f"{item_name}\n{item_desc}" if item_desc else item_name
-            if existing_line['name'] != new_desc:
+            if best_match['name'] != new_desc:
                 update_vals['name'] = new_desc
                 needs_update = True
             
             if needs_update:
                 commands.append((1, line_id, update_vals))
                 print(f"[*] Updating line {line_id}: {item_name} - ${item_price}")
+            else:
+                updated_line_ids.add(line_id)  # Mark as touched even if no changes
         else:
-            # ADD new line
+            # ADD new line (no matching line found)
             line_vals = {
                 'product_id': product_id,
                 'name': f"{item_name}\n{item_desc}" if item_desc else item_name,
@@ -1147,12 +1164,11 @@ def build_confirmed_so_line_commands(so_id, line_items):
             commands.append((0, 0, line_vals))
             print(f"[*] Adding new line: {item_name} - ${item_price}")
     
-    # Set qty to 0 for Odoo lines not in Workiz (can't delete from confirmed SO)
-    for product_id, existing_line in existing_by_product.items():
-        if product_id not in workiz_product_ids and existing_line['product_uom_qty'] > 0:
-            line_id = existing_line['id']
-            commands.append((1, line_id, {'product_uom_qty': 0}))
-            print(f"[*] Setting qty to 0 for removed line {line_id}: {existing_line['name']}")
+    # Set qty to 0 for Odoo lines NOT matched to any Workiz item
+    for line in existing_lines:
+        if line['id'] not in updated_line_ids and line['product_uom_qty'] > 0:
+            commands.append((1, line['id'], {'product_uom_qty': 0}))
+            print(f"[*] Setting qty to 0 for unmatched line {line['id']}: {line['name']}")
     
     return commands
 
