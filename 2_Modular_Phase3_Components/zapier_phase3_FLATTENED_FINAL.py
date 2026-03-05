@@ -35,7 +35,7 @@ WORKIZ_BASE_URL = f"https://api.workiz.com/api/v1/{WORKIZ_API_TOKEN}"
 ODOO_PRODUCT_WORKIZ_CODE_FIELD = "x_studio_x_studio_workiz_product_number"
 
 # Default project ID for SOs when products create tasks (Odoo requires project on quotation).
-# Set to your Odoo project ID (integer). Find it: Project app → open project → URL has id=... or enable Developer Mode → View Metadata.
+# Set to your Odoo project ID (integer). Find it: Project app â†’ open project â†’ URL has id=... or enable Developer Mode â†’ View Metadata.
 # Renaming the project in Odoo does not change its ID, so this won't break.
 DEFAULT_PROJECT_ID = 2
 ODOO_SO_PROJECT_FIELD = "project_id"
@@ -1185,7 +1185,7 @@ def execute_path_a(contact_id, property_id, workiz_job, skip_confirm=False):
         if not confirm_result:
             print("[WARNING] Could not confirm sales order")
     else:
-        print("[*] Quotation only (no confirm → no task).")
+        print("[*] Quotation only (no confirm â†’ no task).")
     
     # Step 4: date_order is now set during SO creation (no longer need to update separately)
     # update_result = update_sales_order_date(sales_order_id, booking_datetime)
@@ -1269,7 +1269,7 @@ def execute_path_b(contact_id, service_address, workiz_job, skip_confirm=False):
         if not confirm_result:
             print("[WARNING] Could not confirm sales order")
     else:
-        print("[*] Quotation only (no confirm → no task).")
+        print("[*] Quotation only (no confirm â†’ no task).")
     
     # Step 7: date_order is now set during SO creation (no longer need to update separately)
     # update_result = update_sales_order_date(sales_order_id, booking_datetime)
@@ -1357,7 +1357,7 @@ def execute_path_c(customer_name, service_address, workiz_job, client_id, skip_c
         if not confirm_result:
             print("[WARNING] Could not confirm sales order")
     else:
-        print("[*] Quotation only (no confirm → no task).")
+        print("[*] Quotation only (no confirm â†’ no task).")
     
     # Step 8: date_order is now set during SO creation (no longer need to update separately)
     # update_result = update_sales_order_date(sales_order_id, booking_datetime)
@@ -1407,12 +1407,15 @@ def main(input_data):
     2. Zapier polling (legacy): {'job_uuid': 'ABC123'}
     3. Phase 4 webhook call: {'job_uuid': 'ABC123'}
     """
-    print("\n" + "="*70)
-    print("WORKIZ -> ODOO MASTER ROUTER (PHASE 3)")
-    print("="*70)
-    
-    # Extract job UUID and data from input (supports both webhook and polling formats)
-    job_uuid, workiz_job = extract_job_from_input(input_data)
+    try:
+        print("\n" + "="*70)
+        print("WORKIZ -> ODOO MASTER ROUTER (PHASE 3)")
+        print("="*70)
+        
+        # Extract job UUID and data from input (supports both webhook and polling formats)
+        print("[DEBUG] Calling extract_job_from_input...")
+        job_uuid, workiz_job = extract_job_from_input(input_data)
+        print(f"[DEBUG] extract_job_from_input returned: job_uuid={job_uuid}, workiz_job={'<dict>' if workiz_job else None}")
     
     if not job_uuid:
         return {'success': False, 'error': 'No job_uuid provided'}
@@ -1498,6 +1501,11 @@ def main(input_data):
     else:
         # PATH C: Contact doesn't exist (property won't exist either)
         return execute_path_c(customer_name, service_address, workiz_job, client_id, skip_confirm=skip_confirm)
+    except Exception as e:
+        print(f"\n[ERROR] Phase 3 main() crashed: {e}")
+        import traceback
+        traceback.print_exc()
+        return {'success': False, 'error': f'Phase 3 exception: {str(e)}'}
 
 
 # ==============================================================================
