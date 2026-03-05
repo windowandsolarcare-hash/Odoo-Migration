@@ -13,6 +13,7 @@ Same pattern as Phase 3/4/5: credentials at top, main(input_data), output = main
 Generated: 2026-02
 """
 
+# VERSION: 2026-03-05-v2 (Force refresh - invoice_id fix for Phase 5 trigger)
 import re
 import json
 import requests
