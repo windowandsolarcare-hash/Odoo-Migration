@@ -466,6 +466,28 @@ def search_all_sales_orders_for_property(property_id):
     return response.json().get("result", [])
 
 
+def post_new_job_link_to_invoice(invoice_id, new_job_uuid, customer_name, scheduled_date):
+    """Post link to new Workiz job in invoice chatter."""
+    if not invoice_id or not new_job_uuid:
+        return
+    
+    workiz_link = f"https://app.workiz.com/root/job/{new_job_uuid}/1"
+    message_body = f"""<p><strong>✅ Next Maintenance Job Created</strong></p>
+<p>Customer: <strong>{customer_name}</strong><br/>
+Scheduled: <strong>{scheduled_date}</strong></p>
+<p><a href="{workiz_link}" target="_blank">🔗 Open Job in Workiz</a></p>"""
+    
+    try:
+        odoo_rpc("account.move", "message_post", [[invoice_id]], {
+            "body": message_body,
+            "message_type": "comment",
+            "subtype_xmlid": "mail.mt_note"
+        })
+        print(f"[OK] Posted new job link to invoice chatter: {workiz_link}")
+    except Exception as e:
+        print(f"[!] Failed to post to invoice chatter: {e}")
+
+
 def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
     """Create follow-up activity in Odoo. Due date = now + days_until_followup (from job frequency), adjusted to Sunday."""
     try:
@@ -607,7 +629,7 @@ def get_line_items_for_next_job(workiz_job, property_id):
 # PHASE 5A: MAINTENANCE PATH
 # ==============================================================================
 
-def schedule_next_maintenance_job(workiz_job, property_id, customer_city):
+def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=None):
     """Create next maintenance job in Workiz."""
     print("\n" + "="*70)
     print("PHASE 5A: MAINTENANCE AUTO-SCHEDULER")
@@ -631,6 +653,12 @@ def schedule_next_maintenance_job(workiz_job, property_id, customer_city):
     
     if result['success']:
         print("[OK] Job created and tech assigned. Manually: add line items, set time slot from schedule, then set status to 'Next Appointment - Text' to send the text.")
+        
+        # Post link to invoice chatter if we have invoice_id and new job UUID
+        new_uuid = result.get('new_job_uuid')
+        if invoice_id and new_uuid:
+            customer_name = f"{workiz_job.get('FirstName', '')} {workiz_job.get('LastName', '')}".strip()
+            post_new_job_link_to_invoice(invoice_id, new_uuid, customer_name, scheduled_datetime)
     else:
         print(f"[ERROR] Failed: {result['message']}")
     
@@ -676,7 +704,8 @@ def main(input_data):
         'job_uuid': 'ABC123',              # Workiz job UUID
         'property_id': 12345,              # Odoo property ID
         'contact_id': 67890,               # Odoo contact ID
-        'customer_city': 'Palm Springs'     # Property city
+        'customer_city': 'Palm Springs',    # Property city
+        'invoice_id': 101                  # Odoo invoice ID (optional, for posting link to chatter)
     }
     """
     print("\n" + "="*70)
@@ -688,6 +717,7 @@ def main(input_data):
     property_id = input_data.get('property_id')
     contact_id = input_data.get('contact_id')
     customer_city = input_data.get('customer_city', '')
+    invoice_id = input_data.get('invoice_id')
     
     # DEBUG: Print what we received
     print(f"\n[DEBUG] Input data received:")
@@ -695,6 +725,7 @@ def main(input_data):
     print(f"  property_id: {property_id} (type: {type(property_id)})")
     print(f"  contact_id: {contact_id} (type: {type(contact_id)})")
     print(f"  customer_city: '{customer_city}' (type: {type(customer_city)})")
+    print(f"  invoice_id: {invoice_id} (type: {type(invoice_id) if invoice_id else 'None'})")
     
     # Convert string IDs to integers if needed
     if property_id and isinstance(property_id, str):
@@ -711,6 +742,13 @@ def main(input_data):
                 print(f"[*] Converted contact_id to integer: {contact_id}")
         except (TypeError, ValueError):
             contact_id = None
+    
+    if invoice_id and isinstance(invoice_id, str):
+        try:
+            invoice_id = int(invoice_id)
+            print(f"[*] Converted invoice_id to integer: {invoice_id}")
+        except:
+            pass
     
     if not job_uuid:
         return {'success': False, 'error': 'Missing job_uuid'}
@@ -732,7 +770,7 @@ def main(input_data):
         if not property_id or not customer_city:
             return {'success': False, 'error': 'Missing property_id or customer_city'}
         
-        result = schedule_next_maintenance_job(workiz_job, property_id, customer_city)
+        result = schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=invoice_id)
         return {'success': result['success'], 'path': '5A_maintenance', 'result': result}
     
     elif 'on demand' in type_of_service or 'on-demand' in type_of_service:
@@ -764,7 +802,7 @@ def main(input_data):
         if not property_id or not customer_city:
             return {'success': False, 'error': 'Cannot default to maintenance'}
         
-        result = schedule_next_maintenance_job(workiz_job, property_id, customer_city)
+        result = schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=invoice_id)
         return {'success': result['success'], 'path': '5A_maintenance_default', 'result': result}
 
 
