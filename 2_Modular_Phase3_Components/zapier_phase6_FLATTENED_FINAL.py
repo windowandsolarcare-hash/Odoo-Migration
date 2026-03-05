@@ -304,7 +304,7 @@ def main(input_data):
                             cid = pid
                         customer_city_5 = (rec.get("city") or "") if prop_read else ""
                         if pid and cid:
-                            phase5_data = {"job_uuid": job_uuid, "property_id": pid, "contact_id": cid, "customer_city": customer_city_5}
+                            phase5_data = {"job_uuid": job_uuid, "property_id": pid, "contact_id": cid, "customer_city": customer_city_5, "invoice_id": invoice_id}
                             r5 = requests.post(PHASE5_WEBHOOK_URL, json=phase5_data, timeout=15)
                             if r5.status_code == 200:
                                 print("[OK] Phase 5 triggered (follow-up activity or next job)")
