@@ -1236,7 +1236,8 @@ def create_sales_order(contact_id, property_id, workiz_job_data, skip_confirm=Fa
     
     # Set date_order from JobDateTime BEFORE creating SO (so Odoo doesn't default to current time)
     job_datetime_str = workiz_job_data.get('JobDateTime', '')
-    print(f"[DEBUG] Extracted JobDateTime from Workiz: '{job_datetime_str}'")
+    # DEBUG: Uncomment to verify date extraction
+    # print(f"[DEBUG] Extracted JobDateTime from Workiz: '{job_datetime_str}'")
     if job_datetime_str:
         job_datetime_utc = convert_pacific_to_utc(job_datetime_str)
         order_data['date_order'] = job_datetime_utc
