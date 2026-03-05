@@ -1052,6 +1052,111 @@ def build_order_line_commands(line_items):
     return order_lines
 
 
+def build_confirmed_so_line_commands(so_id, line_items):
+    """
+    Build line item update commands for CONFIRMED Sales Orders (state='sale').
+    
+    For confirmed SOs, Odoo doesn't allow deleting lines. Instead:
+    - Update existing line prices/quantities
+    - Add new lines
+    - Set quantity to 0 for removed lines
+    
+    Returns: list of Odoo write commands [(1, line_id, vals), (0, 0, vals), ...]
+    """
+    if not line_items or not isinstance(line_items, list):
+        return []
+    
+    # Fetch existing SO lines with their product IDs
+    existing_lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], 
+                                       ["id", "product_id", "name", "price_unit", "product_uom_qty"])
+    
+    if not existing_lines:
+        print("[*] No existing lines found on SO - will add new lines")
+        existing_lines = []
+    
+    # Map existing lines by product_id for easy lookup
+    existing_by_product = {}
+    for line in existing_lines:
+        pid = line['product_id']
+        product_id = pid[0] if isinstance(pid, (list, tuple)) else pid
+        existing_by_product[product_id] = line
+    
+    # Build commands
+    commands = []
+    workiz_product_ids = set()
+    
+    # Process each Workiz line item
+    for item in line_items:
+        item_name = item.get('Name', 'Service') or 'Service'
+        item_desc = item.get('Description', '')
+        item_qty = float(item.get('Quantity', 1))
+        item_price = float(item.get('Price', 0))
+        workiz_code = item.get('ModelNum') or item.get('Id')
+        
+        # Find matching Odoo product
+        if workiz_code is not None and str(workiz_code).strip() != '':
+            product_id = _find_product_id_by_workiz_code(workiz_code)
+        else:
+            product_id = None
+        if product_id is None:
+            product_id = _find_product_id_by_name(item_name)
+        if product_id is None and item_name != 'Service':
+            product_id = _find_product_id_by_name('Service')
+        
+        if product_id is None:
+            print(f"[!] Skipping line item '{item_name}': no matching product in Odoo")
+            continue
+        
+        workiz_product_ids.add(product_id)
+        
+        # Check if this product already exists in SO
+        if product_id in existing_by_product:
+            # UPDATE existing line
+            existing_line = existing_by_product[product_id]
+            line_id = existing_line['id']
+            
+            # Only update if price or qty changed
+            needs_update = False
+            update_vals = {}
+            
+            if abs(existing_line['price_unit'] - item_price) > 0.01:
+                update_vals['price_unit'] = item_price
+                needs_update = True
+            
+            if abs(existing_line['product_uom_qty'] - item_qty) > 0.01:
+                update_vals['product_uom_qty'] = item_qty
+                needs_update = True
+            
+            # Update description if changed
+            new_desc = f"{item_name}\n{item_desc}" if item_desc else item_name
+            if existing_line['name'] != new_desc:
+                update_vals['name'] = new_desc
+                needs_update = True
+            
+            if needs_update:
+                commands.append((1, line_id, update_vals))
+                print(f"[*] Updating line {line_id}: {item_name} - ${item_price}")
+        else:
+            # ADD new line
+            line_vals = {
+                'product_id': product_id,
+                'name': f"{item_name}\n{item_desc}" if item_desc else item_name,
+                'product_uom_qty': item_qty,
+                'price_unit': item_price,
+            }
+            commands.append((0, 0, line_vals))
+            print(f"[*] Adding new line: {item_name} - ${item_price}")
+    
+    # Set qty to 0 for Odoo lines not in Workiz (can't delete from confirmed SO)
+    for product_id, existing_line in existing_by_product.items():
+        if product_id not in workiz_product_ids and existing_line['product_uom_qty'] > 0:
+            line_id = existing_line['id']
+            commands.append((1, line_id, {'product_uom_qty': 0}))
+            print(f"[*] Setting qty to 0 for removed line {line_id}: {existing_line['name']}")
+    
+    return commands
+
+
 def update_sales_order(so_id, updates):
     """Update Sales Order fields in Odoo. On failure, logs Odoo error and returns False."""
     payload = {
@@ -1684,10 +1789,17 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
         except Exception:
             updates['x_studio_x_studio_type_of_service_so'] = tos_val
     
-    # Update order line items from Workiz only when SO is still draft. Once confirmed ('sale' or 'done'), Odoo does not allow removing/changing lines (would trigger "you can't remove one of its lines").
+    # Update order line items from Workiz
     if so_state in ('sale', 'done'):
-        print(f"[*] SO state is {so_state}; skipping order_line update (confirmed SOs cannot have lines removed or replaced)")
+        # For confirmed SOs: use smart update (can't delete lines, but can update prices and add lines)
+        print(f"[*] SO state is {so_state}; using smart line update (update prices, add new, set qty=0 for removed)")
+        order_line_commands = build_confirmed_so_line_commands(so_id, line_items)
+        if order_line_commands:
+            updates['order_line'] = order_line_commands
+            print(f"[*] Processing {len(order_line_commands)} line item command(s)")
     else:
+        # For draft SOs: use full replace (clear all + add new)
+        print(f"[*] SO state is {so_state}; using full replace for line items")
         order_line_commands = build_order_line_commands(line_items)
         if order_line_commands:
             updates['order_line'] = [(5, 0, 0)] + order_line_commands  # (5,0,0) clear existing; then add new
