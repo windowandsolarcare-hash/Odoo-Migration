@@ -201,6 +201,66 @@ CLAUDE_CONTEXT.md                     - This file
 
 ---
 
+## 🔧 DEVELOPMENT WORKFLOW
+
+**Golden Rule: Code lives in GitHub, NOT in Zapier UI!**
+
+### Making Code Changes:
+
+1. **Edit locally:** Open file in Cursor (e.g., `zapier_phase5_FLATTENED_FINAL.py`)
+2. **Make changes:** Add features, fix bugs, update logic
+3. **Test if possible:** Create test script (e.g., `test_phase5_alternating.py`)
+4. **Push to GitHub main:**
+   ```powershell
+   # Create push script
+   $filePath = "2_Modular_Phase3_Components/zapier_phase5_FLATTENED_FINAL.py"
+   $sha = gh api "repos/windowandsolarcare-hash/Odoo-Migration/contents/$filePath" --jq '.sha'
+   $content = Get-Content $localFile -Raw -Encoding UTF8
+   $bytes = [System.Text.Encoding]::UTF8.GetBytes($content)
+   $base64 = [System.Convert]::ToBase64String($bytes)
+   
+   $payload = @{
+       message = "Description of change"
+       content = $base64
+       sha = $sha.Trim()
+       branch = "main"
+   } | ConvertTo-Json
+   
+   $payload | gh api "repos/windowandsolarcare-hash/Odoo-Migration/contents/$filePath" --method PUT --input -
+   ```
+5. **Zapier auto-updates:** Next trigger fetches new code from main
+6. **No Zapier UI changes needed** (unless input field mappings change)
+
+### When to Update Zapier UI:
+
+**Only update Zapier when:**
+- Adding new input fields (e.g., adding `invoice_id` to Phase 5 inputs)
+- Changing trigger type (webhook → polling)
+- Changing webhook URL
+
+**NEVER update Zapier for:**
+- Code logic changes
+- Bug fixes
+- New features in Python code
+- Variable names or function signatures
+
+### Testing Strategy:
+
+**Before pushing to main:**
+1. Create test script (e.g., `test_alternating_logic.py`)
+2. Run locally with sample data
+3. Verify output matches expectations
+4. Push to main when confident
+5. Monitor Zapier logs on next trigger
+
+**After pushing to main:**
+1. Wait for next trigger (or manually trigger in Zapier)
+2. Check Zapier task history logs
+3. Verify output in Odoo/Workiz
+4. If issue found, push fix immediately
+
+---
+
 ## 🛠️ MCP TOOLS SETUP
 
 **Available MCPs:**
@@ -218,52 +278,87 @@ CLAUDE_CONTEXT.md                     - This file
 
 **CRITICAL:** Zapier watches `main` branch ONLY.
 
-**Development Workflow:**
-1. **ALL changes** go to `dev` branch first
-2. Test locally if possible
-3. Commit to dev with clear message: `YYYY-MM-DD | file | what changed and why`
-4. **NEVER auto-deploy to main** - wait for user to say "deploy to main" or "ready to deploy"
-5. When user confirms, merge dev → main
-6. Zapier auto-fetches from main via `urllib.request.urlopen()` in exec() snippet
+**Current Workflow (Direct to Main):**
+1. **Edit files locally** (e.g., `zapier_phase5_FLATTENED_FINAL.py`)
+2. **Push directly to main** using `gh api` PowerShell scripts
+3. **Zapier auto-fetches** latest code on next run
+4. **No dev branch** for Zapier scripts (user preference)
 
-**Current Branch Strategy:**
-- **dev:** Development work (NOT currently in use - pushing directly to main per user workflow)
-- **main:** Production (Zapier pulls from here)
+**Why Direct to Main?**
+- Zapier fetches from GitHub on **every single run** (via `urllib.request.urlopen()`)
+- Changes are immediate but safe (only affect next trigger, not mid-run)
+- Easy rollback: Revert GitHub commit → Zapier uses old version
+- No merge/deploy step needed (Zapier IS the deployment)
 
-**Note:** User prefers direct main pushes for Zapier scripts since Zapier fetches from GitHub on every run. No dev branch needed unless doing major refactoring.
+**When to Use Dev Branch:**
+- Major architectural refactoring
+- Multi-file changes that must be atomic
+- Experimental features that shouldn't hit production
+
+**Rollback Process:**
+- Get previous commit SHA: `gh api repos/.../commits --jq '.[:10]'`
+- Fetch old file: `gh api repos/.../contents/path?ref=SHA`
+- Push old version back to main with message: "Rollback to version before X"
+
+**Commit Message Format:**
+```
+YYYY-MM-DD | filename | what changed and why
+```
+
+Example: `2026-03-05 | zapier_phase5 | Fix alternating line items - match by job type`
 
 ---
 
 ## 💻 ZAPIER PYTHON EXEC() APPROACH
 
-**All Zapier Code steps use this pattern:**
+**CRITICAL: We do NOT paste code into Zapier anymore!**
+
+All Zapier Code steps now use this **3-line snippet** that fetches code from GitHub:
 
 ```python
 import urllib.request
-
 url = "https://raw.githubusercontent.com/windowandsolarcare-hash/Odoo-Migration/main/2_Modular_Phase3_Components/zapier_phaseX_FLATTENED_FINAL.py"
 code = urllib.request.urlopen(url).read().decode()
 exec(code, {**globals(), 'input_data': input_data})
 ```
 
+**This means:**
+- ✅ **Code lives in GitHub, NOT in Zapier UI**
+- ✅ **To modify code:** Edit file locally → Push to GitHub main → Zapier auto-fetches latest on next run
+- ✅ **NO manual Zapier updates needed** when code changes
+- ✅ **Version control:** Full git history, can rollback anytime
+- ✅ **Deployment:** Push to main = instant production (Zapier fetches on next trigger)
+
+**Each Zapier "Code by Zapier" step contains ONLY those 4 lines above.** The actual business logic is in the GitHub files.
+
 **Benefits:**
-- ✅ Zapier always runs latest code from GitHub
-- ✅ No need to update Zapier UI when code changes
-- ✅ Version control in GitHub (not Zapier)
-- ✅ Can rollback by reverting GitHub commits
+- ✅ Zapier always runs latest code from GitHub main branch
+- ✅ No copy-paste between GitHub and Zapier UI
+- ✅ No Zapier code editor limitations (token limits, syntax highlighting)
+- ✅ Easy rollback: Revert GitHub commit → Zapier uses old version
+- ✅ No deployment sync issues (one source of truth)
 
 **How It Works:**
-1. Zapier Code step receives `input_data` dict from trigger/previous step
-2. Fetches Python file from GitHub main branch
-3. Executes file contents, passing `input_data` into global scope
-4. File's `main(input_data)` function runs and returns output
-5. Zapier captures `output` variable for next step
+1. Zapier trigger fires (webhook or polling)
+2. Zapier Code step receives `input_data` dict from trigger/previous step
+3. Code step runs the 4-line snippet
+4. Snippet fetches Python file from GitHub main branch (fresh every time)
+5. `exec()` runs the file contents in Zapier's environment
+6. File's `main(input_data)` function processes the data
+7. Returns `output` dict for next Zapier step
 
-**Input Mapping Examples:**
+**Input Mapping Examples (in Zapier UI):**
 - **Phase 3:** `job_uuid` from Workiz webhook
 - **Phase 4:** `job_uuid` from Zapier polling
 - **Phase 5:** `job_uuid`, `property_id`, `contact_id`, `customer_city`, `invoice_id` from Phase 6 webhook
 - **Phase 6:** `payment_id` from Odoo payment webhook
+
+**When Modifying Code:**
+1. Edit file locally (e.g., `zapier_phase5_FLATTENED_FINAL.py`)
+2. Test logic if possible (create test script)
+3. Push to GitHub main: `gh api repos/.../contents/path --method PUT`
+4. Next Zapier run fetches new code automatically
+5. **NO changes needed in Zapier UI** (unless input field mappings change)
 
 ---
 
