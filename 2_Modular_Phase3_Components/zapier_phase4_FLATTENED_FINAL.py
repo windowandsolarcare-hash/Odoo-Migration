@@ -1072,7 +1072,7 @@ def build_confirmed_so_line_commands(so_id, line_items):
         # No line items from Workiz - set all existing lines to qty=0
         print("[*] No line items from Workiz - will set all Odoo lines to qty=0")
         existing_lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], 
-                                           ["id", "name", "product_uom_qty"])
+                                           ["id", "name", "product_uom_qty"], limit=100)
         if existing_lines:
             commands = []
             for line in existing_lines:
@@ -1082,9 +1082,9 @@ def build_confirmed_so_line_commands(so_id, line_items):
             return commands
         return []
     
-    # Fetch existing SO lines with their product IDs
+    # Fetch existing SO lines with their product IDs (limit=100 to get all lines, not just first one)
     existing_lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], 
-                                       ["id", "product_id", "name", "price_unit", "product_uom_qty"])
+                                       ["id", "product_id", "name", "price_unit", "product_uom_qty"], limit=100)
     
     print(f"[*] Found {len(existing_lines) if existing_lines else 0} existing lines in Odoo SO")
     
