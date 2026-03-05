@@ -600,24 +600,40 @@ def get_next_job_type(completed_job_data):
         return current_job_type
 
 
-def get_line_items_for_next_job(workiz_job, property_id):
+def get_line_items_for_next_job(workiz_job, property_id, next_job_type):
     """Get line items for next job (handles alternating logic)."""
     alternating = str(workiz_job.get('alternating', '')).lower()
     is_alternating = alternating in ['yes', '1', 'true']
     
     if is_alternating:
-        print("[*] Alternating service - getting line items from 2 jobs back")
+        print(f"[*] Alternating service - searching for most recent job matching next job type: {next_job_type}")
         
         all_sales_orders = search_all_sales_orders_for_property(property_id)
         
-        if len(all_sales_orders) >= 2:
-            source_uuid = all_sales_orders[1]['x_studio_x_studio_workiz_uuid']
-            print(f"[*] Using job {source_uuid}")
+        # Search for the most recent job that matches the NEXT job type
+        source_uuid = None
+        for so in all_sales_orders:
+            so_uuid = so.get('x_studio_x_studio_workiz_uuid')
+            if not so_uuid:
+                continue
             
+            # Fetch job details to check job type
+            job_details = get_job_details(so_uuid)
+            if job_details:
+                job_type = (job_details.get('JobType') or '').lower()
+                next_type_lower = next_job_type.lower()
+                
+                # Match if job types are the same
+                if job_type == next_type_lower:
+                    source_uuid = so_uuid
+                    print(f"[*] Found matching job type: {so_uuid} ({job_details.get('JobType')})")
+                    break
+        
+        if source_uuid:
             source_job = get_job_details(source_uuid)
             line_items = source_job.get('LineItems', []) if source_job else workiz_job.get('LineItems', [])
         else:
-            print(f"[!] Not enough history - using current job")
+            print(f"[!] No matching job type found in history - using current job line items")
             line_items = workiz_job.get('LineItems', [])
     else:
         print("[*] Regular service - using current job")
@@ -648,8 +664,11 @@ def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoic
     scheduled_datetime = calculate_next_service_date(frequency, customer_city)
     print(f"[OK] Next service: {scheduled_datetime}")
     
-    # Get line items
-    line_items = get_line_items_for_next_job(workiz_job, property_id)
+    # Determine next job type (for alternating)
+    next_job_type = get_next_job_type(workiz_job)
+    
+    # Get line items (pass next job type for alternating matching)
+    line_items = get_line_items_for_next_job(workiz_job, property_id, next_job_type)
     line_items_text = format_line_items_for_custom_field(line_items)
     
     print(f"\n[*] Line items reference:\n{line_items_text}")
