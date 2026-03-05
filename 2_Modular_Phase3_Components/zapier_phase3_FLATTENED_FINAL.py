@@ -1416,91 +1416,91 @@ def main(input_data):
         print("[DEBUG] Calling extract_job_from_input...")
         job_uuid, workiz_job = extract_job_from_input(input_data)
         print(f"[DEBUG] extract_job_from_input returned: job_uuid={job_uuid}, workiz_job={'<dict>' if workiz_job else None}")
-    
-    if not job_uuid:
-        return {'success': False, 'error': 'No job_uuid provided'}
-    
-    # If webhook didn't provide full data, fetch from Workiz API
-    if not workiz_job:
-        print(f"\n[*] Fetching Workiz job details: {job_uuid}")
-        workiz_job = get_job_details(job_uuid)
+        
+        if not job_uuid:
+            return {'success': False, 'error': 'No job_uuid provided'}
+        
+        # If webhook didn't provide full data, fetch from Workiz API
         if not workiz_job:
-            return {'success': False, 'error': 'Failed to fetch Workiz job'}
-    else:
-        print(f"\n[*] Using Workiz webhook data (no API call needed)")
-    
-    # Extract key fields
-    customer_name = workiz_job.get('FirstName', '') + ' ' + workiz_job.get('LastName', '')
-    customer_name = customer_name.strip()
-    service_address = workiz_job.get('Address', '').strip()
-    phone = workiz_job.get('Phone', '')
-    email = workiz_job.get('Email', '')
-    client_id = workiz_job.get('ClientId')  # Workiz ClientId - THE KEY FIELD
-    
-    print(f"[*] Customer: {customer_name}")
-    print(f"[*] ClientId: {client_id}")
-    print(f"[*] Address: {service_address}")
-    
-    if not client_id:
-        return {'success': False, 'error': 'Missing ClientId from Workiz job'}
-    
-    if not service_address:
-        return {'success': False, 'error': 'Missing service address'}
-    
-    # Idempotency: if an SO already exists for this job UUID (e.g. Phase 4 created it first), return it and do not create a duplicate.
-    existing_so = search_sales_order_by_uuid(job_uuid)
-    if existing_so:
-        so_id = existing_so['id']
-        print(f"\n[*] Sales Order already exists for this job UUID: {existing_so.get('name')} (ID: {so_id}). Skipping create (idempotent).")
-        pid = existing_so.get('partner_id')
-        property_id = pid[0] if isinstance(pid, (list, tuple)) else pid
-        contact_id = None
-        if property_id:
-            partners = _odoo_search_read("res.partner", [["id", "=", property_id]], ["parent_id"], limit=1)
-            if partners and partners[0].get("parent_id"):
-                contact_id = partners[0]["parent_id"][0] if isinstance(partners[0]["parent_id"], (list, tuple)) else partners[0]["parent_id"]
-            else:
-                contact_id = property_id
-        return {
-            'success': True,
-            'sales_order_id': so_id,
-            'path': 'A',
-            'contact_id': contact_id or property_id,
-            'property_id': property_id,
-            'already_existed': True,
-        }
-    
-    # Only confirm SO (create task) when Status or SubStatus is one of: Next appointment, Send confirmation text, Scheduled. Otherwise quotation only.
-    status = workiz_job.get('Status', '') or ''
-    substatus = workiz_job.get('SubStatus', '') or ''
-    status_lower = status.strip().lower()
-    substatus_lower = substatus.strip().lower()
-    TASK_TRIGGER_VALUES = ('next appointment', 'send confirmation text', 'scheduled')
-    skip_confirm = not (status_lower in TASK_TRIGGER_VALUES or substatus_lower in TASK_TRIGGER_VALUES)
-    if skip_confirm:
-        print("[*] Status/SubStatus is not 'Next appointment' / 'Send confirmation text' / 'Scheduled': SO will be created as quotation (no task).")
-    
-    # Step 2: Search for Contact by ClientId (ONLY way to search)
-    print(f"\n[*] Searching for Contact by ClientId: {client_id}")
-    contact_result = search_contact_by_client_id(client_id)
-    
-    if contact_result:
-        # Contact exists - check for property
-        contact_id = contact_result['contact_id']
-        
-        print(f"\n[*] Searching for Property: {service_address}")
-        property_result = search_property_for_contact(service_address, contact_id)
-        
-        if property_result:
-            # PATH A: Both exist
-            property_id = property_result['property_id']
-            return execute_path_a(contact_id, property_id, workiz_job, skip_confirm=skip_confirm)
+            print(f"\n[*] Fetching Workiz job details: {job_uuid}")
+            workiz_job = get_job_details(job_uuid)
+            if not workiz_job:
+                return {'success': False, 'error': 'Failed to fetch Workiz job'}
         else:
-            # PATH B: Contact exists, property doesn't
-            return execute_path_b(contact_id, service_address, workiz_job, skip_confirm=skip_confirm)
-    else:
-        # PATH C: Contact doesn't exist (property won't exist either)
-        return execute_path_c(customer_name, service_address, workiz_job, client_id, skip_confirm=skip_confirm)
+            print(f"\n[*] Using Workiz webhook data (no API call needed)")
+        
+        # Extract key fields
+        customer_name = workiz_job.get('FirstName', '') + ' ' + workiz_job.get('LastName', '')
+        customer_name = customer_name.strip()
+        service_address = workiz_job.get('Address', '').strip()
+        phone = workiz_job.get('Phone', '')
+        email = workiz_job.get('Email', '')
+        client_id = workiz_job.get('ClientId')  # Workiz ClientId - THE KEY FIELD
+        
+        print(f"[*] Customer: {customer_name}")
+        print(f"[*] ClientId: {client_id}")
+        print(f"[*] Address: {service_address}")
+        
+        if not client_id:
+            return {'success': False, 'error': 'Missing ClientId from Workiz job'}
+        
+        if not service_address:
+            return {'success': False, 'error': 'Missing service address'}
+        
+        # Idempotency: if an SO already exists for this job UUID (e.g. Phase 4 created it first), return it and do not create a duplicate.
+        existing_so = search_sales_order_by_uuid(job_uuid)
+        if existing_so:
+            so_id = existing_so['id']
+            print(f"\n[*] Sales Order already exists for this job UUID: {existing_so.get('name')} (ID: {so_id}). Skipping create (idempotent).")
+            pid = existing_so.get('partner_id')
+            property_id = pid[0] if isinstance(pid, (list, tuple)) else pid
+            contact_id = None
+            if property_id:
+                partners = _odoo_search_read("res.partner", [["id", "=", property_id]], ["parent_id"], limit=1)
+                if partners and partners[0].get("parent_id"):
+                    contact_id = partners[0]["parent_id"][0] if isinstance(partners[0]["parent_id"], (list, tuple)) else partners[0]["parent_id"]
+                else:
+                    contact_id = property_id
+            return {
+                'success': True,
+                'sales_order_id': so_id,
+                'path': 'A',
+                'contact_id': contact_id or property_id,
+                'property_id': property_id,
+                'already_existed': True,
+            }
+        
+        # Only confirm SO (create task) when Status or SubStatus is one of: Next appointment, Send confirmation text, Scheduled. Otherwise quotation only.
+        status = workiz_job.get('Status', '') or ''
+        substatus = workiz_job.get('SubStatus', '') or ''
+        status_lower = status.strip().lower()
+        substatus_lower = substatus.strip().lower()
+        TASK_TRIGGER_VALUES = ('next appointment', 'send confirmation text', 'scheduled')
+        skip_confirm = not (status_lower in TASK_TRIGGER_VALUES or substatus_lower in TASK_TRIGGER_VALUES)
+        if skip_confirm:
+            print("[*] Status/SubStatus is not 'Next appointment' / 'Send confirmation text' / 'Scheduled': SO will be created as quotation (no task).")
+        
+        # Step 2: Search for Contact by ClientId (ONLY way to search)
+        print(f"\n[*] Searching for Contact by ClientId: {client_id}")
+        contact_result = search_contact_by_client_id(client_id)
+        
+        if contact_result:
+            # Contact exists - check for property
+            contact_id = contact_result['contact_id']
+            
+            print(f"\n[*] Searching for Property: {service_address}")
+            property_result = search_property_for_contact(service_address, contact_id)
+            
+            if property_result:
+                # PATH A: Both exist
+                property_id = property_result['property_id']
+                return execute_path_a(contact_id, property_id, workiz_job, skip_confirm=skip_confirm)
+            else:
+                # PATH B: Contact exists, property doesn't
+                return execute_path_b(contact_id, service_address, workiz_job, skip_confirm=skip_confirm)
+        else:
+            # PATH C: Contact doesn't exist (property won't exist either)
+            return execute_path_c(customer_name, service_address, workiz_job, client_id, skip_confirm=skip_confirm)
     except Exception as e:
         print(f"\n[ERROR] Phase 3 main() crashed: {e}")
         import traceback
