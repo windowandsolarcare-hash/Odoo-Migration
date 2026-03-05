@@ -1066,8 +1066,11 @@ def build_confirmed_so_line_commands(so_id, line_items):
     
     Returns: list of Odoo write commands [(1, line_id, vals), (0, 0, vals), ...]
     """
+    print(f"[*] build_confirmed_so_line_commands called: {len(line_items) if line_items else 0} Workiz items")
+    
     if not line_items or not isinstance(line_items, list):
         # No line items from Workiz - set all existing lines to qty=0
+        print("[*] No line items from Workiz - will set all Odoo lines to qty=0")
         existing_lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], 
                                            ["id", "name", "product_uom_qty"])
         if existing_lines:
@@ -1082,6 +1085,8 @@ def build_confirmed_so_line_commands(so_id, line_items):
     # Fetch existing SO lines with their product IDs
     existing_lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], 
                                        ["id", "product_id", "name", "price_unit", "product_uom_qty"])
+    
+    print(f"[*] Found {len(existing_lines) if existing_lines else 0} existing lines in Odoo SO")
     
     if not existing_lines:
         print("[*] No existing lines found on SO - will add new lines")
@@ -1176,6 +1181,7 @@ def build_confirmed_so_line_commands(so_id, line_items):
     else:
         print("[*] ENABLE_LINE_ITEM_REMOVAL_ON_CONFIRMED_SO=False; skipping qty=0 for unmatched lines")
     
+    print(f"[*] Built {len(commands)} line item command(s) for confirmed SO")
     return commands
 
 
