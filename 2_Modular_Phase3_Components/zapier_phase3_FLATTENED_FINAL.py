@@ -66,6 +66,17 @@ def extract_job_from_input(input_data):
     - If polling/simple: returns (uuid, None) - caller must fetch via API
     """
     try:
+        # DEBUG: Show what we received
+        print(f"[DEBUG] input_data type: {type(input_data)}")
+        print(f"[DEBUG] input_data keys: {list(input_data.keys()) if isinstance(input_data, dict) else 'NOT A DICT'}")
+        if isinstance(input_data, dict) and len(input_data) < 50:
+            print(f"[DEBUG] input_data contents: {input_data}")
+        elif isinstance(input_data, dict):
+            print(f"[DEBUG] input_data has {len(input_data)} keys (too many to print)")
+            # Print first 20 keys for sample
+            sample_keys = list(input_data.keys())[:20]
+            print(f"[DEBUG] Sample keys: {sample_keys}")
+        
         # Check for Zapier's FLATTENED Workiz webhook format (keys like 'Data Uuid', 'Data Status', etc.)
         # Zapier flattens nested JSON: {'data': {'uuid': 'X'}} becomes {'Data Uuid': 'X'}
         if 'Data Uuid' in input_data or 'data__uuid' in input_data:
