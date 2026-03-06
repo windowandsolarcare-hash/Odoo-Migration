@@ -273,6 +273,51 @@ gh api "repos/$repo/contents/folder" --jq '.[].name'
 
 ---
 
+## 🧪 Testing After Code Changes
+
+**CRITICAL: YOU create and cleanup ALL test data via API**
+
+### Complete Testing Workflow:
+
+```
+1. Make code changes locally
+   ↓
+2. Push to GitHub main (gh api script above)
+   ↓
+3. Create test data via API:
+   - Workiz: python test_create_workiz_job.py
+   - Odoo: Use JSON-RPC API directly
+   ↓
+4. Monitor Zapier (webhook triggers automatically)
+   ↓
+5. Verify results in Odoo/Workiz
+   ↓
+6. Cleanup test data via API:
+   - python test_cleanup_workiz_job.py <UUID>
+   - python test_cleanup_odoo_data.py --so 123
+   ↓
+7. Report: "✅ Working" or "❌ Issue"
+```
+
+### Why API-Based Test Data?
+- ✅ Tests FULL integration (Workiz → Zapier → Odoo)
+- ✅ Triggers webhooks naturally
+- ✅ Mimics real user workflow
+- ❌ Don't create directly in Odoo (skips integration)
+
+### User's Role in Testing:
+- **Approve/reject results ONLY**
+- **Never manually creates test data**
+- **Never manually deletes test data**
+
+### Test Scripts Available:
+- `test_create_workiz_job.py` - Create test job
+- `test_cleanup_workiz_job.py` - Cleanup Workiz job
+- `test_cleanup_odoo_data.py` - Cleanup Odoo data
+- `TEST_FRAMEWORK.md` - Full documentation
+
+---
+
 ## 🎯 Quick Reference Card
 
 **Push existing file:**
