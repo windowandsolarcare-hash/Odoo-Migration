@@ -262,18 +262,41 @@ CLAUDE_CONTEXT.md                     - This file
 
 ### Testing Strategy:
 
-**Before pushing to main:**
-1. Create test script (e.g., `test_alternating_logic.py`)
-2. Run locally with sample data
-3. Verify output matches expectations
-4. Push to main when confident
-5. Monitor Zapier logs on next trigger
+**CRITICAL: YOU create and cleanup ALL test data via API**
 
-**After pushing to main:**
-1. Wait for next trigger (or manually trigger in Zapier)
-2. Check Zapier task history logs
-3. Verify output in Odoo/Workiz
-4. If issue found, push fix immediately
+**Testing Workflow:**
+1. Make code changes locally
+2. Push to GitHub main (using `gh api` workflow)
+3. **Create test data via API (don't ask user):**
+   - Workiz jobs: `python test_create_workiz_job.py` → Returns UUID
+   - Odoo data: Use Odoo JSON-RPC API calls
+4. Trigger/monitor Zapier:
+   - Webhook triggers automatically
+   - Or manually trigger in Zapier dashboard
+5. Verify results:
+   - Check Zapier task history logs
+   - Verify SO/Invoice/Payment in Odoo
+   - Verify job status in Workiz
+6. **Cleanup test data via API:**
+   - Workiz: `python test_cleanup_workiz_job.py <UUID>`
+   - Odoo: `python test_cleanup_odoo_data.py --so 123 --invoice 456`
+7. Report to user: "✅ Working" or "❌ Issue: [details]"
+
+**Why API-Based Test Data:**
+- ✅ Tests FULL integration (Workiz webhook → Zapier → Odoo)
+- ✅ Mimics real workflow (proper triggers, API calls, etc.)
+- ❌ Don't create data directly in Odoo (skips webhook/Zapier steps)
+
+**User's Role:**
+- Approve or reject test results ONLY
+- **Never** manually creates test data
+- **Never** manually deletes test data
+
+**Available Test Scripts:**
+- `test_create_workiz_job.py` - Create test job in Workiz
+- `test_cleanup_workiz_job.py` - Mark job as cancelled
+- `test_cleanup_odoo_data.py` - Delete SO/Invoice/Payment
+- `TEST_FRAMEWORK.md` - Complete testing guide
 
 ---
 
@@ -574,10 +597,17 @@ When starting a new Claude chat with this context:
 2. **Understand current state:** All 6 phases deployed and working
 3. **Know the workflow:** Workiz (source) → Zapier (automation) → Odoo (business ops)
 4. **Remember branch strategy:** Push directly to main (Zapier watches main only)
-5. **Use MCP tools:** filesystem, github, zapier (don't ask user to do things manually)
-6. **Check for open issues:** User may mention problems with specific phase
-7. **Test before deploying:** If making code changes, verify logic before pushing to main
+5. **Use `gh api` for GitHub:** PowerShell scripts, NOT git commands
+6. **Testing workflow:** YOU create/cleanup test data via API (user never does this manually)
+7. **Test scripts available:** `test_create_workiz_job.py`, `test_cleanup_workiz_job.py`, `test_cleanup_odoo_data.py`
 8. **Document changes:** Update this file if architecture changes significantly
+
+**CRITICAL TESTING RULE:**
+When making code changes that need testing:
+- ✅ YOU create test data via API (Workiz/Odoo)
+- ✅ YOU cleanup test data via API
+- ❌ User NEVER manually creates/deletes test data
+- See `TEST_FRAMEWORK.md` for complete guide
 
 ---
 
