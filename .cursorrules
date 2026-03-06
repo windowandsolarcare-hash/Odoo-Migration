@@ -109,7 +109,34 @@ Available tools:
 - Never ask "would you like me to..." for things that are clearly part of the task — just do them
 - When done with a task, give a short summary: what changed, where it lives, next step
 
-## TESTING
-- Before deploying to main, summarize what the code does
-- Flag any potential issues or breaking changes
-- If modifying Zapier Python steps, note any dependencies on Zapier input/output fields
+## TESTING WORKFLOW — CRITICAL
+**When making code changes, YOU create and cleanup ALL test data via API**
+
+### Testing Process:
+1. Make code changes locally
+2. Push to GitHub main (using gh api workflow above)
+3. **YOU create test data via API** (don't ask user to do it):
+   - Workiz jobs: Use `test_create_workiz_job.py`
+   - Odoo data: Create via Odoo JSON-RPC API
+4. Trigger/monitor Zapier (webhook or manual)
+5. Verify results in Odoo/Workiz
+6. **YOU cleanup test data via API**:
+   - Workiz: Use `test_cleanup_workiz_job.py <uuid>`
+   - Odoo: Use `test_cleanup_odoo_data.py --so/--invoice/--payment`
+7. Report results to user
+
+### Why API-Based Test Data:
+- ✅ Tests FULL integration (Workiz → Zapier → Odoo)
+- ✅ Mimics real workflow (webhook triggers, etc.)
+- ❌ Don't create data directly in Odoo (skips integration)
+
+### User's Role in Testing:
+- Approve or reject test results ONLY
+- Never manually creates test data
+- Never manually deletes test data
+
+**Scripts Available:**
+- `2_Modular_Phase3_Components/test_create_workiz_job.py`
+- `2_Modular_Phase3_Components/test_cleanup_workiz_job.py`
+- `2_Modular_Phase3_Components/test_cleanup_odoo_data.py`
+- Documentation: `TEST_FRAMEWORK.md`
