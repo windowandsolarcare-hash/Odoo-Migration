@@ -203,6 +203,7 @@ CLAUDE_CONTEXT.md                     - This file
 
 ## 🔧 DEVELOPMENT WORKFLOW
 
+**CRITICAL: We use `gh` (GitHub CLI), NOT `git` commands!**
 **Golden Rule: Code lives in GitHub, NOT in Zapier UI!**
 
 ### Making Code Changes:
@@ -210,26 +211,41 @@ CLAUDE_CONTEXT.md                     - This file
 1. **Edit locally:** Open file in Cursor (e.g., `zapier_phase5_FLATTENED_FINAL.py`)
 2. **Make changes:** Add features, fix bugs, update logic
 3. **Test if possible:** Create test script (e.g., `test_phase5_alternating.py`)
-4. **Push to GitHub main:**
+4. **Push to GitHub main using `gh api`:**
    ```powershell
-   # Create push script
+   $repo = "windowandsolarcare-hash/Odoo-Migration"
    $filePath = "2_Modular_Phase3_Components/zapier_phase5_FLATTENED_FINAL.py"
-   $sha = gh api "repos/windowandsolarcare-hash/Odoo-Migration/contents/$filePath" --jq '.sha'
+   $date = Get-Date -Format "yyyy-MM-dd"
+   
+   # Get current SHA (for existing files)
+   $sha = gh api "repos/$repo/contents/$filePath" --jq '.sha' 2>&1
+   if ($LASTEXITCODE -eq 0) { $sha = $sha.Trim() }
+   
+   # Convert file to base64
+   $localFile = "C:\Users\dj\Documents\Business\A Window and Solar Care\Migration to Odoo\$filePath"
    $content = Get-Content $localFile -Raw -Encoding UTF8
    $bytes = [System.Text.Encoding]::UTF8.GetBytes($content)
    $base64 = [System.Convert]::ToBase64String($bytes)
    
-   $payload = @{
-       message = "Description of change"
-       content = $base64
-       sha = $sha.Trim()
-       branch = "main"
-   } | ConvertTo-Json
+   # Create payload (include SHA for existing files)
+   if ($LASTEXITCODE -eq 0) {
+       $payload = @{message = "$date | phase5 | Fix description"; content = $base64; sha = $sha; branch = "main"} | ConvertTo-Json -Depth 10
+   } else {
+       $payload = @{message = "$date | phase5 | Fix description"; content = $base64; branch = "main"} | ConvertTo-Json -Depth 10
+   }
    
-   $payload | gh api "repos/windowandsolarcare-hash/Odoo-Migration/contents/$filePath" --method PUT --input -
+   # Push to GitHub
+   $payload | gh api "repos/$repo/contents/$filePath" --method PUT --input -
    ```
 5. **Zapier auto-updates:** Next trigger fetches new code from main
 6. **No Zapier UI changes needed** (unless input field mappings change)
+
+**Why `gh` and not `git`?**
+- ✅ Works without local git repository initialization
+- ✅ Uses GitHub REST API directly
+- ✅ No need for git install, git config, or SSH keys
+- ✅ Simple PowerShell scripts for each push
+- ✅ Same workflow used for ALL file pushes (phases, docs, planning, etc.)
 
 ### When to Update Zapier UI:
 
@@ -276,29 +292,39 @@ CLAUDE_CONTEXT.md                     - This file
 
 ## 🌿 BRANCH WORKFLOW
 
-**CRITICAL:** Zapier watches `main` branch ONLY.
+**CRITICAL: Zapier watches `main` branch ONLY.**
+**CRITICAL: We use `gh` (GitHub CLI), NOT `git` commands!**
 
 **Current Workflow (Direct to Main):**
 1. **Edit files locally** (e.g., `zapier_phase5_FLATTENED_FINAL.py`)
-2. **Push directly to main** using `gh api` PowerShell scripts
+2. **Push directly to main** using `gh api` PowerShell scripts (see above)
 3. **Zapier auto-fetches** latest code on next run
-4. **No dev branch** for Zapier scripts (user preference)
+4. **No dev branch, no git repo** (we use GitHub REST API via `gh`)
 
 **Why Direct to Main?**
 - Zapier fetches from GitHub on **every single run** (via `urllib.request.urlopen()`)
 - Changes are immediate but safe (only affect next trigger, not mid-run)
 - Easy rollback: Revert GitHub commit → Zapier uses old version
 - No merge/deploy step needed (Zapier IS the deployment)
+- No git installation or repository initialization required
 
-**When to Use Dev Branch:**
-- Major architectural refactoring
-- Multi-file changes that must be atomic
-- Experimental features that shouldn't hit production
+**Why `gh` CLI Instead of `git`?**
+- ✅ **git not installed** on this system (and doesn't need to be)
+- ✅ **gh CLI** (GitHub CLI) is installed and works via REST API
+- ✅ No need for local git repo, git config, or SSH keys
+- ✅ Direct file push via `gh api repos/.../contents/path --method PUT`
+- ✅ Same workflow for everything: phases, docs, planning folders, etc.
 
-**Rollback Process:**
-- Get previous commit SHA: `gh api repos/.../commits --jq '.[:10]'`
-- Fetch old file: `gh api repos/.../contents/path?ref=SHA`
-- Push old version back to main with message: "Rollback to version before X"
+**Rollback Process (using `gh api`):**
+```powershell
+# Get previous commits
+gh api repos/windowandsolarcare-hash/Odoo-Migration/commits --jq '.[:10] | .[] | {sha: .sha[:7], message: .commit.message}'
+
+# Fetch old file version
+gh api repos/windowandsolarcare-hash/Odoo-Migration/contents/path/to/file.py?ref=COMMIT_SHA --jq '.content' | base64 -d > file.py
+
+# Push back to main using normal workflow (see above)
+```
 
 **Commit Message Format:**
 ```
@@ -306,6 +332,16 @@ YYYY-MM-DD | filename | what changed and why
 ```
 
 Example: `2026-03-05 | zapier_phase5 | Fix alternating line items - match by job type`
+
+**Deployed Files (as of 2026-03-05):**
+- ✅ zapier_phase3_FLATTENED_FINAL.py
+- ✅ zapier_phase4_FLATTENED_FINAL.py
+- ✅ zapier_phase5_FLATTENED_FINAL.py
+- ✅ zapier_phase6_FLATTENED_FINAL.py
+- ✅ CLAUDE_CONTEXT.md
+- ✅ .cursorrules
+- ✅ planning/BUSINESS_WORKFLOW.md
+- ✅ planning/Gap_Analysis_Complete_Workflow.md
 
 ---
 
