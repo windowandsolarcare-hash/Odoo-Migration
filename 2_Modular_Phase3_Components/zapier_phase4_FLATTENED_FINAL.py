@@ -20,9 +20,9 @@ Features:
 - When status = "Done": does NOT write payment fields to Odoo (payment originates in Odoo via Phase 6A)
 - Updates Property "Last Visit Date" when done
 - NEW (2026-03-06): Analyzes SO products and updates Property service tracking fields:
-  - x_has_window_service (Checkbox, cumulative: set to True if windows detected, never set to False)
-  - x_has_solar_service (Checkbox, cumulative: set to True if solar detected, never set to False)
-  - x_most_recent_service_type (Selection: 'windows', 'solar', 'both', 'other' - updated each job)
+  - x_studio_has_window_service (Checkbox, cumulative: set to True if windows detected, never set to False)
+  - x_studio_has_solar_service (Checkbox, cumulative: set to True if solar detected, never set to False)
+  - x_studio_most_recent_service_type (Selection: 'windows', 'solar', 'both', 'other' - updated each job)
 - NEW (2026-03-06): Updates Contact's x_studio_last_visit_all_properties with MAX last visit date across all properties
 - Posts status updates to SO chatter (no payment-status line when Done)
 
@@ -996,13 +996,13 @@ def update_property_fields(property_id, gate_code=None, pricing=None, last_visit
     
     # NEW: Service tracking fields
     if has_window is not None:
-        updates['x_has_window_service'] = has_window
+        updates['x_studio_has_window_service'] = has_window
     
     if has_solar is not None:
-        updates['x_has_solar_service'] = has_solar
+        updates['x_studio_has_solar_service'] = has_solar
     
     if most_recent_service_type is not None:
-        updates['x_most_recent_service_type'] = most_recent_service_type
+        updates['x_studio_most_recent_service_type'] = most_recent_service_type
     
     if job_notes or comments:
         combined_notes = ""
@@ -2025,11 +2025,11 @@ def update_property_from_job(property_id, workiz_job, so_id=None, is_done=False)
             # Set flags: if THIS order has the service, mark as True (never set to False - all-time flags)
             if has_window_flag:
                 has_window = True
-                print(f"[*] Window service detected - setting x_has_window_service = True")
+                print(f"[*] Window service detected - setting x_studio_has_window_service = True")
             
             if has_solar_flag:
                 has_solar = True
-                print(f"[*] Solar service detected - setting x_has_solar_service = True")
+                print(f"[*] Solar service detected - setting x_studio_has_solar_service = True")
             
             # Always update most recent service type (this changes with each job)
             most_recent_service_type = service_type
