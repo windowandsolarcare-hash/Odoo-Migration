@@ -71,6 +71,9 @@ current_date = now_pst.strftime('%m/%d/%Y')
 
 # --- MAIN PROCESSING LOOP ---
 for source_order in records:
+    # DEBUG: Post to chatter to confirm LAUNCH script is running
+    source_order.message_post(body="[DEBUG] LAUNCH script started - creating opportunity and triggering webhook...")
+    
     prop_record = source_order.partner_shipping_id
     contact = prop_record.parent_id if prop_record.parent_id else prop_record
     
@@ -185,6 +188,7 @@ for source_order in records:
     # Build Calendly URL with prefilled data
     cal_url = f"https://calendly.com/wasc/{city_slug}?name={name_encoded}&a1={address_encoded}"
 
+    # --- MESSAGE BODY ---
     message_body = f"""Hi {first_name}, I hope all is well. It's Window & Solar Care.
 
 We last serviced your home on {most_recent_visit_date}. It's been a while and we'd love to stop by again!
@@ -200,15 +204,57 @@ Or reply to this text and we will reply back with a date and time.
 Dan Saunders
 Window & Solar Care
 855-245-2273
-Reply STOP to unsubscribe"""
+Text STOP to opt out"""
 
-    source_order.message_post(body=f"📝 **PREVIEW MODE**\n\n{message_body}\n\n---\n*To send, use the 'LAUNCH Reactivation' button.*")
+    # --- CREATE NEW OPPORTUNITY ---
+    try:
+        opportunity_description = f"""--- CALCULATED PRICE LIST ---
+{services_text_block}
+
+--- SYSTEM REFERENCE DATA ---
+Source Order: {source_order.name}
+Source Order ID: {source_order.id}
+Primary Service: {primary_service_str}"""
+        
+        opportunity_vals = {
+            'name': f"Reactivation Campaign - {full_name} - {current_date}",
+            'partner_id': contact.id,
+            'stage_id': reactivation_stage_id,
+            'type': 'opportunity',
+            'campaign_id': 1,
+            'expected_revenue': total_expected_revenue,
+            'description': opportunity_description,
+            'x_primary_service': primary_service_str,
+            'x_price_list_text': services_text_block,
+            x_odoo_contact_id_field: contact.id,
+            x_historical_workiz_uuid_field: workiz_uuid,
+            x_workiz_graveyard_link_field: '',
+            x_workiz_graveyard_uuid_field: '',
+        }
+        
+        new_opportunity = env['crm.lead'].create(opportunity_vals)
+        opportunity_id = new_opportunity.id
+        
+        # Post SMS message to Opportunity chatter
+        new_opportunity.message_post(body=message_body)
+        
+        # Update contact's last reactivation sent date
+        contact.write({'x_studio_last_reactivation_sent': current_date})
+        
+        # Log success message
+        source_order.message_post(body=f"✅ Created Opportunity #{opportunity_id} for {full_name} with expected revenue: ${total_expected_revenue:.2f}")
+        
+    except Exception as e:
+        source_order.message_post(body=f"⚠️ Error: Failed to create opportunity. Error: {e}")
+        continue
     
-    # --- THIS IS THE FIX ---
-    # This action tells the Odoo web client to reload the current view.
-    # It is the most reliable way to show updated data.
-    action = {
-        'type': 'ir.actions.client',
-        'tag': 'reload_context',
-    }
+    # --- NEW WEBHOOK LAUNCH ---
+    try:
+        final_url = f"{base_zapier_url}?opportunity_id={opportunity_id}"
+        
+        action = {'type': 'ir.actions.act_url', 'url': final_url, 'target': 'new'}
+        
+    except Exception as e:
+        source_order.message_post(body=f"⚠️ Error: Failed to trigger webhook. Error: {e}")
+    
     break
