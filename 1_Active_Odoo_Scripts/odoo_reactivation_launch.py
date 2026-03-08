@@ -270,17 +270,36 @@ Primary Service: {primary_service_str}"""
         source_order.message_post(body=f"⚠️ Error: Failed to create opportunity. Error: {e}")
         continue
     
-    # --- NEW WEBHOOK LAUNCH ---
+    # --- DIRECT WORKIZ API CALL (NO ZAPIER) ---
     try:
-        final_url = f"{base_zapier_url}?opportunity_id={opportunity_id}"
+        source_order.message_post(body=f"[DEBUG] Fetching Workiz integration code from GitHub...")
         
-        source_order.message_post(body=f"[DEBUG] Triggering webhook: {final_url}")
+        # Fetch and execute GitHub script directly
+        import urllib.request
+        github_url = 'https://raw.githubusercontent.com/windowandsolarcare-hash/Odoo-Migration/main/2_Modular_Phase3_Components/odoo_workiz_reactivation_direct.py'
+        script_code = urllib.request.urlopen(github_url).read().decode()
         
-        action = {'type': 'ir.actions.act_url', 'url': final_url, 'target': 'new'}
+        source_order.message_post(body=f"[DEBUG] Executing Workiz integration...")
         
-        source_order.message_post(body=f"[DEBUG] Webhook action created - should open new tab")
+        # Execute the script (it has access to env, datetime, requests)
+        exec(script_code, globals())
+        
+        # Call the main function
+        result = execute_reactivation(
+            opportunity_id=opportunity_id,
+            historical_uuid=workiz_uuid,
+            message_body=message_body,
+            contact_id=contact.id,
+            source_order_num=source_order.name,
+            source_order_id=source_order.id
+        )
+        
+        if result.get('success'):
+            source_order.message_post(body=f"✅ Workiz Integration Complete: {result.get('graveyard_link', '')}")
+        else:
+            source_order.message_post(body=f"⚠️ Workiz Integration Failed: {result.get('message', 'Unknown error')}")
         
     except Exception as e:
-        source_order.message_post(body=f"⚠️ Error: Failed to trigger webhook. Error: {e}")
+        source_order.message_post(body=f"⚠️ Error: Failed to execute Workiz integration. Error: {e}")
     
     break
