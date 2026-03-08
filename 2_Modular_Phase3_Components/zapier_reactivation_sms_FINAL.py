@@ -677,8 +677,6 @@ def main(input_data):
 # ZAPIER ENTRY POINT
 # ==============================================================================
 
-# When using exec() in Zapier, input_data is automatically provided by Zapier
-# from the "Input Data" section. Call main() and assign to output.
-# Zapier requires 'output' to be defined in the global scope.
-if 'input_data' in globals():
-    output = main(input_data)
+# NOTE: This script is designed to be executed via exec() in Zapier.
+# The Zapier code should explicitly call main(input_data) and return the result.
+# Do NOT auto-execute here - let Zapier control execution.
