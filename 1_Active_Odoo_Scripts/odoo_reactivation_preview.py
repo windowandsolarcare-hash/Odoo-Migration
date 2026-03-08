@@ -11,25 +11,26 @@ for source_order in records:
     prop_record = source_order.partner_shipping_id
     contact = prop_record.parent_id if prop_record.parent_id else prop_record
     
-    contact_vals = contact.read(['phone', 'name', 'street', 'city'])[0]
+    contact_vals = contact.read(['phone', 'name', 'street', 'city', 'x_studio_last_visit_all_properties'])[0]
     if not contact_vals.get('phone'):
         continue
         
     full_name = contact_vals.get('name') or "Client"
     first_name = full_name.split()[0]
     
-    all_orders = env['sale.order'].search([('partner_id', '=', contact.id), ('state', 'in', ['sale', 'done'])], order='date_order desc')
-    detected_services = {} 
+    # Use Contact's aggregated last visit date (Phase 4 maintains this)
     most_recent_visit_date = "recently"
+    last_visit = contact_vals.get('x_studio_last_visit_all_properties')
+    if last_visit:
+        if isinstance(last_visit, str):
+            from datetime import datetime as dt
+            last_visit = dt.strptime(last_visit, '%Y-%m-%d').date()
+        most_recent_visit_date = last_visit.strftime("%a %b %d, %Y")
     
-    if all_orders:
-        anchor_order = all_orders[0]
-        for o in all_orders:
-            if o.amount_total > 0:
-                anchor_order = o
-                break
-        if anchor_order.date_order:
-            most_recent_visit_date = anchor_order.date_order.strftime("%a %b %d, %Y")
+    # Get all properties for this contact to analyze service history
+    all_properties = env['res.partner'].search([('parent_id', '=', contact.id), ('x_studio_x_studio_record_category', '=', 'Property')])
+    all_orders = env['sale.order'].search([('partner_shipping_id', 'in', all_properties.ids), ('state', 'in', ['sale', 'done'])], order='date_order desc')
+    detected_services = {}
 
         for o in all_orders:
             order_year = o.date_order.year if o.date_order else (current_year - 1)
@@ -41,21 +42,29 @@ for source_order in records:
                 if product_name not in detected_services:
                     detected_services[product_name] = {'base_price': line.price_subtotal, 'last_seen_year': order_year, 'name_display': product_name}
 
-    service_lines = []
+    # Default service if none detected
     if not detected_services:
         detected_services["Window Cleaning"] = {'base_price': 150.0, 'last_seen_year': current_year - 1, 'name_display': "Window Cleaning"}
 
+    # --- REVENUE CALCULATION & PRICE ENGINE ---
+    service_lines = []
+    
     for k, data in detected_services.items():
         base_price = data['base_price']
         is_solar = "solar" in data['name_display'].lower()
+        
         if is_solar:
             final_price = int(base_price)
         else:
             years_elapsed = current_year - data['last_seen_year']
-            if years_elapsed < 1: years_elapsed = 1
+            if years_elapsed < 1: 
+                years_elapsed = 1
             compounded_amount = base_price * (1.05 ** years_elapsed)
             final_price = int(5 * round(compounded_amount / 5))
-        if final_price < 85: final_price = 85
+        
+        if final_price < 85: 
+            final_price = 85
+        
         service_lines.append(f"• {data['name_display']}: ${final_price}")
 
     services_text_block = "\n".join(service_lines)
