@@ -23,7 +23,11 @@ for source_order in records:
     last_visit = contact_vals.get('x_studio_last_visit_all_properties')
     if last_visit:
         if isinstance(last_visit, str):
-            last_visit = datetime.datetime.strptime(last_visit, '%Y-%m-%d').date()
+            # Try both date formats (ISO and US)
+            try:
+                last_visit = datetime.datetime.strptime(last_visit, '%Y-%m-%d').date()
+            except ValueError:
+                last_visit = datetime.datetime.strptime(last_visit, '%m/%d/%Y').date()
         most_recent_visit_date = last_visit.strftime("%a %b %d, %Y")
     
     # Get all properties for this contact to analyze service history
