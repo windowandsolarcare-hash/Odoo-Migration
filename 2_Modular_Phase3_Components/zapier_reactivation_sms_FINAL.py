@@ -137,7 +137,7 @@ def get_opportunity_details(opportunity_id):
             "name", "contact_name", "phone", "email_from", "email_normalized",
             "city", "country_id", "company_id", "state_id", "description",
             "x_historical_workiz_uuid", "x_primary_service", "x_odoo_contact_id",
-            "campaign_id", "x_studio_source_order", "x_studio_prices_per_service"
+            "x_price_list_text", "campaign_id"
         ],
         limit=1
     )
@@ -576,9 +576,11 @@ def main(input_data):
     
     contact_id = opportunity.get('x_odoo_contact_id')
     historical_uuid = opportunity.get('x_historical_workiz_uuid')
-    source_order_text = opportunity.get('x_studio_source_order', '')
     description = opportunity.get('description', '')
-    price_list = opportunity.get('x_studio_prices_per_service', '')
+    price_list = opportunity.get('x_price_list_text', '')
+    
+    # Source order info is in the description field (from Odoo script)
+    source_order_text = description
     campaign = extract_campaign_info(opportunity.get('campaign_id'))
     
     print(f"[*] Contact ID: {contact_id}")
