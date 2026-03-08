@@ -6,8 +6,9 @@
 # Copy/paste this entire file into your "Reactivation: 2. LAUNCH Campaign" Server Action
 
 # --- CONFIGURATION ---
-WORKIZ_BASE_URL = "https://api.workiz.com/api/v1"
+WORKIZ_API_TOKEN = "api_1hu6lroiy5zxomcpptuwsg8heju97iwg"
 WORKIZ_AUTH_SECRET = "sec_bca8dd70aeca1c1ebe0ecd38e15b8d68"
+WORKIZ_BASE_URL = f"https://api.workiz.com/api/v1/{WORKIZ_API_TOKEN}"
 
 # History log configuration
 history_table_name = 'x_crm_activity_log_ids' 
