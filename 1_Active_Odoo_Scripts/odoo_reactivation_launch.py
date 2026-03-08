@@ -67,7 +67,8 @@ base_zapier_url = "https://hooks.zapier.com/hooks/catch/9761276/ugeosmk/"
 now_utc = datetime.datetime.now()
 now_pst = now_utc - datetime.timedelta(hours=8)
 current_year = now_pst.year
-current_date = now_pst.strftime('%m/%d/%Y')
+current_date_display = now_pst.strftime('%m/%d/%Y')  # For display in opportunity name
+current_date_iso = now_pst.strftime('%Y-%m-%d')  # For Odoo date fields
 
 # --- MAIN PROCESSING LOOP ---
 for source_order in records:
@@ -232,7 +233,7 @@ Source Order ID: {source_order.id}
 Primary Service: {primary_service_str}"""
         
         opportunity_vals = {
-            'name': f"Reactivation Campaign - {full_name} - {current_date}",
+            'name': f"Reactivation Campaign - {full_name} - {current_date_display}",
             'partner_id': contact.id,
             'stage_id': reactivation_stage_id,
             'type': 'opportunity',
@@ -259,8 +260,8 @@ Primary Service: {primary_service_str}"""
         new_opportunity.message_post(body=message_body)
         
         # Update contact's last reactivation sent date
-        source_order.message_post(body=f"[DEBUG] Updating contact reactivation date: {current_date}")
-        contact.write({'x_studio_last_reactivation_sent': current_date})
+        source_order.message_post(body=f"[DEBUG] Updating contact reactivation date: {current_date_iso}")
+        contact.write({'x_studio_last_reactivation_sent': current_date_iso})
         
         # Log success message
         source_order.message_post(body=f"✅ Created Opportunity #{opportunity_id} for {full_name} with expected revenue: ${total_expected_revenue:.2f}")
