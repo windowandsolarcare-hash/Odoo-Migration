@@ -220,22 +220,22 @@ Primary Service: {primary_service_str}"""
         # STEP 1: Get historical Workiz job
         source_order.message_post(body=f"[DEBUG] Fetching historical job: {workiz_uuid}")
         
-        get_payload = {
-            "auth_secret": WORKIZ_AUTH_SECRET,
-            "UUID": workiz_uuid
-        }
+        hist_url = f"{WORKIZ_BASE_URL}/job/get/{workiz_uuid}/?auth_secret={WORKIZ_AUTH_SECRET}"
         
-        hist_response = requests.post(f"{WORKIZ_BASE_URL}/job/get/", json=get_payload, timeout=10)
+        hist_response = requests.get(hist_url, timeout=10)
         
         if hist_response.status_code != 200:
             source_order.message_post(body=f"⚠️ Failed to fetch historical job (HTTP {hist_response.status_code})")
             continue
         
         hist_result = hist_response.json()
-        if isinstance(hist_result, list) and len(hist_result) > 0:
-            historical_job = hist_result[0]
+        hist_data = hist_result.get('data', [])
+        
+        if hist_data and len(hist_data) > 0:
+            historical_job = hist_data[0]
         else:
-            historical_job = hist_result
+            source_order.message_post(body=f"⚠️ Historical job returned empty data")
+            continue
         
         source_order.message_post(body=f"[DEBUG] Historical job found")
         
