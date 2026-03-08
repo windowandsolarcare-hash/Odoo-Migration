@@ -7,6 +7,11 @@
 now = datetime.datetime.now()
 current_year = now.year
 
+# DEBUG: Log which script is running
+for source_order in records:
+    source_order.message_post(body="[DEBUG] PREVIEW script is running (not Launch)")
+    break
+
 for source_order in records:
     prop_record = source_order.partner_shipping_id
     contact = prop_record.parent_id if prop_record.parent_id else prop_record
