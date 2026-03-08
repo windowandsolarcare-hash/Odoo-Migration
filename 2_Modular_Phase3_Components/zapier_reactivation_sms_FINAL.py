@@ -331,7 +331,20 @@ def create_graveyard_job(historical_job, sms_message):
             # For HTTP 200, response contains UUID
             if response.status_code == 200:
                 result = response.json()
-                uuid = result.get('data', {}).get('UUID')
+                
+                # Handle both list and dict responses from Workiz
+                if isinstance(result, list):
+                    # If it's a list, take the first item
+                    if len(result) > 0 and isinstance(result[0], dict):
+                        uuid = result[0].get('UUID')
+                    else:
+                        uuid = None
+                elif isinstance(result, dict):
+                    # If it's a dict, navigate to data.UUID
+                    uuid = result.get('data', {}).get('UUID') or result.get('UUID')
+                else:
+                    uuid = None
+                
                 if uuid:
                     print(f"[*] Graveyard UUID: {uuid}")
                     return uuid
