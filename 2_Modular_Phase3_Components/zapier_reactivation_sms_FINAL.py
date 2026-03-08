@@ -30,6 +30,7 @@ import requests
 import json
 from datetime import datetime
 import re
+import time
 
 # ==============================================================================
 # CONFIGURATION & CREDENTIALS
@@ -638,6 +639,10 @@ def main(input_data):
         }
     
     print(f"[*] Graveyard job created: {graveyard_uuid}")
+    
+    # Wait for Workiz to fully commit the job before updating status
+    print("[*] Waiting 3 seconds for Workiz to commit job...")
+    time.sleep(3)
     
     # STEP 12: Trigger SMS by updating status
     sms_triggered = trigger_workiz_sms(graveyard_uuid)
