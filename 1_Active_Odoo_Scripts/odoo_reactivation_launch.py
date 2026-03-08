@@ -74,16 +74,26 @@ for source_order in records:
     prop_record = source_order.partner_shipping_id
     contact = prop_record.parent_id if prop_record.parent_id else prop_record
     
-    contact_vals = contact.read(['phone', 'name', 'street', 'city'])[0]
+    contact_vals = contact.read(['phone', 'name', 'street', 'city', 'x_studio_last_visit_all_properties'])[0]
     if not contact_vals.get('phone'):
         continue
         
     full_name = contact_vals.get('name') or "Client"
     first_name = full_name.split()[0]
     
-    all_orders = env['sale.order'].search([('partner_id', '=', contact.id), ('state', 'in', ['sale', 'done'])], order='date_order desc')
-    detected_services = {} 
+    # Use Contact's aggregated last visit date (Phase 4 maintains this)
     most_recent_visit_date = "recently"
+    last_visit = contact_vals.get('x_studio_last_visit_all_properties')
+    if last_visit:
+        if isinstance(last_visit, str):
+            from datetime import datetime as dt
+            last_visit = dt.strptime(last_visit, '%Y-%m-%d').date()
+        most_recent_visit_date = last_visit.strftime("%a %b %d, %Y")
+    
+    # Get all properties for this contact to analyze service history
+    all_properties = env['res.partner'].search([('parent_id', '=', contact.id), ('x_studio_x_studio_record_category', '=', 'Property')])
+    all_orders = env['sale.order'].search([('partner_shipping_id', 'in', all_properties.ids), ('state', 'in', ['sale', 'done'])], order='date_order desc')
+    detected_services = {} 
     workiz_uuid = "NO_UUID_FOUND"
     
     # --- SERVICE DETECTION & HISTORY ANALYSIS ---
@@ -93,8 +103,6 @@ for source_order in records:
             if o.amount_total > 0:
                 anchor_order = o
                 break
-        if anchor_order.date_order:
-            most_recent_visit_date = anchor_order.date_order.strftime("%a %b %d, %Y")
         
         target_uuid_field = 'x_studio_x_studio_workiz_uuid'
         if target_uuid_field in anchor_order._fields:
