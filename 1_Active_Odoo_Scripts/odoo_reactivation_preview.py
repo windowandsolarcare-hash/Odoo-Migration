@@ -31,40 +31,32 @@ for source_order in records:
     all_properties = env['res.partner'].search([('parent_id', '=', contact.id), ('x_studio_x_studio_record_category', '=', 'Property')])
     all_orders = env['sale.order'].search([('partner_shipping_id', 'in', all_properties.ids), ('state', 'in', ['sale', 'done'])], order='date_order desc')
     detected_services = {}
-
-        for o in all_orders:
-            order_year = o.date_order.year if o.date_order else (current_year - 1)
-            for line in o.order_line:
-                product_name = line.product_id.name if line.product_id else line.name.split('\n')[0]
-                clean_name = product_name.lower()
-                if any(x in clean_name for x in ['tip', 'discount', 'legacy', 'quote']):
-                    continue
-                if product_name not in detected_services:
-                    detected_services[product_name] = {'base_price': line.price_subtotal, 'last_seen_year': order_year, 'name_display': product_name}
-
-    # Default service if none detected
+    
+    for o in all_orders:
+        order_year = o.date_order.year if o.date_order else (current_year - 1)
+        for line in o.order_line:
+            product_name = line.product_id.name if line.product_id else line.name.split('\n')[0]
+            clean_name = product_name.lower()
+            if any(x in clean_name for x in ['tip', 'discount', 'legacy', 'quote']):
+                continue
+            if product_name not in detected_services:
+                detected_services[product_name] = {'base_price': line.price_subtotal, 'last_seen_year': order_year, 'name_display': product_name}
+    
+    service_lines = []
     if not detected_services:
         detected_services["Window Cleaning"] = {'base_price': 150.0, 'last_seen_year': current_year - 1, 'name_display': "Window Cleaning"}
 
-    # --- REVENUE CALCULATION & PRICE ENGINE ---
-    service_lines = []
-    
     for k, data in detected_services.items():
         base_price = data['base_price']
         is_solar = "solar" in data['name_display'].lower()
-        
         if is_solar:
             final_price = int(base_price)
         else:
             years_elapsed = current_year - data['last_seen_year']
-            if years_elapsed < 1: 
-                years_elapsed = 1
+            if years_elapsed < 1: years_elapsed = 1
             compounded_amount = base_price * (1.05 ** years_elapsed)
             final_price = int(5 * round(compounded_amount / 5))
-        
-        if final_price < 85: 
-            final_price = 85
-        
+        if final_price < 85: final_price = 85
         service_lines.append(f"• {data['name_display']}: ${final_price}")
 
     services_text_block = "\n".join(service_lines)
