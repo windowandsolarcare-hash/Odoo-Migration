@@ -78,7 +78,11 @@ for source_order in records:
     contact = prop_record.parent_id if prop_record.parent_id else prop_record
     
     contact_vals = contact.read(['phone', 'name', 'street', 'city', 'x_studio_last_visit_all_properties'])[0]
+    
+    source_order.message_post(body=f"[DEBUG] Contact read complete: {contact_vals.get('name')}")
+    
     if not contact_vals.get('phone'):
+        source_order.message_post(body="[DEBUG] No phone - skipping")
         continue
         
     full_name = contact_vals.get('name') or "Client"
@@ -87,14 +91,23 @@ for source_order in records:
     # Use Contact's aggregated last visit date (Phase 4 maintains this)
     most_recent_visit_date = "recently"
     last_visit = contact_vals.get('x_studio_last_visit_all_properties')
+    
+    source_order.message_post(body=f"[DEBUG] Last visit raw value: {last_visit} (type: {type(last_visit).__name__})")
+    
     if last_visit:
         if isinstance(last_visit, str):
             # Try both date formats (ISO and US)
             try:
                 last_visit = datetime.datetime.strptime(last_visit, '%Y-%m-%d').date()
+                source_order.message_post(body=f"[DEBUG] Parsed date ISO format: {last_visit}")
             except ValueError:
-                last_visit = datetime.datetime.strptime(last_visit, '%m/%d/%Y').date()
-        most_recent_visit_date = last_visit.strftime("%a %b %d, %Y")
+                try:
+                    last_visit = datetime.datetime.strptime(last_visit, '%m/%d/%Y').date()
+                    source_order.message_post(body=f"[DEBUG] Parsed date US format: {last_visit}")
+                except ValueError as e:
+                    source_order.message_post(body=f"[DEBUG] Date parse failed: {e}")
+                    last_visit = None
+        most_recent_visit_date = last_visit.strftime("%a %b %d, %Y") if last_visit else "recently"
     
     # Get all properties for this contact to analyze service history
     all_properties = env['res.partner'].search([('parent_id', '=', contact.id), ('x_studio_x_studio_record_category', '=', 'Property')])
@@ -208,6 +221,8 @@ Text STOP to opt out"""
 
     # --- CREATE NEW OPPORTUNITY ---
     try:
+        source_order.message_post(body=f"[DEBUG] Starting opportunity creation for {full_name}")
+        
         opportunity_description = f"""--- CALCULATED PRICE LIST ---
 {services_text_block}
 
@@ -232,13 +247,19 @@ Primary Service: {primary_service_str}"""
             x_workiz_graveyard_uuid_field: '',
         }
         
+        source_order.message_post(body=f"[DEBUG] Calling env['crm.lead'].create()...")
+        
         new_opportunity = env['crm.lead'].create(opportunity_vals)
         opportunity_id = new_opportunity.id
         
+        source_order.message_post(body=f"[DEBUG] Opportunity created: ID {opportunity_id}")
+        
         # Post SMS message to Opportunity chatter
+        source_order.message_post(body=f"[DEBUG] Posting SMS to opportunity chatter...")
         new_opportunity.message_post(body=message_body)
         
         # Update contact's last reactivation sent date
+        source_order.message_post(body=f"[DEBUG] Updating contact reactivation date: {current_date}")
         contact.write({'x_studio_last_reactivation_sent': current_date})
         
         # Log success message
@@ -246,13 +267,18 @@ Primary Service: {primary_service_str}"""
         
     except Exception as e:
         source_order.message_post(body=f"⚠️ Error: Failed to create opportunity. Error: {e}")
+        source_order.message_post(body=f"[DEBUG] Exception details: {type(e).__name__} at line where error occurred")
         continue
     
     # --- NEW WEBHOOK LAUNCH ---
     try:
         final_url = f"{base_zapier_url}?opportunity_id={opportunity_id}"
         
+        source_order.message_post(body=f"[DEBUG] Triggering webhook: {final_url}")
+        
         action = {'type': 'ir.actions.act_url', 'url': final_url, 'target': 'new'}
+        
+        source_order.message_post(body=f"[DEBUG] Webhook action created - should open new tab")
         
     except Exception as e:
         source_order.message_post(body=f"⚠️ Error: Failed to trigger webhook. Error: {e}")
