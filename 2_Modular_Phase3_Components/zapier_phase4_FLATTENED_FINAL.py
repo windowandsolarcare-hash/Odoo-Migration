@@ -22,12 +22,16 @@ Features:
 - NEW (2026-03-06): Analyzes SO products and updates Property service tracking fields:
   - x_studio_has_window_service (Checkbox, cumulative: set to True if windows detected, never set to False)
   - x_studio_has_solar_service (Checkbox, cumulative: set to True if solar detected, never set to False)
-  - x_studio_most_recent_service_type (Selection: 'windows', 'solar', 'both', 'other' - updated each job)
-- NEW (2026-03-06): Updates Contact's x_studio_last_visit_all_properties with MAX last visit date across all properties
+  - x_studio_most_recent_service_type (Selection: 'windows', 'solar', 'both', 'other', blank - updated each job)
+- NEW (2026-03-06): Aggregates Property data to Contact level when job completes:
+  - Contact x_studio_last_visit_all_properties = MAX last visit date across all properties
+  - Contact x_studio_has_window_service = True if ANY property has window service
+  - Contact x_studio_has_solar_service = True if ANY property has solar service
+  - Contact x_studio_most_recent_service_type = from property with most recent visit
 - Posts status updates to SO chatter (no payment-status line when Done)
 
 Generated: 2026-02-07
-Updated: 2026-03-06 (Added service tracking + Contact last visit aggregation)
+Updated: 2026-03-06 (Added service tracking + Contact/Property aggregation)
 """
 
 import requests
@@ -209,6 +213,22 @@ def _odoo_search_read(model, domain, fields, limit=1):
         return r.json().get("result", [])
     except Exception:
         return []
+
+
+def _odoo_write(model, record_ids, values):
+    """Helper: write to Odoo records and return success boolean."""
+    payload = {
+        "jsonrpc": "2.0", "method": "call",
+        "params": {
+            "service": "object", "method": "execute_kw",
+            "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, model, "write", [record_ids, values]]
+        }
+    }
+    try:
+        r = requests.post(ODOO_URL, json=payload, timeout=10)
+        return r.json().get("result", False)
+    except Exception:
+        return False
 
 
 def _odoo_find_user_id_by_name(tech_name):
@@ -1996,6 +2016,64 @@ def update_contact_last_visit_all_properties(contact_id):
         return False
 
 
+def update_contact_service_fields(contact_id):
+    """
+    Aggregate service fields from ALL properties to Contact level.
+    - Has Window Service: True if ANY property has window service
+    - Has Solar Service: True if ANY property has solar service
+    - Most Recent Service Type: From property with most recent last visit
+    """
+    if not contact_id:
+        return
+    
+    print(f"[*] Updating Contact {contact_id} service fields...")
+    
+    # Find all properties for this contact
+    properties = _odoo_search_read(
+        "res.partner",
+        [["parent_id", "=", contact_id], ["type", "=", "other"]],
+        ["id", "x_studio_has_window_service", "x_studio_has_solar_service", 
+         "x_studio_most_recent_service_type", "x_studio_x_studio_last_property_visit"],
+        limit=500
+    )
+    
+    if not properties:
+        print(f"[*] No properties found for Contact {contact_id}")
+        return
+    
+    # Aggregate service flags (True if ANY property has it)
+    contact_has_window = False
+    contact_has_solar = False
+    most_recent_service_type = False  # Default to blank
+    most_recent_date = None
+    
+    for prop in properties:
+        if prop.get('x_studio_has_window_service'):
+            contact_has_window = True
+        if prop.get('x_studio_has_solar_service'):
+            contact_has_solar = True
+        
+        # Most recent service type: from property with latest visit
+        prop_service_type = prop.get('x_studio_most_recent_service_type')
+        prop_last_visit = prop.get('x_studio_x_studio_last_property_visit')
+        
+        if prop_service_type and prop_service_type != False and prop_last_visit:
+            if most_recent_date is None or prop_last_visit > most_recent_date:
+                most_recent_date = prop_last_visit
+                most_recent_service_type = prop_service_type
+    
+    # Update Contact
+    updates = {
+        'x_studio_has_window_service': contact_has_window,
+        'x_studio_has_solar_service': contact_has_solar,
+        'x_studio_most_recent_service_type': most_recent_service_type
+    }
+    
+    _odoo_write("res.partner", [contact_id], updates)
+    print(f"[OK] Contact {contact_id} service fields updated: window={contact_has_window}, solar={contact_has_solar}, type={most_recent_service_type}")
+    return True
+
+
 def update_property_from_job(property_id, workiz_job, so_id=None, is_done=False):
     """Update property fields from Workiz job data (including service tracking)."""
     gate_code = workiz_job.get('gate_code', '')
@@ -2040,14 +2118,18 @@ def update_property_from_job(property_id, workiz_job, so_id=None, is_done=False)
                           most_recent_service_type)
     print(f"[OK] Property {property_id} updated")
     
-    # NEW: Update Contact's last visit across ALL properties
-    if is_done and last_visit_date:
+    # NEW: Update Contact's aggregated fields across ALL properties
+    if is_done:
         # Get Contact ID from Property
         prop_data = _odoo_search_read("res.partner", [["id", "=", property_id]], ["parent_id"], limit=1)
         if prop_data and prop_data[0].get('parent_id'):
             contact_id = prop_data[0]['parent_id'][0] if isinstance(prop_data[0]['parent_id'], list) else prop_data[0]['parent_id']
             if contact_id:
-                update_contact_last_visit_all_properties(contact_id)
+                # Update last visit date across all properties
+                if last_visit_date:
+                    update_contact_last_visit_all_properties(contact_id)
+                # Update service fields across all properties
+                update_contact_service_fields(contact_id)
 
 
 # ==============================================================================
