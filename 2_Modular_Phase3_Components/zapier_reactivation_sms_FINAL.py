@@ -677,10 +677,8 @@ def main(input_data):
 # ZAPIER ENTRY POINT
 # ==============================================================================
 
-# When using exec() pattern in Zapier, define input_data before calling:
-# input_data = {'opportunity_id': opportunity_id}
-# output = main(input_data)
-
-# Check if running in Zapier context (input_data will be defined by Zapier code)
-if 'input_data' in dir():
+# When using exec() in Zapier, input_data is automatically provided by Zapier
+# from the "Input Data" section. Call main() and assign to output.
+# Zapier requires 'output' to be defined in the global scope.
+if 'input_data' in globals():
     output = main(input_data)
