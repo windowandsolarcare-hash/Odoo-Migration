@@ -304,7 +304,7 @@ def create_graveyard_job(historical_job, sms_message):
     job_data = {
         "auth_secret": WORKIZ_AUTH_SECRET,
         "ClientId": client_id,
-        "JobDateTime": "",  # Empty per original Zap (no scheduled date for reactivation lead)
+        # JobDateTime omitted entirely = unscheduled in Workiz
         "FirstName": historical_job.get("FirstName", ""),
         "LastName": historical_job.get("LastName", ""),
         "Address": historical_job.get("Address", ""),
