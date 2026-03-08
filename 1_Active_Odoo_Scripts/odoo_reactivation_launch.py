@@ -93,7 +93,7 @@ for source_order in records:
     most_recent_visit_date = "recently"
     last_visit = contact_vals.get('x_studio_last_visit_all_properties')
     
-    source_order.message_post(body=f"[DEBUG] Last visit raw value: {last_visit} (type: {type(last_visit).__name__})")
+    source_order.message_post(body=f"[DEBUG] Last visit raw value: {last_visit}")
     
     if last_visit:
         if isinstance(last_visit, str):
@@ -268,7 +268,6 @@ Primary Service: {primary_service_str}"""
         
     except Exception as e:
         source_order.message_post(body=f"⚠️ Error: Failed to create opportunity. Error: {e}")
-        source_order.message_post(body=f"[DEBUG] Exception details: {type(e).__name__} at line where error occurred")
         continue
     
     # --- NEW WEBHOOK LAUNCH ---
