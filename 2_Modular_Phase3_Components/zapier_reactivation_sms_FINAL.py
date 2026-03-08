@@ -677,6 +677,10 @@ def main(input_data):
 # ZAPIER ENTRY POINT
 # ==============================================================================
 
-# Zapier will pass input_data from webhook
-# Example: input_data = {"opportunity_id": "43"}
-output = main(input_data)
+# When using exec() pattern in Zapier, define input_data before calling:
+# input_data = {'opportunity_id': opportunity_id}
+# output = main(input_data)
+
+# Check if running in Zapier context (input_data will be defined by Zapier code)
+if 'input_data' in dir():
+    output = main(input_data)
