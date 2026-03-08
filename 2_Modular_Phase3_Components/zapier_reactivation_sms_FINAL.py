@@ -426,7 +426,7 @@ def trigger_workiz_sms(graveyard_uuid):
 
 def log_activity_to_odoo(contact_id, opportunity_id, source_order_num, source_order_id, 
                          description, campaign_name, current_date):
-    """Create CRM activity log record in Odoo (Phase 3/4 pattern)"""
+    """Create CRM activity log record in Odoo (reliable parent write pattern)"""
     
     if not contact_id:
         print("[WARNING] No contact_id, skipping activity log")
@@ -439,8 +439,8 @@ def log_activity_to_odoo(contact_id, opportunity_id, source_order_num, source_or
     except (ValueError, TypeError):
         order_id_int = False
     
+    # Activity log data (will be nested in parent write)
     activity_data = {
-        "x_odoo_contact_id": int(contact_id),
         "x_related_order_id": order_id_int,
         "x_activity_type": "reactivation_sent",
         "x_description": description or "",
@@ -449,11 +449,17 @@ def log_activity_to_odoo(contact_id, opportunity_id, source_order_num, source_or
         "x_campaign": campaign_name or ""
     }
     
-    result = _odoo_create("x_crm_activity_log", activity_data)
+    # RELIABLE PATTERN: Write to parent Contact using magic command [0, 0, {...}]
+    # This creates the related record and establishes the relationship correctly
+    contact_update = {
+        "x_crm_activity_log_ids": [[0, 0, activity_data]]
+    }
+    
+    result = _odoo_write("res.partner", [int(contact_id)], contact_update)
     
     if result:
-        print(f"[*] Activity logged: ID {result}")
-        return result
+        print(f"[*] Activity log created on Contact {contact_id}")
+        return True
     else:
         print("[ERROR] Failed to log activity")
         return None
