@@ -267,11 +267,17 @@ Primary Service: {primary_service_str}"""
         }
         
         source_order.message_post(body=f"[DEBUG] Creating graveyard job...")
+        source_order.message_post(body=f"[DEBUG] Request URL: {WORKIZ_BASE_URL}/job/create/")
+        source_order.message_post(body=f"[DEBUG] ClientId: {client_id}")
         
         create_response = requests.post(f"{WORKIZ_BASE_URL}/job/create/", json=graveyard_data, timeout=10)
         
+        source_order.message_post(body=f"[DEBUG] Create response status: {create_response.status_code}")
+        source_order.message_post(body=f"[DEBUG] Create response body: {create_response.text[:500]}")
+        
         if create_response.status_code not in [200, 204]:
             source_order.message_post(body=f"⚠️ Failed to create graveyard job (HTTP {create_response.status_code})")
+            source_order.message_post(body=f"[DEBUG] Full response: {create_response.text}")
             continue
         
         source_order.message_post(body=f"[DEBUG] Graveyard job created (HTTP {create_response.status_code})")
@@ -280,12 +286,18 @@ Primary Service: {primary_service_str}"""
         graveyard_uuid = None
         if create_response.status_code == 200:
             create_result = create_response.json()
+            source_order.message_post(body=f"[DEBUG] Response type: {type(create_result)}")
+            source_order.message_post(body=f"[DEBUG] Response content: {str(create_result)[:500]}")
             
             if isinstance(create_result, list):
+                source_order.message_post(body=f"[DEBUG] Response is list, length: {len(create_result)}")
                 if len(create_result) > 0 and isinstance(create_result[0], dict):
                     graveyard_uuid = create_result[0].get('UUID')
+                    source_order.message_post(body=f"[DEBUG] Extracted UUID from list[0]: {graveyard_uuid}")
             elif isinstance(create_result, dict):
+                source_order.message_post(body=f"[DEBUG] Response is dict, keys: {list(create_result.keys())}")
                 graveyard_uuid = create_result.get('data', {}).get('UUID') or create_result.get('UUID')
+                source_order.message_post(body=f"[DEBUG] Extracted UUID from dict: {graveyard_uuid}")
         
         if not graveyard_uuid:
             source_order.message_post(body="⚠️ Could not extract graveyard UUID from response")
@@ -294,7 +306,8 @@ Primary Service: {primary_service_str}"""
         source_order.message_post(body=f"[DEBUG] Graveyard UUID: {graveyard_uuid}")
         
         # STEP 3: Update status to trigger SMS
-        source_order.message_post(body=f"[DEBUG] Triggering SMS...")
+        source_order.message_post(body=f"[DEBUG] Triggering SMS for UUID: {graveyard_uuid}")
+        source_order.message_post(body=f"[DEBUG] Update URL: {WORKIZ_BASE_URL}/job/update/")
         
         status_payload = {
             "auth_secret": WORKIZ_AUTH_SECRET,
@@ -303,12 +316,18 @@ Primary Service: {primary_service_str}"""
             "SubStatus": "API SMS Test Trigger"
         }
         
+        source_order.message_post(body=f"[DEBUG] Status payload: {status_payload}")
+        
         status_response = requests.post(f"{WORKIZ_BASE_URL}/job/update/", json=status_payload, timeout=10)
+        
+        source_order.message_post(body=f"[DEBUG] Status update response: {status_response.status_code}")
+        source_order.message_post(body=f"[DEBUG] Status update body: {status_response.text[:500]}")
         
         if status_response.status_code == 200:
             source_order.message_post(body=f"[DEBUG] SMS triggered successfully")
         else:
             source_order.message_post(body=f"⚠️ SMS trigger failed (HTTP {status_response.status_code})")
+            source_order.message_post(body=f"[DEBUG] Full status response: {status_response.text}")
         
         # STEP 4: Update Opportunity with graveyard link
         graveyard_link = f"https://app.workiz.com/jobs/view/{graveyard_uuid}"
@@ -341,4 +360,5 @@ Primary Service: {primary_service_str}"""
     except Exception as e:
         source_order.message_post(body=f"⚠️ Workiz integration error: {e}")
     
+    # Break after first record (Server Actions process one selected record at a time)
     break
