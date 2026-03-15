@@ -3,6 +3,11 @@
 # Author: DJ Sanders
 # ============================================================
 
+## 🛑 CRITICAL STARTUP INSTRUCTION
+**AT THE START OF EVERY SESSION, YOU MUST READ `MASTER_PROJECT_CONTEXT.md`.**
+This file contains the "Technical Bible" (correct field names, API syntax) and the current project structure.
+Do NOT rely on `CLAUDE_CONTEXT.md` alone anymore.
+
 ## IDENTITY
 - You are an expert Python developer and automation engineer
 - You are working on the "Migration to Odoo" project for Window and Solar Care
@@ -16,13 +21,13 @@
 ### How to Push Files to GitHub:
 ```powershell
 $repo = "windowandsolarcare-hash/Odoo-Migration"
-$filePath = "path/to/file.py"  # Relative to repo root
+$filePath = "1_Production_Code/zapier_phase3_FLATTENED_FINAL.py" # Example path
 $date = Get-Date -Format "yyyy-MM-dd"
 
 # Step 1: Get current SHA (skip if new file)
 $sha = gh api "repos/$repo/contents/$filePath" --jq '.sha' 2>&1
 if ($LASTEXITCODE -eq 0) {
-    $sha = $sha.Trim()
+ $sha = $sha.Trim()
 }
 
 # Step 2: Convert file to base64
@@ -33,20 +38,20 @@ $base64 = [System.Convert]::ToBase64String($bytes)
 
 # Step 3: Create payload
 if ($LASTEXITCODE -eq 0) {
-    # Existing file - include SHA
-    $payload = @{
-        message = "$date | filename | description of change"
-        content = $base64
-        sha = $sha
-        branch = "main"
-    } | ConvertTo-Json -Depth 10
+ # Existing file - include SHA
+ $payload = @{
+ message = "$date | filename | description of change"
+ content = $base64
+ sha = $sha
+ branch = "main"
+ } | ConvertTo-Json -Depth 10
 } else {
-    # New file - no SHA
-    $payload = @{
-        message = "$date | filename | description of change"
-        content = $base64
-        branch = "main"
-    } | ConvertTo-Json -Depth 10
+ # New file - no SHA
+ $payload = @{
+ message = "$date | filename | description of change"
+ content = $base64
+ branch = "main"
+ } | ConvertTo-Json -Depth 10
 }
 
 # Step 4: Push to GitHub main
@@ -64,17 +69,17 @@ When modifying any Python file:
 
 ## ZAPIER INTEGRATION RULES
 - Zapier watches the `main` branch only
-- Python files for Zapier are located in: `2_Modular_Phase3_Components/`
+- Python files for Zapier are located in: `1_Production_Code/`
 - Key Zapier files:
-  - zapier_phase3_FLATTENED_FINAL.py
-  - zapier_phase4_FLATTENED_FINAL.py
-  - zapier_phase5_FLATTENED_FINAL.py
-  - zapier_phase6_FLATTENED_FINAL.py
+ - zapier_phase3_FLATTENED_FINAL.py
+ - zapier_phase4_FLATTENED_FINAL.py
+ - zapier_phase5_FLATTENED_FINAL.py
+ - zapier_phase6_FLATTENED_FINAL.py
 - When modifying Zapier Python code:
-  1. Modify locally first
-  2. Test logic if possible
-  3. Push to dev branch
-  4. Only push to main when user confirms deployment
+ 1. Modify locally first
+ 2. Test logic if possible
+ 3. Push to dev branch
+ 4. Only push to main when user confirms deployment
 - NEVER directly modify code inside Zapier's UI — always go through GitHub
 
 ## MCP TOOLS & GITHUB CLI
@@ -92,15 +97,17 @@ Available tools:
 
 ## GITHUB COMMIT STANDARDS
 - Always include in commit messages:
-  - What file was changed
-  - What was changed and why
-  - Date in format YYYY-MM-DD
+ - What file was changed
+ - What was changed and why
+ - Date in format YYYY-MM-DD
 - Example: "2026-03-04 | zapier_phase4 | Updated author to DJ Sanders"
 
 ## CODEBASE ORGANIZATION
-- Keep files organized in their existing phase folders
-- Do not move files without explicit instruction
-- When creating new files, ask which folder they belong in
+- **1_Production_Code/**: The 6 active scripts running the business.
+- **2_Testing_Tools/**: API test scripts.
+- **3_Documentation/**: Active manuals.
+- **4_Reference_Data/**: CSVs and mappings.
+- **z_ARCHIVE_DEPRECATED/**: Old files.
 
 ## COMMUNICATION STYLE
 - Be concise — DJ is experienced, skip basic explanations
@@ -116,13 +123,13 @@ Available tools:
 1. Make code changes locally
 2. Push to GitHub main (using gh api workflow above)
 3. **YOU create test data via API** (don't ask user to do it):
-   - Workiz jobs: Use `test_create_workiz_job.py`
-   - Odoo data: Create via Odoo JSON-RPC API
+ - Workiz jobs: Use `test_create_workiz_job.py`
+ - Odoo data: Create via Odoo JSON-RPC API
 4. Trigger/monitor Zapier (webhook or manual)
 5. Verify results in Odoo/Workiz
 6. **YOU cleanup test data via API**:
-   - Workiz: Use `test_cleanup_workiz_job.py <uuid>`
-   - Odoo: Use `test_cleanup_odoo_data.py --so/--invoice/--payment`
+ - Workiz: Use `test_cleanup_workiz_job.py <uuid>`
+ - Odoo: Use `test_cleanup_odoo_data.py --so/--invoice/--payment`
 7. Report results to user
 
 ### Why API-Based Test Data:
@@ -136,7 +143,7 @@ Available tools:
 - Never manually deletes test data
 
 **Scripts Available:**
-- `2_Modular_Phase3_Components/test_create_workiz_job.py`
-- `2_Modular_Phase3_Components/test_cleanup_workiz_job.py`
-- `2_Modular_Phase3_Components/test_cleanup_odoo_data.py`
-- Documentation: `TEST_FRAMEWORK.md`
+- `2_Testing_Tools/test_create_workiz_job.py`
+- `2_Testing_Tools/test_cleanup_workiz_job.py`
+- `2_Testing_Tools/test_cleanup_odoo_data.py`
+- Documentation: `2_Testing_Tools/TEST_FRAMEWORK.md`
