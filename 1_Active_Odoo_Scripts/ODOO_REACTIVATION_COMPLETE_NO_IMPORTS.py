@@ -340,12 +340,12 @@ Primary Service: {primary_service_str}"""
         
         # STEP 5: Log activity to Contact
         activity_data = {
-            "x_related_order_id": int(source_order.id),
+            "x_name": f"Reactivation sent for Order {source_order.name}",
             "x_activity_type": "reactivation_sent",
             "x_description": f"SMS sent via graveyard job {graveyard_uuid}",
-            "x_name": f"Reactivation sent for Order {source_order.name}",
-            "x_date": current_date_iso,
-            "x_campaign": "2026 Reactivation Campaign"
+            "x_related_order_id": int(source_order.id),
+            "x_contact_id": int(contact.id),
+            "x_campaign_id": 1
         }
         
         contact.write({
