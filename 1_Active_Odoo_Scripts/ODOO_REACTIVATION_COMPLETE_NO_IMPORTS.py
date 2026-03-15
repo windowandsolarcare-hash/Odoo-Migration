@@ -42,9 +42,14 @@ for source_order in records:
     prop_record = source_order.partner_shipping_id
     contact = prop_record.parent_id if prop_record.parent_id else prop_record
     
-    contact_vals = contact.read(['phone', 'name', 'street', 'city', 'x_studio_last_visit_all_properties'])[0]
+    contact_vals = contact.read(['phone', 'name', 'street', 'city', 'x_studio_last_visit_all_properties', 'is_blacklisted'])[0]
     
     source_order.message_post(body=f"[DEBUG] Contact: {contact_vals.get('name')}")
+    
+    # STOP COMPLIANCE: Skip blacklisted contacts
+    if contact_vals.get('is_blacklisted'):
+        source_order.message_post(body=f"[SKIP] Contact {contact_vals.get('name')} is blacklisted (STOP request) - no SMS sent")
+        break
     
     if not contact_vals.get('phone'):
         source_order.message_post(body="[DEBUG] No phone - skipping")
