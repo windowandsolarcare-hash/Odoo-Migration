@@ -1,5 +1,5 @@
 # CLAUDE_CONTEXT.md
-**Last Updated:** 2026-03-05  
+**Last Updated:** 2026-03-08  
 **Purpose:** Complete project context for new AI chat sessions  
 **Business:** A Window & Solar Care (DJ Sanders, Owner)
 
@@ -46,14 +46,31 @@
 - Established `workiz_[id]` pattern for all external IDs
 
 ### Phase 2: Dormant Customer Reactivation
-**Status:** ✅ Deployed (Odoo Server Actions, not Zapier)
-- **Files:** `1_Active_Odoo_Scripts/odoo_reactivation_launch.py`
+**Status:** ✅ Deployed (Odoo Server Actions, Direct Workiz API - NO ZAPIER)
+- **Production File:** `1_Active_Odoo_Scripts/ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py`
 - **Features:**
   - Smart pricing: 5% annual inflation, rounds to $5, $85 minimum
   - City-aware Calendly links (pre-fills customer data)
   - Creates CRM opportunity with expected revenue
-  - Triggers Zapier for SMS sending
+  - **Direct Workiz API calls:** Creates graveyard job, updates status to trigger SMS
+  - Links graveyard job back to Opportunity (`x_workiz_graveyard_uuid`, `x_workiz_graveyard_link`)
+  - Logs activity to Contact (`x_crm_activity_log_ids`)
 - **Cooldown:** 90 days (tracks `x_studio_last_reactivation_sent`)
+
+**Recent Rewrite (2026-03-08):**
+- **OLD:** Odoo → Webhook → Zapier → GitHub exec → Workiz API
+- **NEW:** Odoo Server Action → Workiz API directly (NO ZAPIER)
+- **Why:** Odoo blocks `import` statements ("forbidden opcodes"), couldn't exec() from GitHub
+- **Solution:** All Workiz API code embedded directly in Server Action (no external dependencies)
+- **Key Fixes:**
+  - Date format: Use ISO `YYYY-MM-DD` for Odoo date fields (was causing validation errors)
+  - Workiz API: Include API token in URL path: `https://api.workiz.com/api/v1/{API_TOKEN}/`
+  - Job fetch: Use GET request with UUID in URL, not POST with JSON payload
+  - Job create: Use `json=` parameter (not `data=`), returns list `[{UUID: ...}]`
+  - Status update: SubStatus = "API SMS Test Trigger" to trigger Workiz SMS automation
+  - Graveyard jobs: Omit `JobDateTime` field entirely to make jobs unscheduled
+- **Debug Logging:** Comprehensive logging shows full request/response for troubleshooting
+- **Copy/Paste Deployment:** Code must be copied from GitHub into Odoo Server Action UI (no API access to update Server Actions)
 
 ### Phase 3: New Job Creation (Master Router)
 **Status:** ✅ Deployed to Zapier
@@ -163,15 +180,149 @@
 
 ---
 
+## 🔄 PHASE 2 REACTIVATION ARCHITECTURE (March 2026 Rewrite)
+
+### Why We Eliminated Zapier for Reactivation
+
+**Original Design (Failed):**
+```
+Odoo Server Action → Webhook → Zapier → exec(GitHub code) → Workiz API
+```
+
+**Problems:**
+1. Odoo blocks `import urllib.request` ("forbidden opcode" error)
+2. Couldn't fetch GitHub code from within Odoo
+3. Zapier added latency and complexity
+4. GitHub CDN caching caused stale code issues
+5. No direct API access to update Odoo Server Actions
+
+**Final Design (Working):**
+```
+Odoo Server Action (single file, all-inline) → Workiz API directly
+```
+
+### Odoo Server Action Limitations
+
+**What's Blocked:**
+- ❌ ALL `import` statements (IMPORT_NAME, IMPORT_FROM opcodes)
+- ❌ Dunder names like `__name__`, `__file__`
+- ❌ Direct API calls to update Server Actions (Access Denied)
+
+**What's Available:**
+- ✅ `requests` library (pre-loaded, no import needed)
+- ✅ `datetime` module (pre-loaded)
+- ✅ `json` module (pre-loaded)
+- ✅ Odoo `env` context (access to all models)
+- ✅ `records` variable (selected records in UI)
+
+### Workiz API Specifics for Reactivation
+
+**Endpoint Format:**
+```python
+WORKIZ_API_TOKEN = "api_1hu6lroiy5zxomcpptuwsg8heju97iwg"
+WORKIZ_BASE_URL = f"https://api.workiz.com/api/v1/{WORKIZ_API_TOKEN}"
+```
+
+**Job Fetch (GET):**
+```python
+url = f"{WORKIZ_BASE_URL}/job/get/{uuid}/?auth_secret={WORKIZ_AUTH_SECRET}"
+response = requests.get(url, timeout=10)
+result = response.json()
+historical_job = result.get('data', [])[0]
+```
+
+**Job Create (POST):**
+```python
+# Omit JobDateTime for unscheduled jobs
+job_data = {
+    "auth_secret": WORKIZ_AUTH_SECRET,
+    "ClientId": "1234",  # NOT "CL-1234"
+    # ... other fields ...
+    # JobDateTime omitted = unscheduled
+}
+response = requests.post(f"{WORKIZ_BASE_URL}/job/create/", json=job_data, timeout=10)
+result = response.json()  # Returns list: [{UUID: 'ABC123', ...}]
+graveyard_uuid = result[0].get('UUID')
+```
+
+**Status Update (POST):**
+```python
+status_payload = {
+    "auth_secret": WORKIZ_AUTH_SECRET,
+    "UUID": graveyard_uuid,
+    "Status": "Pending",
+    "SubStatus": "API SMS Test Trigger"  # Exact string triggers SMS
+}
+response = requests.post(f"{WORKIZ_BASE_URL}/job/update/", json=status_payload, timeout=10)
+```
+
+### Common Errors & Fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `forbidden opcode(s) IMPORT_NAME` | Used `import` statement | Remove all imports, use pre-loaded modules |
+| `forbidden name '__name__'` | Used dunder in debug | Remove `type(x).__name__`, use `str(type(x))` |
+| `HTTP 404` on job/get | Missing API token in URL | Include token in path: `api/v1/{TOKEN}/` |
+| `'list' object has no attribute 'get'` | Wrong response parsing | Check `isinstance(result, list)` first |
+| `time data '03/08/2026' does not match '%Y-%m-%d'` | US date format in ISO field | Use `current_date_iso = '2026-03-08'` for Odoo fields |
+| Job created but status not updated | Timing issue or wrong SubStatus | Wait 3 seconds after create, verify exact SubStatus string |
+
+### Deployment Process
+
+**Cannot Use:**
+- ❌ GitHub exec() (Odoo blocks imports)
+- ❌ MCP/API to update Server Actions (Access Denied)
+- ❌ Zapier (unnecessary complexity, eliminated)
+
+**Must Use:**
+1. Edit `ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py` locally
+2. Push to GitHub main (for version control)
+3. **Manually copy/paste** into Odoo Server Action UI
+4. Test with real customer (debug logs in chatter)
+
+**GitHub Link:**
+```
+https://github.com/windowandsolarcare-hash/Odoo-Migration/blob/main/1_Active_Odoo_Scripts/ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py
+```
+
+### Professional Standards Discussion
+
+**Question:** Is GitHub exec() approach professional?
+
+**Answer for Odoo Cloud:**
+- ✅ Standard: Code directly in Server Action UI
+- ✅ Best Practice: Export XML backups, store in Git
+- ❌ Not Standard: GitHub exec() (convenience hack, security risk)
+- ❌ Blocked: Cannot use anyway (forbidden opcodes)
+
+**For Odoo Self-Hosted:**
+- ✅ Professional: Custom Odoo modules in `/addons` directory
+- ✅ CI/CD: Git → deployment pipeline → server
+- ❌ Not Standard: GitHub exec() runtime fetches
+
+**Our Approach (Hybrid):**
+- Development: Edit locally, push to GitHub (version control)
+- Deployment: Manual copy/paste to Odoo UI (required for Cloud)
+- Production: All code inline, no external dependencies
+
+---
+
 ## 🗂️ KEY FILES & DIRECTORIES
 
 ### Python Scripts (Production)
 ```
+1_Active_Odoo_Scripts/
+├── ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py  (~350 lines) - Reactivation (Odoo Server Action)
+├── odoo_reactivation_preview.py              - Preview message (Odoo Server Action)
+└── odoo_reactivation_launch.py               - DEPRECATED: Use COMPLETE_NO_IMPORTS instead
+
 2_Modular_Phase3_Components/
-├── zapier_phase3_FLATTENED_FINAL.py  (1,539 lines) - New job creation
-├── zapier_phase4_FLATTENED_FINAL.py  (2,051 lines) - Status updates & task sync
-├── zapier_phase5_FLATTENED_FINAL.py  (858 lines)   - Auto scheduling
-├── zapier_phase6_FLATTENED_FINAL.py  (342 lines)   - Payment sync
+├── zapier_phase3_FLATTENED_FINAL.py  (1,539 lines) - New job creation (Zapier)
+├── zapier_phase4_FLATTENED_FINAL.py  (2,051 lines) - Status updates & task sync (Zapier)
+├── zapier_phase5_FLATTENED_FINAL.py  (858 lines)   - Auto scheduling (Zapier)
+├── zapier_phase6_FLATTENED_FINAL.py  (342 lines)   - Payment sync (Zapier)
+├── zapier_reactivation_sms_FINAL.py  (DEPRECATED)  - Old Zapier reactivation (no longer used)
+├── odoo_workiz_reactivation_direct.py (DEPRECATED) - Failed GitHub exec approach
 └── functions/                         - Atomic functions (not used in prod, reference only)
 ```
 
@@ -440,6 +591,20 @@ exec(code, {**globals(), 'input_data': input_data})
 - ✅ Phase 6: Check number sync (Odoo `memo` → Workiz `reference`)
 - ✅ Phase 6: Passes `invoice_id` to Phase 5
 
+### Major Rewrite (2026-03-08): Phase 2 Reactivation
+- ✅ **Eliminated Zapier dependency:** Direct Odoo → Workiz API calls
+- ✅ **Fixed forbidden opcodes:** Removed all `import` statements, use pre-loaded modules
+- ✅ **Fixed date format errors:** Use ISO format for Odoo date fields
+- ✅ **Fixed Workiz API endpoints:**
+  - Include API token in URL path
+  - Use GET for job/get (not POST)
+  - Parse list response from job/create
+  - Omit JobDateTime for unscheduled jobs
+  - Use exact SubStatus string: "API SMS Test Trigger"
+- ✅ **Added comprehensive debug logging:** Full request/response visibility
+- ✅ **Simplified architecture:** One self-contained file, no external dependencies
+- 🚧 **In Testing:** Status update to trigger SMS (comprehensive debug logging active)
+
 ---
 
 ## 🚧 KNOWN ISSUES & GOTCHAS
@@ -468,6 +633,22 @@ exec(code, {**globals(), 'input_data': input_data})
 1. **Requires matching job type:** Searches history for most recent job with NEXT job type
 2. **Falls back to current job:** If no matching history, uses current job line items
 3. **Job type names must match exactly:** "Outside Windows and Screens" (lowercase "and")
+
+### Odoo Server Actions:
+1. **No API access:** Cannot update Server Actions via Odoo API (Access Denied for ir.actions.server model)
+2. **Must copy/paste:** All code updates require manual copy/paste into Odoo UI
+3. **Forbidden opcodes:** ALL `import` statements blocked (IMPORT_NAME, IMPORT_FROM)
+4. **Forbidden names:** Dunder names like `__name__`, `__file__` blocked
+5. **Available modules:** `requests`, `datetime`, `json`, `env`, `records` pre-loaded (no import needed)
+6. **GitHub for version control:** Edit locally, push to GitHub, then copy/paste to Odoo
+7. **Break statement required:** Server Actions loop over `records`, must `break` after first
+
+### Phase 2 Reactivation (Current Debugging - 2026-03-08):
+1. **Opportunity creation:** ✅ Working (creates CRM opportunity with expected revenue)
+2. **Historical job fetch:** ✅ Working (fetches from Workiz using correct API format)
+3. **Graveyard job creation:** 🚧 Testing (comprehensive debug logging active)
+4. **Status update to trigger SMS:** 🚧 Testing (SubStatus = "API SMS Test Trigger")
+5. **Comprehensive logging:** All API requests/responses logged to Odoo chatter for troubleshooting
 
 ---
 
@@ -613,8 +794,9 @@ When making code changes that need testing:
 
 **END OF CONTEXT**
 
-**Last Updated:** 2026-03-05  
-**Total Lines of Production Code:** ~4,790  
+**Last Updated:** 2026-03-08  
+**Total Lines of Production Code:** ~5,140 (includes reactivation rewrite)  
 **Automation Coverage:** ~95% (5% manual for Phase 5 line items)  
 **GitHub Repo:** windowandsolarcare-hash/Odoo-Migration  
-**Primary Contact:** DJ Sanders (owner, developer)
+**Primary Contact:** DJ Sanders (owner, developer)  
+**Recent Major Change:** Phase 2 Reactivation - Eliminated Zapier, direct Odoo→Workiz API
