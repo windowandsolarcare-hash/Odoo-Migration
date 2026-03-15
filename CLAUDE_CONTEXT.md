@@ -770,6 +770,54 @@ print(r.json())
 
 ---
 
+## 🚨 STOP COMPLIANCE (SMS Opt-Out Handling)
+
+**Status:** 🟡 Partially Implemented (Reactivation protected, automation pending)
+
+### Current State (2026-03-08)
+
+**Problem:** Customer sent STOP reply to SMS. Legal requirement (TCPA) to never text them again.
+
+**Solution Implemented:**
+1. ✅ **Reactivation script updated:** `ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py` now checks `is_blacklisted` field and skips opted-out contacts
+2. ✅ **Webhook handler created:** `odoo_webhook_stop_handler.py` ready for Odoo Studio deployment
+3. ⚠️ **Setup pending:** Odoo Studio webhook + Workiz webhook configuration not completed
+
+### Manual Workflow (Current)
+
+**When customer sends STOP:**
+1. See STOP reply in Workiz Message Center
+2. Find Contact in Odoo (by name or phone)
+3. Check the **"Blacklisted"** checkbox (on Contact form)
+4. Save
+5. Future reactivation campaigns automatically skip them
+
+### Planned Automation (Not Yet Deployed)
+
+**Trigger:** You change Workiz job status to `STOP - do not CALL or TEXT`  
+**Action:** Workiz webhook → Odoo Studio webhook → Auto-blacklist contact  
+**Handler:** `1_Active_Odoo_Scripts/odoo_webhook_stop_handler.py`  
+**Setup Guide:** `2_Modular_Phase3_Components/STOP_HANDLER_SETUP.md`
+
+**Blocked on:** Unclear how to access Odoo Studio Webhooks in Cloud instance. May require different Odoo plan or alternative approach (Automated Action, custom controller).
+
+### Key Technical Details
+
+- **Blacklist Field:** `is_blacklisted` (base Odoo field on `res.partner`)
+- **Activity Type:** `opt_out` (for CRM Activity Log)
+- **Reactivation Filter:** Added `if contact_vals.get('is_blacklisted'): ... break`
+- **Workiz Status:** `STOP - do not CALL or TEXT` (internal: `stop__do_not_call_or_text`)
+
+### Files
+
+- `ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py` - Updated with blacklist check ✅
+- `odoo_webhook_stop_handler.py` - Webhook handler ready for Studio ⚠️
+- `STOP_HANDLER_SETUP.md` - Setup instructions ✅
+
+**Important:** Manual blacklisting is 100% effective for reactivation. Automation is "nice to have" but not critical.
+
+---
+
 ## 🎯 SESSION KICKOFF CHECKLIST
 
 When starting a new Claude chat with this context:
@@ -799,4 +847,6 @@ When making code changes that need testing:
 **Automation Coverage:** ~95% (5% manual for Phase 5 line items)  
 **GitHub Repo:** windowandsolarcare-hash/Odoo-Migration  
 **Primary Contact:** DJ Sanders (owner, developer)  
-**Recent Major Change:** Phase 2 Reactivation - Eliminated Zapier, direct Odoo→Workiz API
+**Recent Major Changes:** 
+- Phase 2 Reactivation - Eliminated Zapier, direct Odoo→Workiz API
+- STOP Compliance - Reactivation now respects SMS opt-outs
