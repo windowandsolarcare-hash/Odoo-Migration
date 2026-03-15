@@ -283,21 +283,20 @@ Primary Service: {primary_service_str}"""
         source_order.message_post(body=f"[DEBUG] Graveyard job created (HTTP {create_response.status_code})")
         
         # Extract UUID from response
+        # Workiz format: {"flag":true, "data":[{"UUID":"MJUERK", ...}]}
         graveyard_uuid = None
         if create_response.status_code == 200:
             create_result = create_response.json()
-            source_order.message_post(body=f"[DEBUG] Response type: {type(create_result)}")
-            source_order.message_post(body=f"[DEBUG] Response content: {str(create_result)[:500]}")
             
-            if isinstance(create_result, list):
-                source_order.message_post(body=f"[DEBUG] Response is list, length: {len(create_result)}")
-                if len(create_result) > 0 and isinstance(create_result[0], dict):
+            # Get UUID from data array
+            if isinstance(create_result, dict):
+                data_list = create_result.get('data', [])
+                if data_list and len(data_list) > 0:
+                    graveyard_uuid = data_list[0].get('UUID')
+            elif isinstance(create_result, list):
+                # Fallback: direct list
+                if len(create_result) > 0:
                     graveyard_uuid = create_result[0].get('UUID')
-                    source_order.message_post(body=f"[DEBUG] Extracted UUID from list[0]: {graveyard_uuid}")
-            elif isinstance(create_result, dict):
-                source_order.message_post(body=f"[DEBUG] Response is dict, keys: {list(create_result.keys())}")
-                graveyard_uuid = create_result.get('data', {}).get('UUID') or create_result.get('UUID')
-                source_order.message_post(body=f"[DEBUG] Extracted UUID from dict: {graveyard_uuid}")
         
         if not graveyard_uuid:
             source_order.message_post(body="⚠️ Could not extract graveyard UUID from response")
