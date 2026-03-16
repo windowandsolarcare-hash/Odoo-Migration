@@ -114,8 +114,16 @@
   4. Sends SMS via Workiz API (creates job, updates status)
   5. Updates `x_studio_last_reactivation_sent` on contact (for 90-day cooldown)
   6. Updates `x_studio_prices_per_service` on property (for historical record)
-  7. Posts success message to opportunity chatter
+  7. **Archives full SMS to opportunity chatter** (timestamped, with recipient info)
+  8. **Clears the field** (ready for next SMS campaign)
+  9. Posts success message to sale.order chatter
 - **GitHub URL:** `https://raw.githubusercontent.com/windowandsolarcare-hash/Odoo-Migration/main/1_Production_Code/ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py`
+
+**Why Clear the Field:**
+- ✅ Reusable for ANY SMS type (reactivation, follow-up, promo, etc.)
+- ✅ No manual cleanup needed
+- ✅ Historical record lives in opportunity chatter (proper audit trail)
+- ✅ Clean slate for next campaign
 
 **Field Format Discovery:**
 - ✅ Plain text with `\n\n` (double newlines) between paragraphs = perfect formatting
