@@ -14,7 +14,7 @@
 # - x_studio_x_draft_pricing_menu (Text) - in DRAFTS tab
 # ==============================================================================
 
-import datetime
+# NOTE: datetime is pre-loaded in Odoo, no import needed
 
 # Date/time setup
 now_utc = datetime.datetime.now()
