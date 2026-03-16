@@ -13,6 +13,7 @@ Input from Zapier:
 
 import requests
 import json
+from datetime import datetime, timezone
 
 # Odoo credentials
 ODOO_URL = "https://window-solar-care.odoo.com/jsonrpc"
@@ -98,7 +99,30 @@ def blacklist_phone(phone):
     else:
         return f"{e164_phone} already blacklisted"
 
-def update_contact_status(client_id):
+def post_to_chatter(contact_id, message):
+    """Post a message to contact's chatter"""
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "call",
+        "params": {
+            "service": "object",
+            "method": "execute_kw",
+            "args": [
+                ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                "res.partner", "message_post",
+                [contact_id],
+                {"body": message}
+            ]
+        },
+        "id": 1
+    }
+    response = requests.post(ODOO_URL, json=payload, timeout=30)
+    result = response.json()
+    
+    if "error" in result:
+        raise Exception(f"Odoo API Error: {result['error']}")
+
+def update_contact_status(client_id, phone):
     """Find contact by client_id and update to 'Do not Contact'"""
     # Search by ref field (client serial ID)
     contacts = odoo_call(
@@ -134,7 +158,25 @@ def update_contact_status(client_id):
         if "error" in result:
             raise Exception(f"Odoo API Error: {result['error']}")
         
-        return f"Updated {contact_name} to 'Do not Contact'"
+        # Post to chatter with timestamp
+        now_utc = datetime.now(timezone.utc)
+        timestamp = now_utc.strftime("%Y-%m-%d %H:%M:%S UTC")
+        e164_phone = format_e164(phone)
+        
+        chatter_message = f"""
+<p><strong>🛑 STOP REQUEST RECEIVED</strong></p>
+<ul>
+<li><strong>Time:</strong> {timestamp}</li>
+<li><strong>Phone Blacklisted:</strong> {e164_phone}</li>
+<li><strong>Status Changed:</strong> Active/Lead → Do Not Contact</li>
+<li><strong>Source:</strong> Workiz webhook (via Zapier)</li>
+</ul>
+<p><em>This contact will no longer receive SMS messages (reactivation, marketing, etc.)</em></p>
+"""
+        
+        post_to_chatter(contact_id, chatter_message)
+        
+        return f"Updated {contact_name} to 'Do Not Contact'"
     else:
         return f"Contact not found (client_id={client_id})"
 
@@ -152,8 +194,8 @@ else:
         # 1. Blacklist phone
         blacklist_result = blacklist_phone(phone)
         
-        # 2. Update contact status
-        contact_result = update_contact_status(client_id)
+        # 2. Update contact status and log to chatter
+        contact_result = update_contact_status(client_id, phone)
         
         output = {
             "status": "success",
