@@ -156,10 +156,15 @@ Window & Solar Care
 855-245-2273
 Text STOP to opt out"""
     
-    # --- POST PREVIEW TO CHATTER ONLY ---
+    # --- SAVE TO FIELD & POST TO CHATTER ---
     try:
-        # Use plain text with double newlines (matches old working format)
-        source_order.message_post(body=f"📝 **PREVIEW MODE**\n\n{message_body}\n\n---\n*To send as-is, click 'LAUNCH'*\n*To modify: Copy text above → Paste into 'SMS Text Modified' tab → Edit → Click 'LAUNCH'*")
+        # Write formatted SMS to field (preserves line breaks)
+        source_order.write({
+            'x_studio_manual_sms_override': message_body
+        })
+        
+        # Also post to chatter for quick viewing
+        source_order.message_post(body=f"📝 **PREVIEW MODE**\n\n{message_body}\n\n---\n*To send as-is, click 'LAUNCH'*\n*To modify: Go to 'SMS Text Modified' tab → Edit the field → Click 'LAUNCH'*")
         
     except Exception as e:
         source_order.message_post(body=f"⚠️ Error saving preview: {e}")
