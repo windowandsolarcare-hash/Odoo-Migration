@@ -1,5 +1,5 @@
 # CLAUDE_CONTEXT.md
-**Last Updated:** 2026-03-15  
+**Last Updated:** 2026-03-16  
 **Purpose:** Complete project context for new AI chat sessions  
 **Business:** A Window & Solar Care (DJ Sanders, Owner)
 
@@ -8,6 +8,8 @@
 ## 📘 PROJECT OVERVIEW
 
 **Goal:** Bi-directional real-time sync between Workiz (field service software) and Odoo (business operations platform).
+
+**Strategic Direction:** **ELIMINATE ZAPIER.** Future development should prioritize direct integrations (Odoo Server Actions, Webhooks, Python) over Zapier middleware to reduce cost, latency, and complexity.
 
 **Business Need:** Eliminate manual data entry, ensure data consistency, automate customer follow-ups, and optimize scheduling based on geography.
 
@@ -29,7 +31,8 @@
 | Phase | Purpose | Trigger | Status | Notes |
 |-------|---------|---------|--------|-------|
 | **1** | Historical Migration | One-time | ✅ Complete | 6 years of Workiz data migrated to Odoo |
-| **2** | Dormant Reactivation | Manual (Odoo Server Action) | ✅ Deployed | SMS campaigns with smart pricing |
+| **2** | Dormant Reactivation | Manual (Odoo Server Action) | ✅ Deployed | 2-stage workflow (PREVIEW + LAUNCH), STOP protected |
+| **2B** | STOP Compliance | Workiz Webhook (Status Change) | ✅ Deployed | Auto-blacklist contacts via Zapier |
 | **3** | New Job Creation | Workiz Webhook (New Job) | ✅ Deployed | Creates SO in Odoo (Paths A/B/C) |
 | **4** | Job Status Updates | Zapier Polling (Job Updated) | ✅ Deployed | Updates SO, creates tasks, syncs line items |
 | **5** | Auto Job Scheduling | Phase 6 Trigger | ✅ Deployed | Creates next maintenance job in Workiz |
@@ -46,16 +49,25 @@
 - Established `workiz_[id]` pattern for all external IDs
 
 ### Phase 2: Dormant Customer Reactivation
-**Status:** ✅ Deployed (Odoo Server Actions, Direct Workiz API - NO ZAPIER)
-- **Production File:** `1_Active_Odoo_Scripts/ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py`
+**Status:** ✅ Deployed (2-Stage Workflow: PREVIEW + LAUNCH)
+- **Production Files:**
+  - `1_Production_Code/ODOO_REACTIVATION_PREVIEW.py` (PREVIEW Server Action)
+  - `1_Production_Code/ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py` (LAUNCH Server Action)
+- **Architecture (2026-03-16 Update):**
+  - **PREVIEW:** Composes SMS → Writes to `x_studio_manual_sms_override` field → Posts to chatter
+  - **LAUNCH:** Reads from field → Sends SMS via Workiz API
+  - User can modify text in field between PREVIEW and LAUNCH
 - **Features:**
-  - Smart pricing: 5% annual inflation, rounds to $5, $85 minimum
+  - Smart pricing: 5% annual compound inflation, rounds to $5, $85 minimum (solar flat)
   - City-aware Calendly links (pre-fills customer data)
   - Creates CRM opportunity with expected revenue
   - **Direct Workiz API calls:** Creates graveyard job, updates status to trigger SMS
   - Links graveyard job back to Opportunity (`x_workiz_graveyard_uuid`, `x_workiz_graveyard_link`)
   - Logs activity to Contact (`x_crm_activity_log_ids`)
+  - **Updates property pricing:** Writes `x_studio_prices_per_service` after sending
+  - **STOP Compliance:** Checks `phone_blacklisted` and `x_studio_activelead` before sending
 - **Cooldown:** 90 days (tracks `x_studio_last_reactivation_sent`)
+- **SMS Text:** "It's been a while and we'd like to schedule an appointment again!" (updated 2026-03-16)
 
 **Recent Rewrite (2026-03-08):**
 - **OLD:** Odoo → Webhook → Zapier → GitHub exec → Workiz API
@@ -71,6 +83,46 @@
   - Graveyard jobs: Omit `JobDateTime` field entirely to make jobs unscheduled
 - **Debug Logging:** Comprehensive logging shows full request/response for troubleshooting
 - **Copy/Paste Deployment:** Code must be copied from GitHub into Odoo Server Action UI (no API access to update Server Actions)
+
+**2-Stage Workflow (2026-03-16):**
+
+**Problem:** Outdated addresses/pricing in auto-composed messages needed manual review before sending
+
+**Solution:** Split into PREVIEW (compose + write to field) and LAUNCH (read field + send) steps
+
+**PREVIEW Server Action:**
+- **Model:** `sale.order` (reactivation opportunity)
+- **What it does:**
+  1. Composes complete SMS with pricing, Calendly link, phone, opt-out
+  2. Checks STOP compliance (`phone_blacklisted`, `x_studio_activelead`)
+  3. Writes full SMS to `x_studio_manual_sms_override` field (plain text with `\n\n` for line breaks)
+  4. Posts same text to chatter for quick viewing
+- **User workflow after PREVIEW:**
+  - Check chatter preview
+  - Go to "SMS Text Modified" tab on sale.order
+  - See auto-composed text in `x_studio_manual_sms_override` field
+  - Edit if needed (or leave as-is)
+  - Click LAUNCH
+- **GitHub URL:** `https://raw.githubusercontent.com/windowandsolarcare-hash/Odoo-Migration/main/1_Production_Code/ODOO_REACTIVATION_PREVIEW.py`
+
+**LAUNCH Server Action:**
+- **Model:** `sale.order` (reactivation opportunity)
+- **What it does:**
+  1. Reads SMS from `x_studio_manual_sms_override` field
+  2. If field empty, posts error (must run PREVIEW first)
+  3. Checks STOP compliance (`phone_blacklisted`, `x_studio_activelead`)
+  4. Sends SMS via Workiz API (creates job, updates status)
+  5. Updates `x_studio_last_reactivation_sent` on contact (for 90-day cooldown)
+  6. Updates `x_studio_prices_per_service` on property (for historical record)
+  7. Posts success message to opportunity chatter
+- **GitHub URL:** `https://raw.githubusercontent.com/windowandsolarcare-hash/Odoo-Migration/main/1_Production_Code/ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py`
+
+**Field Format Discovery:**
+- ✅ Plain text with `\n\n` (double newlines) between paragraphs = perfect formatting
+- ✅ Field content survives copy/paste and manual edits
+- ✅ All 15+ line breaks preserved in 500-character SMS
+- ❌ HTML formatting (`<br/>`, `<p>`) not needed and complicates copy/paste
+- ❌ Single `\n` doesn't always render as line break in Odoo UI
 
 ### Phase 3: New Job Creation (Master Router)
 **Status:** ✅ Deployed to Zapier
@@ -266,6 +318,11 @@ response = requests.post(f"{WORKIZ_BASE_URL}/job/update/", json=status_payload, 
 | `'list' object has no attribute 'get'` | Wrong response parsing | Check `isinstance(result, list)` first |
 | `time data '03/08/2026' does not match '%Y-%m-%d'` | US date format in ISO field | Use `current_date_iso = '2026-03-08'` for Odoo fields |
 | Job created but status not updated | Timing issue or wrong SubStatus | Wait 3 seconds after create, verify exact SubStatus string |
+| `TypeError: string indices must be integers` (Odoo API) | Wrong payload format for `create`/`write` | Use lists: `create([[{...}]])`, `write([[id], {...}])` |
+| `ValueError: Wrong value for res.partner.x_studio_activelead: 'do_not_contact'` | Selection field value mismatch | Use exact string: `"Do Not Contact"` (case-sensitive) |
+| `Invalid field 'x_studio_x_draft_sms_message' on 'sale.order'` | Field exists on wrong model | Check field location (opportunity vs sale.order) |
+| Zapier "Output Missing" error | No `return` or `output` variable | Return `output` dict or set `exec_globals['output']` |
+| Missing line breaks in Odoo chatter/fields | Single `\n` not rendering | Use double newlines `\n\n` between paragraphs |
 
 ### Deployment Process
 
@@ -311,19 +368,27 @@ https://github.com/windowandsolarcare-hash/Odoo-Migration/blob/main/1_Active_Odo
 
 ### Python Scripts (Production)
 ```
-1_Active_Odoo_Scripts/
-├── ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py  (~350 lines) - Reactivation (Odoo Server Action)
-├── odoo_reactivation_preview.py              - Preview message (Odoo Server Action)
-└── odoo_reactivation_launch.py               - DEPRECATED: Use COMPLETE_NO_IMPORTS instead
+1_Production_Code/
+├── ODOO_REACTIVATION_PREVIEW.py              - PREVIEW Server Action (2-stage workflow)
+├── ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py  - LAUNCH Server Action (2-stage workflow)
+└── ODOO_REACTIVATION_MODIFY_WIZARD.py        - DEPRECATED (wizard approach abandoned)
 
 2_Modular_Phase3_Components/
 ├── zapier_phase3_FLATTENED_FINAL.py  (1,539 lines) - New job creation (Zapier)
 ├── zapier_phase4_FLATTENED_FINAL.py  (2,051 lines) - Status updates & task sync (Zapier)
 ├── zapier_phase5_FLATTENED_FINAL.py  (858 lines)   - Auto scheduling (Zapier)
 ├── zapier_phase6_FLATTENED_FINAL.py  (342 lines)   - Payment sync (Zapier)
+├── zapier_stop_handler.py            (NEW)         - STOP compliance handler (Zapier)
 ├── zapier_reactivation_sms_FINAL.py  (DEPRECATED)  - Old Zapier reactivation (no longer used)
 ├── odoo_workiz_reactivation_direct.py (DEPRECATED) - Failed GitHub exec approach
 └── functions/                         - Atomic functions (not used in prod, reference only)
+
+2_Testing_Tools/
+├── test_create_workiz_job.py         - Create test job in Workiz
+├── test_cleanup_workiz_job.py        - Mark test job as cancelled
+├── test_cleanup_odoo_data.py         - Delete SO/Invoice/Payment in Odoo
+├── dump_contact.py                   - Fetch contact details for debugging
+└── read_sms_field.py                 - Read SMS override field content
 ```
 
 ### Documentation
@@ -643,12 +708,34 @@ exec(code, {**globals(), 'input_data': input_data})
 6. **GitHub for version control:** Edit locally, push to GitHub, then copy/paste to Odoo
 7. **Break statement required:** Server Actions loop over `records`, must `break` after first
 
-### Phase 2 Reactivation (Current Debugging - 2026-03-08):
+### Odoo Custom Fields (Key Learnings 2026-03-16):
+
+**Text Formatting in Fields:**
+- ✅ Plain text with `\n\n` (double newlines) between paragraphs preserves formatting perfectly
+- ✅ `x_studio_manual_sms_override` field on `sale.order` retains all line breaks when written via API
+- ✅ User can copy/paste from field, edit, and formatting survives round-trip
+- ❌ HTML formatting (e.g., `<br/>`, `<p>`, `pre-wrap`) NOT needed for plain text fields
+- ❌ Single `\n` may not render as line break in Odoo UI (use `\n\n` for paragraphs)
+
+**Selection Field Values:**
+- ✅ `x_studio_activelead` must be EXACT string: `"Do Not Contact"` (case and spacing matter)
+- ❌ Don't use snake_case: `"do_not_contact"` will cause ValueError
+- ❌ Don't use lowercase: `"do not contact"` will cause ValueError
+
+**Field Locations:**
+- ✅ `x_studio_manual_sms_override` lives on `sale.order` (NOT `crm.lead`)
+- ✅ User edits via "SMS Text Modified" tab on sale.order form view
+- ✅ Field is visible even if empty (user can paste directly into it)
+
+### Phase 2 Reactivation (Status - 2026-03-16):
 1. **Opportunity creation:** ✅ Working (creates CRM opportunity with expected revenue)
 2. **Historical job fetch:** ✅ Working (fetches from Workiz using correct API format)
-3. **Graveyard job creation:** 🚧 Testing (comprehensive debug logging active)
-4. **Status update to trigger SMS:** 🚧 Testing (SubStatus = "API SMS Test Trigger")
-5. **Comprehensive logging:** All API requests/responses logged to Odoo chatter for troubleshooting
+3. **Graveyard job creation:** ✅ Working (creates unscheduled job in Workiz)
+4. **Status update to trigger SMS:** ✅ Working (SubStatus = "API SMS Test Trigger")
+5. **PREVIEW stage:** ✅ Working (composes SMS, writes to field, posts to chatter)
+6. **LAUNCH stage:** ✅ Working (reads from field, sends via Workiz, updates property pricing)
+7. **STOP protection:** ✅ Working (checks `phone_blacklisted` and `x_studio_activelead` before sending)
+8. **Comprehensive logging:** All API requests/responses logged to Odoo chatter for troubleshooting
 
 ---
 
@@ -695,6 +782,7 @@ exec(code, {**globals(), 'input_data': input_data})
 **Zapier Webhook URLs:**
 - Phase 3 Webhook (for Phase 4 to call): `https://hooks.zapier.com/hooks/catch/9761276/ueyjr41/`
 - Phase 5 Webhook (for Phase 6 to call): `https://hooks.zapier.com/hooks/catch/9761276/ue4o0az/`
+- STOP Handler Webhook (Workiz STOP status): `https://hooks.zapier.com/hooks/catch/9761276/upyvrkx/`
 
 **GitHub:**
 - Repo: `windowandsolarcare-hash/Odoo-Migration`
@@ -772,49 +860,127 @@ print(r.json())
 
 ## 🚨 STOP COMPLIANCE (SMS Opt-Out Handling)
 
-**Status:** 🟡 Reactivation Protected, Automation Pending
+**Status:** ✅ Fully Automated (Workiz → Zapier → Odoo)
 
-### Current State (2026-03-08)
+### Architecture (Deployed 2026-03-16)
 
-**Problem:** Customer sent STOP reply to SMS. Legal requirement (TCPA) to never text them again.
+**Trigger:** Workiz webhook fires when job sub-status changes to "STOP - Do not Call or Text"
 
-**Reactivation is now protected:**
-- ✅ `ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py` checks `is_blacklisted` field
-- ✅ Blacklisted contacts automatically skipped (no SMS sent)
-- ✅ Debug message: `[SKIP] Contact [Name] is blacklisted (STOP request)`
+**Workflow:**
+```
+Workiz Webhook → Zapier Catch Hook → Execute GitHub code → Odoo API
+```
 
-### Manual Workflow (Current - Works Fine)
+**What Happens:**
+1. Customer sends STOP reply to SMS
+2. User changes job sub-status in Workiz to "STOP - Do not Call or Text"
+3. Workiz webhook fires to Zapier: `https://hooks.zapier.com/hooks/catch/9761276/upyvrkx/`
+4. Zapier parses payload (nested `clientInfo.serialId` and `primaryPhone`)
+5. Executes `2_Modular_Phase3_Components/zapier_stop_handler.py` from GitHub
+6. Script performs:
+   - Formats phone to E.164 (e.g., `9514898621` → `+19514898621`)
+   - Creates record in `phone.blacklist` model (auto-updates `phone_blacklisted` on contact)
+   - Searches for contact by `x_studio_client_id` (Workiz `serialId`)
+   - Updates contact: `x_studio_activelead` = `"Do Not Contact"`
+   - Posts detailed timestamped message to contact's chatter with HTML formatting
+7. Contact is now protected from ALL SMS (reactivation, marketing, etc.)
 
-**When customer sends STOP:**
-1. See STOP in Workiz Message Center
-2. Open Contact in Odoo (by name/phone)
-3. Check the **"Blacklisted"** checkbox
-4. Save
-5. Done - Future campaigns skip them automatically
+### Zapier Setup (Stop Handler)
 
-Takes 10 seconds. Legally compliant. Works.
+**Zapier Step 1:** Webhooks by Zapier (Catch Hook)
+- Webhook URL: `https://hooks.zapier.com/hooks/catch/9761276/upyvrkx/`
+- Trigger: Workiz "Job Status Changed" → Sub-status = "STOP - Do not Call or Text"
 
-### Planned Automation (For Future Implementation)
+**Zapier Step 2:** Code by Zapier (Run Python)
+```python
+import urllib.request
 
-**User's proposed workflow:**
-> "Maybe it starts manual. I change the status to: STOP - do not CALL or TEXT (stop__do_not_call_or_text). That sets off a webhook for Odoo to catch."
+url = "https://raw.githubusercontent.com/windowandsolarcare-hash/Odoo-Migration/main/2_Modular_Phase3_Components/zapier_stop_handler.py"
+code = urllib.request.urlopen(url).read().decode()
 
-**Why this approach:**
-- Trying to eliminate Zapier, not add more
-- Workiz messages are not accessible via API
-- Manual status change → Webhook trigger is clean
+# Execute and capture output
+exec_globals = {**globals(), 'input_data': input_data}
+exec(code, exec_globals)
 
-**Implementation needs:**
-1. Create Workiz status: `STOP - do not CALL or TEXT`
-2. Configure Workiz webhook: Fire on status change → Send to Odoo
-3. Deploy Odoo webhook handler: `odoo_webhook_stop_handler.py` (already created)
-4. Handler finds Contact by phone/ClientId → Sets `is_blacklisted = True`
+# Return the output from executed code
+return exec_globals.get('output', {'status': 'error', 'message': 'No output generated'})
+```
 
-**Files ready:**
-- `1_Active_Odoo_Scripts/odoo_webhook_stop_handler.py` - Webhook handler code
-- `2_Modular_Phase3_Components/STOP_HANDLER_SETUP.md` - Setup instructions
+**Input Mappings (in Zapier UI):**
+- `client_id`: `data__clientInfo__serialId` (nested path)
+- `phone`: `data__clientInfo__primaryPhone`
 
-**Blocked on:** Need to figure out how to create webhook receiver in Odoo Cloud. Odoo Studio webhooks navigation unclear. May need Automated Action or custom controller instead.
+### File: zapier_stop_handler.py
+
+**Location:** `2_Modular_Phase3_Components/zapier_stop_handler.py`
+
+**Key Functions:**
+- `format_e164(phone)`: Converts US phone to E.164 format
+- `add_to_blacklist(phone)`: Creates `phone.blacklist` record
+- `update_contact_status(client_id, phone)`: Finds contact, updates `x_studio_activelead`, posts to chatter
+- `post_to_chatter(contact_id, message)`: Posts HTML-formatted message with timestamp to contact
+
+**Odoo API Gotchas:**
+- `create()` requires: `[model, "create", [[{"field": "value"}]]]` (list of dicts)
+- `write()` requires: `[model, "write", [[record_id], {"field": "value"}]]` (record IDs as list)
+- `x_studio_activelead` must be EXACT string: `"Do Not Contact"` (case-sensitive)
+- `phone.blacklist.number` must be E.164 format (e.g., `+19514898621`)
+
+**Chatter Message Format:**
+```html
+<p><strong>🛑 STOP REQUEST RECEIVED</strong></p>
+<ul>
+<li><strong>Time:</strong> 2026-03-16 07:30:45 UTC</li>
+<li><strong>Phone Blacklisted:</strong> +19514898621</li>
+<li><strong>Status Changed:</strong> Active/Lead → Do Not Contact</li>
+<li><strong>Source:</strong> Workiz webhook (via Zapier)</li>
+</ul>
+<p><em>This contact will no longer receive SMS messages (reactivation, marketing, etc.)</em></p>
+```
+
+### Reactivation Protection (Built-In)
+
+**Both PREVIEW and LAUNCH scripts check STOP compliance:**
+
+```python
+# From ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py (lines 49-67)
+if contact_vals.get('phone_blacklisted'):
+    now_utc = datetime.now(timezone.utc)
+    timestamp = now_utc.strftime("%Y-%m-%d %H:%M:%S UTC")
+    source_order.message_post(body=f"⛔ **SKIP: Contact Blacklisted**\n\n{full_name} ({phone_sanitized})\n\nPhone is blacklisted (STOP request received)\nTime: {timestamp}\n\n*This contact will not receive SMS*")
+    break
+
+if contact_vals.get('x_studio_activelead') == "Do Not Contact":
+    now_utc = datetime.now(timezone.utc)
+    timestamp = now_utc.strftime("%Y-%m-%d %H:%M:%S UTC")
+    source_order.message_post(body=f"⛔ **SKIP: Do Not Contact**\n\n{full_name} ({phone_sanitized})\n\nActive/Lead status: Do Not Contact\nTime: {timestamp}\n\n*This contact will not receive SMS*")
+    break
+```
+
+**When contact is blacklisted:**
+- ✅ PREVIEW/LAUNCH stop immediately
+- ✅ No SMS composed or sent
+- ✅ Timestamped message posted to opportunity chatter
+- ✅ User sees exactly why contact was skipped
+
+### Key Technical Learnings (2026-03-16)
+
+**Odoo's `phone.blacklist` Model:**
+- ✅ Standard Odoo model (no custom fields needed)
+- ✅ Automatically updates `phone_blacklisted` field on `res.partner`
+- ✅ Requires E.164 format phone numbers
+- ✅ Creating record in `phone.blacklist` instantly blacklists the contact
+
+**Field Format Discovery:**
+- ❌ Initially tried `x_studio_stop_request_received` custom field (unnecessary)
+- ❌ Initially tried `is_blacklisted` field (read-only, can't write to it)
+- ✅ Final solution: Use `phone.blacklist` model + `x_studio_activelead` custom field
+
+**Text Formatting in Odoo:**
+- ✅ Plain text with double newlines (`\n\n`) between paragraphs renders correctly
+- ✅ Field `x_studio_manual_sms_override` preserves all line breaks perfectly
+- ❌ HTML formatting in chatter preview was not preferred (too complex to copy/paste)
+- ✅ Final solution: Plain text format matches "old launch" code (working since 2025)
 
 ---
 
@@ -842,11 +1008,16 @@ When making code changes that need testing:
 
 **END OF CONTEXT**
 
-**Last Updated:** 2026-03-15  
-**Total Lines of Production Code:** ~5,140 (includes reactivation rewrite)  
-**Automation Coverage:** ~95% (5% manual for Phase 5 line items)  
+**Last Updated:** 2026-03-16  
+**Total Lines of Production Code:** ~5,400 (includes 2-stage reactivation + STOP handler)  
+**Automation Coverage:** ~98% (manual only for Phase 5 line items + STOP status change in Workiz)  
 **GitHub Repo:** windowandsolarcare-hash/Odoo-Migration  
 **Primary Contact:** DJ Sanders (owner, developer)  
-**Recent Major Changes:** 
-- Phase 2 Reactivation - Eliminated Zapier, direct Odoo→Workiz API
-- STOP Compliance - Reactivation now respects SMS opt-outs (2026-03-15)
+
+**Recent Major Changes:**
+- **2026-03-16:** Phase 2 Reactivation - 2-stage workflow (PREVIEW writes to field, LAUNCH sends from field)
+- **2026-03-16:** STOP Compliance - Fully automated via Zapier (Workiz webhook → phone.blacklist)
+- **2026-03-16:** SMS text updated: "we'd like to schedule an appointment again!" (not "stop by")
+- **2026-03-15:** Reactivation STOP checks - Respects `phone_blacklisted` and `x_studio_activelead`
+- **2026-03-08:** Phase 2 Rewrite - Eliminated Zapier middleware, direct Odoo→Workiz API
+- **2026-03-05:** Phase 5 alternating logic fix, Phase 6 check number sync, invoice Workiz link field
