@@ -133,20 +133,16 @@ Text STOP to opt out"""
     
     # --- POST PREVIEW TO CHATTER ONLY ---
     try:
-        # Post preview to chatter
-        preview_html = f"""<p><strong>📋 REACTIVATION SMS PREVIEW</strong></p>
-<p><strong>Contact:</strong> {full_name}</p>
-<p><strong>Phone:</strong> {contact_vals.get('phone')}</p>
-<p><strong>Expected Revenue:</strong> ${total_expected_revenue:.2f}</p>
-<hr/>
-<p><strong>SMS Message:</strong></p>
-<pre>{message_body}</pre>
-<hr/>
-<p><em>To send as-is: Click "Launch" (field will auto-compose fresh)</em></p>
-<p><em>To modify: Copy text above, paste into "SMS Text Modified" tab, edit it, then click "Launch"</em></p>"""
+        # Post preview to chatter (simple format for easy copy/paste)
+        preview_text = f"""📝 **PREVIEW MODE**
+
+{message_body}
+
+---
+*To send as-is, click 'LAUNCH'*
+*To modify: Copy text above → Paste into "SMS Text Modified" tab → Edit → Click 'LAUNCH'*"""
         
-        source_order.message_post(body=preview_html)
-        source_order.message_post(body=f"✅ PREVIEW READY - Click Launch to send")
+        source_order.message_post(body=preview_text)
         
     except Exception as e:
         source_order.message_post(body=f"⚠️ Error saving preview: {e}")
