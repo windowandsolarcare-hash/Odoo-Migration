@@ -183,7 +183,7 @@ for source_order in records:
     # --- MESSAGE BODY ---
     message_body = f"""Hi {first_name}, I hope all is well. It's Window & Solar Care.
 
-We last serviced your home on {most_recent_visit_date}. It's been a while and we'd love to stop by again!
+We last serviced your home on {most_recent_visit_date}. It's been a while and we'd like to schedule an appointment again!
 
 Your updated {current_year} {estimate_word} for services we've done for you:
 {services_text_block}
@@ -236,6 +236,9 @@ Primary Service: {primary_service_str}"""
         
         # Update contact's last reactivation sent date
         contact.write({'x_studio_last_reactivation_sent': current_date_iso})
+        
+        # Update property's pricing menu
+        prop_record.write({'x_studio_prices_per_service': services_text_block})
         
         source_order.message_post(body=f"✅ Opportunity #{opportunity_id} created - ${total_expected_revenue:.2f}")
         
