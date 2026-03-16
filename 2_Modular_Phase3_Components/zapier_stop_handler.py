@@ -123,7 +123,7 @@ def update_contact_status(client_id):
                 "args": [
                     ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
                     "res.partner", "write",
-                    [[contact_id], {"x_studio_activelead": "do_not_contact"}]
+                    [[contact_id], {"x_studio_activelead": "Do Not Contact"}]
                 ]
             },
             "id": 1
