@@ -401,8 +401,7 @@ Primary Service: {primary_service_str}"""
         
         # --- ARCHIVE SMS TO OPPORTUNITY & CLEAR FIELD ---
         try:
-            now_utc = datetime.now(timezone.utc)
-            timestamp = now_utc.strftime("%Y-%m-%d %H:%M:%S UTC")
+            timestamp = now_pst.strftime('%Y-%m-%d %H:%M:%S PST')
             
             # Write full SMS to opportunity chatter (audit trail)
             sms_archive_message = f"""📤 **SMS SENT - Reactivation**
