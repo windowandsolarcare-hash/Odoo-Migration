@@ -81,6 +81,7 @@ for source_order in records:
         
     full_name = contact_vals.get('name') or "Client"
     first_name = full_name.split()[0]
+    phone_sanitized = contact_vals.get('phone', '')
     
     # Use Contact's aggregated last visit date
     most_recent_visit_date = "recently"
