@@ -10,19 +10,12 @@ This guide helps you set up the 2-button reactivation workflow:
 
 ## Step 1: Add Required Fields to CRM Opportunity
 
-Go to **Settings → Studio → CRM → Opportunities**
+**SKIP THIS STEP** - You've already created these fields in the DRAFTS tab:
 
-Add these **Text fields**:
+✅ **Technical Name:** `x_studio_x_draft_sms_message` (Label: Draft SMS Message)  
+✅ **Technical Name:** `x_studio_x_draft_pricing_menu` (Label: Draft Pricing Menu)
 
-1. **Technical Name:** `x_draft_sms_message`
-   - **Label:** Draft SMS Message
-   - **Widget:** Text (multiline)
-   - **Show on form:** Yes (for editing in modify workflow)
-
-2. **Technical Name:** `x_draft_pricing_menu`
-   - **Label:** Draft Pricing Menu
-   - **Widget:** Text (multiline)
-   - **Show on form:** Yes (for editing in modify workflow)
+Both are Text (multiline) fields and are editable on the form.
 
 ---
 
@@ -62,7 +55,7 @@ https://raw.githubusercontent.com/windowandsolarcare-hash/Odoo-Migration/main/1_
 ### Option A: Simple Approach (Manual Edit)
 
 1. Run **PREVIEW** to save draft SMS to opportunity fields
-2. In opportunity form, manually edit `x_draft_sms_message` and `x_draft_pricing_menu` fields
+2. In opportunity form, go to **DRAFTS tab** and manually edit `x_studio_x_draft_sms_message` and `x_studio_x_draft_pricing_menu` fields
 3. Create new Server Action: `Reactivation: 3. LAUNCH (Modify Text)`
    - **Python Code:** Copy from:
    ```
@@ -76,9 +69,9 @@ This creates a popup form where you edit the SMS before sending.
 **In Odoo Studio:**
 1. Go to **CRM → Opportunities → Automation**
 2. Create a new **Action** button
-3. Set it to open a form view showing:
-   - `x_draft_sms_message` (editable)
-   - `x_draft_pricing_menu` (editable)
+3. Set it to open a form view showing (or just edit in DRAFTS tab):
+   - `x_studio_x_draft_sms_message` (editable)
+   - `x_studio_x_draft_pricing_menu` (editable)
    - Button that triggers the MODIFY server action
 
 ---
