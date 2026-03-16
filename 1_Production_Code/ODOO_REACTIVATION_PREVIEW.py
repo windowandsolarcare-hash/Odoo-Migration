@@ -10,8 +10,8 @@
 # - Click "Launch (Modify Text)" to edit before sending
 #
 # REQUIRED FIELDS ON CRM OPPORTUNITY (crm.lead):
-# - x_draft_sms_message (Text)
-# - x_draft_pricing_menu (Text)
+# - x_studio_x_draft_sms_message (Text) - in DRAFTS tab
+# - x_studio_x_draft_pricing_menu (Text) - in DRAFTS tab
 # ==============================================================================
 
 import datetime
@@ -136,8 +136,8 @@ Text STOP to opt out"""
     try:
         # Store draft SMS and pricing
         source_order.write({
-            'x_draft_sms_message': message_body,
-            'x_draft_pricing_menu': services_text_block.strip()
+            'x_studio_x_draft_sms_message': message_body,
+            'x_studio_x_draft_pricing_menu': services_text_block.strip()
         })
         
         # Post preview to chatter
