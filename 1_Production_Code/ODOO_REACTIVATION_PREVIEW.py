@@ -62,65 +62,90 @@ for source_order in records:
     all_orders = env['sale.order'].search([('partner_shipping_id', 'in', all_properties.ids), ('state', 'in', ['sale', 'done'])], order='date_order desc')
     detected_services = {}
     
-    # --- SERVICE DETECTION & HISTORY ANALYSIS ---
+    # --- SERVICE DETECTION & HISTORY ANALYSIS (MATCH LAUNCH LOGIC) ---
     for o in all_orders:
         order_year = o.date_order.year if o.date_order else (current_year - 1)
         for line in o.order_line:
             product_name = line.product_id.name if line.product_id else line.name.split('\n')[0]
             clean_name = product_name.lower()
             
-            # Detect service categories
-            if 'window' in clean_name or 'glass' in clean_name:
-                key = 'windows'
-            elif 'solar' in clean_name or 'panel' in clean_name:
-                key = 'solar'
-            elif 'screen' in clean_name:
-                key = 'screens'
-            elif 'gutter' in clean_name:
-                key = 'gutters'
-            elif 'pressure' in clean_name or 'wash' in clean_name:
-                key = 'pressure_washing'
-            else:
+            # Skip tip, discount, legacy, quote
+            if any(x in clean_name for x in ['tip', 'discount', 'legacy', 'quote']):
                 continue
             
-            if key not in detected_services:
-                detected_services[key] = {
-                    'display_name': product_name,
-                    'price': line.price_unit,
-                    'last_year': order_year,
-                    'occurrences': 0
+            # Store by product name (not category) with base price
+            if product_name not in detected_services:
+                detected_services[product_name] = {
+                    'base_price': line.price_subtotal,
+                    'last_seen_year': order_year,
+                    'name_display': product_name
                 }
-            
-            detected_services[key]['occurrences'] += 1
-            if order_year > detected_services[key]['last_year']:
-                detected_services[key]['last_year'] = order_year
-                detected_services[key]['price'] = line.price_unit
     
+    # Default service if none detected
     if not detected_services:
-        source_order.message_post(body="⚠️ No services detected in order history")
-        break
+        detected_services["Window Cleaning"] = {
+            'base_price': 150.0,
+            'last_seen_year': current_year - 1,
+            'name_display': "Window Cleaning"
+        }
     
-    # Build pricing menu
-    services_text_block = ""
-    total_expected_revenue = 0
-    for service_data in detected_services.values():
-        display_name = service_data['display_name']
-        price = service_data['price']
-        services_text_block += f"• {display_name}: ${price:.0f}\n"
-        total_expected_revenue += price
+    # --- REVENUE CALCULATION & PRICE ENGINE (5% ANNUAL INCREASE) ---
+    total_expected_revenue = 0.0
+    service_lines = []
     
-    # Build Calendly URL
-    contact_name_encoded = full_name.replace(' ', '+')
-    address_encoded = (contact_vals.get('street') or '').replace(' ', '+')
-    cal_url = f"https://calendly.com/wasc/ht?name={contact_name_encoded}&a1={address_encoded}"
+    for k, data in detected_services.items():
+        base_price = data['base_price']
+        is_solar = "solar" in data['name_display'].lower()
+        
+        if is_solar:
+            final_price = int(base_price)
+        else:
+            # Apply 5% annual compound increase
+            years_elapsed = current_year - data['last_seen_year']
+            if years_elapsed < 1:
+                years_elapsed = 1
+            compounded_amount = base_price * (1.05 ** years_elapsed)
+            final_price = int(5 * round(compounded_amount / 5))  # Round to nearest $5
+        
+        if final_price < 85:
+            final_price = 85
+        
+        total_expected_revenue += final_price
+        service_lines.append(f"• {data['name_display']}: ${final_price}")
+    
+    services_text_block = "\n".join(service_lines)
+    estimate_word = "estimate" if len(service_lines) <= 1 else "estimates"
+    
+    # --- BOOKING LINK LOGIC (MATCH LAUNCH) ---
+    city = contact_vals.get('city') or ''
+    city_slug = "gb"
+    
+    if "Palm Springs" in city:
+        city_slug = "pmsg"
+    elif "Rancho Mirage" in city:
+        city_slug = "rm"
+    elif "Palm Desert" in city:
+        city_slug = "pd"
+    elif "Indian Wells" in city:
+        city_slug = "iw"
+    elif "Indio" in city or "La Quinta" in city:
+        city_slug = "indlaq"
+    elif "Hemet" in city:
+        city_slug = "ht"
+    
+    name_encoded = full_name.replace(' ', '+').replace('&', '%26')
+    address_encoded = (contact_vals.get('street') or "").replace(' ', '+').replace('#', '%23').replace('&', '%26')
+    
+    cal_url = f"https://calendly.com/wasc/{city_slug}?name={name_encoded}&a1={address_encoded}"
     
     # Build SMS message
     message_body = f"""Hi {first_name}, I hope all is well. It's Window & Solar Care.
 
 We last serviced your home on {most_recent_visit_date}. It's been a while and we'd like to schedule an appointment again!
 
-Your updated {current_year} estimates for services we've done for you:
+Your updated {current_year} {estimate_word} for services we've done for you:
 {services_text_block}
+
 Tap here to schedule Online:
 {cal_url}
 
