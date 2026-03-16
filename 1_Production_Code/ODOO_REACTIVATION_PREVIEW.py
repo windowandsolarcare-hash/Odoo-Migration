@@ -9,9 +9,8 @@
 # - Click "Launch" to send as-is
 # - Click "Launch (Modify Text)" to edit before sending
 #
-# REQUIRED FIELDS ON CRM OPPORTUNITY (crm.lead):
-# - x_studio_x_draft_sms_message (Text) - in DRAFTS tab
-# - x_studio_x_draft_pricing_menu (Text) - in DRAFTS tab
+# REQUIRED FIELDS ON SALE ORDER (sale.order):
+# - x_studio_manual_sms_override (Text) - in "SMS Text Modified" tab
 # ==============================================================================
 
 # NOTE: datetime is pre-loaded in Odoo, no import needed
@@ -132,12 +131,11 @@ Window & Solar Care
 855-245-2273
 Text STOP to opt out"""
     
-    # --- SAVE DRAFT TO OPPORTUNITY ---
+    # --- SAVE DRAFT TO SALE ORDER ---
     try:
-        # Store draft SMS and pricing
+        # Store draft SMS in Sale Order's "SMS Text Modified" tab
         source_order.write({
-            'x_studio_x_draft_sms_message': message_body,
-            'x_studio_x_draft_pricing_menu': services_text_block.strip()
+            'x_studio_manual_sms_override': message_body
         })
         
         # Post preview to chatter
@@ -149,10 +147,8 @@ Text STOP to opt out"""
 <p><strong>SMS Message:</strong></p>
 <pre>{message_body}</pre>
 <hr/>
-<p><strong>Pricing Menu:</strong></p>
-<pre>{services_text_block}</pre>
-<hr/>
-<p><em>Click "Launch" to send as-is, or "Launch (Modify Text)" to edit first.</em></p>"""
+<p><em>To send as-is: Click "Launch"</em></p>
+<p><em>To modify: Go to "SMS Text Modified" tab, edit the text, then click "Launch"</em></p>"""
         
         source_order.message_post(body=preview_html)
         source_order.message_post(body=f"✅ PREVIEW READY - Click Launch to send")
