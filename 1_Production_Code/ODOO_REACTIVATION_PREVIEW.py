@@ -131,13 +131,8 @@ Window & Solar Care
 855-245-2273
 Text STOP to opt out"""
     
-    # --- SAVE DRAFT TO SALE ORDER ---
+    # --- POST PREVIEW TO CHATTER ONLY ---
     try:
-        # Store draft SMS in Sale Order's "SMS Text Modified" tab
-        source_order.write({
-            'x_studio_manual_sms_override': message_body
-        })
-        
         # Post preview to chatter
         preview_html = f"""<p><strong>📋 REACTIVATION SMS PREVIEW</strong></p>
 <p><strong>Contact:</strong> {full_name}</p>
@@ -147,8 +142,8 @@ Text STOP to opt out"""
 <p><strong>SMS Message:</strong></p>
 <pre>{message_body}</pre>
 <hr/>
-<p><em>To send as-is: Click "Launch"</em></p>
-<p><em>To modify: Go to "SMS Text Modified" tab, edit the text, then click "Launch"</em></p>"""
+<p><em>To send as-is: Click "Launch" (field will auto-compose fresh)</em></p>
+<p><em>To modify: Copy text above, paste into "SMS Text Modified" tab, edit it, then click "Launch"</em></p>"""
         
         source_order.message_post(body=preview_html)
         source_order.message_post(body=f"✅ PREVIEW READY - Click Launch to send")
