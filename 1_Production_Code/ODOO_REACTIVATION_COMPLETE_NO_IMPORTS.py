@@ -48,10 +48,30 @@ for source_order in records:
     
     # STOP COMPLIANCE: Skip blacklisted contacts or "Do Not Contact"
     if contact_vals.get('phone_blacklisted'):
+        skip_message = f"""
+<p><strong>⛔ REACTIVATION SKIPPED - Phone Blacklisted</strong></p>
+<ul>
+<li><strong>Contact:</strong> {contact_vals.get('name')}</li>
+<li><strong>Reason:</strong> Phone is blacklisted (STOP request received)</li>
+<li><strong>Time:</strong> {now_pst.strftime('%Y-%m-%d %H:%M:%S PST')}</li>
+</ul>
+<p><em>No SMS sent. Contact will remain in Do Not Contact status until manually changed.</em></p>
+"""
+        contact.message_post(body=skip_message)
         source_order.message_post(body=f"[SKIP] Contact {contact_vals.get('name')} is phone blacklisted (STOP request) - no SMS sent")
         break
     
     if contact_vals.get('x_studio_activelead') == 'Do Not Contact':
+        skip_message = f"""
+<p><strong>⛔ REACTIVATION SKIPPED - Do Not Contact</strong></p>
+<ul>
+<li><strong>Contact:</strong> {contact_vals.get('name')}</li>
+<li><strong>Reason:</strong> Active/Lead status is 'Do Not Contact'</li>
+<li><strong>Time:</strong> {now_pst.strftime('%Y-%m-%d %H:%M:%S PST')}</li>
+</ul>
+<p><em>No SMS sent. Contact will remain in Do Not Contact status until manually changed.</em></p>
+"""
+        contact.message_post(body=skip_message)
         source_order.message_post(body=f"[SKIP] Contact {contact_vals.get('name')} is marked 'Do Not Contact' - no SMS sent")
         break
     
