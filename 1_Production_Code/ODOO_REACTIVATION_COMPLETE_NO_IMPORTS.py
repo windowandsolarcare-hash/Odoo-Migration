@@ -372,7 +372,7 @@ Primary Service: {primary_service_str}"""
             source_order.message_post(body=f"[DEBUG] Full status response: {status_response.text}")
         
         # STEP 4: Update Opportunity with graveyard link
-        graveyard_link = f"https://app.workiz.com/jobs/view/{graveyard_uuid}"
+        graveyard_link = f"https://app.workiz.com/root/job/{graveyard_uuid}/1"
         
         new_opportunity.write({
             'x_workiz_graveyard_uuid': graveyard_uuid,
