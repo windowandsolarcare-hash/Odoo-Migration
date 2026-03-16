@@ -399,6 +399,31 @@ Primary Service: {primary_service_str}"""
         
         source_order.message_post(body=f"✅ COMPLETE: {graveyard_link}")
         
+        # --- ARCHIVE SMS TO OPPORTUNITY & CLEAR FIELD ---
+        try:
+            now_utc = datetime.now(timezone.utc)
+            timestamp = now_utc.strftime("%Y-%m-%d %H:%M:%S UTC")
+            
+            # Write full SMS to opportunity chatter (audit trail)
+            sms_archive_message = f"""📤 **SMS SENT - Reactivation**
+
+**Time:** {timestamp}
+**Recipient:** {full_name} ({phone_sanitized})
+**Graveyard Job:** {graveyard_link}
+
+**Message:**
+{message_body}"""
+            
+            new_opportunity.message_post(body=sms_archive_message)
+            source_order.message_post(body="[DEBUG] SMS archived to opportunity chatter")
+            
+            # Clear the field for next campaign
+            source_order.write({'x_studio_manual_sms_override': ''})
+            source_order.message_post(body="[DEBUG] SMS field cleared (ready for next campaign)")
+            
+        except Exception as e:
+            source_order.message_post(body=f"⚠️ Error archiving SMS: {e}")
+        
     except Exception as e:
         source_order.message_post(body=f"⚠️ Workiz integration error: {e}")
     
