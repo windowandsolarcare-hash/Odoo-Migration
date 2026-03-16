@@ -9,8 +9,8 @@
 # 3. This expects that PREVIEW has already run and populated x_draft_sms_message
 #
 # FIELDS REQUIRED ON CRM OPPORTUNITY (crm.lead):
-# - x_draft_sms_message (Text) - Stores the composed SMS
-# - x_draft_pricing_menu (Text) - Stores the pricing menu
+# - x_studio_x_draft_sms_message (Text) - Stores the composed SMS (in DRAFTS tab)
+# - x_studio_x_draft_pricing_menu (Text) - Stores the pricing menu (in DRAFTS tab)
 # - x_studio_last_reactivation_sent (Date) - Already exists
 # - x_odoo_contact_id (Many2one: res.partner)
 # - x_historical_workiz_uuid (Char)
@@ -36,10 +36,10 @@ current_date_iso = now_pst.strftime('%Y-%m-%d')
 
 for opportunity in records:
     # Read current draft SMS and pricing
-    opp_vals = opportunity.read(['x_draft_sms_message', 'x_draft_pricing_menu', 'partner_id', 'x_odoo_contact_id', 'x_historical_workiz_uuid'])[0]
+    opp_vals = opportunity.read(['x_studio_x_draft_sms_message', 'x_studio_x_draft_pricing_menu', 'partner_id', 'x_odoo_contact_id', 'x_historical_workiz_uuid'])[0]
     
-    draft_sms = opp_vals.get('x_draft_sms_message', '')
-    draft_pricing = opp_vals.get('x_draft_pricing_menu', '')
+    draft_sms = opp_vals.get('x_studio_x_draft_sms_message', '')
+    draft_pricing = opp_vals.get('x_studio_x_draft_pricing_menu', '')
     contact_id = opp_vals.get('x_odoo_contact_id')
     workiz_uuid = opp_vals.get('x_historical_workiz_uuid', 'NO_UUID_FOUND')
     
@@ -51,8 +51,8 @@ for opportunity in records:
     # STEP 2: SHOW EDIT FORM (MANUAL STEP)
     # ==============================================================================
     # In Odoo Studio, create a form view that shows:
-    # - x_draft_sms_message (Text widget, editable)
-    # - x_draft_pricing_menu (Text widget, editable)
+    # - x_studio_x_draft_sms_message (Text widget, editable) - in DRAFTS tab
+    # - x_studio_x_draft_pricing_menu (Text widget, editable) - in DRAFTS tab
     # - A button that triggers the SEND action below
     #
     # For now, this script assumes you've already edited the fields manually
@@ -65,9 +65,9 @@ for opportunity in records:
     opportunity.message_post(body="[DEBUG] Starting modified SMS send...")
     
     # Re-read the (potentially edited) SMS and pricing
-    opp_vals_updated = opportunity.read(['x_draft_sms_message', 'x_draft_pricing_menu'])[0]
-    final_sms = opp_vals_updated.get('x_draft_sms_message', '')
-    final_pricing = opp_vals_updated.get('x_draft_pricing_menu', '')
+    opp_vals_updated = opportunity.read(['x_studio_x_draft_sms_message', 'x_studio_x_draft_pricing_menu'])[0]
+    final_sms = opp_vals_updated.get('x_studio_x_draft_sms_message', '')
+    final_pricing = opp_vals_updated.get('x_studio_x_draft_pricing_menu', '')
     
     if not final_sms:
         opportunity.message_post(body="⚠️ SMS message is empty. Cannot send.")
