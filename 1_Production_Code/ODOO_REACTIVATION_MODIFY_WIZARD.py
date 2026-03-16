@@ -16,9 +16,7 @@
 # - x_historical_workiz_uuid (Char)
 # ==============================================================================
 
-import datetime
-import requests
-import json
+# NOTE: datetime, requests, json are pre-loaded in Odoo - no imports needed
 
 # Configuration
 WORKIZ_API_TOKEN = "api_1hu6lroiy5zxomcpptuwsg8heju97iwg"
