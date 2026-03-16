@@ -141,3 +141,6 @@ else:
             "client_id": client_id,
             "phone": phone
         }
+
+# Return output for Zapier
+return output
