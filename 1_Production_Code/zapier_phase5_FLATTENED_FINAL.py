@@ -561,7 +561,7 @@ Workiz Job: {workiz_job.get('UUID', 'N/A')}"""
         if not activity_id:
             return {'success': False, 'error': 'Odoo returned no activity id'}
         print(f"[OK] Activity created: ID {activity_id}, Due: {due_date_str} (follow-up in {days_out} days)")
-        return {'success': True, 'activity_id': activity_id}
+        return {'success': True, 'activity_id': activity_id, 'due_date': due_date_str}
     except Exception as e:
         return {'success': False, 'error': str(e)}
 
@@ -695,7 +695,7 @@ def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoic
 # PHASE 5B: ON DEMAND PATH
 # ==============================================================================
 
-def create_ondemand_followup(workiz_job, contact_id, days_until_followup=180):
+def create_ondemand_followup(workiz_job, contact_id, days_until_followup=180, invoice_id=None):
     """Create follow-up reminder in Odoo (no Workiz job). Default 6 months when unknown."""
     print("\n" + "="*70)
     print("PHASE 5B: FOLLOW-UP ACTIVITY (no Workiz job)")
@@ -709,6 +709,30 @@ def create_ondemand_followup(workiz_job, contact_id, days_until_followup=180):
     if result['success']:
         print(f"[OK] Reminder created!")
         print("    NO Workiz job created (keeps schedule clean)")
+        
+        # Update invoice with activity link (if invoice_id provided)
+        activity_id = result.get('activity_id')
+        if invoice_id and activity_id:
+            try:
+                activity_url = f"https://window-solar-care.odoo.com/web#id={activity_id}&model=mail.activity&view_type=form"
+                odoo_rpc("account.move", "write", [[invoice_id], {"x_studio_workiz_job_link": activity_url}])
+                print(f"[OK] Updated invoice with activity link: {activity_url}")
+                
+                # Post notification to invoice chatter
+                message_body = f"""<p><strong>🔔 Follow-Up Activity Created</strong></p>
+<p>Customer: <strong>{customer_name}</strong><br/>
+Due Date: <strong>{result.get('due_date', 'N/A')}</strong></p>
+<p>Activity ID: <strong>{activity_id}</strong></p>
+<p><em>Click the "Workiz Job Link" field on this invoice to open the activity in Odoo.</em></p>"""
+                
+                odoo_rpc("account.move", "message_post", [[invoice_id]], {
+                    "body": message_body,
+                    "message_type": "notification",
+                    "subtype_xmlid": "mail.mt_note"
+                })
+                print(f"[OK] Posted activity notification to invoice chatter")
+            except Exception as e:
+                print(f"[WARNING] Could not update invoice with activity link: {e}")
     else:
         print(f"[ERROR] Failed: {result.get('error')}")
     
@@ -806,7 +830,7 @@ def main(input_data):
         freq = workiz_job.get('frequency', '') or ''
         days = frequency_to_activity_days(freq)
         print(f"[*] On Demand -> follow-up activity in {days} days (frequency: {freq or 'unknown'})")
-        result = create_ondemand_followup(workiz_job, contact_id, days_until_followup=days)
+        result = create_ondemand_followup(workiz_job, contact_id, days_until_followup=days, invoice_id=invoice_id)
         return {'success': result['success'], 'path': '5B_ondemand', 'result': result}
     
     elif 'on request' in type_of_service or 'unknown' in type_of_service or not (type_of_service or '').strip():
@@ -817,7 +841,7 @@ def main(input_data):
         freq = workiz_job.get('frequency', '') or ''
         days = frequency_to_activity_days(freq)
         print(f"[*] Type '{type_of_service or 'empty'}' -> follow-up activity in {days} days (frequency: {freq or 'unknown'})")
-        result = create_ondemand_followup(workiz_job, contact_id, days_until_followup=days)
+        result = create_ondemand_followup(workiz_job, contact_id, days_until_followup=days, invoice_id=invoice_id)
         return {'success': result['success'], 'path': '5B_on_request_unknown', 'result': result}
     
     else:
