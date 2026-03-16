@@ -158,16 +158,8 @@ Text STOP to opt out"""
     
     # --- POST PREVIEW TO CHATTER ONLY ---
     try:
-        # Post preview to chatter (simple format for easy copy/paste)
-        preview_text = f"""📝 **PREVIEW MODE**
-
-{message_body}
-
----
-*To send as-is, click 'LAUNCH'*
-*To modify: Copy text above → Paste into "SMS Text Modified" tab → Edit → Click 'LAUNCH'*"""
-        
-        source_order.message_post(body=preview_text)
+        # Use plain text with double newlines (matches old working format)
+        source_order.message_post(body=f"📝 **PREVIEW MODE**\n\n{message_body}\n\n---\n*To send as-is, click 'LAUNCH'*\n*To modify: Copy text above → Paste into 'SMS Text Modified' tab → Edit → Click 'LAUNCH'*")
         
     except Exception as e:
         source_order.message_post(body=f"⚠️ Error saving preview: {e}")
