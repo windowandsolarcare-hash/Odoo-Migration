@@ -198,16 +198,16 @@ Window & Solar Care
 855-245-2273
 Text STOP to opt out"""
 
-    # --- CHECK FOR MANUAL SMS OVERRIDE ---
+    # --- READ SMS FROM FIELD (WRITTEN BY PREVIEW) ---
     manual_override = source_order.x_studio_manual_sms_override or ''
     
-    if manual_override.strip():
-        # Use manually edited SMS from "SMS Text Modified" tab
-        message_body = manual_override.strip()
-        source_order.message_post(body="✏️ Using MANUAL SMS override from 'SMS Text Modified' tab")
-    else:
-        # Use auto-composed SMS (already set above)
-        source_order.message_post(body="🤖 Using AUTO-COMPOSED SMS")
+    if not manual_override.strip():
+        source_order.message_post(body="⚠️ ERROR: No SMS text found. Run PREVIEW first!")
+        break
+    
+    # Use SMS from field (either auto-composed by PREVIEW or manually edited by user)
+    message_body = manual_override.strip()
+    source_order.message_post(body="📤 Sending SMS from 'SMS Text Modified' field...")
 
     # --- CREATE NEW OPPORTUNITY ---
     try:
