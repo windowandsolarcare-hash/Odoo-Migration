@@ -198,6 +198,17 @@ Window & Solar Care
 855-245-2273
 Text STOP to opt out"""
 
+    # --- CHECK FOR MANUAL SMS OVERRIDE ---
+    manual_override = source_order.x_studio_manual_sms_override or ''
+    
+    if manual_override.strip():
+        # Use manually edited SMS from "SMS Text Modified" tab
+        message_body = manual_override.strip()
+        source_order.message_post(body="✏️ Using MANUAL SMS override from 'SMS Text Modified' tab")
+    else:
+        # Use auto-composed SMS (already set above)
+        source_order.message_post(body="🤖 Using AUTO-COMPOSED SMS")
+
     # --- CREATE NEW OPPORTUNITY ---
     try:
         source_order.message_post(body=f"[DEBUG] Creating opportunity for {full_name}")
