@@ -73,12 +73,27 @@ def blacklist_phone(phone):
     )
     
     if not existing:
-        # Create blacklist record
-        odoo_call(
-            "phone.blacklist",
-            "create",
-            values={"number": e164_phone}
-        )
+        # Create blacklist record - values must be passed as a list
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "call",
+            "params": {
+                "service": "object",
+                "method": "execute_kw",
+                "args": [
+                    ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                    "phone.blacklist", "create",
+                    [{"number": e164_phone}]
+                ]
+            },
+            "id": 1
+        }
+        response = requests.post(ODOO_URL, json=payload, timeout=30)
+        result = response.json()
+        
+        if "error" in result:
+            raise Exception(f"Odoo API Error: {result['error']}")
+        
         return f"Blacklisted {e164_phone}"
     else:
         return f"{e164_phone} already blacklisted"
@@ -98,13 +113,26 @@ def update_contact_status(client_id):
         contact_id = contact["id"]
         contact_name = contact["name"]
         
-        # Update Active/Lead field
-        odoo_call(
-            "res.partner",
-            "write",
-            domain=[[contact_id]],
-            values={"x_studio_activelead": "do_not_contact"}
-        )
+        # Update Active/Lead field - write requires [ids], values
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "call",
+            "params": {
+                "service": "object",
+                "method": "execute_kw",
+                "args": [
+                    ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                    "res.partner", "write",
+                    [[contact_id], {"x_studio_activelead": "do_not_contact"}]
+                ]
+            },
+            "id": 1
+        }
+        response = requests.post(ODOO_URL, json=payload, timeout=30)
+        result = response.json()
+        
+        if "error" in result:
+            raise Exception(f"Odoo API Error: {result['error']}")
         
         return f"Updated {contact_name} to 'Do not Contact'"
     else:
