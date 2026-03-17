@@ -67,6 +67,24 @@ When modifying any Python file:
 5. Confirm to user: what was changed, file name, and that it's on GitHub main
 6. Zapier auto-fetches latest code on next trigger (NO manual Zapier update needed)
 
+## PLATFORM MIGRATION RULE — CRITICAL
+**When migrating code between platforms (Zapier → Odoo, Odoo → Zapier, etc.):**
+
+❌ **NEVER:**
+- Simplify, optimize, or "clean up" existing code
+- Strip down features, logging, or field mappings
+- Remove ANY functionality that exists in the original
+
+✅ **ALWAYS:**
+- Copy ALL functionality exactly (1:1 functional duplicate)
+- Preserve ALL fields, logs, chatter posts, activity details
+- Only change what's technically required for new platform:
+  - Remove `import` statements for Odoo safe_eval
+  - Adjust API call format
+  - Variable naming (only if platform requires it)
+
+**Why:** This code represents months of development. Every detail exists for a reason. Platform migrations are NOT opportunities to refactor - they are pure translations with minimum technical changes only.
+
 ## ZAPIER INTEGRATION RULES
 - Zapier watches the `main` branch only
 - Python files for Zapier are located in: `1_Production_Code/`
