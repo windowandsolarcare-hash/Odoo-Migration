@@ -419,7 +419,6 @@ Reply STOP to unsubscribe"""
             "x_related_order_id": int(source_order.id),
             "x_contact_id": int(contact.id),
             "x_campaign_id": campaign_id,
-            "x_date": current_date_iso,
             "x_campaign": campaign_name
         }
         
