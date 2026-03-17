@@ -44,7 +44,15 @@ for source_order in records:
     
     contact_vals = contact.read(['phone', 'name', 'street', 'city', 'x_studio_last_visit_all_properties', 'phone_blacklisted', 'x_studio_activelead'])[0]
     
+    # Extract campaign info dynamically (format: [id, "name"] or False)
+    campaign_id = 1
+    campaign_name = "2026 Reactivation Campaign"
+    if source_order.campaign_id:
+        campaign_id = source_order.campaign_id.id
+        campaign_name = source_order.campaign_id.name
+    
     source_order.message_post(body=f"[DEBUG] Contact: {contact_vals.get('name')}")
+    source_order.message_post(body=f"[DEBUG] Campaign: {campaign_name} (ID: {campaign_id})")
     
     # STOP COMPLIANCE: Skip blacklisted contacts or "Do Not Contact"
     if contact_vals.get('phone_blacklisted'):
@@ -227,7 +235,7 @@ Primary Service: {primary_service_str}"""
             'partner_id': contact.id,
             'stage_id': reactivation_stage_id,
             'type': 'opportunity',
-            'campaign_id': 1,
+            'campaign_id': campaign_id,
             'expected_revenue': total_expected_revenue,
             'description': opportunity_description,
             'x_primary_service': primary_service_str,
@@ -348,6 +356,13 @@ Primary Service: {primary_service_str}"""
         
         source_order.message_post(body=f"[DEBUG] Graveyard UUID: {graveyard_uuid}")
         
+        # Wait for Workiz to fully commit the job before updating status (prevent race condition)
+        source_order.message_post(body=f"[DEBUG] Waiting 3 seconds for Workiz to commit job...")
+        wait_start = datetime.datetime.now()
+        while (datetime.datetime.now() - wait_start).total_seconds() < 3:
+            pass
+        source_order.message_post(body=f"[DEBUG] Wait complete")
+        
         # STEP 3: Update status to trigger SMS
         source_order.message_post(body=f"[DEBUG] Triggering SMS for UUID: {graveyard_uuid}")
         source_order.message_post(body=f"[DEBUG] Update URL: {WORKIZ_BASE_URL}/job/update/")
@@ -399,13 +414,13 @@ Reply STOP to unsubscribe"""
         
         activity_data = {
             "x_name": f"Reactivation sent for Order {source_order.name}",
-            "x_activity_type": "reactivation_sms",
+            "x_activity_type": "reactivation_sent",
             "x_description": campaign_description,
             "x_related_order_id": int(source_order.id),
             "x_contact_id": int(contact.id),
-            "x_campaign_id": 1,
+            "x_campaign_id": campaign_id,
             "x_date": current_date_iso,
-            "x_campaign": "2026 Reactivation Campaign"
+            "x_campaign": campaign_name
         }
         
         contact.write({
