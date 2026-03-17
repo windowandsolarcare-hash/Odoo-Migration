@@ -54,33 +54,31 @@ for source_order in records:
     source_order.message_post(body=f"[DEBUG] Contact: {contact_vals.get('name')}")
     source_order.message_post(body=f"[DEBUG] Campaign: {campaign_name} (ID: {campaign_id})")
     
-    # STOP COMPLIANCE: Skip blacklisted contacts or "Do Not Contact"
-    if contact_vals.get('phone_blacklisted'):
-        skip_message = f"""
-<p><strong>⛔ REACTIVATION SKIPPED - Phone Blacklisted</strong></p>
-<ul>
-<li><strong>Contact:</strong> {contact_vals.get('name')}</li>
-<li><strong>Reason:</strong> Phone is blacklisted (STOP request received)</li>
-<li><strong>Time:</strong> {now_pst.strftime('%Y-%m-%d %H:%M:%S PST')}</li>
-</ul>
-<p><em>No SMS sent. Contact will remain in Do Not Contact status until manually changed.</em></p>
-"""
-        contact.message_post(body=skip_message)
-        source_order.message_post(body=f"[SKIP] Contact {contact_vals.get('name')} is phone blacklisted (STOP request) - no SMS sent")
-        break
+    # STOP COMPLIANCE: Skip if blacklisted OR "Do Not Contact" (OR condition)
+    is_blacklisted = contact_vals.get('phone_blacklisted')
+    is_do_not_contact = contact_vals.get('x_studio_activelead') == 'Do Not Contact'
     
-    if contact_vals.get('x_studio_activelead') == 'Do Not Contact':
+    if is_blacklisted or is_do_not_contact:
+        # Determine which reason(s) apply
+        reasons = []
+        if is_blacklisted:
+            reasons.append("Phone is blacklisted (STOP request received)")
+        if is_do_not_contact:
+            reasons.append("Active/Lead status is 'Do Not Contact'")
+        
+        reason_text = " AND ".join(reasons)
+        
         skip_message = f"""
-<p><strong>⛔ REACTIVATION SKIPPED - Do Not Contact</strong></p>
+<p><strong>⛔ REACTIVATION SKIPPED - STOP Compliance</strong></p>
 <ul>
 <li><strong>Contact:</strong> {contact_vals.get('name')}</li>
-<li><strong>Reason:</strong> Active/Lead status is 'Do Not Contact'</li>
+<li><strong>Reason:</strong> {reason_text}</li>
 <li><strong>Time:</strong> {now_pst.strftime('%Y-%m-%d %H:%M:%S PST')}</li>
 </ul>
 <p><em>No SMS sent. Contact will remain in Do Not Contact status until manually changed.</em></p>
 """
         contact.message_post(body=skip_message)
-        source_order.message_post(body=f"[SKIP] Contact {contact_vals.get('name')} is marked 'Do Not Contact' - no SMS sent")
+        source_order.message_post(body=f"[SKIP] Contact {contact_vals.get('name')} - {reason_text} - no SMS sent")
         break
     
     if not contact_vals.get('phone'):
