@@ -1447,10 +1447,21 @@ def main(input_data):
         phone = workiz_job.get('Phone', '')
         email = workiz_job.get('Email', '')
         client_id = workiz_job.get('ClientId')  # Workiz ClientId - THE KEY FIELD
+        job_type = workiz_job.get('JobType', '')
         
         print(f"[*] Customer: {customer_name}")
         print(f"[*] ClientId: {client_id}")
         print(f"[*] Address: {service_address}")
+        print(f"[*] JobType: {job_type}")
+        
+        # FILTER: Skip "Reactivation Lead" graveyard jobs (they're just for SMS, not real work)
+        if job_type == "Reactivation Lead":
+            print(f"\n[SKIP] Reactivation Lead detected - graveyard job for SMS only, no SO needed")
+            return {
+                'success': True, 
+                'message': 'Skipped: Reactivation graveyard job (no SO created)',
+                'path': 'SKIP'
+            }
         
         if not client_id:
             return {'success': False, 'error': 'Missing ClientId from Workiz job'}
