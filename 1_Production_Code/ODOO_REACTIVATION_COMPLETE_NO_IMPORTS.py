@@ -298,6 +298,7 @@ Primary Service: {primary_service_str}"""
             source_order.message_post(body="⚠️ No ClientId found")
             continue
         
+        # Build graveyard job with FULL data from historical job (data-rich, not skinny)
         graveyard_data = {
             "auth_secret": WORKIZ_AUTH_SECRET,
             "ClientId": client_id,
@@ -313,8 +314,21 @@ Primary Service: {primary_service_str}"""
             "JobSource": historical_job.get("JobSource") or "Reactivation",
             "information_to_remember": message_body,
             "JobNotes": str(historical_job.get("JobNotes") or ""),
-            "Phone": str(historical_job.get("Phone") or "")
+            "Phone": str(historical_job.get("Phone") or ""),
+            # ENRICHMENT: Copy rich data from historical job
+            "LineItems": historical_job.get("LineItems", []),
+            "Team": historical_job.get("Team", []),
+            "Tags": historical_job.get("Tags", ""),
+            "gate_code": str(historical_job.get("gate_code") or historical_job.get("GateCode") or ""),
+            "pricing": str(historical_job.get("pricing") or historical_job.get("Pricing") or ""),
+            "type_of_service": str(historical_job.get("type_of_service") or ""),
+            "frequency": str(historical_job.get("frequency") or ""),
+            "last_date_cleaned": str(historical_job.get("last_date_cleaned") or ""),
+            "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
+            "confirmation_method": str(historical_job.get("confirmation_method") or "")
         }
+        
+        source_order.message_post(body=f"[DEBUG] Graveyard job enriched with {len(graveyard_data.get('LineItems', []))} line items, {len(graveyard_data.get('Team', []))} team members")
         
         source_order.message_post(body=f"[DEBUG] Creating graveyard job...")
         source_order.message_post(body=f"[DEBUG] Request URL: {WORKIZ_BASE_URL}/job/create/")
