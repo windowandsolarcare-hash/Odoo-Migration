@@ -430,6 +430,39 @@ CLAUDE_CONTEXT.md                     - This file
 **CRITICAL: We use `gh` (GitHub CLI), NOT `git` commands!**
 **Golden Rule: Code lives in GitHub, NOT in Zapier UI!**
 
+### ⚠️ PLATFORM MIGRATION RULE (CRITICAL)
+
+**When migrating code between platforms (Zapier → Odoo, Odoo → Zapier, etc.):**
+
+❌ **DO NOT:**
+- Simplify or optimize the code
+- Strip down features
+- Shorten logging
+- Remove fields
+- "Modernize" or "clean up" existing logic
+- Make ANY changes beyond what's required for platform compatibility
+
+✅ **DO:**
+- Copy ALL functionality exactly as it exists
+- Preserve ALL field mappings
+- Preserve ALL logging statements
+- Preserve ALL chatter posts
+- Preserve ALL activity log details
+- Only change what's necessary for the new platform:
+  - Remove `import` statements for Odoo safe_eval
+  - Adjust API call format (if needed)
+  - Change variable names ONLY if platform requires it
+
+**Why:** This code represents months of development, testing, and refinement. Every field, every log entry, every detail exists for a reason. Platform migrations should be 1:1 functional copies with ONLY the minimum changes needed for technical compatibility.
+
+**Example (correct):**
+- User: "Move Phase 2 from Zapier to Odoo Server Actions"
+- Action: Copy ALL logic, remove `import` statements, test - nothing else changed
+
+**Example (incorrect):**
+- Action: Copy logic + simplify activity logging + optimize field structure
+- Result: Lost functionality that took months to develop
+
 ### Making Code Changes:
 
 1. **Edit locally:** Open file in Cursor (e.g., `zapier_phase5_FLATTENED_FINAL.py`)
