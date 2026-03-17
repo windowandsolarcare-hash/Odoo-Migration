@@ -295,19 +295,19 @@ Primary Service: {primary_service_str}"""
         graveyard_data = {
             "auth_secret": WORKIZ_AUTH_SECRET,
             "ClientId": client_id,
-            "FirstName": historical_job.get("FirstName", ""),
-            "LastName": historical_job.get("LastName", ""),
-            "Address": historical_job.get("Address", ""),
-            "City": historical_job.get("City", ""),
-            "State": historical_job.get("State", ""),
-            "PostalCode": historical_job.get("PostalCode", ""),
+            "FirstName": str(historical_job.get("FirstName") or ""),
+            "LastName": str(historical_job.get("LastName") or ""),
+            "Address": str(historical_job.get("Address") or ""),
+            "City": str(historical_job.get("City") or ""),
+            "State": str(historical_job.get("State") or ""),
+            "PostalCode": str(historical_job.get("PostalCode") or ""),
             "JobType": "Reactivation Lead",
-            "Unit": historical_job.get("Unit", ""),
-            "ServiceArea": historical_job.get("ServiceArea", ""),
+            "Unit": str(historical_job.get("Unit") or ""),
+            "ServiceArea": str(historical_job.get("ServiceArea") or ""),
             "JobSource": historical_job.get("JobSource") or "Reactivation",
             "information_to_remember": message_body,
-            "JobNotes": historical_job.get("JobNotes", ""),
-            "Phone": historical_job.get("Phone", "")
+            "JobNotes": str(historical_job.get("JobNotes") or ""),
+            "Phone": str(historical_job.get("Phone") or "")
         }
         
         source_order.message_post(body=f"[DEBUG] Creating graveyard job...")
