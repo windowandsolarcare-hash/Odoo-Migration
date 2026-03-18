@@ -312,7 +312,7 @@ Primary Service: {primary_service_str}"""
             "JobType": "Reactivation Lead",
             "Unit": str(historical_job.get("Unit") or ""),
             "ServiceArea": str(historical_job.get("ServiceArea") or ""),
-            "JobSource": historical_job.get("JobSource") or "Reactivation",
+            "JobSource": str(historical_job.get("JobSource") or "Referral"),
             "information_to_remember": message_body,
             "JobNotes": str(historical_job.get("JobNotes") or ""),
             "Phone": str(historical_job.get("Phone") or ""),
