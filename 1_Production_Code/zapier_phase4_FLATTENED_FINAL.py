@@ -1002,7 +1002,17 @@ def update_property_fields(property_id, gate_code=None, pricing=None, last_visit
         updates['x_studio_x_pricing'] = str(pricing)
     
     if last_visit_date is not None:
-        updates['x_studio_x_studio_last_property_visit'] = last_visit_date
+        # Race condition protection: only update if new date is newer than existing
+        existing = _odoo_search_read("res.partner", [["id", "=", property_id]], 
+                                     ["x_studio_x_studio_last_property_visit"], limit=1)
+        current_date = existing[0].get('x_studio_x_studio_last_property_visit') if existing else None
+        
+        if not current_date or last_visit_date > current_date:
+            updates['x_studio_x_studio_last_property_visit'] = last_visit_date
+            print(f"[*] Property last visit: {current_date} -> {last_visit_date} (updated)")
+        else:
+            print(f"[*] Property last visit: {current_date} (keeping - new date {last_visit_date} is older, skipped)")
+
     
     if frequency is not None:
         updates['x_studio_x_frequency'] = str(frequency)
