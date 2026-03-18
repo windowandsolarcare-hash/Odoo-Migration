@@ -22,6 +22,7 @@ cooldown_field_name = 'x_studio_last_reactivation_sent'
 pricing_menu_field = 'x_studio_prices_per_service'
 x_odoo_contact_id_field = 'x_odoo_contact_id'
 x_historical_workiz_uuid_field = 'x_historical_workiz_uuid'
+x_historical_workiz_link_field = 'x_studio_x_historical_workiz_link'
 x_workiz_graveyard_link_field = 'x_workiz_graveyard_link'
 x_workiz_graveyard_uuid_field = 'x_workiz_graveyard_uuid'
 
@@ -228,6 +229,9 @@ Source Order: {source_order.name}
 Source Order ID: {source_order.id}
 Primary Service: {primary_service_str}"""
         
+        # Build clickable link for historical Workiz job
+        historical_workiz_link = f"https://app.workiz.com/root/job/{workiz_uuid}/1"
+        
         opportunity_vals = {
             'name': f"Reactivation Campaign - {full_name} - {current_date_display}",
             'partner_id': contact.id,
@@ -240,6 +244,7 @@ Primary Service: {primary_service_str}"""
             'x_price_list_text': services_text_block,
             x_odoo_contact_id_field: contact.id,
             x_historical_workiz_uuid_field: workiz_uuid,
+            x_historical_workiz_link_field: historical_workiz_link,
             x_workiz_graveyard_link_field: '',
             x_workiz_graveyard_uuid_field: '',
         }
