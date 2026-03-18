@@ -2357,15 +2357,23 @@ def main(input_data):
         
         job_type = workiz_job.get('JobType', '')
         job_status = workiz_job.get('Status', '')
+        job_substatus = workiz_job.get('SubStatus', '')
         
-        print(f"[*] Checking for graveyard job auto-close: JobType='{job_type}', Status='{job_status}'")
+        print(f"[*] Checking for graveyard job auto-close: JobType='{job_type}', Status='{job_status}', SubStatus='{job_substatus}'")
         
         # Detection criteria: JobType is NOT "Reactivation Lead" AND job is scheduled
         # Current 4 scheduling statuses (will be renamed to start with "Scheduled" later)
         # PLUS any future status starting with "Scheduled" (future-proof)
+        # CHECK BOTH Status AND SubStatus (Workiz uses SubStatus for "Next Appointment - Text" etc.)
         current_scheduling_statuses = ['Scheduled', 'Next Appointment - Text', 'Next Appointment 2 - Text', 'Send Confirmation - Text']
-        starts_with_scheduled = job_status.lower().startswith('scheduled') if job_status else False
-        is_scheduled = job_status in current_scheduling_statuses or starts_with_scheduled
+        
+        status_starts_with_scheduled = job_status.lower().startswith('scheduled') if job_status else False
+        substatus_starts_with_scheduled = job_substatus.lower().startswith('scheduled') if job_substatus else False
+        
+        is_scheduled = (job_status in current_scheduling_statuses or 
+                       job_substatus in current_scheduling_statuses or 
+                       status_starts_with_scheduled or 
+                       substatus_starts_with_scheduled)
         
         if job_type != 'Reactivation Lead' and is_scheduled:
             print("[*] Job is scheduled and NOT a Reactivation Lead - checking for linked Opportunity")
