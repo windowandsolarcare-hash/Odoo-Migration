@@ -426,8 +426,7 @@ Reply STOP to unsubscribe"""
             "x_description": campaign_description,
             "x_related_order_id": int(source_order.id),
             "x_contact_id": int(contact.id),
-            "x_campaign_id": campaign_id,
-            "x_campaign": campaign_name
+            "x_campaign_id": campaign_id
         }
         
         contact.write({
