@@ -347,7 +347,7 @@ Primary Service: {primary_service_str}"""
             "gate_code": str(historical_job.get("gate_code") or historical_job.get("GateCode") or ""),
             "pricing": str(historical_job.get("pricing") or historical_job.get("Pricing") or ""),
             "type_of_service": str(historical_job.get("type_of_service") or "On Request"),
-            "frequency": str(historical_job.get("frequency") or ""),
+            "frequency": str(historical_job.get("frequency") or "Unknown"),
             "last_date_cleaned": str(historical_job.get("last_date_cleaned") or ""),
             "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
             "confirmation_method": str(historical_job.get("confirmation_method") or ""),
@@ -364,78 +364,83 @@ Primary Service: {primary_service_str}"""
         source_order.message_post(body=f"[DEBUG] Create response status: {create_response.status_code}")
         source_order.message_post(body=f"[DEBUG] Create response body: {create_response.text[:500]}")
         
+        graveyard_uuid = None
+        graveyard_success = False
+        
         if create_response.status_code not in [200, 204]:
             source_order.message_post(body=f"⚠️ Failed to create graveyard job (HTTP {create_response.status_code})")
             source_order.message_post(body=f"[DEBUG] Full response: {create_response.text}")
-            continue
-        
-        source_order.message_post(body=f"[DEBUG] Graveyard job created (HTTP {create_response.status_code})")
-        
-        # Extract UUID from response
-        # Workiz format: {"flag":true, "data":[{"UUID":"MJUERK", ...}]}
-        graveyard_uuid = None
-        if create_response.status_code == 200:
-            create_result = create_response.json()
-            
-            # Get UUID from data array
-            if isinstance(create_result, dict):
-                data_list = create_result.get('data', [])
-                if data_list and len(data_list) > 0:
-                    graveyard_uuid = data_list[0].get('UUID')
-            elif isinstance(create_result, list):
-                # Fallback: direct list
-                if len(create_result) > 0:
-                    graveyard_uuid = create_result[0].get('UUID')
-        
-        if not graveyard_uuid:
-            source_order.message_post(body="⚠️ Could not extract graveyard UUID from response")
-            continue
-        
-        source_order.message_post(body=f"[DEBUG] Graveyard UUID: {graveyard_uuid}")
-        
-        # Wait for Workiz to fully commit the job before updating status (prevent race condition)
-        source_order.message_post(body=f"[DEBUG] Waiting 3 seconds for Workiz to commit job...")
-        wait_start = datetime.datetime.now()
-        while (datetime.datetime.now() - wait_start).total_seconds() < 3:
-            pass
-        source_order.message_post(body=f"[DEBUG] Wait complete")
-        
-        # STEP 3: Update status to trigger SMS
-        source_order.message_post(body=f"[DEBUG] Triggering SMS for UUID: {graveyard_uuid}")
-        source_order.message_post(body=f"[DEBUG] Update URL: {WORKIZ_BASE_URL}/job/update/")
-        
-        status_payload = {
-            "auth_secret": WORKIZ_AUTH_SECRET,
-            "UUID": graveyard_uuid,
-            "Status": "Pending",
-            "SubStatus": "API SMS Test Trigger"
-        }
-        
-        source_order.message_post(body=f"[DEBUG] Status payload: {status_payload}")
-        
-        status_response = requests.post(f"{WORKIZ_BASE_URL}/job/update/", json=status_payload, timeout=10)
-        
-        source_order.message_post(body=f"[DEBUG] Status update response: {status_response.status_code}")
-        source_order.message_post(body=f"[DEBUG] Status update body: {status_response.text[:500]}")
-        
-        if status_response.status_code == 200:
-            source_order.message_post(body=f"[DEBUG] SMS triggered successfully")
+            source_order.message_post(body=f"[INFO] Opportunity created but SMS not sent - check Workiz field validation")
         else:
-            source_order.message_post(body=f"⚠️ SMS trigger failed (HTTP {status_response.status_code})")
-            source_order.message_post(body=f"[DEBUG] Full status response: {status_response.text}")
+            source_order.message_post(body=f"[DEBUG] Graveyard job created (HTTP {create_response.status_code})")
+            
+            # Extract UUID from response
+            # Workiz format: {"flag":true, "data":[{"UUID":"MJUERK", ...}]}
+            if create_response.status_code == 200:
+                create_result = create_response.json()
+                
+                # Get UUID from data array
+                if isinstance(create_result, dict):
+                    data_list = create_result.get('data', [])
+                    if data_list and len(data_list) > 0:
+                        graveyard_uuid = data_list[0].get('UUID')
+                elif isinstance(create_result, list):
+                    # Fallback: direct list
+                    if len(create_result) > 0:
+                        graveyard_uuid = create_result[0].get('UUID')
+            
+            if not graveyard_uuid:
+                source_order.message_post(body="⚠️ Could not extract graveyard UUID from response")
+            else:
+                graveyard_success = True
         
-        # STEP 4: Update Opportunity with graveyard link
-        graveyard_link = f"https://app.workiz.com/root/job/{graveyard_uuid}/1"
-        
-        new_opportunity.write({
-            'x_workiz_graveyard_uuid': graveyard_uuid,
-            'x_workiz_graveyard_link': graveyard_link
-        })
-        
-        source_order.message_post(body=f"[DEBUG] Opportunity linked to graveyard job")
-        
-        # STEP 5: Log activity to Contact
-        campaign_description = f"""SMS sent via graveyard job: {graveyard_uuid}
+        # Only proceed with SMS triggering if graveyard job was created successfully
+        if graveyard_success and graveyard_uuid:
+            source_order.message_post(body=f"[DEBUG] Graveyard UUID: {graveyard_uuid}")
+            
+            # Wait for Workiz to fully commit the job before updating status (prevent race condition)
+            source_order.message_post(body=f"[DEBUG] Waiting 3 seconds for Workiz to commit job...")
+            wait_start = datetime.datetime.now()
+            while (datetime.datetime.now() - wait_start).total_seconds() < 3:
+                pass
+            source_order.message_post(body=f"[DEBUG] Wait complete")
+            
+            # STEP 3: Update status to trigger SMS
+            source_order.message_post(body=f"[DEBUG] Triggering SMS for UUID: {graveyard_uuid}")
+            source_order.message_post(body=f"[DEBUG] Update URL: {WORKIZ_BASE_URL}/job/update/")
+            
+            status_payload = {
+                "auth_secret": WORKIZ_AUTH_SECRET,
+                "UUID": graveyard_uuid,
+                "Status": "Pending",
+                "SubStatus": "API SMS Test Trigger"
+            }
+            
+            source_order.message_post(body=f"[DEBUG] Status payload: {status_payload}")
+            
+            status_response = requests.post(f"{WORKIZ_BASE_URL}/job/update/", json=status_payload, timeout=10)
+            
+            source_order.message_post(body=f"[DEBUG] Status update response: {status_response.status_code}")
+            source_order.message_post(body=f"[DEBUG] Status update body: {status_response.text[:500]}")
+            
+            if status_response.status_code == 200:
+                source_order.message_post(body=f"[DEBUG] SMS triggered successfully")
+            else:
+                source_order.message_post(body=f"⚠️ SMS trigger failed (HTTP {status_response.status_code})")
+                source_order.message_post(body=f"[DEBUG] Full status response: {status_response.text}")
+            
+            # STEP 4: Update Opportunity with graveyard link
+            graveyard_link = f"https://app.workiz.com/root/job/{graveyard_uuid}/1"
+            
+            new_opportunity.write({
+                'x_workiz_graveyard_uuid': graveyard_uuid,
+                'x_workiz_graveyard_link': graveyard_link
+            })
+            
+            source_order.message_post(body=f"[DEBUG] Opportunity linked to graveyard job")
+            
+            # STEP 5: Log activity to Contact
+            campaign_description = f"""SMS sent via graveyard job: {graveyard_uuid}
 
 Your updated {current_year} {estimate_word} for services we've done for you:
 {services_text_block}
@@ -448,29 +453,28 @@ Graveyard Job: {graveyard_uuid}
 Window & Solar Care
 833-242-0273
 Reply STOP to unsubscribe"""
-        
-        activity_data = {
-            "x_name": f"Reactivation sent for Order {source_order.name}",
-            "x_description": campaign_description,
-            "x_related_order_id": int(source_order.id),
-            "x_contact_id": int(contact.id),
-            "x_campaign_id": campaign_id
-        }
-        
-        contact.write({
-            "x_crm_activity_log_ids": [[0, 0, activity_data]]
-        })
-        
-        source_order.message_post(body=f"[DEBUG] Activity logged to Contact")
-        
-        source_order.message_post(body=f"✅ COMPLETE: {graveyard_link}")
-        
-        # --- ARCHIVE SMS TO OPPORTUNITY & CLEAR FIELD ---
-        try:
-            timestamp = now_pst.strftime('%Y-%m-%d %H:%M:%S PST')
             
-            # Write full SMS to opportunity chatter (audit trail)
-            sms_archive_message = f"""📤 **SMS SENT - Reactivation**
+            activity_data = {
+                "x_name": f"Reactivation sent for Order {source_order.name}",
+                "x_description": campaign_description,
+                "x_related_order_id": int(source_order.id),
+                "x_contact_id": int(contact.id),
+                "x_campaign_id": campaign_id
+            }
+            
+            contact.write({
+                "x_crm_activity_log_ids": [[0, 0, activity_data]]
+            })
+            
+            source_order.message_post(body=f"[DEBUG] Activity logged to Contact")
+            
+            source_order.message_post(body=f"✅ COMPLETE: {graveyard_link}")
+            
+            # Archive SMS to opportunity chatter
+            try:
+                timestamp = now_pst.strftime('%Y-%m-%d %H:%M:%S PST')
+                
+                sms_archive_message = f"""📤 **SMS SENT - Reactivation**
 
 **Time:** {timestamp}
 **Recipient:** {full_name} ({phone_sanitized})
@@ -478,16 +482,19 @@ Reply STOP to unsubscribe"""
 
 **Message:**
 {message_body}"""
-            
-            new_opportunity.message_post(body=sms_archive_message)
-            source_order.message_post(body="[DEBUG] SMS archived to opportunity chatter")
-            
-            # Clear the field for next campaign
+                
+                new_opportunity.message_post(body=sms_archive_message)
+                source_order.message_post(body="[DEBUG] SMS archived to opportunity chatter")
+                
+            except Exception as e:
+                source_order.message_post(body=f"⚠️ Error archiving SMS: {e}")
+        
+        # ALWAYS clear SMS field (whether graveyard job succeeded or not)
+        try:
             source_order.write({'x_studio_manual_sms_override': ''})
             source_order.message_post(body="[DEBUG] SMS field cleared (ready for next campaign)")
-            
         except Exception as e:
-            source_order.message_post(body=f"⚠️ Error archiving SMS: {e}")
+            source_order.message_post(body=f"⚠️ Error clearing SMS field: {e}")
         
     except Exception as e:
         source_order.message_post(body=f"⚠️ Workiz integration error: {e}")
