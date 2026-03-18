@@ -1969,7 +1969,7 @@ def update_contact_last_visit_all_properties(contact_id):
     # Find all properties for this contact
     properties = _odoo_search_read(
         "res.partner",
-        [["parent_id", "=", contact_id], ["type", "=", "other"]],
+        [["parent_id", "=", contact_id], ["x_studio_x_studio_record_category", "=", "Property"]],
         ["id", "x_studio_x_studio_last_property_visit"],
         limit=500
     )
@@ -2031,7 +2031,7 @@ def update_contact_service_fields(contact_id):
     # Find all properties for this contact
     properties = _odoo_search_read(
         "res.partner",
-        [["parent_id", "=", contact_id], ["type", "=", "other"]],
+        [["parent_id", "=", contact_id], ["x_studio_x_studio_record_category", "=", "Property"]],
         ["id", "x_studio_has_window_service", "x_studio_has_solar_service", 
          "x_studio_most_recent_service_type", "x_studio_x_studio_last_property_visit"],
         limit=500
