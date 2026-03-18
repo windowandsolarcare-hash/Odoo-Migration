@@ -1379,6 +1379,9 @@ def update_sales_order(so_id, updates):
 
 def post_chatter_message(so_id, message):
     """Post a message to the Sales Order chatter."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    message_with_timestamp = f"[{timestamp}] {message}"
+    
     payload = {
         "jsonrpc": "2.0",
         "method": "call",
@@ -1389,7 +1392,7 @@ def post_chatter_message(so_id, message):
                 ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
                 "sale.order", "message_post",
                 [so_id],
-                {"body": message}
+                {"body": message_with_timestamp}
             ]
         }
     }
@@ -1398,6 +1401,35 @@ def post_chatter_message(so_id, message):
     result = response.json()
     
     return "result" in result
+
+
+def post_opportunity_chatter(opp_id, message):
+    """Post a message to the Opportunity (crm.lead) chatter with timestamp."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    message_with_timestamp = f"[{timestamp}] {message}"
+    
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "call",
+        "params": {
+            "service": "object",
+            "method": "execute_kw",
+            "args": [
+                ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                "crm.lead", "message_post",
+                [opp_id],
+                {"body": message_with_timestamp}
+            ]
+        }
+    }
+    
+    try:
+        response = requests.post(ODOO_URL, json=payload, timeout=10)
+        result = response.json()
+        return "result" in result
+    except Exception as e:
+        print(f"[ERROR] Failed to post to Opportunity chatter: {e}")
+        return False
 
 
 # ==============================================================================
@@ -2342,18 +2374,42 @@ def main(input_data):
             opportunity = find_opportunity_by_graveyard_uuid(job_uuid)
             
             if opportunity:
+                opp_id = opportunity['id']
+                opp_name = opportunity['name']
+                
                 print(f"[!] GRAVEYARD AUTO-CLOSE DETECTED!")
                 print(f"[*] This was a reactivation that got manually scheduled in Workiz")
-                print(f"[*] Opportunity: {opportunity['name']} (ID: {opportunity['id']})")
+                print(f"[*] Opportunity: {opp_name} (ID: {opp_id})")
+                
+                # Post to Opportunity chatter
+                post_opportunity_chatter(opp_id, 
+                    f"🔄 GRAVEYARD AUTO-CLOSE: Job manually scheduled in Workiz<br/>"
+                    f"JobType changed to: {job_type}<br/>"
+                    f"Status: {job_status}<br/>"
+                    f"Workiz UUID: {job_uuid}<br/>"
+                    f"Action: Marking Opportunity Won (auto-close)")
                 
                 # Mark Opportunity as Won (closes it)
                 won_result = mark_opportunity_won(opportunity['id'])
                 
                 if won_result.get('success'):
                     print("[OK] Opportunity marked Won - will now create SO via Phase 3")
+                    post_opportunity_chatter(opp_id, 
+                        f"✅ Opportunity marked WON (auto-closed from manual scheduling)<br/>"
+                        f"Phase 3 will create confirmed Sales Order")
                 else:
-                    print(f"[ERROR] Failed to mark Opportunity Won: {won_result.get('message')}")
-                    # Continue anyway to create SO
+                    error_msg = won_result.get('message', 'Unknown error')
+                    print(f"[ERROR] Failed to mark Opportunity Won: {error_msg}")
+                    post_opportunity_chatter(opp_id, 
+                        f"❌ ERROR: Failed to mark Opportunity Won<br/>"
+                        f"Error: {error_msg}<br/>"
+                        f"Will continue to create SO anyway")
+            else:
+                print("[*] No Opportunity found for this graveyard UUID")
+                print("[*] This is either a normal job or graveyard job not yet created")
+        else:
+            print(f"[*] Not a graveyard auto-close scenario (JobType='{job_type}' or not scheduled)")
+        
         
         print("[!] Sales Order not found - triggering Phase 3 webhook to create it")
         print("="*70)
