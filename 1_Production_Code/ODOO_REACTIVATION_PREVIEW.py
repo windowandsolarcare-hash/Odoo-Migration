@@ -96,19 +96,24 @@ for source_order in records:
     for k, data in detected_services.items():
         base_price = data['base_price']
         is_solar = "solar" in data['name_display'].lower()
+        is_addon = base_price < 70  # Add-on items (mirrors, garage doors, etc.) stay at original price
         
-        if is_solar:
+        if is_addon:
+            # Add-on services: keep original price (no inflation, no minimum)
+            final_price = int(base_price)
+        elif is_solar:
+            # Solar: keep original price (no inflation)
             final_price = int(base_price)
         else:
-            # Apply 5% annual compound increase
+            # Regular services: apply 5% annual inflation + $85 minimum
             years_elapsed = current_year - data['last_seen_year']
             if years_elapsed < 1:
                 years_elapsed = 1
             compounded_amount = base_price * (1.05 ** years_elapsed)
             final_price = int(5 * round(compounded_amount / 5))  # Round to nearest $5
-        
-        if final_price < 85:
-            final_price = 85
+            
+            if final_price < 85:
+                final_price = 85
         
         total_expected_revenue += final_price
         service_lines.append(f"• {data['name_display']}: ${final_price}")
