@@ -464,23 +464,9 @@ Primary Service: {primary_service_str}"""
             source_order.message_post(body=f"[DEBUG] Opportunity linked to graveyard job")
             
             # STEP 5: Log activity to Contact
-            campaign_description = f"""SMS sent via graveyard job: {graveyard_uuid}
-
-Your updated {current_year} {estimate_word} for services we've done for you:
-{services_text_block}
-
-Scheduled on: {current_date_display}
-Campaign: 2026 Reactivation Campaign
-Related Order: {source_order.name}
-
-Graveyard Job: {graveyard_uuid}
-Window & Solar Care
-833-242-0273
-Reply STOP to unsubscribe"""
-            
             activity_data = {
-                "x_name": f"Reactivation sent for Order {source_order.name}",
-                "x_description": campaign_description,
+                "x_name": f"{campaign_name} | {current_date_display} | Job #{source_order.name} | {primary_service_str}",
+                "x_description": message_body,
                 "x_related_order_id": int(source_order.id),
                 "x_contact_id": int(contact.id),
                 "x_campaign_id": campaign_id
