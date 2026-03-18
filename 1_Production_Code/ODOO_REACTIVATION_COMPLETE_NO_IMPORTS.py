@@ -340,7 +340,7 @@ Primary Service: {primary_service_str}"""
             # ENRICHMENT: Copy custom field data from historical job
             "gate_code": str(historical_job.get("gate_code") or historical_job.get("GateCode") or ""),
             "pricing": str(historical_job.get("pricing") or historical_job.get("Pricing") or ""),
-            "type_of_service": str(historical_job.get("type_of_service") or ""),
+            "type_of_service": str(historical_job.get("type_of_service") or "On Request"),
             "frequency": str(historical_job.get("frequency") or ""),
             "last_date_cleaned": str(historical_job.get("last_date_cleaned") or ""),
             "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
