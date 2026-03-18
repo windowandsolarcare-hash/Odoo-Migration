@@ -422,7 +422,6 @@ Reply STOP to unsubscribe"""
         
         activity_data = {
             "x_name": f"Reactivation sent for Order {source_order.name}",
-            "x_activity_type": "reactivation_sent",
             "x_description": campaign_description,
             "x_related_order_id": int(source_order.id),
             "x_contact_id": int(contact.id),
