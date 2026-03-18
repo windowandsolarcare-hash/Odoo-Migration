@@ -2328,9 +2328,11 @@ def main(input_data):
         
         print(f"[*] Checking for graveyard job auto-close: JobType='{job_type}', Status='{job_status}'")
         
-        # Detection criteria: JobType is NOT "Reactivation Lead" AND job is scheduled
-        scheduled_statuses = ['Scheduled', 'Next Appointment - Text', 'Next Appointment 2 - Text', 'Send Confirmation - Text']
-        if job_type != 'Reactivation Lead' and job_status in scheduled_statuses:
+        # Detection criteria: JobType is NOT "Reactivation Lead" AND Status starts with "Scheduled"
+        # Future-proof: any status starting with "Scheduled" indicates job is scheduled (no code changes needed for new statuses)
+        is_scheduled = job_status.lower().startswith('scheduled') if job_status else False
+        
+        if job_type != 'Reactivation Lead' and is_scheduled:
             print("[*] Job is scheduled and NOT a Reactivation Lead - checking for linked Opportunity")
             
             # Look up Opportunity by this graveyard UUID
