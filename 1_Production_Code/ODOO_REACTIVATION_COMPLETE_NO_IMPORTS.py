@@ -317,6 +317,30 @@ Primary Service: {primary_service_str}"""
         
         source_order.message_post(body=f"[DEBUG] Historical job found")
         
+        # Log which custom fields exist vs will use fallbacks
+        custom_fields_status = []
+        field_checks = [
+            ('JobSource', 'Referral'),
+            ('type_of_service', 'On Request'),
+            ('frequency', 'Unknown'),
+            ('confirmation_method', 'Cell Phone'),
+            ('ok_to_text', 'Yes'),
+            ('gate_code', ''),
+            ('pricing', ''),
+            ('last_date_cleaned', '')
+        ]
+        
+        for field_name, fallback in field_checks:
+            hist_value = historical_job.get(field_name) or historical_job.get(field_name.replace('_', '').title())
+            if hist_value and str(hist_value).strip():
+                custom_fields_status.append(f"  ✓ {field_name}: '{hist_value}' (from historical)")
+            elif fallback:
+                custom_fields_status.append(f"  ⚠ {field_name}: '{fallback}' (FALLBACK - empty in historical)")
+        
+        if custom_fields_status:
+            fields_log = "<br/>".join(custom_fields_status)
+            source_order.message_post(body=f"<p><strong>[DEBUG] Custom field sources:</strong></p>{fields_log}")
+        
         # STEP 2: Create graveyard job
         client_id_raw = historical_job.get("ClientId")
         client_id = str(client_id_raw).replace('CL-', '') if client_id_raw else ''
