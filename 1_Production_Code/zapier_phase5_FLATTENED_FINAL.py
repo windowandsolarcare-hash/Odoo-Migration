@@ -75,8 +75,21 @@ def frequency_to_activity_days(frequency_str):
     return DEFAULT_DAYS  # default 6 months if unparseable
 
 
-def calculate_next_service_date(frequency_str, customer_city):
-    """Calculate next service date based on frequency and city routing."""
+def calculate_next_service_date(frequency_str, customer_city, base_date=None):
+    """Calculate next service date based on frequency and city routing.
+    
+    Args:
+        frequency_str: e.g., "3 Months", "4 Months", "6 Months"
+        customer_city: City name for routing
+        base_date: datetime object of completed job (if None, uses today)
+    """
+    # Use completed job date as base, not today's date
+    if base_date is None:
+        base_date = datetime.now()
+        print(f"[*] No base_date provided, using today: {base_date.strftime('%Y-%m-%d')}")
+    else:
+        print(f"[*] Using completed job date as base: {base_date.strftime('%Y-%m-%d')}")
+    
     # Parse frequency (e.g., "3 Months", "4 Months", "6 Months")
     match = re.search(r'(\d+)\s*(month|week)', frequency_str, re.IGNORECASE)
     
@@ -85,13 +98,13 @@ def calculate_next_service_date(frequency_str, customer_city):
         unit = match.group(2).lower()
         
         if unit == 'month':
-            target_date = datetime.now() + timedelta(days=value * 30)
+            target_date = base_date + timedelta(days=value * 30)
         elif unit == 'week':
-            target_date = datetime.now() + timedelta(weeks=value)
+            target_date = base_date + timedelta(weeks=value)
     else:
         # Default: 3 months
         print(f"[!] Could not parse frequency '{frequency_str}', defaulting to 3 months")
-        target_date = datetime.now() + timedelta(days=90)
+        target_date = base_date + timedelta(days=90)
     
     # Apply city-aware scheduling
     scheduled_date = apply_city_schedule(target_date, customer_city)
@@ -660,8 +673,20 @@ def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoic
     frequency = workiz_job.get('frequency', '3 Months')
     print(f"\n[*] Frequency: {frequency}")
     
-    # Calculate next date
-    scheduled_datetime = calculate_next_service_date(frequency, customer_city)
+    # Extract completed job date as base for next service calculation
+    job_datetime_str = workiz_job.get('JobDateTime', '')
+    base_date = None
+    if job_datetime_str:
+        try:
+            base_date = datetime.strptime(job_datetime_str, '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            try:
+                base_date = datetime.strptime(job_datetime_str.split(' ')[0], '%Y-%m-%d')
+            except ValueError:
+                print(f"[WARN] Could not parse JobDateTime: {job_datetime_str}")
+    
+    # Calculate next date from completed job date (not today)
+    scheduled_datetime = calculate_next_service_date(frequency, customer_city, base_date)
     print(f"[OK] Next service: {scheduled_datetime}")
     
     # Determine next job type (for alternating)
