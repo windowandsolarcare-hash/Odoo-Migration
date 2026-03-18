@@ -216,15 +216,31 @@ Text STOP to opt out"""
     # Use SMS from field (either auto-composed by PREVIEW or manually edited by user)
     message_body = manual_override.strip()
     source_order.message_post(body="📤 Sending SMS from 'SMS Text Modified' field...")
+    
+    # Extract actual price list from SMS (in case user edited prices)
+    actual_prices_sent = services_text_block  # Default to calculated
+    try:
+        # Extract everything between "for services we've done for you:" and "Tap here"
+        start_marker = "for services we've done for you:"
+        end_marker = "Tap here to schedule"
+        
+        if start_marker in message_body and end_marker in message_body:
+            start_idx = message_body.index(start_marker) + len(start_marker)
+            end_idx = message_body.index(end_marker)
+            extracted = message_body[start_idx:end_idx].strip()
+            
+            # Only use if it contains bullet points (user didn't delete the price list)
+            if '•' in extracted or '$' in extracted:
+                actual_prices_sent = extracted
+                source_order.message_post(body="[DEBUG] Extracted actual prices from manual SMS")
+    except Exception as e:
+        source_order.message_post(body=f"[DEBUG] Could not extract prices from SMS, using calculated: {e}")
 
     # --- CREATE NEW OPPORTUNITY ---
     try:
         source_order.message_post(body=f"[DEBUG] Creating opportunity for {full_name}")
         
-        opportunity_description = f"""--- CALCULATED PRICE LIST ---
-{services_text_block}
-
---- SYSTEM REFERENCE DATA ---
+        opportunity_description = f"""--- SYSTEM REFERENCE DATA ---
 Source Order: {source_order.name}
 Source Order ID: {source_order.id}
 Primary Service: {primary_service_str}"""
@@ -241,7 +257,7 @@ Primary Service: {primary_service_str}"""
             'expected_revenue': total_expected_revenue,
             'description': opportunity_description,
             'x_primary_service': primary_service_str,
-            'x_price_list_text': services_text_block,
+            'x_price_list_text': actual_prices_sent,
             x_odoo_contact_id_field: contact.id,
             x_historical_workiz_uuid_field: workiz_uuid,
             x_historical_workiz_link_field: historical_workiz_link,
@@ -260,8 +276,8 @@ Primary Service: {primary_service_str}"""
         # Update contact's last reactivation sent date
         contact.write({'x_studio_last_reactivation_sent': current_date_iso})
         
-        # Update property's pricing menu
-        prop_record.write({'x_studio_prices_per_service': services_text_block})
+        # Update property's pricing menu with actual prices sent
+        prop_record.write({'x_studio_prices_per_service': actual_prices_sent})
         
         source_order.message_post(body=f"✅ Opportunity #{opportunity_id} created - ${total_expected_revenue:.2f}")
         
@@ -329,8 +345,8 @@ Primary Service: {primary_service_str}"""
             "last_date_cleaned": str(historical_job.get("last_date_cleaned") or ""),
             "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
             "confirmation_method": str(historical_job.get("confirmation_method") or ""),
-            # LINE ITEMS: Show services/prices for manual entry when customer books
-            "next_job_line_items": services_text_block
+            # LINE ITEMS: Actual prices sent in SMS (for manual entry when customer books)
+            "next_job_line_items": actual_prices_sent
         }
         
         source_order.message_post(body=f"[DEBUG] Creating graveyard job...")
