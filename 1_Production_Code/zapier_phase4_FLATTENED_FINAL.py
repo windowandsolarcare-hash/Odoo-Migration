@@ -2285,6 +2285,74 @@ def main(input_data):
         print("="*70)
         return {'success': True, 'skipped': True, 'reason': 'status_is_submitted'}
     
+    # -------------------------------------------------------------------------
+    # GRAVEYARD JOB AUTO-CLOSE: Detect manually scheduled reactivation jobs
+    # -------------------------------------------------------------------------
+    # When a graveyard job (Reactivation Lead) gets manually scheduled (you change JobType and schedule it),
+    # auto-close the Opportunity (same outcome as Calendly path).
+    # IMPORTANT: Check this BEFORE checking if SO exists (Opportunity should close regardless of SO status).
+    
+    job_type = workiz_job.get('JobType', '')
+    job_status = workiz_job.get('Status', '')
+    job_substatus = workiz_job.get('SubStatus', '')
+    
+    print(f"[*] Checking for graveyard job auto-close: JobType='{job_type}', Status='{job_status}', SubStatus='{job_substatus}'")
+    
+    # Detection criteria: JobType is NOT "Reactivation Lead" AND job is scheduled
+    # Current 4 scheduling statuses (will be renamed to start with "Scheduled" later)
+    # PLUS any future status starting with "Scheduled" (future-proof)
+    # CHECK BOTH Status AND SubStatus (Workiz uses SubStatus for "Next Appointment - Text" etc.)
+    current_scheduling_statuses = ['Scheduled', 'Next Appointment - Text', 'Next Appointment 2 - Text', 'Send Confirmation - Text']
+    
+    status_starts_with_scheduled = job_status.lower().startswith('scheduled') if job_status else False
+    substatus_starts_with_scheduled = job_substatus.lower().startswith('scheduled') if job_substatus else False
+    
+    is_scheduled = (job_status in current_scheduling_statuses or 
+                   job_substatus in current_scheduling_statuses or 
+                   status_starts_with_scheduled or 
+                   substatus_starts_with_scheduled)
+    
+    if job_type != 'Reactivation Lead' and is_scheduled:
+        print("[*] Job is scheduled and NOT a Reactivation Lead - checking for linked Opportunity")
+        
+        # Look up Opportunity by this graveyard UUID
+        opportunity = find_opportunity_by_graveyard_uuid(job_uuid)
+        
+        if opportunity:
+            opp_id = opportunity['id']
+            opp_name = opportunity['name']
+            
+            print(f"[!] GRAVEYARD AUTO-CLOSE DETECTED!")
+            print(f"[*] This was a reactivation that got manually scheduled in Workiz")
+            print(f"[*] Opportunity: {opp_name} (ID: {opp_id})")
+            
+            # Post to Opportunity chatter
+            post_opportunity_chatter(opp_id, 
+                f"🔄 GRAVEYARD AUTO-CLOSE: Job manually scheduled in Workiz<br/>"
+                f"JobType changed to: {job_type}<br/>"
+                f"Status: {job_status} | SubStatus: {job_substatus}<br/>"
+                f"Workiz UUID: {job_uuid}<br/>"
+                f"Action: Marking Opportunity Won (auto-close)")
+            
+            # Mark Opportunity as Won (closes it)
+            won_result = mark_opportunity_won(opportunity['id'])
+            
+            if won_result.get('success'):
+                print("[OK] Opportunity marked Won")
+                post_opportunity_chatter(opp_id, 
+                    f"✅ Opportunity marked WON (auto-closed from manual scheduling)")
+            else:
+                error_msg = won_result.get('message', 'Unknown error')
+                print(f"[ERROR] Failed to mark Opportunity Won: {error_msg}")
+                post_opportunity_chatter(opp_id, 
+                    f"❌ ERROR: Failed to mark Opportunity Won<br/>"
+                    f"Error: {error_msg}")
+        else:
+            print("[*] No Opportunity found for this graveyard UUID")
+            print("[*] This is either a normal job or graveyard job not yet created")
+    else:
+        print(f"[*] Not a graveyard auto-close scenario (JobType='{job_type}' or not scheduled)")
+    
     print(f"\n[*] Searching for existing Sales Order with UUID: {job_uuid}")
     existing_so = search_sales_order_by_uuid(job_uuid)
     
@@ -2348,76 +2416,6 @@ def main(input_data):
             print("[OK] PHASE 4 COMPLETE - SALES ORDER UPDATED (found on re-check)")
             print("="*70)
             return result
-        
-        # -------------------------------------------------------------------------
-        # GRAVEYARD JOB AUTO-CLOSE: Detect manually scheduled reactivation jobs
-        # -------------------------------------------------------------------------
-        # When a graveyard job (Reactivation Lead) gets manually scheduled (you change JobType and schedule it),
-        # auto-close the Opportunity (same outcome as Calendly path).
-        
-        job_type = workiz_job.get('JobType', '')
-        job_status = workiz_job.get('Status', '')
-        job_substatus = workiz_job.get('SubStatus', '')
-        
-        print(f"[*] Checking for graveyard job auto-close: JobType='{job_type}', Status='{job_status}', SubStatus='{job_substatus}'")
-        
-        # Detection criteria: JobType is NOT "Reactivation Lead" AND job is scheduled
-        # Current 4 scheduling statuses (will be renamed to start with "Scheduled" later)
-        # PLUS any future status starting with "Scheduled" (future-proof)
-        # CHECK BOTH Status AND SubStatus (Workiz uses SubStatus for "Next Appointment - Text" etc.)
-        current_scheduling_statuses = ['Scheduled', 'Next Appointment - Text', 'Next Appointment 2 - Text', 'Send Confirmation - Text']
-        
-        status_starts_with_scheduled = job_status.lower().startswith('scheduled') if job_status else False
-        substatus_starts_with_scheduled = job_substatus.lower().startswith('scheduled') if job_substatus else False
-        
-        is_scheduled = (job_status in current_scheduling_statuses or 
-                       job_substatus in current_scheduling_statuses or 
-                       status_starts_with_scheduled or 
-                       substatus_starts_with_scheduled)
-        
-        if job_type != 'Reactivation Lead' and is_scheduled:
-            print("[*] Job is scheduled and NOT a Reactivation Lead - checking for linked Opportunity")
-            
-            # Look up Opportunity by this graveyard UUID
-            opportunity = find_opportunity_by_graveyard_uuid(job_uuid)
-            
-            if opportunity:
-                opp_id = opportunity['id']
-                opp_name = opportunity['name']
-                
-                print(f"[!] GRAVEYARD AUTO-CLOSE DETECTED!")
-                print(f"[*] This was a reactivation that got manually scheduled in Workiz")
-                print(f"[*] Opportunity: {opp_name} (ID: {opp_id})")
-                
-                # Post to Opportunity chatter
-                post_opportunity_chatter(opp_id, 
-                    f"🔄 GRAVEYARD AUTO-CLOSE: Job manually scheduled in Workiz<br/>"
-                    f"JobType changed to: {job_type}<br/>"
-                    f"Status: {job_status}<br/>"
-                    f"Workiz UUID: {job_uuid}<br/>"
-                    f"Action: Marking Opportunity Won (auto-close)")
-                
-                # Mark Opportunity as Won (closes it)
-                won_result = mark_opportunity_won(opportunity['id'])
-                
-                if won_result.get('success'):
-                    print("[OK] Opportunity marked Won - will now create SO via Phase 3")
-                    post_opportunity_chatter(opp_id, 
-                        f"✅ Opportunity marked WON (auto-closed from manual scheduling)<br/>"
-                        f"Phase 3 will create confirmed Sales Order")
-                else:
-                    error_msg = won_result.get('message', 'Unknown error')
-                    print(f"[ERROR] Failed to mark Opportunity Won: {error_msg}")
-                    post_opportunity_chatter(opp_id, 
-                        f"❌ ERROR: Failed to mark Opportunity Won<br/>"
-                        f"Error: {error_msg}<br/>"
-                        f"Will continue to create SO anyway")
-            else:
-                print("[*] No Opportunity found for this graveyard UUID")
-                print("[*] This is either a normal job or graveyard job not yet created")
-        else:
-            print(f"[*] Not a graveyard auto-close scenario (JobType='{job_type}' or not scheduled)")
-        
         
         print("[!] Sales Order not found - triggering Phase 3 webhook to create it")
         print("="*70)
