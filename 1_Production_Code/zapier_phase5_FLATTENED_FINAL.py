@@ -314,6 +314,12 @@ Previous Job UUID: {completed_job_data.get('UUID')}
 LINE ITEMS TO ADD:
 {line_items_text}"""
     
+    # Extract last cleaned date from completed job
+    last_cleaned = ""
+    job_datetime = completed_job_data.get('JobDateTime', '')
+    if job_datetime:
+        last_cleaned = job_datetime.split(' ')[0]  # Extract date portion (YYYY-MM-DD)
+    
     new_job_data = {
         'auth_secret': WORKIZ_AUTH_SECRET,
         
@@ -338,6 +344,7 @@ LINE ITEMS TO ADD:
         'type_of_service': str(completed_job_data.get('type_of_service') or 'Maintenance'),
         'gate_code': str(completed_job_data.get('gate_code') or ''),
         'pricing': str(completed_job_data.get('pricing') or ''),
+        'last_date_cleaned': last_cleaned,  # Date of completed job for reference
         
         # LINE ITEMS REFERENCE (with context) - adjust field name to match your Workiz custom field
         'next_job_line_items': line_items_reference,
