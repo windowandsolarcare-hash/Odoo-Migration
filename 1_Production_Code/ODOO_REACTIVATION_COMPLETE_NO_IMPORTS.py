@@ -328,7 +328,9 @@ Primary Service: {primary_service_str}"""
             "frequency": str(historical_job.get("frequency") or ""),
             "last_date_cleaned": str(historical_job.get("last_date_cleaned") or ""),
             "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
-            "confirmation_method": str(historical_job.get("confirmation_method") or "")
+            "confirmation_method": str(historical_job.get("confirmation_method") or ""),
+            # LINE ITEMS: Show services/prices for manual entry when customer books
+            "next_job_line_items": services_text_block
         }
         
         source_order.message_post(body=f"[DEBUG] Creating graveyard job...")
