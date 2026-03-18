@@ -350,7 +350,7 @@ Primary Service: {primary_service_str}"""
             "frequency": str(historical_job.get("frequency") or "Unknown"),
             "last_date_cleaned": str(historical_job.get("last_date_cleaned") or ""),
             "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
-            "confirmation_method": str(historical_job.get("confirmation_method") or ""),
+            "confirmation_method": str(historical_job.get("confirmation_method") or "Text"),
             # LINE ITEMS: Actual prices sent in SMS (for manual entry when customer books)
             "next_job_line_items": actual_prices_sent
         }
