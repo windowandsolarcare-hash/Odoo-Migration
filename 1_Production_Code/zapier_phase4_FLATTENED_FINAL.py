@@ -935,6 +935,74 @@ def create_property(address, city, postal_code, contact_id, location_id, frequen
     return None
 
 
+def find_opportunity_by_graveyard_uuid(job_uuid):
+    """Search for Opportunity with this Workiz graveyard UUID."""
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "call",
+        "params": {
+            "service": "object",
+            "method": "execute_kw",
+            "args": [
+                ODOO_DB,
+                ODOO_USER_ID,
+                ODOO_API_KEY,
+                "crm.lead",
+                "search_read",
+                [[["x_workiz_graveyard_uuid", "=", job_uuid]]],
+                {"fields": ["id", "name", "x_workiz_graveyard_uuid"], "limit": 1}
+            ]
+        }
+    }
+    
+    try:
+        response = requests.post(ODOO_URL, json=payload, timeout=10)
+        result = response.json()
+        
+        if result.get("result") and len(result["result"]) > 0:
+            opp = result["result"][0]
+            print(f"[OK] Opportunity found for graveyard UUID {job_uuid}: {opp['name']} (ID: {opp['id']})")
+            return opp
+        else:
+            return None
+    except Exception as e:
+        print(f"[ERROR] Failed to search for Opportunity: {e}")
+        return None
+
+
+def mark_opportunity_won(opportunity_id):
+    """Mark Odoo opportunity as Won using action_set_won."""
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "call",
+        "params": {
+            "service": "object",
+            "method": "execute_kw",
+            "args": [
+                ODOO_DB,
+                ODOO_USER_ID,
+                ODOO_API_KEY,
+                "crm.lead",
+                "action_set_won",
+                [[opportunity_id]]
+            ]
+        }
+    }
+    
+    try:
+        response = requests.post(ODOO_URL, json=payload, timeout=10)
+        result = response.json()
+        
+        if result.get("result") is not None:
+            print(f"[OK] Opportunity {opportunity_id} marked as Won!")
+            return {'success': True}
+        else:
+            return {'success': False, 'message': 'action_set_won failed'}
+    except Exception as e:
+        print(f"[ERROR] Failed to mark Opportunity Won: {e}")
+        return {'success': False, 'message': str(e)}
+
+
 # ==============================================================================
 # ODOO API FUNCTIONS - UPDATE
 # ==============================================================================
@@ -2248,6 +2316,38 @@ def main(input_data):
             print("[OK] PHASE 4 COMPLETE - SALES ORDER UPDATED (found on re-check)")
             print("="*70)
             return result
+        
+        # -------------------------------------------------------------------------
+        # GRAVEYARD JOB AUTO-CLOSE: Detect manually scheduled reactivation jobs
+        # -------------------------------------------------------------------------
+        # When a graveyard job (Reactivation Lead) gets manually scheduled (you change JobType and schedule it),
+        # auto-close the Opportunity (same outcome as Calendly path).
+        
+        job_type = workiz_job.get('JobType', '')
+        job_status = workiz_job.get('Status', '')
+        
+        print(f"[*] Checking for graveyard job auto-close: JobType='{job_type}', Status='{job_status}'")
+        
+        # Detection criteria: JobType is NOT "Reactivation Lead" AND job is scheduled
+        if job_type != 'Reactivation Lead' and job_status in ['Scheduled', 'Next Appointment']:
+            print("[*] Job is scheduled and NOT a Reactivation Lead - checking for linked Opportunity")
+            
+            # Look up Opportunity by this graveyard UUID
+            opportunity = find_opportunity_by_graveyard_uuid(job_uuid)
+            
+            if opportunity:
+                print(f"[!] GRAVEYARD AUTO-CLOSE DETECTED!")
+                print(f"[*] This was a reactivation that got manually scheduled in Workiz")
+                print(f"[*] Opportunity: {opportunity['name']} (ID: {opportunity['id']})")
+                
+                # Mark Opportunity as Won (closes it)
+                won_result = mark_opportunity_won(opportunity['id'])
+                
+                if won_result.get('success'):
+                    print("[OK] Opportunity marked Won - will now create SO via Phase 3")
+                else:
+                    print(f"[ERROR] Failed to mark Opportunity Won: {won_result.get('message')}")
+                    # Continue anyway to create SO
         
         print("[!] Sales Order not found - triggering Phase 3 webhook to create it")
         print("="*70)
