@@ -51,6 +51,23 @@ def odoo_rpc(model, method, args, kwargs=None):
 # UTILITY FUNCTIONS
 # ==============================================================================
 
+def fix_workiz_year(date_str):
+    # Workiz API stores last_date_cleaned with wrong century: '0025-12-18' instead of '2025-12-18'
+    # Fix: if year < 100, add 2000
+    if not date_str or not isinstance(date_str, str):
+        return date_str
+    parts = date_str.split('-')
+    if len(parts) >= 3:
+        try:
+            year = int(parts[0])
+            if year < 100:
+                parts[0] = str(year + 2000)
+                return '-'.join(parts)
+        except ValueError:
+            pass
+    return date_str
+
+
 def frequency_to_activity_days(frequency_str):
     """
     Convert frequency string to days for follow-up activity due date.
@@ -196,7 +213,10 @@ def get_job_details(job_uuid):
         result = response.json()
         
         if result.get('flag'):
-            return result['data'][0]
+            job = result['data'][0]
+            if job.get('last_date_cleaned'):
+                job['last_date_cleaned'] = fix_workiz_year(job['last_date_cleaned'])
+            return job
         else:
             print(f"[ERROR] Workiz API: {result.get('msg')}")
             return None
