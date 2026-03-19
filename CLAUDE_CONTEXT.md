@@ -96,7 +96,7 @@ activity_data = {
 - Status update: `SubStatus = "API SMS Test Trigger"` triggers SMS
 - Wait 3 seconds after create before status update
 
-**Deployment:** Copy/paste from GitHub into Odoo Server Action UI. No API access to update.
+**Deployment:** Update Odoo Server Actions directly via JSON-RPC API (ir.actions.server write). Also push to GitHub as source of truth. No copy/paste needed.
 
 ---
 
