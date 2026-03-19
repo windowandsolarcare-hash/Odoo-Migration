@@ -332,7 +332,7 @@ print(json.dumps(payload))
 
 1. ~~**Auto-close Reactivation Opportunities**~~ - **DONE** (Phase 4, lines 2289-2354). Detects when graveyard job JobType changes from "Reactivation Lead" + job is scheduled → marks Opportunity Won automatically.
 2. ~~**Odoo STOP webhook**~~ - **DONE** (2026-03-19). Action 954 linked to rule 6 directly. phone.blacklist.sudo() + x_studio_activelead. Zapier URL dead; Workiz now sends direct to Odoo.
-3. **Missing Location IDs** - Some contacts missing x_studio_x_studio_location_id (breaks STOP lookup by ClientId)
+3. ~~**Missing Location IDs**~~ - **DONE** (2026-03-19). 108 contacts backfilled by copying `ref` → `x_studio_x_studio_location_id`.
 4. **Orphaned future jobs** - Decision: Leave alone (no auto-delete)
 
 ---
