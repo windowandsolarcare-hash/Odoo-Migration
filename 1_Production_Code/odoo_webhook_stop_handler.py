@@ -56,14 +56,10 @@ if isinstance(sub_status, dict):
 else:
     sub_status_name = str(sub_status)
 
-# Log webhook received
-env.user.message_post(body=f"[WEBHOOK] Received STOP request - Job: {workiz_job_id}, Customer: {customer_name}, Phone: {customer_phone}, Status: {job_status}, SubStatus: {sub_status_name}, ClientId: {workiz_client_id}")
-
 # Normalize phone number (remove formatting)
 phone_clean = ''.join(filter(str.isdigit, customer_phone))
 
 if not phone_clean and not workiz_client_id:
-    env.user.message_post(body="[ERROR] No phone or ClientId in webhook payload")
     result = None
 else:
     # Search for Contact by phone or Workiz Location ID
@@ -96,14 +92,13 @@ else:
         contacts = None
     
     if not contacts:
-        env.user.message_post(body=f"[ERROR] Contact not found - Phone: {customer_phone}, ClientId: {workiz_client_id}")
         result = None
     else:
         contact = contacts[0]
         
         # Check if already blacklisted
         if contact.is_blacklisted:
-            env.user.message_post(body=f"[INFO] Contact {contact.name} (ID: {contact.id}) was already blacklisted")
+            pass
         else:
             # Set is_blacklisted = True
             contact.write({'is_blacklisted': True})
@@ -120,8 +115,6 @@ else:
             contact.write({
                 "x_crm_activity_log_ids": [[0, 0, activity_vals]]
             })
-            
-            env.user.message_post(body=f"[SUCCESS] Contact {contact.name} (ID: {contact.id}) blacklisted successfully. Future reactivation campaigns will skip this contact.")
         
         result = contact
 
