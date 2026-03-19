@@ -1,122 +1,74 @@
 # ==============================================================================
 # WORKIZ STOP REQUEST WEBHOOK HANDLER - ODOO STUDIO WEBHOOK
 # Author: DJ Sanders
-# Date: 2026-03-08
+# Date: 2026-03-19
 # GitHub: windowandsolarcare-hash/Odoo-Migration
 # ==============================================================================
 # PURPOSE:
-# Odoo Studio webhook that receives Workiz job status change webhooks.
-# When a job status is set to "STOP - do not CALL or TEXT", this webhook:
-# 1. Extracts customer phone from the Workiz payload
-# 2. Finds the Contact in Odoo by phone or Workiz client ID
-# 3. Sets is_blacklisted = True (marketing blacklist)
-# 4. Logs the opt-out activity to their CRM Activity History
+# Receives Workiz webhook when job SubStatus = "STOP - Do not Call or Text".
+# 1. Finds Contact by Workiz location ID or phone
+# 2. Adds phone to phone.blacklist
+# 3. Sets x_studio_activelead = "Do Not Contact"
+# 4. Posts chatter note
+# 5. Logs to CRM Activity History
 #
-# EXPECTED WORKIZ PAYLOAD (NEW FORMAT):
-# {
-#   "trigger": {"type": "job_status_stop_-_do_not_call_or_text"},
-#   "data": {
-#     "uuid": "B6GB1D",
-#     "clientInfo": {
-#       "serialId": 1040,
-#       "firstName": "Jean",
-#       "lastName": "Faenza",
-#       "primaryPhone": "8058131909"
-#     }
-#   }
-# }
-#
-# ALSO SUPPORTS OLD FLAT FORMAT (backward compatible)
+# PAYLOAD FORMAT (Workiz sends):
+# {"data": {"uuid": "B6GB1D", "clientInfo": {"serialId": 1040, "primaryPhone": "8058131909"}}}
 # ==============================================================================
 
-# Parse webhook payload (only if it's a string, otherwise already parsed)
+# payload is already a dict in Odoo 19, but check anyway
 if isinstance(payload, str):
     payload = json.loads(payload)
-# else: payload is already a dict, use as-is
 
-# Extract data from Workiz webhook (supports both old and new formats)
-data = payload.get('data', payload)  # New format has nested 'data', old format is flat
-client_info = data.get('clientInfo', data)  # New format has nested 'clientInfo', old format is flat
+data = payload.get('data', payload)
+client_info = data.get('clientInfo', data)
 
-# Extract job details (try new format first, fallback to old)
 workiz_job_id = data.get('uuid') or data.get('UUID') or payload.get('JobId', 'N/A')
-
-# Extract client/contact info (try new nested format first, fallback to old flat format)
 workiz_client_id = client_info.get('serialId') or data.get('ClientId') or payload.get('ClientId')
 customer_phone = client_info.get('primaryPhone') or data.get('Phone') or payload.get('Phone', '')
-first_name = client_info.get('firstName') or data.get('FirstName') or payload.get('FirstName', '')
-last_name = client_info.get('lastName') or data.get('LastName') or payload.get('LastName', '')
-customer_name = f"{first_name} {last_name}".strip()
 
-# Status (can be in multiple places)
-job_status = data.get('status') or data.get('Status') or payload.get('Status', '')
 sub_status = data.get('subStatus', {})
-if isinstance(sub_status, dict):
-    sub_status_name = sub_status.get('name', '')
+sub_status_name = sub_status.get('name', '') if isinstance(sub_status, dict) else str(sub_status)
+job_status = data.get('status') or data.get('Status') or payload.get('Status', '')
+status_info = (job_status + ' / ' + sub_status_name) if sub_status_name else job_status
+
+# Normalize phone to digits and E.164
+phone_digits = ''.join(filter(str.isdigit, customer_phone))
+if len(phone_digits) == 10:
+    phone_e164 = '+1' + phone_digits
+elif len(phone_digits) == 11 and phone_digits[0] == '1':
+    phone_e164 = '+' + phone_digits
 else:
-    sub_status_name = str(sub_status)
+    phone_e164 = customer_phone
 
-# Normalize phone number (remove formatting)
-phone_clean = ''.join(filter(str.isdigit, customer_phone))
+# Find contact: location ID first, then phone fallback
+contact = None
+if workiz_client_id:
+    found = env['res.partner'].search([('x_studio_x_studio_location_id', '=', str(workiz_client_id))], limit=1)
+    if found:
+        contact = found[0]
+if not contact and phone_digits:
+    found = env['res.partner'].search(['|', ('phone', 'ilike', phone_digits[-10:]), ('phone', '=', customer_phone)], limit=1)
+    if found:
+        contact = found[0]
 
-if not phone_clean and not workiz_client_id:
-    result = None
-else:
-    # Search for Contact by phone or Workiz Location ID
-    domain = []
-    
-    if workiz_client_id:
-        # First try Workiz Location ID (most reliable)
-        domain = [('x_studio_x_studio_location_id', '=', str(workiz_client_id))]
-        contacts = env['res.partner'].search(domain, limit=1)
-        
-        if not contacts and phone_clean:
-            # Fallback to phone search
-            domain = [
-                '|', '|',
-                ('phone', 'ilike', phone_clean[-10:]),
-                ('mobile', 'ilike', phone_clean[-10:]),
-                ('phone', '=', customer_phone)
-            ]
-            contacts = env['res.partner'].search(domain, limit=1)
-    elif phone_clean:
-        # Only phone available
-        domain = [
-            '|', '|',
-            ('phone', 'ilike', phone_clean[-10:]),
-            ('mobile', 'ilike', phone_clean[-10:]),
-            ('phone', '=', customer_phone)
-        ]
-        contacts = env['res.partner'].search(domain, limit=1)
-    else:
-        contacts = None
-    
-    if not contacts:
-        result = None
-    else:
-        contact = contacts[0]
-        
-        # Check if already blacklisted
-        if contact.is_blacklisted:
-            pass
-        else:
-            # Set is_blacklisted = True
-            contact.write({'is_blacklisted': True})
-            
-            # Log the opt-out activity
-            status_info = f"{job_status} / {sub_status_name}" if sub_status_name else job_status
-            activity_vals = {
-                'x_name': f"SMS Opt-Out Request - Job {workiz_job_id}",
-                'x_description': f"Customer replied STOP to SMS. Manually marked in Workiz job {workiz_job_id} (Status: {status_info}). Blacklisted from future campaigns.",
-                'x_contact_id': contact.id,
-                'x_campaign_id': 1
-            }
-            
-            contact.write({
-                "x_crm_activity_log_ids": [[0, 0, activity_vals]]
-            })
-        
-        result = contact
+if contact:
+    # 1. Add phone to blacklist
+    if phone_e164:
+        existing_bl = env['phone.blacklist'].sudo().search([('number', '=', phone_e164)], limit=1)
+        if not existing_bl:
+            env['phone.blacklist'].sudo().create({'number': phone_e164})
 
-# Return the contact record (Odoo Studio webhook expects this)
-result = result if 'result' in locals() else None
+    # 2. Set "Do Not Contact"
+    contact.write({'x_studio_activelead': 'Do Not Contact'})
+
+    # 3. Post to chatter
+    contact.sudo().message_post(body='[STOP] Opted out. Job: ' + str(workiz_job_id) + ' | Blacklisted: ' + str(phone_e164))
+
+    # 4. Log CRM activity
+    contact.write({'x_crm_activity_log_ids': [[0, 0, {
+        'x_name': 'SMS Opt-Out - Job ' + str(workiz_job_id),
+        'x_description': 'Customer replied STOP. Phone ' + str(phone_e164) + ' blacklisted. Status: ' + str(status_info),
+        'x_contact_id': contact.id,
+        'x_campaign_id': 1
+    }]]})
