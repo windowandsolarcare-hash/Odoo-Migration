@@ -330,7 +330,7 @@ print(json.dumps(payload))
 
 ## ROADMAP / UNFINISHED
 
-1. **Auto-close Reactivation Opportunities** - When graveyard job goes to Scheduled, mark Opportunity Won, create SO
+1. ~~**Auto-close Reactivation Opportunities**~~ - **DONE** (Phase 4, lines 2289-2354). Detects when graveyard job JobType changes from "Reactivation Lead" + job is scheduled → marks Opportunity Won automatically.
 2. **Odoo STOP webhook** - Ensure Workiz configured to send to Odoo URL; verify blacklisting works
 3. **Missing Location IDs** - Some contacts missing x_studio_x_studio_location_id (breaks STOP lookup by ClientId)
 4. **Orphaned future jobs** - Decision: Leave alone (no auto-delete)
