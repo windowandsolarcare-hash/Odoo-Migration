@@ -188,6 +188,7 @@ contact.write({'is_blacklisted': True})
 | Triple-quote docstring in Odoo | Access to forbidden name __doc__ | Use # comments only |
 | `env.user.message_post()` in webhook | res.users has no message_post | Remove all logging |
 | `json.loads(payload)` when payload is dict | TypeError: must be str | `if isinstance(payload, str): payload = json.loads(payload)` |
+| Computed field with `record.field = value` in Studio | forbidden opcode STORE_ATTR | Change to `related` field in `ir.model.fields` via API |
 | `["type", "=", "other"]` for properties | Wrong results | Use `["x_studio_x_studio_record_category", "=", "Property"]` |
 | `JobSource = "Reactivation"` | Workiz validation error | Use `"Referral"` |
 | `type_of_service = ""` | Workiz validation error | Use `"On Request"` |
@@ -279,7 +280,7 @@ Old scripts, "Part 1/2/3" files, and previous experiments.
 ### Unfinished / Roadmap
 1. ~~**Auto-close Reactivation Opportunities**~~ — **DONE** (Phase 4, lines 2289-2354). Detects JobType change away from "Reactivation Lead" + scheduled status → marks Opportunity Won automatically.
 2. ~~**Odoo STOP webhook**~~ — **DONE** (2026-03-19). Action 954 "Workiz STOP Logic" linked directly to automation rule 6. Uses phone.blacklist.sudo() + x_studio_activelead "Do Not Contact". Workiz sends to Odoo URL directly.
-3. **Missing Location IDs** — Some contacts missing `x_studio_x_studio_location_id` (breaks STOP lookup by ClientId)
+3. ~~**Missing Location IDs**~~ — **DONE** (2026-03-19). Backfilled 108 contacts by copying `ref` → `x_studio_x_studio_location_id`. 2 remaining have no Workiz ID (property address + test record, expected).
 
 ---
 
