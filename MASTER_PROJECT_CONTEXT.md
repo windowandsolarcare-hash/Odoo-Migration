@@ -203,10 +203,13 @@ contact.write({'is_blacklisted': True})
 - **URL:** `https://hooks.zapier.com/hooks/catch/9761276/upyvrkx/`
 - **Uses:** `phone.blacklist` model, `x_studio_activelead` = "Do Not Contact", `ref` field for client lookup
 
-### Implementation B: Odoo Webhook (odoo_webhook_stop_handler.py)
+### Implementation B: Odoo Webhook (odoo_webhook_stop_handler.py) ✅ ACTIVE
 - **Trigger:** Workiz sends DIRECTLY to Odoo
 - **URL:** `https://window-solar-care.odoo.com/web/hook/f64d0bc1-54fd-45a1-b645-0dcae6ae1728`
 - **File:** `1_Production_Code/odoo_webhook_stop_handler.py`
+- **Odoo:** Automation rule 6 → Action 954 "Workiz STOP Logic" (direct, no multi-action wrapper)
+- **Key fix:** Must use `phone.blacklist.sudo()` and link action DIRECTLY to rule (no multi-action chain)
+- **Zapier Implementation A:** URL dead (404) — Odoo direct is the only active implementation
 
 **Workiz config:** Filter on `SubStatus = "STOP - Do not Call or Text"` (NOT Status — Status stays "Pending")
 
@@ -267,7 +270,7 @@ Old scripts, "Part 1/2/3" files, and previous experiments.
 | :--- | :--- | :--- | :--- |
 | **1** | History Migration | ✅ Done | N/A |
 | **2** | Reactivation | ✅ Active | Odoo Server Action (Manual) |
-| **2B** | STOP Compliance | ✅ Two implementations | Workiz Webhook |
+| **2B** | STOP Compliance | ✅ Odoo direct webhook (action 954) | Workiz → Odoo direct |
 | **3** | New Job Sync | ✅ Active | Workiz Webhook → Zapier |
 | **4** | Job Updates | ✅ Active | Zapier Polling (5 min) |
 | **5** | Auto-Schedule | ✅ Active | Triggered by Phase 6 |
@@ -275,7 +278,7 @@ Old scripts, "Part 1/2/3" files, and previous experiments.
 
 ### Unfinished / Roadmap
 1. ~~**Auto-close Reactivation Opportunities**~~ — **DONE** (Phase 4, lines 2289-2354). Detects JobType change away from "Reactivation Lead" + scheduled status → marks Opportunity Won automatically.
-2. **Odoo STOP webhook** — Ensure Workiz configured to send to Odoo URL; verify blacklisting works end-to-end
+2. ~~**Odoo STOP webhook**~~ — **DONE** (2026-03-19). Action 954 "Workiz STOP Logic" linked directly to automation rule 6. Uses phone.blacklist.sudo() + x_studio_activelead "Do Not Contact". Workiz sends to Odoo URL directly.
 3. **Missing Location IDs** — Some contacts missing `x_studio_x_studio_location_id` (breaks STOP lookup by ClientId)
 
 ---
