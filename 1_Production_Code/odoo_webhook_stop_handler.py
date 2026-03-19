@@ -23,7 +23,31 @@ ODOO STUDIO SETUP:
    - URL: [Paste Odoo webhook URL]
    - Filter: Status = "STOP - do not CALL or TEXT"
 
-EXPECTED WORKIZ PAYLOAD:
+EXPECTED WORKIZ PAYLOAD (NEW FORMAT):
+{
+  "trigger": {
+    "type": "job_status_stop_-_do_not_call_or_text",
+    "timestamp": "2026-03-19T07:11:39.534Z"
+  },
+  "data": {
+    "uuid": "B6GB1D",
+    "serialId": 603,
+    "status": "Pending",
+    "subStatus": {
+      "id": "JSS-xxx",
+      "name": "STOP - Do not Call or Text"
+    },
+    "clientInfo": {
+      "clientId": "CL-xxx",
+      "serialId": 1040,
+      "firstName": "Jean",
+      "lastName": "Faenza",
+      "primaryPhone": "8058131909"
+    }
+  }
+}
+
+ALSO SUPPORTS OLD FLAT FORMAT:
 {
   "JobId": "ABC123",
   "UUID": "MJUERK",
@@ -31,8 +55,7 @@ EXPECTED WORKIZ PAYLOAD:
   "Status": "STOP - do not CALL or TEXT",
   "FirstName": "John",
   "LastName": "Doe",
-  "Phone": "555-123-4567",
-  "Email": "john@example.com"
+  "Phone": "555-123-4567"
 }
 
 NOTE: This code runs in Odoo's safe_eval environment:
@@ -43,15 +66,30 @@ NOTE: This code runs in Odoo's safe_eval environment:
 # Parse webhook payload
 payload = json.loads(payload)  # Odoo provides 'payload' variable
 
-# Extract data from Workiz webhook
-workiz_job_id = payload.get('JobId', payload.get('UUID', 'N/A'))
-workiz_client_id = payload.get('ClientId')
-customer_phone = payload.get('Phone', '')
-customer_name = f"{payload.get('FirstName', '')} {payload.get('LastName', '')}".strip()
-job_status = payload.get('Status', '')
+# Extract data from Workiz webhook (supports both old and new formats)
+data = payload.get('data', payload)  # New format has nested 'data', old format is flat
+client_info = data.get('clientInfo', data)  # New format has nested 'clientInfo', old format is flat
+
+# Extract job details (try new format first, fallback to old)
+workiz_job_id = data.get('uuid') or data.get('UUID') or payload.get('JobId', 'N/A')
+
+# Extract client/contact info (try new nested format first, fallback to old flat format)
+workiz_client_id = client_info.get('serialId') or data.get('ClientId') or payload.get('ClientId')
+customer_phone = client_info.get('primaryPhone') or data.get('Phone') or payload.get('Phone', '')
+first_name = client_info.get('firstName') or data.get('FirstName') or payload.get('FirstName', '')
+last_name = client_info.get('lastName') or data.get('LastName') or payload.get('LastName', '')
+customer_name = f"{first_name} {last_name}".strip()
+
+# Status (can be in multiple places)
+job_status = data.get('status') or data.get('Status') or payload.get('Status', '')
+sub_status = data.get('subStatus', {})
+if isinstance(sub_status, dict):
+    sub_status_name = sub_status.get('name', '')
+else:
+    sub_status_name = str(sub_status)
 
 # Log webhook received
-env.user.message_post(body=f"[WEBHOOK] Received STOP request - Job: {workiz_job_id}, Customer: {customer_name}, Phone: {customer_phone}")
+env.user.message_post(body=f"[WEBHOOK] Received STOP request - Job: {workiz_job_id}, Customer: {customer_name}, Phone: {customer_phone}, Status: {job_status}, SubStatus: {sub_status_name}, ClientId: {workiz_client_id}")
 
 # Normalize phone number (remove formatting)
 phone_clean = ''.join(filter(str.isdigit, customer_phone))
@@ -103,15 +141,17 @@ else:
             contact.write({'is_blacklisted': True})
             
             # Log the opt-out activity
+            status_info = f"{job_status} / {sub_status_name}" if sub_status_name else job_status
             activity_vals = {
-                'x_name': f"SMS Opt-Out Request",
-                'x_activity_type': 'opt_out',
-                'x_description': f"Customer replied STOP to SMS. Manually marked in Workiz job {workiz_job_id}. Blacklisted from future campaigns.",
+                'x_name': f"SMS Opt-Out Request - Job {workiz_job_id}",
+                'x_description': f"Customer replied STOP to SMS. Manually marked in Workiz job {workiz_job_id} (Status: {status_info}). Blacklisted from future campaigns.",
                 'x_contact_id': contact.id,
                 'x_campaign_id': 1
             }
             
-            env['x_crm_activity_log'].create(activity_vals)
+            contact.write({
+                "x_crm_activity_log_ids": [[0, 0, activity_vals]]
+            })
             
             env.user.message_post(body=f"[SUCCESS] Contact {contact.name} (ID: {contact.id}) blacklisted successfully. Future reactivation campaigns will skip this contact.")
         
