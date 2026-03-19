@@ -1002,7 +1002,9 @@ def create_sales_order(contact_id, property_id, workiz_job_data, booking_datetim
             return {'success': True, 'sales_order_id': sales_order_id, 'booking_datetime': booking_datetime}
         else:
             error = result.get("error", {})
-            return {'success': False, 'sales_order_id': None, 'booking_datetime': None, 'message': f"Error: {error.get('message', 'Unknown')}"}
+            error_msg = error.get('data', {}).get('message', '') or error.get('message', 'Unknown')
+            print(f"[ERROR] SO create failed: {error_msg}")
+            return {'success': False, 'sales_order_id': None, 'booking_datetime': None, 'message': f"Error: {error_msg}"}
     except Exception as e:
         return {'success': False, 'sales_order_id': None, 'booking_datetime': None, 'message': f"Exception: {str(e)}"}
 
@@ -1185,7 +1187,7 @@ def execute_path_a(contact_id, property_id, workiz_job, skip_confirm=False):
     )
     
     if not so_result or not so_result.get('success'):
-        return {'success': False, 'error': 'Failed to create sales order'}
+        return {'success': False, 'error': 'Failed to create sales order: ' + str(so_result.get('message', 'unknown'))}
     
     sales_order_id = so_result['sales_order_id']
     
@@ -1269,7 +1271,7 @@ def execute_path_b(contact_id, service_address, workiz_job, skip_confirm=False):
     )
     
     if not so_result or not so_result.get('success'):
-        return {'success': False, 'error': 'Failed to create sales order'}
+        return {'success': False, 'error': 'Failed to create sales order: ' + str(so_result.get('message', 'unknown'))}
     
     sales_order_id = so_result['sales_order_id']
     
@@ -1357,7 +1359,7 @@ def execute_path_c(customer_name, service_address, workiz_job, client_id, skip_c
     )
     
     if not so_result or not so_result.get('success'):
-        return {'success': False, 'error': 'Failed to create sales order'}
+        return {'success': False, 'error': 'Failed to create sales order: ' + str(so_result.get('message', 'unknown'))}
     
     sales_order_id = so_result['sales_order_id']
     
