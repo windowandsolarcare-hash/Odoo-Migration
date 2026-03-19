@@ -1429,7 +1429,8 @@ def main(input_data):
         # print(f"[DEBUG] extract_job_from_input returned: job_uuid={job_uuid}, workiz_job={'<dict>' if workiz_job else None}")
         
         if not job_uuid:
-            return {'success': False, 'error': 'No job_uuid provided'}
+            sample_keys = sorted(input_data.keys())[:30] if isinstance(input_data, dict) else str(type(input_data))
+            return {'success': False, 'error': 'No job_uuid provided', 'debug_input_keys': str(sample_keys)}
         
         # If webhook didn't provide full data, fetch from Workiz API
         if not workiz_job:
