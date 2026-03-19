@@ -366,7 +366,7 @@ Primary Service: {primary_service_str}"""
             "JobSource": str(historical_job.get("JobSource") or "Referral"),
             "information_to_remember": message_body,
             "JobNotes": str(historical_job.get("JobNotes") or ""),
-            "Phone": str(historical_job.get("Phone") or ""),
+            # Phone omitted - ClientId already identifies the client in Workiz (Phone field causes validation error)
             # ENRICHMENT: Copy custom field data from historical job
             "gate_code": str(historical_job.get("gate_code") or historical_job.get("GateCode") or ""),
             "pricing": str(historical_job.get("pricing") or historical_job.get("Pricing") or ""),
