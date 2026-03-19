@@ -362,7 +362,7 @@ Primary Service: {primary_service_str}"""
             "PostalCode": str(historical_job.get("PostalCode") or ""),
             "JobType": "Reactivation Lead",
             "Unit": str(historical_job.get("Unit") or ""),
-            "ServiceArea": str(historical_job.get("ServiceArea") or ""),
+            "ServiceArea": str(historical_job.get("ServiceArea") or contact.x_studio_x_studio_service_area or "Desert"),
             "JobSource": str(historical_job.get("JobSource") or "Referral"),
             "information_to_remember": message_body,
             "JobNotes": str(historical_job.get("JobNotes") or ""),
