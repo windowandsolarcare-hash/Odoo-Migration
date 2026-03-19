@@ -1,67 +1,33 @@
-"""
-WORKIZ STOP REQUEST WEBHOOK HANDLER - ODOO STUDIO WEBHOOK
-Author: DJ Sanders
-Date: 2026-03-08
-GitHub: windowandsolarcare-hash/Odoo-Migration
-
-PURPOSE:
-Odoo Studio webhook that receives Workiz job status change webhooks.
-When a job status is set to "STOP - do not CALL or TEXT", this webhook:
-1. Extracts customer phone from the Workiz payload
-2. Finds the Contact in Odoo by phone or Workiz client ID
-3. Sets is_blacklisted = True (marketing blacklist)
-4. Logs the opt-out activity to their CRM Activity History
-
-ODOO STUDIO SETUP:
-1. Studio → Webhooks → New
-2. Name: "Workiz STOP Request Handler"
-3. Enable "Log Calls" for debugging
-4. Target Record: Contact (res.partner)
-5. Paste this code in "Target Record code" section
-6. Copy the generated webhook URL
-7. Configure in Workiz Settings → Webhooks → "Job Status Changed"
-   - URL: [Paste Odoo webhook URL]
-   - Filter: Status = "STOP - do not CALL or TEXT"
-
-EXPECTED WORKIZ PAYLOAD (NEW FORMAT):
-{
-  "trigger": {
-    "type": "job_status_stop_-_do_not_call_or_text",
-    "timestamp": "2026-03-19T07:11:39.534Z"
-  },
-  "data": {
-    "uuid": "B6GB1D",
-    "serialId": 603,
-    "status": "Pending",
-    "subStatus": {
-      "id": "JSS-xxx",
-      "name": "STOP - Do not Call or Text"
-    },
-    "clientInfo": {
-      "clientId": "CL-xxx",
-      "serialId": 1040,
-      "firstName": "Jean",
-      "lastName": "Faenza",
-      "primaryPhone": "8058131909"
-    }
-  }
-}
-
-ALSO SUPPORTS OLD FLAT FORMAT:
-{
-  "JobId": "ABC123",
-  "UUID": "MJUERK",
-  "ClientId": 12345,
-  "Status": "STOP - do not CALL or TEXT",
-  "FirstName": "John",
-  "LastName": "Doe",
-  "Phone": "555-123-4567"
-}
-
-NOTE: This code runs in Odoo's safe_eval environment:
-- No imports allowed (use built-in env objects)
-- Available: env, requests, datetime, json
-"""
+# ==============================================================================
+# WORKIZ STOP REQUEST WEBHOOK HANDLER - ODOO STUDIO WEBHOOK
+# Author: DJ Sanders
+# Date: 2026-03-08
+# GitHub: windowandsolarcare-hash/Odoo-Migration
+# ==============================================================================
+# PURPOSE:
+# Odoo Studio webhook that receives Workiz job status change webhooks.
+# When a job status is set to "STOP - do not CALL or TEXT", this webhook:
+# 1. Extracts customer phone from the Workiz payload
+# 2. Finds the Contact in Odoo by phone or Workiz client ID
+# 3. Sets is_blacklisted = True (marketing blacklist)
+# 4. Logs the opt-out activity to their CRM Activity History
+#
+# EXPECTED WORKIZ PAYLOAD (NEW FORMAT):
+# {
+#   "trigger": {"type": "job_status_stop_-_do_not_call_or_text"},
+#   "data": {
+#     "uuid": "B6GB1D",
+#     "clientInfo": {
+#       "serialId": 1040,
+#       "firstName": "Jean",
+#       "lastName": "Faenza",
+#       "primaryPhone": "8058131909"
+#     }
+#   }
+# }
+#
+# ALSO SUPPORTS OLD FLAT FORMAT (backward compatible)
+# ==============================================================================
 
 # Parse webhook payload
 payload = json.loads(payload)  # Odoo provides 'payload' variable
