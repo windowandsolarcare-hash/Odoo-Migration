@@ -29,8 +29,10 @@
 # ALSO SUPPORTS OLD FLAT FORMAT (backward compatible)
 # ==============================================================================
 
-# Parse webhook payload
-payload = json.loads(payload)  # Odoo provides 'payload' variable
+# Parse webhook payload (only if it's a string, otherwise already parsed)
+if isinstance(payload, str):
+    payload = json.loads(payload)
+# else: payload is already a dict, use as-is
 
 # Extract data from Workiz webhook (supports both old and new formats)
 data = payload.get('data', payload)  # New format has nested 'data', old format is flat
