@@ -7,7 +7,7 @@
 
 ## CRITICAL: READ THIS FIRST
 
-**This file is the ONLY context Claude Code will read to get up to speed.** Be specific with field names, API endpoints, exact error fixes, and code patterns.
+**Read this file AND `MASTER_PROJECT_CONTEXT.md` at the start of every session.** This file covers phase status, field names, API endpoints, and known fixes. MASTER_PROJECT_CONTEXT.md is the Technical Bible.
 
 ---
 
@@ -266,17 +266,31 @@ return exec_globals.get('output', {'status': 'error', 'message': 'No output gene
 
 ## GITHUB DEPLOYMENT
 
-**Use `gh api` NOT git:**
-```powershell
-$repo = "windowandsolarcare-hash/Odoo-Migration"
-$filePath = "path/to/file.py"
-$sha = gh api "repos/$repo/contents/$filePath" --jq '.sha' 2>&1
-if ($LASTEXITCODE -eq 0) { $sha = $sha.Trim() }
-$content = Get-Content "C:\Users\dj\Documents\Business\A Window and Solar Care\Migration to Odoo\$filePath" -Raw -Encoding UTF8
-$base64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($content))
-$payload = @{message = "YYYY-MM-DD | filename | description"; content = $base64; sha = $sha; branch = "main"} | ConvertTo-Json -Depth 10
-$payload | gh api "repos/$repo/contents/$filePath" --method PUT --input -
+**Use `gh api` NOT git. Claude Code runs bash, so use the bash version below (NOT PowerShell).**
+
+```bash
+repo="windowandsolarcare-hash/Odoo-Migration"
+filePath="1_Production_Code/example.py"
+sha=$(gh api "repos/$repo/contents/$filePath" --jq '.sha' 2>/dev/null)
+
+/c/Python314/python -c "
+import json, base64
+with open(r'C:/Users/dj/Documents/Business/A Window and Solar Care/Migration to Odoo/$filePath', 'rb') as f:
+    content = base64.b64encode(f.read()).decode()
+payload = {
+    'message': 'YYYY-MM-DD | filename | description',
+    'content': content,
+    'sha': '$sha',
+    'branch': 'main'
+}
+print(json.dumps(payload))
+" | gh api "repos/$repo/contents/$filePath" --method PUT --input -
 ```
+
+**Notes:**
+- Python executable: `/c/Python314/python`
+- Commit message format: `YYYY-MM-DD | filename | description`
+- Always push to `main` — Zapier watches main only
 
 ---
 
@@ -325,7 +339,7 @@ $payload | gh api "repos/$repo/contents/$filePath" --method PUT --input -
 
 ## CREDENTIALS
 
-**Odoo:** window-solar-care.odoo.com, DB: window-solar-care, API Key in .cursorrules  
+**Odoo:** window-solar-care.odoo.com, DB: window-solar-care, API Key in `.cursorrules` (legacy — kept for reference)
 **Workiz:** API Token api_1hu6lroiy5zxomcpptuwsg8heju97iwg, Auth sec_334084295850678330105471548  
 **GitHub:** windowandsolarcare-hash/Odoo-Migration, main branch
 
