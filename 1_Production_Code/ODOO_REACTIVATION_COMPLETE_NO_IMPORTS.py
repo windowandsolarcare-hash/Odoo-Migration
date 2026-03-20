@@ -349,6 +349,13 @@ Primary Service: {primary_service_str}"""
             source_order.message_post(body="⚠️ No ClientId found")
             continue
         
+        # Fix year bug: Workiz sometimes returns 0025 instead of 2025
+        raw_last_date = str(historical_job.get("last_date_cleaned") or "")
+        if raw_last_date and len(raw_last_date) >= 4 and int(raw_last_date[:4]) < 100:
+            fixed_last_date = str(int(raw_last_date[:4]) + 2000) + raw_last_date[4:]
+        else:
+            fixed_last_date = raw_last_date
+
         # Build graveyard job with custom field data from historical job
         # NOTE: LineItems, Team, Tags cannot be set via create API - they're read-only or require separate API calls
         graveyard_data = {
@@ -359,7 +366,7 @@ Primary Service: {primary_service_str}"""
             "Address": str(historical_job.get("Address") or ""),
             "City": str(historical_job.get("City") or ""),
             "State": str(historical_job.get("State") or ""),
-            "PostalCode": str(historical_job.get("PostalCode") or ""),
+            "PostalCode": ''.join(filter(str.isdigit, str(historical_job.get("PostalCode") or "")))[:5],
             "JobType": "Reactivation Lead",
             "Unit": str(historical_job.get("Unit") or ""),
             "ServiceArea": str(historical_job.get("ServiceArea") or contact.x_studio_x_studio_service_area or "Hemet"),
@@ -372,7 +379,7 @@ Primary Service: {primary_service_str}"""
             "pricing": str(historical_job.get("pricing") or historical_job.get("Pricing") or ""),
             "type_of_service": str(historical_job.get("type_of_service") or "On Request"),
             "frequency": str(historical_job.get("frequency") or "Unknown"),
-            "last_date_cleaned": str(historical_job.get("last_date_cleaned") or ""),
+            "last_date_cleaned": fixed_last_date,
             "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
             "confirmation_method": str(historical_job.get("confirmation_method") or "Cell Phone"),
             # LINE ITEMS: Actual prices sent in SMS (for manual entry when customer books)
