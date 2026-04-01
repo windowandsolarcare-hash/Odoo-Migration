@@ -510,6 +510,12 @@ def confirm_sales_order(so_id, date_order_utc=None):
         requests.post(ODOO_URL, json=payload, timeout=10)
         print("[OK] Confirmed draft SO → sales order (tasks created)")
         if date_order_utc:
+            # Odoo's action_confirm() internally resets date_order to datetime.now().
+            # This only surfaces when Phase 4 confirms an *existing* draft SO (e.g. user
+            # changes status to Pending Scheduled on a job whose SO was never confirmed).
+            # When creating a new SO, the date in the creation payload wins because confirm
+            # happens in the same request. On the update path it doesn't — so we write it back.
+            # Fixed 2026-04-01 after SO 004253 showed current date instead of Workiz JobDateTime.
             write_payload = {
                 "jsonrpc": "2.0", "method": "call",
                 "params": {
