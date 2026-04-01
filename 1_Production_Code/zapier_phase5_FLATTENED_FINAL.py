@@ -361,7 +361,7 @@ LINE ITEMS TO ADD:
         # Custom fields (Workiz expects strings for these)
         'frequency': str(completed_job_data.get('frequency') or ''),
         'alternating': str(completed_job_data.get('alternating') or ''),
-        'type_of_service': str(completed_job_data.get('type_of_service') or 'Maintenance'),
+        'type_of_service_2': str(completed_job_data.get('type_of_service_2') or completed_job_data.get('type_of_service') or 'Maintenance'),
         'gate_code': str(completed_job_data.get('gate_code') or ''),
         'pricing': str(completed_job_data.get('pricing') or ''),
         'last_date_cleaned': last_cleaned,  # Date of completed job for reference
