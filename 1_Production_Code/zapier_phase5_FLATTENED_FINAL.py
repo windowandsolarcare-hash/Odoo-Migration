@@ -861,8 +861,8 @@ def main(input_data):
     if not workiz_job:
         return {'success': False, 'error': 'Failed to fetch Workiz job'}
     
-    # Check service type
-    type_of_service = workiz_job.get('type_of_service', '').lower()
+    # Check service type (Workiz API field is 'type_of_service_2', fallback to 'type_of_service')
+    type_of_service = (workiz_job.get('type_of_service_2') or workiz_job.get('type_of_service') or '').lower()
     print(f"[*] Service Type: {type_of_service}")
     
     # Route based on service type
