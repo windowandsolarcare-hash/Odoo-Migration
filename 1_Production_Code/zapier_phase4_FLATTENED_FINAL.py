@@ -1664,7 +1664,7 @@ def execute_path_a(contact_id, property_id, workiz_job, skip_confirm=False):
     comments = workiz_job.get('Comments', '')
     frequency = workiz_job.get('frequency', '')
     alternating = workiz_job.get('alternating', '')
-    type_of_service = workiz_job.get('type_of_service', '')
+    type_of_service = workiz_job.get('type_of_service_2') or workiz_job.get('type_of_service', '')
     
     update_property_fields(property_id, gate_code, pricing, None, job_notes, comments, frequency, alternating, type_of_service)
     
@@ -1690,7 +1690,7 @@ def execute_path_b(contact_id, service_address, workiz_job, skip_confirm=False):
     postal_code = workiz_job.get('PostalCode', '')
     location_id = workiz_job.get('LocationId', '')
     frequency = workiz_job.get('frequency', '')
-    type_of_service = workiz_job.get('type_of_service', '')
+    type_of_service = workiz_job.get('type_of_service_2') or workiz_job.get('type_of_service', '')
     alternating = workiz_job.get('alternating', '')
     # Contact name for Property display "Contact Name, Address"
     contact_name = (workiz_job.get('FirstName', '') + ' ' + workiz_job.get('LastName', '')).strip()
@@ -1739,7 +1739,7 @@ def execute_path_c(customer_name, service_address, workiz_job, client_id, skip_c
     postal_code = workiz_job.get('PostalCode', '')
     location_id = workiz_job.get('LocationId', '')
     frequency = workiz_job.get('frequency', '')
-    type_of_service = workiz_job.get('type_of_service', '')
+    type_of_service = workiz_job.get('type_of_service_2') or workiz_job.get('type_of_service', '')
     alternating = workiz_job.get('alternating', '')
     
     contact_id = create_contact(first_name, last_name, phone, email, service_address, city, postal_code, client_id)
@@ -1893,7 +1893,7 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
         elif job_date:
             job_datetime_str = str(job_date).strip()
     frequency = workiz_job.get('frequency', '')
-    type_of_service = workiz_job.get('type_of_service', '')
+    type_of_service = workiz_job.get('type_of_service_2') or workiz_job.get('type_of_service', '')
     team = workiz_job.get('Team', []) or workiz_job.get('team', [])
     tags = workiz_job.get('Tags') or workiz_job.get('JobTags', [])
     if isinstance(tags, str):
@@ -2192,7 +2192,7 @@ def update_property_from_job(property_id, workiz_job, so_id=None, is_done=False)
     comments = workiz_job.get('Comments', '')
     frequency = workiz_job.get('frequency', '')
     alternating = workiz_job.get('alternating', '')
-    type_of_service = workiz_job.get('type_of_service', '')
+    type_of_service = workiz_job.get('type_of_service_2') or workiz_job.get('type_of_service', '')
     
     last_visit_date = None
     has_window = None
