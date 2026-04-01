@@ -496,8 +496,9 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
         return _ret(tasks_found=n_tasks, error=f"Task write exception: {e}")
 
 
-def confirm_sales_order(so_id):
-    """Confirm a draft SO (quotation → sales order); Odoo then creates tasks for lines with 'Create on Order = Task'."""
+def confirm_sales_order(so_id, date_order_utc=None):
+    """Confirm a draft SO (quotation → sales order); Odoo then creates tasks for lines with 'Create on Order = Task'.
+    If date_order_utc provided, writes it back after confirm (Odoo resets date_order to now() during action_confirm)."""
     payload = {
         "jsonrpc": "2.0", "method": "call",
         "params": {
@@ -508,6 +509,16 @@ def confirm_sales_order(so_id):
     try:
         requests.post(ODOO_URL, json=payload, timeout=10)
         print("[OK] Confirmed draft SO → sales order (tasks created)")
+        if date_order_utc:
+            write_payload = {
+                "jsonrpc": "2.0", "method": "call",
+                "params": {
+                    "service": "object", "method": "execute_kw",
+                    "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "sale.order", "write", [[so_id], {"date_order": date_order_utc}]]
+                }
+            }
+            requests.post(ODOO_URL, json=write_payload, timeout=10)
+            print(f"[*] Restored date_order after confirm: {date_order_utc}")
         return True
     except Exception:
         return False
@@ -2368,9 +2379,9 @@ def main(input_data):
         # When SO was quotation (draft) and job is now scheduled, confirm SO so tasks are created, then sync task fields.
         if so_state == 'draft' and should_trigger_tasks:
             print("[*] Quotation → scheduling: confirming SO and syncing tasks (assignee, planned date, start/end, phone).")
-            confirm_sales_order(so_id)
             job_datetime_str = workiz_job.get('JobDateTime', '')
             job_datetime_utc = convert_pacific_to_utc(job_datetime_str) if job_datetime_str else None
+            confirm_sales_order(so_id, date_order_utc=job_datetime_utc)
             sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
         
         property_id = existing_so.get('partner_shipping_id')
@@ -2400,9 +2411,9 @@ def main(input_data):
             # When SO was draft and job is now scheduled, confirm and sync tasks.
             if so_state == 'draft' and should_trigger_tasks:
                 print("[*] Quotation → scheduling: confirming SO and syncing tasks.")
-                confirm_sales_order(so_id)
                 job_datetime_str = workiz_job.get('JobDateTime', '')
                 job_datetime_utc = convert_pacific_to_utc(job_datetime_str) if job_datetime_str else None
+                confirm_sales_order(so_id, date_order_utc=job_datetime_utc)
                 ts = sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
                 if ts:
                     result.update(ts)
