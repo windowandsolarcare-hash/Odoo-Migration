@@ -364,6 +364,8 @@ LINE ITEMS TO ADD:
         'type_of_service_2': str(completed_job_data.get('type_of_service_2') or completed_job_data.get('type_of_service') or 'Maintenance'),
         'gate_code': str(completed_job_data.get('gate_code') or ''),
         'pricing': str(completed_job_data.get('pricing') or ''),
+        'ok_to_text': str(completed_job_data.get('ok_to_text') or 'Yes'),
+        'confirmation_method': str(completed_job_data.get('confirmation_method') or 'Cell Phone'),
         'last_date_cleaned': last_cleaned,  # Date of completed job for reference
         
         # LINE ITEMS REFERENCE (with context) - adjust field name to match your Workiz custom field
