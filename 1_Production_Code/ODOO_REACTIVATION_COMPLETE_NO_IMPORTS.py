@@ -382,7 +382,7 @@ Primary Service: {primary_service_str}"""
             "Address": str(historical_job.get("Address") or ""),
             "City": str(historical_job.get("City") or ""),
             "State": str(historical_job.get("State") or ""),
-            "PostalCode": ''.join(filter(str.isdigit, str(historical_job.get("PostalCode") or "")))[:5],
+            "PostalCode": (lambda z: z if len(z) == 5 else '')(''.join(filter(str.isdigit, str(historical_job.get("PostalCode") or "")))[:5]),
             "JobType": "Reactivation Lead",
             "Unit": str(historical_job.get("Unit") or ""),
             "ServiceArea": str(historical_job.get("ServiceArea") or contact.x_studio_x_studio_service_area or "Hemet"),
