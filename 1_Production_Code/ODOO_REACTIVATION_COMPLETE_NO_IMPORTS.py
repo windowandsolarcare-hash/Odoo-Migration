@@ -242,6 +242,13 @@ Text STOP to opt out"""
     except Exception as e:
         source_order.message_post(body=f"[DEBUG] Could not extract prices from SMS, using calculated: {e}")
 
+    # Re-derive primary_service_str from actual prices sent (so x_name reflects edited price)
+    try:
+        first_line = actual_prices_sent.strip().split('\n')[0]
+        primary_service_str = first_line.lstrip('• ').strip()
+    except Exception:
+        pass  # Keep original primary_service_str from calculation
+
     # --- CREATE NEW OPPORTUNITY ---
     try:
         source_order.message_post(body=f"[DEBUG] Creating opportunity for {full_name}")
