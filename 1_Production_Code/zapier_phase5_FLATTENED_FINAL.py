@@ -693,11 +693,23 @@ def get_line_items_for_next_job(workiz_job, property_id, next_job_type):
     return filtered
 
 
+def write_next_job_date_to_contact(contact_id, scheduled_datetime_str):
+    """Write x_studio_next_job_date on Contact to exclude from reactivation filter."""
+    if not contact_id or not scheduled_datetime_str:
+        return
+    try:
+        date_val = scheduled_datetime_str.split()[0] if ' ' in scheduled_datetime_str else scheduled_datetime_str
+        odoo_rpc("res.partner", "write", [[contact_id], {"x_studio_next_job_date": date_val}])
+        print(f"[OK] Next Job Date set on contact {contact_id}: {date_val}")
+    except Exception as e:
+        print(f"[WARNING] write_next_job_date_to_contact failed: {e}")
+
+
 # ==============================================================================
 # PHASE 5A: MAINTENANCE PATH
 # ==============================================================================
 
-def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=None):
+def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=None, contact_id=None):
     """Create next maintenance job in Workiz."""
     print("\n" + "="*70)
     print("PHASE 5A: MAINTENANCE AUTO-SCHEDULER")
@@ -736,7 +748,11 @@ def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoic
     
     if result['success']:
         print("[OK] Job created and tech assigned. Manually: add line items, set time slot from schedule, then set status to 'Next Appointment - Text' to send the text.")
-        
+
+        # Write next job date to contact so reactivation filter excludes them
+        if contact_id:
+            write_next_job_date_to_contact(contact_id, scheduled_datetime)
+
         # Update invoice with Workiz link if we have invoice_id and new job UUID
         new_uuid = result.get('new_job_uuid')
         if invoice_id and new_uuid:
@@ -872,8 +888,8 @@ def main(input_data):
         # MAINTENANCE PATH
         if not property_id or not customer_city:
             return {'success': False, 'error': 'Missing property_id or customer_city'}
-        
-        result = schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=invoice_id)
+
+        result = schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=invoice_id, contact_id=contact_id)
         return {'success': result['success'], 'path': '5A_maintenance', 'result': result}
     
     elif 'on demand' in type_of_service or 'on-demand' in type_of_service:
@@ -904,8 +920,8 @@ def main(input_data):
         
         if not property_id or not customer_city:
             return {'success': False, 'error': 'Cannot default to maintenance'}
-        
-        result = schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=invoice_id)
+
+        result = schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=invoice_id, contact_id=contact_id)
         return {'success': result['success'], 'path': '5A_maintenance_default', 'result': result}
 
 
