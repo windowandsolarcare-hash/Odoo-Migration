@@ -373,11 +373,11 @@ Primary Service: {primary_service_str}"""
             "JobSource": str(historical_job.get("JobSource") or "Referral"),
             "information_to_remember": message_body,
             "JobNotes": str(historical_job.get("JobNotes") or ""),
-            # Phone omitted - ClientId already identifies the client in Workiz (Phone field causes validation error)
+            "Phone": ''.join(filter(str.isdigit, str(phone_sanitized or ""))),
             # ENRICHMENT: Copy custom field data from historical job
             "gate_code": str(historical_job.get("gate_code") or historical_job.get("GateCode") or ""),
             "pricing": str(historical_job.get("pricing") or historical_job.get("Pricing") or ""),
-            "type_of_service": str(historical_job.get("type_of_service") or "On Request"),
+            "type_of_service_2": str(historical_job.get("type_of_service_2") or historical_job.get("type_of_service") or "On Request"),
             "frequency": str(historical_job.get("frequency") or "Unknown"),
             "last_date_cleaned": fixed_last_date,
             "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
