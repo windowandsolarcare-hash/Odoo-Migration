@@ -520,11 +520,7 @@ def update_invoice_with_workiz_link(invoice_id, new_job_uuid, customer_name, sch
         print(f"[OK] Updated invoice with Workiz link: {workiz_url}")
         
         # Also post notification to chatter
-        message_body = f"""<p><strong>✅ Next Maintenance Job Created</strong></p>
-<p>Customer: <strong>{customer_name}</strong><br/>
-Scheduled: <strong>{scheduled_date}</strong></p>
-<p>Job UUID: <strong>{new_job_uuid}</strong></p>
-<p><em>Click the "Workiz Job Link" field on this invoice to open the job in Workiz.</em></p>"""
+        message_body = f"✅ Next Maintenance Job Created | Customer: {customer_name} | Scheduled: {scheduled_date} | Job UUID: {new_job_uuid} | Use Workiz Job Link field to open in Workiz."
         
         odoo_rpc("account.move", "message_post", [[invoice_id]], {
             "body": message_body,
@@ -773,11 +769,7 @@ def create_ondemand_followup(workiz_job, contact_id, days_until_followup=180, in
                 print(f"[OK] Updated invoice with activity link: {activity_url}")
                 
                 # Post notification to invoice chatter
-                message_body = f"""<p><strong>🔔 Follow-Up Activity Created</strong></p>
-<p>Customer: <strong>{customer_name}</strong><br/>
-Due Date: <strong>{result.get('due_date', 'N/A')}</strong></p>
-<p>Activity ID: <strong>{activity_id}</strong></p>
-<p><em>Click the "Workiz Job Link" field on this invoice to open the activity in Odoo.</em></p>"""
+                message_body = f"🔔 Follow-Up Activity Created | Customer: {customer_name} | Due: {result.get('due_date', 'N/A')} | Activity ID: {activity_id} | Use Workiz Job Link field to open activity in Odoo."
                 
                 odoo_rpc("account.move", "message_post", [[invoice_id]], {
                     "body": message_body,
