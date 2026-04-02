@@ -137,9 +137,9 @@ def apply_city_schedule(target_date, city):
     """
     city_schedule = {
         'palm springs':    [4],     # Friday
-        'rancho mirage':   [3],     # Thursday
+        'rancho mirage':   [3, 4],  # Thursday or Friday (whichever nearest)
         'palm desert':     [3],     # Thursday
-        'indian wells':    [2],     # Wednesday
+        'indian wells':    [2, 3],  # Wednesday or Thursday (whichever nearest)
         'indio':           [2],     # Wednesday
         'la quinta':       [2],     # Wednesday
         'cathedral city':  [2, 3],  # Wednesday or Thursday (whichever nearest)
