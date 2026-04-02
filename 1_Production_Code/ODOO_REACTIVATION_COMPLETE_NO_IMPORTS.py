@@ -486,7 +486,7 @@ Primary Service: {primary_service_str}"""
             
             source_order.message_post(body=f"[DEBUG] Activity logged to Contact")
             
-            source_order.message_post(body=f"✅ COMPLETE: {graveyard_link}")
+            source_order.message_post(body=f"[OK] COMPLETE: {graveyard_link}")
             
             # Archive SMS to opportunity chatter
             try:
