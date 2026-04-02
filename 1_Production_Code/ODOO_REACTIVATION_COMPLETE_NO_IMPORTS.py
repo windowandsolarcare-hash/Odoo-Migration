@@ -351,8 +351,24 @@ Primary Service: {primary_service_str}"""
         
         # Fix year bug: Workiz sometimes returns 0025 instead of 2025
         raw_last_date = str(historical_job.get("last_date_cleaned") or "")
-        if raw_last_date and len(raw_last_date) >= 4 and int(raw_last_date[:4]) < 100:
-            fixed_last_date = str(int(raw_last_date[:4]) + 2000) + raw_last_date[4:]
+        if raw_last_date and '/' in raw_last_date:
+            # M/D/YYYY or MM/DD/YYYY format from Workiz
+            try:
+                parts = raw_last_date.strip().split('/')
+                m, d, y = int(parts[0]), int(parts[1]), int(parts[2].split()[0])
+                if y < 100:
+                    y += 2000
+                fixed_last_date = '{:04d}-{:02d}-{:02d}'.format(y, m, d)
+            except Exception:
+                fixed_last_date = ''
+        elif raw_last_date and len(raw_last_date) >= 4:
+            try:
+                if int(raw_last_date[:4]) < 100:
+                    fixed_last_date = str(int(raw_last_date[:4]) + 2000) + raw_last_date[4:]
+                else:
+                    fixed_last_date = raw_last_date
+            except Exception:
+                fixed_last_date = raw_last_date
         else:
             fixed_last_date = raw_last_date
 
