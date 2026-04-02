@@ -1150,6 +1150,38 @@ def update_property_fields(property_id, gate_code=None, pricing=None, last_visit
         return {'success': False, 'message': str(e)}
 
 
+def write_next_job_date_to_contact(contact_id, job_datetime_str):
+    """Write x_studio_next_job_date on Contact (res.partner) to exclude from reactivation filter."""
+    if not contact_id or not job_datetime_str:
+        return
+    try:
+        date_val = job_datetime_str.split()[0] if ' ' in job_datetime_str else job_datetime_str
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "call",
+            "params": {
+                "service": "object",
+                "method": "execute_kw",
+                "args": [
+                    ODOO_DB,
+                    ODOO_USER_ID,
+                    ODOO_API_KEY,
+                    "res.partner",
+                    "write",
+                    [[contact_id], {"x_studio_next_job_date": date_val}]
+                ]
+            }
+        }
+        rpc_resp = requests.post(ODOO_URL, json=payload, timeout=10)
+        rpc_data = rpc_resp.json()
+        if rpc_data.get("result"):
+            print(f"[OK] Next Job Date set on contact {contact_id}: {date_val}")
+        else:
+            print(f"[WARNING] Could not set Next Job Date: {rpc_data}")
+    except Exception as e:
+        print(f"[WARNING] write_next_job_date_to_contact failed: {e}")
+
+
 # ==============================================================================
 # PATH EXECUTION FUNCTIONS
 # ==============================================================================
@@ -1226,6 +1258,10 @@ def execute_path_a(contact_id, property_id, workiz_job, skip_confirm=False):
     print("[OK] PATH A COMPLETE")
     print("="*70)
     
+    # Write job date to contact so reactivation filter excludes them
+    if job_datetime:
+        write_next_job_date_to_contact(contact_id, job_datetime)
+
     return {
         'success': True,
         'path': 'A',
@@ -1305,10 +1341,14 @@ def execute_path_b(contact_id, service_address, workiz_job, skip_confirm=False):
     
     update_property_fields(property_id, gate_code, pricing, None, job_notes, comments, frequency, alternating, type_of_service)
     
+    # Write job date to contact so reactivation filter excludes them
+    if job_datetime:
+        write_next_job_date_to_contact(contact_id, job_datetime)
+
     print("="*70)
     print("[OK] PATH B COMPLETE")
     print("="*70)
-    
+
     return {
         'success': True,
         'path': 'B',
@@ -1393,10 +1433,14 @@ def execute_path_c(customer_name, service_address, workiz_job, client_id, skip_c
     
     update_property_fields(property_id, gate_code, pricing, None, job_notes, comments, frequency, alternating, type_of_service)
     
+    # Write job date to contact so reactivation filter excludes them
+    if job_datetime:
+        write_next_job_date_to_contact(contact_id, job_datetime)
+
     print("="*70)
     print("[OK] PATH C COMPLETE")
     print("="*70)
-    
+
     return {
         'success': True,
         'path': 'C',
