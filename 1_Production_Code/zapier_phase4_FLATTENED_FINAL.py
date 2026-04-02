@@ -2061,7 +2061,23 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
         return {'success': False, 'error': 'SO update failed'}
     
     print("[OK] Sales Order updated successfully")
-    
+
+    # Pricing check: compare Workiz total vs updated Odoo SO total and write flag
+    workiz_total_raw = workiz_job.get('TotalPrice') or workiz_job.get('SubTotal') or 0
+    try:
+        workiz_total_check = float(workiz_total_raw)
+    except Exception:
+        workiz_total_check = 0
+    if workiz_total_check > 0:
+        so_total_result = _odoo_search_read('sale.order', [['id', '=', so_id]], ['amount_untaxed'], limit=1)
+        odoo_total_check = float(so_total_result[0].get('amount_untaxed', 0)) if so_total_result else 0
+        if abs(workiz_total_check - odoo_total_check) < 0.02:
+            pricing_flag = '<span class="text-success"><b>OK - Workiz: ${:.2f} | Odoo: ${:.2f}</b></span>'.format(workiz_total_check, odoo_total_check)
+        else:
+            pricing_flag = '<span class="text-danger"><b>MISMATCH - Workiz: ${:.2f} | Odoo: ${:.2f} - Change status to Scheduled in Workiz to force Phase 4 sync</b></span>'.format(workiz_total_check, odoo_total_check)
+        _odoo_write('sale.order', [so_id], {'x_studio_pricing_mismatch': pricing_flag})
+        print(f"[*] Pricing check: Workiz ${workiz_total_check:.2f} vs Odoo ${odoo_total_check:.2f}")
+
     # Sync tasks: every status/date/team change updates the existing task(s) — we never create a second task or ignore. Overwrites assignee, planned date, start/end, customer, contact number, tags with current Workiz data (e.g. moving date in Workiz moves the task).
     order_date = job_datetime_utc or updates.get("date_order")
     task_sync_info = {"task_sync_tasks_found": 0, "task_sync_updated": False, "task_sync_error": "not_called"}
