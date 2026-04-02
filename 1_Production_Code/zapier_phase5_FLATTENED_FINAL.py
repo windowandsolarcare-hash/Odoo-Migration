@@ -131,42 +131,50 @@ def calculate_next_service_date(frequency_str, customer_city, base_date=None):
 
 
 def apply_city_schedule(target_date, city):
-    """Find best service day based on city routing (matching Calendly)."""
+    """Find best service day based on city routing (matching Calendly).
+    Values are lists of preferred weekday ints (0=Mon...6=Sun).
+    When multiple days listed, picks whichever is nearest the target date.
+    """
     city_schedule = {
-        'palm springs': 4,      # Friday
-        'rancho mirage': 3,     # Thursday (primary, also Fri available)
-        'palm desert': 3,       # Thursday
-        'indian wells': 2,      # Wednesday (primary, also Thu available)
-        'indio': 2,             # Wednesday
-        'la quinta': 2,         # Wednesday
-        'hemet': 1              # Tuesday
+        'palm springs':    [4],     # Friday
+        'rancho mirage':   [3],     # Thursday
+        'palm desert':     [3],     # Thursday
+        'indian wells':    [2],     # Wednesday
+        'indio':           [2],     # Wednesday
+        'la quinta':       [2],     # Wednesday
+        'cathedral city':  [2, 3],  # Wednesday or Thursday (whichever nearest)
+        'hemet':           [1],     # Tuesday
     }
-    
+
+    day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     city_lower = city.lower() if city else ''
-    preferred_weekday = None
-    
-    for city_name, weekday in city_schedule.items():
+    preferred_weekdays = None
+
+    for city_name, weekdays in city_schedule.items():
         if city_name in city_lower:
-            preferred_weekday = weekday
-            print(f"[*] City '{city}' -> {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][weekday]}")
+            preferred_weekdays = weekdays
+            print(f"[*] City '{city}' -> {' or '.join(day_names[w] for w in weekdays)}")
             break
-    
-    if preferred_weekday is None:
+
+    if preferred_weekdays is None:
         print(f"[*] City '{city}' not in routing map - using target date")
         return target_date
-    
-    # Find nearest preferred day (±7 days)
+
+    # For each preferred day find nearest occurrence; pick closest to target
     target_weekday = target_date.weekday()
-    days_diff = preferred_weekday - target_weekday
-    
-    if days_diff < -3:
-        days_diff += 7
-    elif days_diff > 3:
-        days_diff -= 7
-    
-    scheduled_date = target_date + timedelta(days=days_diff)
+    best_diff = None
+    for preferred_weekday in preferred_weekdays:
+        days_diff = preferred_weekday - target_weekday
+        if days_diff < -3:
+            days_diff += 7
+        elif days_diff > 3:
+            days_diff -= 7
+        if best_diff is None or abs(days_diff) < abs(best_diff):
+            best_diff = days_diff
+
+    scheduled_date = target_date + timedelta(days=best_diff)
     print(f"[*] Target: {target_date.strftime('%Y-%m-%d (%A)')}, Adjusted: {scheduled_date.strftime('%Y-%m-%d (%A)')}")
-    
+
     return scheduled_date
 
 
