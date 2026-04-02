@@ -373,6 +373,16 @@ Primary Service: {primary_service_str}"""
             fixed_last_date = raw_last_date
 
         # Build graveyard job with custom field data from historical job
+        # Validate PostalCode and Phone before attempting Workiz create
+        postal_clean = ''.join(filter(str.isdigit, str(historical_job.get("PostalCode") or "")))[:5]
+        if len(postal_clean) != 5:
+            source_order.message_post(body=f"[FAIL] Invalid PostalCode: '{historical_job.get('PostalCode')}' - correct in Odoo and Workiz then re-run")
+            continue
+        phone_clean = ''.join(filter(str.isdigit, str(phone_sanitized or "")))
+        if len(phone_clean) < 10:
+            source_order.message_post(body=f"[FAIL] Invalid Phone: '{phone_sanitized}' - correct in Odoo then re-run")
+            continue
+
         # NOTE: LineItems, Team, Tags cannot be set via create API - they're read-only or require separate API calls
         graveyard_data = {
             "auth_secret": WORKIZ_AUTH_SECRET,
@@ -382,14 +392,14 @@ Primary Service: {primary_service_str}"""
             "Address": str(historical_job.get("Address") or ""),
             "City": str(historical_job.get("City") or ""),
             "State": str(historical_job.get("State") or ""),
-            "PostalCode": (lambda z: z if len(z) == 5 else '')(''.join(filter(str.isdigit, str(historical_job.get("PostalCode") or "")))[:5]),
+            "PostalCode": postal_clean,
             "JobType": "Reactivation Lead",
             "Unit": str(historical_job.get("Unit") or ""),
             "ServiceArea": str(historical_job.get("ServiceArea") or contact.x_studio_x_studio_service_area or "Hemet"),
             "JobSource": str(historical_job.get("JobSource") or "Referral"),
             "information_to_remember": message_body,
             "JobNotes": str(historical_job.get("JobNotes") or ""),
-            "Phone": ''.join(filter(str.isdigit, str(phone_sanitized or ""))),
+            "Phone": phone_clean,
             # ENRICHMENT: Copy custom field data from historical job
             "gate_code": str(historical_job.get("gate_code") or historical_job.get("GateCode") or ""),
             "pricing": str(historical_job.get("pricing") or historical_job.get("Pricing") or ""),
