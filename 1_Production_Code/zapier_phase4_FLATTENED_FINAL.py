@@ -2217,6 +2217,37 @@ def update_contact_service_fields(contact_id):
     return True
 
 
+def clear_next_job_date_on_contact(contact_id):
+    """Clear x_studio_next_job_date on Contact when job is Done or Canceled."""
+    if not contact_id:
+        return
+    try:
+        payload = {
+            "jsonrpc": "2.0",
+            "method": "call",
+            "params": {
+                "service": "object",
+                "method": "execute_kw",
+                "args": [
+                    ODOO_DB,
+                    ODOO_USER_ID,
+                    ODOO_API_KEY,
+                    "res.partner",
+                    "write",
+                    [[contact_id], {"x_studio_next_job_date": False}]
+                ]
+            }
+        }
+        rpc_resp = requests.post(ODOO_URL, json=payload, timeout=10)
+        rpc_data = rpc_resp.json()
+        if rpc_data.get("result"):
+            print(f"[OK] Next Job Date cleared on contact {contact_id}")
+        else:
+            print(f"[WARNING] Could not clear Next Job Date: {rpc_data}")
+    except Exception as e:
+        print(f"[WARNING] clear_next_job_date_on_contact failed: {e}")
+
+
 def update_property_from_job(property_id, workiz_job, so_id=None, is_done=False):
     """Update property fields from Workiz job data (including service tracking)."""
     gate_code = workiz_job.get('gate_code', '')
@@ -2411,7 +2442,13 @@ def main(input_data):
             if isinstance(property_id, list):
                 property_id = property_id[0]
             update_property_from_job(property_id, workiz_job, so_id=so_id, is_done=(status.lower() == 'done'))
-        
+            # Clear next job date on contact when job is Done or Canceled
+            if status.lower() in ('done', 'canceled'):
+                prop_data = _odoo_search_read("res.partner", [["id", "=", property_id]], ["parent_id"], limit=1)
+                if prop_data and prop_data[0].get('parent_id'):
+                    c_id = prop_data[0]['parent_id']
+                    clear_next_job_date_on_contact(c_id[0] if isinstance(c_id, (list, tuple)) else c_id)
+
         # PHASE 5: Do NOT trigger when status is Done. Phase 6 already triggers Phase 5 when it marks the job Done (payment in Odoo). If we also trigger here, we get duplicate next jobs (e.g. two jobs for same SO 004153). So only Phase 6 calls Phase 5 for "job done" flow.
         # If you ever mark a job Done manually in Workiz (without recording payment in Odoo first), you will not get the next job/activity automatically; record payment in Odoo to trigger Phase 6 → Phase 5.
         
@@ -2445,6 +2482,12 @@ def main(input_data):
                     property_id = property_id[0] if property_id else None
                 if property_id:
                     update_property_from_job(property_id, workiz_job, so_id=so_id, is_done=(workiz_job.get('Status') == 'Done'))
+                    # Clear next job date on contact when job is Done or Canceled
+                    if workiz_job.get('Status', '').lower() in ('done', 'canceled'):
+                        prop_data = _odoo_search_read("res.partner", [["id", "=", property_id]], ["parent_id"], limit=1)
+                        if prop_data and prop_data[0].get('parent_id'):
+                            c_id = prop_data[0]['parent_id']
+                            clear_next_job_date_on_contact(c_id[0] if isinstance(c_id, (list, tuple)) else c_id)
             print("="*70)
             print("[OK] PHASE 4 COMPLETE - SALES ORDER UPDATED (found on re-check)")
             print("="*70)
