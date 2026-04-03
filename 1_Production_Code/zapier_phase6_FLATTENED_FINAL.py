@@ -285,6 +285,14 @@ def main(input_data):
 
     print("[OK] Job marked Done (invoice fully paid)")
 
+    # 5b) Flip pricing_mismatch to green on the SO — clears yellow CC warning or any prior state
+    try:
+        so_id = sos[0]["id"]
+        odoo_call("sale.order", "write", [[so_id], {"x_studio_pricing_mismatch": '<span class="text-success"><b>OK - Paid &amp; Closed</b></span>'}])
+        print("[OK] Pricing check set to green (Paid & Closed)")
+    except Exception as e:
+        print(f"[!] Could not update pricing_mismatch: {e}")
+
     # 6) Trigger Phase 5 so follow-up activity (or next maintenance job) is created. When we mark Done via API, Workiz often does not fire "Job Status Changed", so Phase 4/5 would never run otherwise.
     if PHASE5_WEBHOOK_URL:
         try:
