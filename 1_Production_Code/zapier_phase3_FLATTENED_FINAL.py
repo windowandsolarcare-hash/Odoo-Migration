@@ -321,9 +321,10 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 task_vals[ODOO_TASK_PHONE_FIELD] = phone
     if not task_vals:
         return
+    task_vals['stage_id'] = 17  # Planned stage
     try:
         requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw", "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [task_ids, task_vals]]}}, timeout=10)
-        print(f"[OK] Synced {len(task_ids)} task(s): assignee, planned date, tags, customer, contact number")
+        print(f"[OK] Synced {len(task_ids)} task(s): assignee, planned date, tags, customer, contact number -> Planned")
     except Exception:
         pass
 
