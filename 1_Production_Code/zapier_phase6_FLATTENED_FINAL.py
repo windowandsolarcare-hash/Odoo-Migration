@@ -241,28 +241,29 @@ def main(input_data):
     # print(f"[DEBUG] payment_type_raw='{payment_type_raw}', payment_type_lower='{payment_type_lower}'")
     # print(f"[DEBUG] payment_ref='{payment_ref}', workiz_reference='{workiz_reference}'")
 
-    # 4) Workiz: add THIS payment (so each roommate's check posts separately; balance builds up in Workiz)
-    add_pay_url = f"{WORKIZ_BASE_URL.rstrip('/')}/job/addPayment/{job_uuid}/"
-    add_pay_body = {
-        "auth_secret": WORKIZ_AUTH_SECRET,
-        "uuid": str(job_uuid),
-        "amount": round(amount_total, 2),
-        "type": workiz_type,
-        "date": payment_date,
-    }
-    if workiz_reference:
-        add_pay_body["reference"] = workiz_reference[:255]
-        # DEBUG: Uncomment to verify reference is being sent
-        # print(f"[DEBUG] Added 'reference' to Workiz payload: '{workiz_reference}'")
+    # 4) Workiz: add THIS payment — SKIP for Credit Card payments (already recorded in Workiz at door)
+    if workiz_type == "credit":
+        print("[*] Credit Card payment detected — skipping Workiz addPayment (already recorded at door)")
+    else:
+        add_pay_url = f"{WORKIZ_BASE_URL.rstrip('/')}/job/addPayment/{job_uuid}/"
+        add_pay_body = {
+            "auth_secret": WORKIZ_AUTH_SECRET,
+            "uuid": str(job_uuid),
+            "amount": round(amount_total, 2),
+            "type": workiz_type,
+            "date": payment_date,
+        }
+        if workiz_reference:
+            add_pay_body["reference"] = workiz_reference[:255]
 
-    try:
-        resp = requests.post(add_pay_url, json=add_pay_body, timeout=15)
-        if resp.status_code not in (200, 201, 204):
-            return {'success': False, 'error': 'Workiz addPayment failed', 'status': resp.status_code, 'body': resp.text[:500]}
-    except Exception as e:
-        return {'success': False, 'error': 'Workiz addPayment error: ' + str(e)}
+        try:
+            resp = requests.post(add_pay_url, json=add_pay_body, timeout=15)
+            if resp.status_code not in (200, 201, 204):
+                return {'success': False, 'error': 'Workiz addPayment failed', 'status': resp.status_code, 'body': resp.text[:500]}
+        except Exception as e:
+            return {'success': False, 'error': 'Workiz addPayment error: ' + str(e)}
 
-    print("[OK] Payment added in Workiz")
+        print("[OK] Payment added in Workiz")
 
     # 5) Mark job Done ONLY when invoice balance is zero (fully paid)
     invs2 = odoo_call("account.move", "read", [[invoice_id]], {"fields": ["payment_state", "amount_residual"]})
