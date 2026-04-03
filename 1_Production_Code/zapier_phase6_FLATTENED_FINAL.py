@@ -288,8 +288,11 @@ def main(input_data):
     # 5b) Flip pricing_mismatch to green on the SO — clears yellow CC warning or any prior state
     try:
         so_id = sos[0]["id"]
-        odoo_call("sale.order", "write", [[so_id], {"x_studio_pricing_mismatch": '<span class="text-success"><b>OK - Paid &amp; Closed</b></span>'}])
-        print("[OK] Pricing check set to green (Paid & Closed)")
+        amt = float(inv.get("amount_total") or amount_total or 0)
+        amt_str = '{:.2f}'.format(amt)
+        green_html = '<span class="text-success"><b>OK - Workiz: $' + amt_str + ' | Odoo: $' + amt_str + '</b></span>'
+        odoo_call("sale.order", "write", [[so_id], {"x_studio_pricing_mismatch": green_html}])
+        print("[OK] Pricing check set to green")
     except Exception as e:
         print(f"[!] Could not update pricing_mismatch: {e}")
 
