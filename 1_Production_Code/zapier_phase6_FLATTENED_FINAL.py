@@ -285,7 +285,17 @@ def main(input_data):
 
     print("[OK] Job marked Done (invoice fully paid)")
 
-    # 5b) Flip pricing_mismatch to green on the SO — clears yellow CC warning or any prior state
+    # 5b) Move linked tasks to Done stage
+    try:
+        so_id = sos[0]["id"]
+        task_ids = odoo_call("project.task", "search", [[["sale_order_id", "=", so_id]]])
+        if task_ids:
+            odoo_call("project.task", "write", [task_ids, {"stage_id": 19}])
+            print(f"[OK] {len(task_ids)} task(s) moved to Done")
+    except Exception as e:
+        print(f"[!] Could not close tasks: {e}")
+
+    # 5c) Flip pricing_mismatch to green on the SO — clears yellow CC warning or any prior state
     try:
         so_id = sos[0]["id"]
         amt = float(inv.get("amount_total") or amount_total or 0)
