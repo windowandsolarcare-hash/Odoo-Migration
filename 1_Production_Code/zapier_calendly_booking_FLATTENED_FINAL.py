@@ -456,8 +456,8 @@ def create_sales_order(contact_id, property_id, workiz_job_data, booking_datetim
     team_raw = workiz_job_data.get('Team') or workiz_job_data.get('team', '')
     
     # Filter placeholder text
-    gate_code = gate_code_raw if gate_code_raw and gate_code_raw.lower() not in ['gate code', 'gate', ''] else ''
-    pricing = pricing_raw if pricing_raw and pricing_raw.lower() not in ['pricing', 'price', 'pricing note', ''] else ''
+    gate_code = gate_code_raw if gate_code_raw and str(gate_code_raw).lower() not in ['gate code', 'gate', ''] else ''
+    pricing = pricing_raw if pricing_raw and str(pricing_raw).lower() not in ['pricing', 'price', 'pricing note', ''] else ''
     
     # Process Team field - extract names from list of dicts
     team_names = ""
