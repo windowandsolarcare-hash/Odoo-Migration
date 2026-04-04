@@ -195,9 +195,26 @@ PARAMS by action:
 - get_info: {}
 - mark_job_done: {}
 
+IMPORTANT ROUTING RULES:
+- "gate code" → ALWAYS use update_odoo_gate_code, never add_chatter_note
+- "pricing" or "price" or "charges" → ALWAYS use update_odoo_pricing, never add_chatter_note
+- "note", "comment", "log", "record that" → use add_chatter_note
+- "job notes" or "workiz notes" → use update_workiz_notes
+- "status", "substatus" → use update_workiz_substatus
+- "to-do", "follow up", "remind me", "callback" → use create_todo
+
 EXAMPLES:
-Input: "update Kenneth's notes to gate code is 1234"
-Output: {"action":"update_workiz_notes","customer_name":"Kenneth","so_number":null,"params":{"notes":"gate code 1234"},"confirmation_text":"Update Workiz job notes for Kenneth to: gate code 1234","is_read_only":false}
+Input: "gate code for Kenneth is 1234"
+Output: {"action":"update_odoo_gate_code","customer_name":"Kenneth","so_number":null,"params":{"gate_code":"1234"},"confirmation_text":"Update gate code for Kenneth to: 1234","is_read_only":false}
+
+Input: "Kenneth's gate code is pound 5678"
+Output: {"action":"update_odoo_gate_code","customer_name":"Kenneth","so_number":null,"params":{"gate_code":"#5678"},"confirmation_text":"Update gate code for Kenneth to: #5678","is_read_only":false}
+
+Input: "add a note to Kenneth says gate code is 1234"
+Output: {"action":"update_odoo_gate_code","customer_name":"Kenneth","so_number":null,"params":{"gate_code":"1234"},"confirmation_text":"Update gate code for Kenneth to: 1234","is_read_only":false}
+
+Input: "update Kenneth's job notes to double story needs ladder"
+Output: {"action":"update_workiz_notes","customer_name":"Kenneth","so_number":null,"params":{"notes":"double story needs ladder"},"confirmation_text":"Update Workiz job notes for Kenneth to: double story needs ladder","is_read_only":false}
 
 Input: "what's the status of Barbara Williams"
 Output: {"action":"get_info","customer_name":"Barbara Williams","so_number":null,"params":{},"confirmation_text":"Look up job info for Barbara Williams","is_read_only":true}
@@ -205,8 +222,8 @@ Output: {"action":"get_info","customer_name":"Barbara Williams","so_number":null
 Input: "add a note to P00123 says customer was not home"
 Output: {"action":"add_chatter_note","customer_name":null,"so_number":"P00123","params":{"note":"Customer was not home"},"confirmation_text":"Post chatter note on SO P00123: Customer was not home","is_read_only":false}
 
-Input: "gate code for the Smith property is pound 4567"
-Output: {"action":"update_odoo_gate_code","customer_name":"Smith","so_number":null,"params":{"gate_code":"#4567"},"confirmation_text":"Update gate code for Smith to: #4567","is_read_only":false}
+Input: "pricing for Smith is 150 for full house"
+Output: {"action":"update_odoo_pricing","customer_name":"Smith","so_number":null,"params":{"pricing":"150 for full house"},"confirmation_text":"Update pricing for Smith to: 150 for full house","is_read_only":false}
 
 Input: "create a follow-up to-do for Williams in two weeks"
 Output: {"action":"create_todo","customer_name":"Williams","so_number":null,"params":{"note":"Follow-up","days":14},"confirmation_text":"Create a To-do for Williams due in 14 days","is_read_only":false}
