@@ -291,16 +291,32 @@ def resolve_date(date_str: str) -> str:
     return date_str  # assume already YYYY-MM-DD
 
 
+def utc_to_pacific(utc_str: str) -> str:
+    import datetime
+    # PDT = UTC-7 (Mar-Nov), PST = UTC-8 (Nov-Mar)
+    # Determine offset by month
+    try:
+        dt = datetime.datetime.strptime(utc_str[:16], '%Y-%m-%d %H:%M')
+        offset = -7 if 3 <= dt.month <= 11 else -8
+        pacific = dt + datetime.timedelta(hours=offset)
+        return pacific.strftime('%I:%M %p').lstrip('0')  # e.g. "8:30 AM"
+    except Exception:
+        return utc_str[11:16]
+
+
 def get_schedule_for_date(date_iso: str) -> str:
     import datetime
-    # Search Odoo SOs where date_order falls on this date (UTC offset ~7-8hrs, use date range)
-    date_start = date_iso + ' 00:00:00'
-    date_end   = date_iso + ' 23:59:59'
+    # Odoo stores UTC — to capture a Pacific day we need to search UTC+7/8 range
+    # e.g. Monday Pacific = Monday 07:00 UTC to Tuesday 06:59 UTC
+    offset_hours = 7  # PDT (adjust to 8 for PST Nov-Mar)
+    date_start = date_iso + f' {offset_hours:02d}:00:00'
+    next_day = (datetime.date.fromisoformat(date_iso) + datetime.timedelta(days=1)).isoformat()
+    date_end = next_day + f' {offset_hours - 1:02d}:59:59'
+
     sos = odoo_rpc('sale.order', 'search_read',
         [[['date_order', '>=', date_start], ['date_order', '<=', date_end],
           ['state', 'in', ['sale', 'done']], ['x_studio_x_studio_workiz_uuid', '!=', False]]],
-        {'fields': ['name', 'date_order', 'x_studio_x_studio_workiz_uuid',
-                    'partner_id', 'amount_total'],
+        {'fields': ['name', 'date_order', 'x_studio_x_studio_workiz_uuid', 'partner_id'],
          'order': 'date_order asc'})
     if not sos:
         return f"No jobs found for {date_iso}"
@@ -310,19 +326,19 @@ def get_schedule_for_date(date_iso: str) -> str:
     for so in sos:
         uuid = so.get('x_studio_x_studio_workiz_uuid', '')
         customer = so['partner_id'][1] if so.get('partner_id') else 'Unknown'
-        # Clean up property name — strip address part after comma if it's a property
         customer_short = customer.split(',')[0].strip()
-        time_str = so['date_order'][11:16] if so.get('date_order') else '?'
-        amount = so.get('amount_total', 0)
-        total += amount
-        # Get Workiz status
+        time_str = utc_to_pacific(so.get('date_order', ''))
+        amount = 0
         wstatus = ''
+        # Get amount and status from Workiz (source of truth)
         if uuid:
             raw = workiz_get(f'job/get/{uuid}/')
             if raw:
                 job = raw.get('data', {})
                 job = job[0] if isinstance(job, list) else job
+                amount = float(job.get('JobTotalPrice', 0) or 0)
                 wstatus = f" [{job.get('SubStatus', job.get('Status','?'))}]"
+        total += amount
         lines.append(f"  {time_str} | {customer_short} | ${amount:.0f}{wstatus} | {so['name']}")
     lines.append(f"Total: ${total:.0f}")
     return '\n'.join(lines)
