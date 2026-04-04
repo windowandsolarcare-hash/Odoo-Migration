@@ -42,7 +42,7 @@ def odoo_rpc(model, method, args, kwargs=None):
             'args': [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, model, method, args, kwargs]
         }
     }
-    resp = httpx.post(f'{ODOO_URL}/web/dataset/call_kw', json=payload, timeout=20)
+    resp = httpx.post(f'{ODOO_URL}/jsonrpc', json=payload, timeout=20)
     resp.raise_for_status()
     data = resp.json()
     if 'error' in data:
