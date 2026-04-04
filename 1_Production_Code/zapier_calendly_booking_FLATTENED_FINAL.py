@@ -325,6 +325,55 @@ def create_odoo_activity(so_id, graveyard_uuid, customer_name, booked_datetime_p
         print(f"[WARNING] create_odoo_activity failed: {e}")
     return False
 
+def set_tasks_to_planned(so_id):
+    """Find all project tasks for this SO and move them to Planned stage (ID 17).
+    Phase 3 (Workiz webhook) normally does this, but it doesn't fire for Calendly-booked SOs."""
+    try:
+        lines_payload = {
+            "jsonrpc": "2.0", "method": "call",
+            "params": {
+                "service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                         "sale.order.line", "search_read",
+                         [[["order_id", "=", so_id]]],
+                         {"fields": ["id"], "limit": 500}]
+            }
+        }
+        lines_resp = requests.post(ODOO_URL, json=lines_payload, timeout=10).json()
+        line_ids = [x["id"] for x in (lines_resp.get("result") or [])]
+        if not line_ids:
+            print(f"[WARNING] set_tasks_to_planned: no SO lines found for SO {so_id}")
+            return
+
+        tasks_payload = {
+            "jsonrpc": "2.0", "method": "call",
+            "params": {
+                "service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                         "project.task", "search",
+                         [[["sale_line_id", "in", line_ids]]]]
+            }
+        }
+        tasks_resp = requests.post(ODOO_URL, json=tasks_payload, timeout=10).json()
+        task_ids = tasks_resp.get("result") or []
+        if not task_ids:
+            print(f"[WARNING] set_tasks_to_planned: no tasks found for SO {so_id}")
+            return
+
+        write_payload = {
+            "jsonrpc": "2.0", "method": "call",
+            "params": {
+                "service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                         "project.task", "write",
+                         [task_ids, {"stage_id": 17}]]
+            }
+        }
+        requests.post(ODOO_URL, json=write_payload, timeout=10)
+        print(f"[OK] {len(task_ids)} task(s) moved to Planned stage for SO {so_id}")
+    except Exception as e:
+        print(f"[WARNING] set_tasks_to_planned failed: {e}")
+
 # ==============================================================================
 # PHASE 3E: CREATE SALES ORDER (ALL HELPER FUNCTIONS)
 # ==============================================================================
@@ -1044,7 +1093,9 @@ def main(input_data):
         booking_info['name'],
         booked_datetime_pacific
     )
-    
+
+    set_tasks_to_planned(sales_order_id)
+
     # -------------------------------------------------------------------------
     # PHASE 3F: UPDATE CONTACT EMAIL
     # -------------------------------------------------------------------------
