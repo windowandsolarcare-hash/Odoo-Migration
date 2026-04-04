@@ -145,6 +145,10 @@ def resolve_customer(customer_name=None, so_number=None):
             result['so_id'] = best['id']
             result['so_name'] = best['name']
             result['workiz_uuid'] = best.get('x_studio_x_studio_workiz_uuid') or ''
+            # SO's partner_id is the property record
+            if best.get('partner_id'):
+                result['property_id'] = best['partner_id'][0]
+                result['property_name'] = best['partner_id'][1]
 
         return result
 
@@ -307,12 +311,34 @@ def execute_action(action: str, params: dict, resolved: dict) -> str:
         if not partner_id:
             return f"No contact found for {partner_name}. Cannot update."
         gate_code = params.get('gate_code', '')
-        odoo_rpc('res.partner', 'write', [[partner_id], {'x_studio_x_gate_code': gate_code}])
+        property_id   = resolved.get('property_id')
+        property_name = resolved.get('property_name', '')
+
+        results = []
+
+        # 1. Update Workiz job gate_code field (Phase 4 will also sync back to Odoo)
+        if uuid:
+            workiz_post(f'job/update/{uuid}/', {'gate_code': gate_code})
+            results.append(f'Workiz job {uuid}')
+
+        # 2. Update Odoo property record (immediate, don't wait for Phase 4)
+        if property_id:
+            odoo_rpc('res.partner', 'write', [[property_id], {'x_studio_x_gate_code': gate_code}])
+            results.append(f'Property: {property_name}')
+        else:
+            # fallback to contact if no property found
+            odoo_rpc('res.partner', 'write', [[partner_id], {'x_studio_x_gate_code': gate_code}])
+            results.append(f'Contact: {partner_name}')
+
+        # 3. Update SO gate snapshot
         if so_id:
+            odoo_rpc('sale.order', 'write', [[so_id], {'x_studio_x_gate_snapshot': gate_code}])
             odoo_rpc('sale.order', 'message_post', [[so_id]], {
                 'body': f'[Voice] Gate code updated | {gate_code}'
             })
-        return f"Updated gate code for {partner_name} to: {gate_code}"
+            results.append(f'SO {so_name} snapshot')
+
+        return f"Gate code set to {gate_code}\nUpdated: {', '.join(results)}"
 
     elif action == 'update_odoo_pricing':
         if not partner_id:
