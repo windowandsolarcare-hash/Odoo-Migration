@@ -558,7 +558,7 @@ def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
     followup_date = followup_date + timedelta(days=days_to_sunday)
     if followup_date.date() <= today:
         followup_date = now + timedelta(days=days_out)
-    due_date_str = followup_date.strftime('%Y-%m-%d')
+    due_date_str = followup_date.strftime('%Y-%m-%d 12:00:00')  # noon UTC = 5am Pacific, displays correct date in any timezone
 
     customer_name = f"{workiz_job.get('FirstName', '')} {workiz_job.get('LastName', '')}".strip()
     service_address = workiz_job.get('Address', '')
@@ -610,7 +610,7 @@ def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
                 )
                 if so_data:
                     so_id = so_data[0]['id']
-                    y, m, d = due_date_str.split('-')
+                    y, m, d = due_date_str[:10].split('-')
                     due_fmt = f'{m}-{d}-{y}'
                     todo_url = f'https://window-solar-care.odoo.com/odoo/to-do/{todo_id}'
                     chatter_body = f'Follow-up To-Do created | Customer: {customer_name} | Due: {due_fmt} | To-Do: {todo_url}'
