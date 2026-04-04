@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: wsc-field-assistant
+    runtime: python
+    rootDir: 5_Mobile_Interface
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ODOO_URL
+        value: https://window-solar-care.odoo.com
+      - key: ODOO_DB
+        value: window-solar-care
+      - key: ODOO_USER_ID
+        value: "2"
+      - key: ODOO_API_KEY
+        sync: false        # set manually in Render dashboard
+      - key: WORKIZ_TOKEN
+        sync: false        # set manually in Render dashboard
+      - key: ANTHROPIC_API_KEY
+        sync: false        # set manually in Render dashboard
+      - key: ACCESS_CODE
+        sync: false        # set manually in Render dashboard (default: wsc2026)
