@@ -2,7 +2,7 @@
 # WINDOW & SOLAR CARE — MOBILE VOICE INTERFACE BACKEND
 # Author: DJ Sanders
 # Handles natural language voice commands → Odoo / Workiz API actions
-# Deploy: Render.com (set env vars: ODOO_API_KEY, WORKIZ_TOKEN, ANTHROPIC_API_KEY, ACCESS_CODE)
+# Deploy: Render.com (set env vars: ODOO_API_KEY, WORKIZ_TOKEN, OPENAI_API_KEY, ACCESS_CODE)
 # ==============================================================================
 
 import os
@@ -11,7 +11,7 @@ import httpx
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-import anthropic
+from openai import OpenAI
 
 # ---------------------------------------------------------------------------
 # Config — all from environment variables
@@ -21,7 +21,7 @@ ODOO_DB         = os.environ.get('ODOO_DB',       'window-solar-care')
 ODOO_USER_ID    = int(os.environ.get('ODOO_USER_ID', '2'))
 ODOO_API_KEY    = os.environ.get('ODOO_API_KEY',  '')
 WORKIZ_TOKEN    = os.environ.get('WORKIZ_TOKEN',  '')
-ANTHROPIC_KEY   = os.environ.get('ANTHROPIC_API_KEY', '')
+OPENAI_KEY      = os.environ.get('OPENAI_API_KEY', '')
 ACCESS_CODE     = os.environ.get('ACCESS_CODE',   'wsc2026')   # change in Render env vars
 
 app = FastAPI()
@@ -214,15 +214,17 @@ Output: {"action":"create_todo","customer_name":"Williams","so_number":null,"par
 
 
 def claude_parse_intent(user_input: str) -> dict:
-    client = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
-    msg = client.messages.create(
-        model='claude-haiku-4-5-20251001',
+    client = OpenAI(api_key=OPENAI_KEY)
+    resp = client.chat.completions.create(
+        model='gpt-4o-mini',
         max_tokens=400,
         temperature=0,
-        system=SYSTEM_PROMPT,
-        messages=[{'role': 'user', 'content': user_input}]
+        messages=[
+            {'role': 'system', 'content': SYSTEM_PROMPT},
+            {'role': 'user', 'content': user_input}
+        ]
     )
-    raw = msg.content[0].text.strip()
+    raw = resp.choices[0].message.content.strip()
     # Strip markdown code blocks if present
     if raw.startswith('```'):
         raw = raw.split('```')[1]
