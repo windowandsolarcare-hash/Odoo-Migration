@@ -164,12 +164,14 @@ The owner DJ uses you in the field via voice commands on his phone.
 Your job: parse the voice input and return a JSON action object.
 
 AVAILABLE ACTIONS:
-- get_info: Read-only lookup of job/customer status
+- get_info: Read-only lookup of a specific customer's job status
+- get_schedule: List all jobs scheduled for a given day (today, tomorrow, Monday, etc.)
+- get_next_job: Show the next upcoming job on today's schedule
+- get_sales_today: Total revenue across all jobs today
 - update_workiz_notes: Update Workiz job Notes field
 - update_workiz_substatus: Change Workiz job SubStatus
-- update_odoo_gate_code: Update gate code on the contact (x_studio_x_gate_code)
-- update_odoo_pricing: Update pricing notes on contact (x_studio_x_pricing)
-- update_odoo_contact_note: Update any plain text note on contact
+- update_workiz_gate_code: Update gate code on the Workiz job (syncs to Odoo via Phase 4)
+- update_workiz_pricing: Update pricing on the Workiz job (syncs to Odoo via Phase 4)
 - create_todo: Create an Odoo To-do for DJ (follow-up, callback, etc.)
 - add_chatter_note: Post a plain text note to the SO chatter log
 - mark_job_done: Mark the Workiz job Status=Done
@@ -191,12 +193,14 @@ OUTPUT: Return ONLY valid JSON, no other text.
 PARAMS by action:
 - update_workiz_notes: {"notes": "<the notes text>"}
 - update_workiz_substatus: {"substatus": "<exact SubStatus name>"}
-- update_odoo_gate_code: {"gate_code": "<code>"}
-- update_odoo_pricing: {"pricing": "<pricing text>"}
-- update_odoo_contact_note: {"field": "<field_name>", "value": "<value>"}
+- update_workiz_gate_code: {"gate_code": "<code>"}
+- update_workiz_pricing: {"pricing": "<pricing text>"}
 - create_todo: {"note": "<what the to-do is about>", "days": <number of days from now, default 7>}
 - add_chatter_note: {"note": "<the note text>"}
 - get_info: {}
+- get_schedule: {"date": "today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday|YYYY-MM-DD"}
+- get_next_job: {}
+- get_sales_today: {}
 - mark_job_done: {}
 
 IMPORTANT ROUTING RULES:
@@ -209,13 +213,10 @@ IMPORTANT ROUTING RULES:
 
 EXAMPLES:
 Input: "gate code for Kenneth is 1234"
-Output: {"action":"update_odoo_gate_code","customer_name":"Kenneth","so_number":null,"params":{"gate_code":"1234"},"confirmation_text":"Update gate code for Kenneth to: 1234","is_read_only":false}
+Output: {"action":"update_workiz_gate_code","customer_name":"Kenneth","so_number":null,"params":{"gate_code":"1234"},"confirmation_text":"Update gate code for Kenneth to: 1234 (Workiz → syncs to Odoo)","is_read_only":false}
 
 Input: "Kenneth's gate code is pound 5678"
-Output: {"action":"update_odoo_gate_code","customer_name":"Kenneth","so_number":null,"params":{"gate_code":"#5678"},"confirmation_text":"Update gate code for Kenneth to: #5678","is_read_only":false}
-
-Input: "add a note to Kenneth says gate code is 1234"
-Output: {"action":"update_odoo_gate_code","customer_name":"Kenneth","so_number":null,"params":{"gate_code":"1234"},"confirmation_text":"Update gate code for Kenneth to: 1234","is_read_only":false}
+Output: {"action":"update_workiz_gate_code","customer_name":"Kenneth","so_number":null,"params":{"gate_code":"#5678"},"confirmation_text":"Update gate code for Kenneth to: #5678 (Workiz → syncs to Odoo)","is_read_only":false}
 
 Input: "update Kenneth's job notes to double story needs ladder"
 Output: {"action":"update_workiz_notes","customer_name":"Kenneth","so_number":null,"params":{"notes":"double story needs ladder"},"confirmation_text":"Update Workiz job notes for Kenneth to: double story needs ladder","is_read_only":false}
@@ -223,11 +224,26 @@ Output: {"action":"update_workiz_notes","customer_name":"Kenneth","so_number":nu
 Input: "what's the status of Barbara Williams"
 Output: {"action":"get_info","customer_name":"Barbara Williams","so_number":null,"params":{},"confirmation_text":"Look up job info for Barbara Williams","is_read_only":true}
 
+Input: "what's my schedule for Monday"
+Output: {"action":"get_schedule","customer_name":null,"so_number":null,"params":{"date":"monday"},"confirmation_text":"Show all jobs scheduled for Monday","is_read_only":true}
+
+Input: "what's on my schedule today"
+Output: {"action":"get_schedule","customer_name":null,"so_number":null,"params":{"date":"today"},"confirmation_text":"Show all jobs scheduled for today","is_read_only":true}
+
+Input: "what's my next job"
+Output: {"action":"get_next_job","customer_name":null,"so_number":null,"params":{},"confirmation_text":"Show next upcoming job today","is_read_only":true}
+
+Input: "what are my sales today"
+Output: {"action":"get_sales_today","customer_name":null,"so_number":null,"params":{},"confirmation_text":"Show total sales for today","is_read_only":true}
+
+Input: "what time does Kenneth start today"
+Output: {"action":"get_info","customer_name":"Kenneth","so_number":null,"params":{},"confirmation_text":"Look up job info for Kenneth","is_read_only":true}
+
 Input: "add a note to P00123 says customer was not home"
 Output: {"action":"add_chatter_note","customer_name":null,"so_number":"P00123","params":{"note":"Customer was not home"},"confirmation_text":"Post chatter note on SO P00123: Customer was not home","is_read_only":false}
 
 Input: "pricing for Smith is 150 for full house"
-Output: {"action":"update_odoo_pricing","customer_name":"Smith","so_number":null,"params":{"pricing":"150 for full house"},"confirmation_text":"Update pricing for Smith to: 150 for full house","is_read_only":false}
+Output: {"action":"update_workiz_pricing","customer_name":"Smith","so_number":null,"params":{"pricing":"150 for full house"},"confirmation_text":"Update pricing for Smith to: 150 for full house (Workiz → syncs to Odoo)","is_read_only":false}
 
 Input: "create a follow-up to-do for Williams in two weeks"
 Output: {"action":"create_todo","customer_name":"Williams","so_number":null,"params":{"note":"Follow-up","days":14},"confirmation_text":"Create a To-do for Williams due in 14 days","is_read_only":false}
@@ -252,6 +268,64 @@ def claude_parse_intent(user_input: str) -> dict:
         if raw.startswith('json'):
             raw = raw[4:]
     return json.loads(raw)
+
+
+# ---------------------------------------------------------------------------
+# Date resolver helper
+# ---------------------------------------------------------------------------
+def resolve_date(date_str: str) -> str:
+    import datetime
+    today = datetime.date.today()
+    ds = date_str.lower().strip()
+    if ds in ('today', ''):
+        return today.isoformat()
+    if ds == 'tomorrow':
+        return (today + datetime.timedelta(days=1)).isoformat()
+    day_names = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday']
+    if ds in day_names:
+        target_wd = day_names.index(ds)
+        days_ahead = (target_wd - today.weekday()) % 7
+        if days_ahead == 0:
+            days_ahead = 7  # next occurrence if today is that day
+        return (today + datetime.timedelta(days=days_ahead)).isoformat()
+    return date_str  # assume already YYYY-MM-DD
+
+
+def get_schedule_for_date(date_iso: str) -> str:
+    import datetime
+    # Search Odoo SOs where date_order falls on this date (UTC offset ~7-8hrs, use date range)
+    date_start = date_iso + ' 00:00:00'
+    date_end   = date_iso + ' 23:59:59'
+    sos = odoo_rpc('sale.order', 'search_read',
+        [[['date_order', '>=', date_start], ['date_order', '<=', date_end],
+          ['state', 'in', ['sale', 'done']], ['x_studio_x_studio_workiz_uuid', '!=', False]]],
+        {'fields': ['name', 'date_order', 'x_studio_x_studio_workiz_uuid',
+                    'partner_id', 'amount_total'],
+         'order': 'date_order asc'})
+    if not sos:
+        return f"No jobs found for {date_iso}"
+
+    lines = [f"Schedule for {date_iso} ({len(sos)} jobs):"]
+    total = 0
+    for so in sos:
+        uuid = so.get('x_studio_x_studio_workiz_uuid', '')
+        customer = so['partner_id'][1] if so.get('partner_id') else 'Unknown'
+        # Clean up property name — strip address part after comma if it's a property
+        customer_short = customer.split(',')[0].strip()
+        time_str = so['date_order'][11:16] if so.get('date_order') else '?'
+        amount = so.get('amount_total', 0)
+        total += amount
+        # Get Workiz status
+        wstatus = ''
+        if uuid:
+            raw = workiz_get(f'job/get/{uuid}/')
+            if raw:
+                job = raw.get('data', {})
+                job = job[0] if isinstance(job, list) else job
+                wstatus = f" [{job.get('SubStatus', job.get('Status','?'))}]"
+        lines.append(f"  {time_str} | {customer_short} | ${amount:.0f}{wstatus} | {so['name']}")
+    lines.append(f"Total: ${total:.0f}")
+    return '\n'.join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -307,49 +381,56 @@ def execute_action(action: str, params: dict, resolved: dict) -> str:
         workiz_post(f'job/update/{uuid}/', {'SubStatus': substatus})
         return f"Updated SubStatus for {partner_name} ({uuid}) to: {substatus}"
 
-    elif action == 'update_odoo_gate_code':
-        if not partner_id:
-            return f"No contact found for {partner_name}. Cannot update."
+    elif action in ('update_workiz_gate_code', 'update_odoo_gate_code'):
+        if not uuid:
+            return f"No Workiz UUID found for {partner_name}. Cannot update."
         gate_code = params.get('gate_code', '')
-        property_id   = resolved.get('property_id')
-        property_name = resolved.get('property_name', '')
+        workiz_post(f'job/update/{uuid}/', {'gate_code': gate_code})
+        return f"Gate code set to {gate_code} on Workiz job {uuid}\nPhase 4 will sync to Odoo property within 5 min."
 
-        results = []
-
-        # 1. Update Workiz job gate_code field (Phase 4 will also sync back to Odoo)
-        if uuid:
-            workiz_post(f'job/update/{uuid}/', {'gate_code': gate_code})
-            results.append(f'Workiz job {uuid}')
-
-        # 2. Update Odoo property record (immediate, don't wait for Phase 4)
-        if property_id:
-            odoo_rpc('res.partner', 'write', [[property_id], {'x_studio_x_gate_code': gate_code}])
-            results.append(f'Property: {property_name}')
-        else:
-            # fallback to contact if no property found
-            odoo_rpc('res.partner', 'write', [[partner_id], {'x_studio_x_gate_code': gate_code}])
-            results.append(f'Contact: {partner_name}')
-
-        # 3. Update SO gate snapshot
-        if so_id:
-            odoo_rpc('sale.order', 'write', [[so_id], {'x_studio_x_gate_snapshot': gate_code}])
-            odoo_rpc('sale.order', 'message_post', [[so_id]], {
-                'body': f'[Voice] Gate code updated | {gate_code}'
-            })
-            results.append(f'SO {so_name} snapshot')
-
-        return f"Gate code set to {gate_code}\nUpdated: {', '.join(results)}"
-
-    elif action == 'update_odoo_pricing':
-        if not partner_id:
-            return f"No contact found for {partner_name}. Cannot update."
+    elif action in ('update_workiz_pricing', 'update_odoo_pricing'):
+        if not uuid:
+            return f"No Workiz UUID found for {partner_name}. Cannot update."
         pricing = params.get('pricing', '')
-        odoo_rpc('res.partner', 'write', [[partner_id], {'x_studio_x_pricing': pricing}])
-        if so_id:
-            odoo_rpc('sale.order', 'message_post', [[so_id]], {
-                'body': f'[Voice] Pricing updated | {pricing}'
-            })
-        return f"Updated pricing for {partner_name} to: {pricing}"
+        workiz_post(f'job/update/{uuid}/', {'pricing': pricing})
+        return f"Pricing set to '{pricing}' on Workiz job {uuid}\nPhase 4 will sync to Odoo within 5 min."
+
+    elif action == 'get_schedule':
+        date_raw = params.get('date', 'today')
+        date_iso = resolve_date(date_raw)
+        return get_schedule_for_date(date_iso)
+
+    elif action == 'get_next_job':
+        import datetime
+        today_iso = datetime.date.today().isoformat()
+        now_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        sos = odoo_rpc('sale.order', 'search_read',
+            [[['date_order', '>=', now_str],
+              ['date_order', '<=', today_iso + ' 23:59:59'],
+              ['state', 'in', ['sale', 'done']],
+              ['x_studio_x_studio_workiz_uuid', '!=', False]]],
+            {'fields': ['name', 'date_order', 'x_studio_x_studio_workiz_uuid',
+                        'partner_id', 'amount_total'],
+             'order': 'date_order asc', 'limit': 1})
+        if not sos:
+            return "No more jobs scheduled for today."
+        so = sos[0]
+        customer = so['partner_id'][1].split(',')[0].strip() if so.get('partner_id') else 'Unknown'
+        time_str = so['date_order'][11:16]
+        uuid_next = so.get('x_studio_x_studio_workiz_uuid', '')
+        winfo = ''
+        if uuid_next:
+            raw = workiz_get(f'job/get/{uuid_next}/')
+            if raw:
+                job = raw.get('data', {})
+                job = job[0] if isinstance(job, list) else job
+                winfo = f"\nAddress: {job.get('Address','')} {job.get('City','')}\nStatus: {job.get('SubStatus', job.get('Status',''))}"
+        return f"Next job: {customer} at {time_str}\nSO: {so['name']} | ${so.get('amount_total',0):.0f}{winfo}"
+
+    elif action == 'get_sales_today':
+        import datetime
+        today_iso = datetime.date.today().isoformat()
+        return get_schedule_for_date(today_iso)
 
     elif action == 'add_chatter_note':
         if not so_id:
