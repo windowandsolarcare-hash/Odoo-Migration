@@ -541,32 +541,20 @@ def update_invoice_with_workiz_link(invoice_id, new_job_uuid, customer_name, sch
 
 
 def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
-    """Create follow-up activity in Odoo. Due date = now + days_until_followup (from job frequency), adjusted to Sunday."""
+    """Create follow-up To-Do in Odoo. Due date = now + days_until_followup (from job frequency), adjusted to Sunday."""
     try:
         res_id = int(contact_id) if contact_id is not None else 0
     except (TypeError, ValueError):
         res_id = 0
     if not res_id:
-        return {'success': False, 'error': 'contact_id (res_id) is required and must be a valid partner id'}
+        return {'success': False, 'error': 'contact_id is required and must be a valid partner id'}
 
-    try:
-        # Odoo 19: use res_model_id (ir.model id) so res_id is accepted; also verify partner exists
-        partner_exists = odoo_rpc("res.partner", "read", [[res_id]], {"fields": ["id"]})
-        if not partner_exists:
-            return {'success': False, 'error': f'Contact (res.partner) id {res_id} not found in Odoo'}
-        models = odoo_rpc("ir.model", "search_read", [[["model", "=", "res.partner"]]], {"fields": ["id"], "limit": 1})
-        res_model_id = models[0]["id"] if models else None
-        if not res_model_id:
-            return {'success': False, 'error': 'Could not get ir.model id for res.partner'}
-    except Exception as e:
-        return {'success': False, 'error': f'Odoo lookup failed: {e}'}
-
-    # Due date = follow-up date (e.g. 180 days from now), optionally adjusted to Sunday. Must not be today.
+    # Due date = follow-up date, adjusted to Sunday. Must not be today.
     now = datetime.now()
     today = now.date()
     days_out = max(1, int(days_until_followup))
     followup_date = now + timedelta(days=days_out)
-    days_to_sunday = 6 - followup_date.weekday()  # 0 if already Sunday
+    days_to_sunday = 6 - followup_date.weekday()
     followup_date = followup_date + timedelta(days=days_to_sunday)
     if followup_date.date() <= today:
         followup_date = now + timedelta(days=days_out)
@@ -574,40 +562,68 @@ def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
 
     customer_name = f"{workiz_job.get('FirstName', '')} {workiz_job.get('LastName', '')}".strip()
     service_address = workiz_job.get('Address', '')
-    last_service_date = workiz_job.get('JobDateTime', '')
+    last_service_date = (workiz_job.get('JobDateTime', '') or '')[:10]
+    uuid = workiz_job.get('UUID', '')
     line_items = workiz_job.get('LineItems', [])
     services = [item.get('Name', '') for item in line_items if 'tip' not in item.get('Name', '').lower()]
     services_text = ', '.join(services) if services else 'Service'
-    description = f"""Follow-up with customer about next service visit.
 
-Follow-up in {days_out} days (due {due_date_str}).
-Last Service Date: {last_service_date}
-Services Performed: {services_text}
-Property: {service_address}
+    # To-Do title
+    svc_short = services_text[:60] + '...' if len(services_text) > 60 else services_text
+    todo_name = f'Follow-up: {customer_name} \u2014 {svc_short}'
 
-Action Required:
-- Call or text customer to check property condition
-- Ask if they'd like to schedule next visit
-- Update service frequency if needed
+    # HTML description with clickable Workiz link
+    workiz_link = f'https://app.workiz.com/root/job/{uuid}/1' if uuid else ''
+    desc_parts = []
+    if last_service_date:
+        desc_parts.append(f'<b>Last Service:</b> {last_service_date}')
+    if services_text:
+        desc_parts.append(f'<b>Services:</b> {services_text}')
+    if service_address:
+        desc_parts.append(f'<b>Property:</b> {service_address}')
+    if workiz_link:
+        desc_parts.append(f'<b>Workiz Job:</b> <a href="{workiz_link}" target="_blank">{uuid}</a>')
+    desc_parts.append('')
+    desc_parts.append('<b>Action:</b> Reach out to schedule next visit.')
+    description = '<p>' + '<br/>'.join(desc_parts) + '</p>'
 
-Workiz Job: {workiz_job.get('UUID', 'N/A')}"""
-
-    # Create activity: set date_deadline explicitly so Odoo shows the correct due date (not today).
-    activity_vals = {
-        "res_model_id": res_model_id,
-        "res_id": res_id,
-        "activity_type_id": 2,
-        "summary": f"Follow-up: {customer_name}",
-        "note": description,
-        "date_deadline": due_date_str,
-        "user_id": ODOO_USER_ID,
-    }
     try:
-        activity_id = odoo_rpc("mail.activity", "create", [activity_vals])
-        if not activity_id:
-            return {'success': False, 'error': 'Odoo returned no activity id'}
-        print(f"[OK] Activity created: ID {activity_id}, Due: {due_date_str} (follow-up in {days_out} days)")
-        return {'success': True, 'activity_id': activity_id, 'due_date': due_date_str}
+        todo_id = odoo_rpc('project.task', 'create', [{
+            'name': todo_name,
+            'description': description,
+            'project_id': False,
+            'user_ids': [(4, ODOO_USER_ID)],
+            'partner_id': res_id,
+            'date_deadline': due_date_str,
+            'priority': '0',
+        }])
+        if not todo_id:
+            return {'success': False, 'error': 'Odoo returned no To-Do id'}
+        print(f'[OK] To-Do created: ID {todo_id}, Due: {due_date_str} (follow-up in {days_out} days)')
+
+        # Post chatter on SO
+        if uuid:
+            try:
+                so_data = odoo_rpc('sale.order', 'search_read',
+                    [[['x_studio_x_studio_workiz_uuid', '=', uuid]]],
+                    {'fields': ['id', 'name'], 'limit': 1}
+                )
+                if so_data:
+                    so_id = so_data[0]['id']
+                    y, m, d = due_date_str.split('-')
+                    due_fmt = f'{m}-{d}-{y}'
+                    todo_url = f'https://window-solar-care.odoo.com/odoo/to-do/{todo_id}'
+                    chatter_body = f'Follow-up To-Do created | Customer: {customer_name} | Due: {due_fmt} | To-Do: {todo_url}'
+                    odoo_rpc('sale.order', 'message_post', [[so_id]], {
+                        'body': chatter_body,
+                        'message_type': 'comment',
+                        'subtype_xmlid': 'mail.mt_note'
+                    })
+                    print(f'[OK] Chatter posted on SO {so_data[0]["name"]}')
+            except Exception as e:
+                print(f'[WARNING] Could not post chatter on SO: {e}')
+
+        return {'success': True, 'todo_id': todo_id, 'due_date': due_date_str}
     except Exception as e:
         return {'success': False, 'error': str(e)}
 
@@ -784,25 +800,28 @@ def create_ondemand_followup(workiz_job, contact_id, days_until_followup=180, in
         print(f"[OK] Reminder created!")
         print("    NO Workiz job created (keeps schedule clean)")
         
-        # Update invoice with activity link (if invoice_id provided)
-        activity_id = result.get('activity_id')
-        if invoice_id and activity_id:
+        # Update invoice with To-Do link (if invoice_id provided)
+        todo_id = result.get('todo_id')
+        if invoice_id and todo_id:
             try:
-                activity_url = f"https://window-solar-care.odoo.com/web#id={activity_id}&model=mail.activity&view_type=form"
-                odoo_rpc("account.move", "write", [[invoice_id], {"x_studio_workiz_job_link": activity_url}])
-                print(f"[OK] Updated invoice with activity link: {activity_url}")
-                
-                # Post notification to invoice chatter
-                message_body = f"🔔 Follow-Up Activity Created | Customer: {customer_name} | Due: {result.get('due_date', 'N/A')} | Activity ID: {activity_id} | Use Workiz Job Link field to open activity in Odoo."
-                
+                todo_url = f"https://window-solar-care.odoo.com/odoo/to-do/{todo_id}"
+                odoo_rpc("account.move", "write", [[invoice_id], {"x_studio_workiz_job_link": todo_url}])
+                print(f"[OK] Updated invoice with To-Do link: {todo_url}")
+
+                due_date = result.get('due_date', '')
+                due_fmt = ''
+                if due_date:
+                    y, m, d = due_date.split('-')
+                    due_fmt = f'{m}-{d}-{y}'
+                message_body = f'Follow-up To-Do created | Customer: {customer_name} | Due: {due_fmt} | To-Do: {todo_url}'
                 odoo_rpc("account.move", "message_post", [[invoice_id]], {
                     "body": message_body,
                     "message_type": "notification",
                     "subtype_xmlid": "mail.mt_note"
                 })
-                print(f"[OK] Posted activity notification to invoice chatter")
+                print(f"[OK] Posted To-Do notification to invoice chatter")
             except Exception as e:
-                print(f"[WARNING] Could not update invoice with activity link: {e}")
+                print(f"[WARNING] Could not update invoice with To-Do link: {e}")
     else:
         print(f"[ERROR] Failed: {result.get('error')}")
     
