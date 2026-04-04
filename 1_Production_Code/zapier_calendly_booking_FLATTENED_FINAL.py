@@ -193,28 +193,29 @@ def update_workiz_job(job_uuid, booking_time_utc, job_type, job_notes=""):
             combined_notes = f"[Calendly Booking] {job_notes}"
             print(f"[*] Adding Calendly notes as new JobNotes")
     
-    # Update Workiz job
+    # Update Workiz job — date/time and type only
+    # NOTE: SubStatus intentionally NOT set here. DJ manually clicks Schedule in Workiz UI,
+    # verifies the time, then sets SubStatus to "Send Confirmation - Text" manually.
+    # The scheduling toggle is UI-only and cannot be triggered via API.
     payload = {
         "auth_secret": WORKIZ_AUTH_SECRET,
         "UUID": job_uuid,
         "JobDateTime": pacific_datetime,
-        "JobType": job_type,
-        "Status": "Pending",
-        "SubStatus": "Send Confirmation - Text"
+        "JobType": job_type
     }
-    
+
     # Add combined notes if provided (skip if None, which means notes already have Calendly booking)
     if combined_notes:
         payload["JobNotes"] = combined_notes
-    
+
     url = f"{WORKIZ_BASE_URL}/job/update/"
-    
+
     try:
         response = requests.post(url, json=payload, timeout=10)
-        
+
         if response.status_code == 200:
             print(f"[OK] Workiz job updated successfully!")
-            return {'success': True}
+            return {'success': True, 'pacific_datetime': pacific_datetime}
         else:
             return {'success': False, 'message': f'HTTP {response.status_code}'}
     except Exception as e:
@@ -254,6 +255,74 @@ def mark_opportunity_won(opportunity_id):
             return {'success': False, 'message': 'action_set_won failed'}
     except Exception as e:
         return {'success': False, 'message': str(e)}
+
+# ==============================================================================
+# PHASE 3D2: CREATE ODOO ACTIVITY ALERT FOR DJ
+# ==============================================================================
+
+def create_odoo_activity(so_id, graveyard_uuid, customer_name, booked_datetime_pacific):
+    """Create a To-Do activity on the SO alerting DJ to manually schedule in Workiz."""
+    try:
+        # Look up To-Do activity type
+        atype_payload = {
+            "jsonrpc": "2.0", "method": "call",
+            "params": {
+                "service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                         "mail.activity.type", "search_read",
+                         [[["name", "ilike", "to"]]],
+                         {"fields": ["id", "name"], "limit": 5}]
+            }
+        }
+        atype_resp = requests.post(ODOO_URL, json=atype_payload, timeout=10).json()
+        activity_type_id = 4  # fallback: standard To-Do ID
+        if atype_resp.get("result"):
+            for at in atype_resp["result"]:
+                if "to" in at["name"].lower() and "do" in at["name"].lower():
+                    activity_type_id = at["id"]
+                    break
+
+        workiz_link = f"https://app.workiz.com/root/job/{graveyard_uuid}/1"
+        note = (
+            f"Calendly booking received for {customer_name}.<br/>"
+            f"Requested time: {booked_datetime_pacific} Pacific<br/>"
+            f"Workiz job: {workiz_link}<br/><br/>"
+            f"<b>Action required:</b><br/>"
+            f"1. Open the Workiz job above<br/>"
+            f"2. Click the <b>Schedule</b> button to register the appointment<br/>"
+            f"3. Verify date/time looks correct<br/>"
+            f"4. Change SubStatus to <b>Send Confirmation - Text</b>"
+        )
+
+        today = datetime.today().strftime('%Y-%m-%d')
+
+        create_payload = {
+            "jsonrpc": "2.0", "method": "call",
+            "params": {
+                "service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                         "mail.activity", "create",
+                         [{
+                             "res_model_id": 670,  # sale.order model ID
+                             "res_id": so_id,
+                             "activity_type_id": activity_type_id,
+                             "summary": f"Calendly booking: {customer_name} — Schedule in Workiz",
+                             "note": note,
+                             "user_id": ODOO_USER_ID,
+                             "date_deadline": today
+                         }]]
+            }
+        }
+        create_resp = requests.post(ODOO_URL, json=create_payload, timeout=10).json()
+
+        if create_resp.get("result"):
+            print(f"[OK] Activity created on SO {so_id} — DJ alerted to schedule in Workiz")
+            return True
+        else:
+            print(f"[WARNING] Activity create returned no result: {create_resp}")
+    except Exception as e:
+        print(f"[WARNING] create_odoo_activity failed: {e}")
+    return False
 
 # ==============================================================================
 # PHASE 3E: CREATE SALES ORDER (ALL HELPER FUNCTIONS)
@@ -936,9 +1005,11 @@ def main(input_data):
         booking_info['service_type'],
         booking_info['additional_notes']
     )
-    
+
     if not workiz_result['success']:
         return {'success': False, 'failed_at': 'Phase 3C', 'message': workiz_result['message']}
+
+    booked_datetime_pacific = workiz_result.get('pacific_datetime', booking_info['booking_time'])
     
     # -------------------------------------------------------------------------
     # PHASE 3D: MARK OPPORTUNITY WON
@@ -954,11 +1025,24 @@ def main(input_data):
     # -------------------------------------------------------------------------
     
     so_result = process_phase3e(contact_id, property_id, opportunity, booking_info, won_result)
-    
+
     if not so_result['success']:
         return {'success': False, 'failed_at': 'Phase 3E', 'message': so_result['message']}
-    
+
     sales_order_id = so_result['sales_order_id']
+
+    # -------------------------------------------------------------------------
+    # PHASE 3D2: CREATE ACTIVITY ALERT FOR DJ
+    # -------------------------------------------------------------------------
+    # Alert DJ to go to Workiz, click Schedule, verify time, then set
+    # SubStatus to "Send Confirmation - Text" manually.
+
+    create_odoo_activity(
+        sales_order_id,
+        opportunity['x_workiz_graveyard_uuid'],
+        booking_info['name'],
+        booked_datetime_pacific
+    )
     
     # -------------------------------------------------------------------------
     # PHASE 3F: UPDATE CONTACT EMAIL
