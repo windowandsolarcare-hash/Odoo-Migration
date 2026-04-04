@@ -132,9 +132,9 @@ def resolve_customer(customer_name=None, so_number=None):
         result['partner_id'] = partner['id']
         result['partner_name'] = partner['name']
 
-        # Find most recent open/active SO for this partner
+        # Find most recent SO — search via commercial_partner_id to catch property child records
         sos = odoo_rpc('sale.order', 'search_read',
-            [[['partner_id', '=', partner['id']], ['x_studio_x_studio_workiz_uuid', '!=', False]]],
+            [[['partner_id.commercial_partner_id', '=', partner['id']], ['x_studio_x_studio_workiz_uuid', '!=', False]]],
             {'fields': ['id', 'name', 'x_studio_x_studio_workiz_uuid', 'state', 'date_order'],
              'order': 'date_order desc', 'limit': 5})
 
