@@ -286,12 +286,13 @@ def create_odoo_activity(so_id, graveyard_uuid, customer_name, booked_datetime_p
         note = (
             f"Calendly booking received for {customer_name}.<br/>"
             f"Requested time: {booked_datetime_pacific} Pacific<br/>"
-            f"Workiz job: {workiz_link}<br/><br/>"
+            f'Workiz job: <a href="{workiz_link}" target="_blank">{workiz_link}</a><br/><br/>'
             f"<b>Action required:</b><br/>"
             f"1. Open the Workiz job above<br/>"
             f"2. Click the <b>Schedule</b> button to register the appointment<br/>"
             f"3. Verify date/time looks correct<br/>"
-            f"4. Change SubStatus to <b>Send Confirmation - Text</b>"
+            f"4. Add Pricing Line Items to the job<br/>"
+            f"5. Change SubStatus to <b>Send Confirmation - Text</b>"
         )
 
         today = datetime.today().strftime('%Y-%m-%d')
