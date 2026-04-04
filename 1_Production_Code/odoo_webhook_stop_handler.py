@@ -11,6 +11,7 @@
 # 3. Sets x_studio_activelead = "Do Not Contact"
 # 4. Posts chatter note
 # 5. Logs to CRM Activity History
+# 6. Marks any open CRM opportunity as Lost
 #
 # PAYLOAD FORMAT (Workiz sends):
 # {"data": {"uuid": "B6GB1D", "clientInfo": {"serialId": 1040, "primaryPhone": "8058131909"}}}
@@ -72,3 +73,13 @@ if contact:
         'x_contact_id': contact.id,
         'x_campaign_id': 1
     }]]})
+
+    # 5. Mark any open CRM opportunity as Lost
+    open_opps = env['crm.lead'].search([
+        ('x_odoo_contact_id', '=', contact.id),
+        ('active', '=', True)
+    ])
+    if open_opps:
+        for opp in open_opps:
+            opp.message_post(body='[STOP] Customer replied STOP to SMS. Opportunity marked Lost automatically.')
+        open_opps.action_set_lost()
