@@ -502,19 +502,24 @@ async def ask(request: Request):
     confirmation    = intent.get('confirmation_text', '')
     is_read_only    = intent.get('is_read_only', False)
 
-    # 2. Resolve customer
-    resolved = resolve_customer(customer_name=customer_name, so_number=so_number)
-    if resolved.get('error'):
-        resp = {'status': 'error', 'message': resolved['error']}
-        if resolved.get('candidates'):
-            resp['candidates'] = resolved['candidates']
-        return JSONResponse(resp)
+    # Actions that don't need a customer lookup
+    NO_CUSTOMER_ACTIONS = {'get_schedule', 'get_next_job', 'get_sales_today'}
 
-    # Enrich confirmation with resolved name
-    if resolved.get('partner_name') and customer_name and resolved['partner_name'].lower() != customer_name.lower():
-        confirmation = confirmation.replace(customer_name, resolved['partner_name'])
-    if resolved.get('so_name'):
-        confirmation += f" (SO: {resolved['so_name']})"
+    # 2. Resolve customer (skip for schedule/global actions)
+    resolved = {}
+    if action not in NO_CUSTOMER_ACTIONS:
+        resolved = resolve_customer(customer_name=customer_name, so_number=so_number)
+        if resolved.get('error'):
+            resp = {'status': 'error', 'message': resolved['error']}
+            if resolved.get('candidates'):
+                resp['candidates'] = resolved['candidates']
+            return JSONResponse(resp)
+
+        # Enrich confirmation with resolved name
+        if resolved.get('partner_name') and customer_name and resolved['partner_name'].lower() != customer_name.lower():
+            confirmation = confirmation.replace(customer_name, resolved['partner_name'])
+        if resolved.get('so_name'):
+            confirmation += f" (SO: {resolved['so_name']})"
 
     # 3. Execute immediately if read-only or immediate mode
     if is_read_only or mode == 'immediate':
