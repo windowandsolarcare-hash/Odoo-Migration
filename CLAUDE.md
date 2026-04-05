@@ -1,5 +1,5 @@
 # Claude Code - Project Instructions
-**Last Updated:** 2026-04-01
+**Last Updated:** 2026-04-05
 **Migration:** Cursor → Claude Code (permanent)
 
 ---
@@ -41,6 +41,7 @@
 6. **Testing:** YOU create/cleanup test data via API. User never does manually
 7. **Workiz custom field:** Use `type_of_service_2` NOT `type_of_service` — API returns/accepts `type_of_service_2`. Using the wrong name causes Phase 5 to create activities instead of jobs.
 8. **Odoo action_confirm resets date_order:** After calling action_confirm() on an SO, always write date_order back. Odoo resets it to datetime.now() internally.
+9. **NEVER comment out or remove existing working code without DJ's explicit approval.** This code was built over months, debugged, and agreed to work. Adding new code is fine. But commenting out, deleting, or disabling any existing logic — even temporarily, even with good intentions — requires DJ to say "yes, remove that." If you believe something should be removed, explain why and ask first. Do not act unilaterally.
 
 ---
 
