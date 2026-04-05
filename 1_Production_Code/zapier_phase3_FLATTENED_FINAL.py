@@ -1552,8 +1552,8 @@ def main(input_data):
         substatus = workiz_job.get('SubStatus', '') or ''
         status_lower = status.strip().lower()
         substatus_lower = substatus.strip().lower()
-        TASK_TRIGGER_VALUES = ('next appointment', 'send confirmation text', 'scheduled')
-        skip_confirm = not (status_lower in TASK_TRIGGER_VALUES or substatus_lower in TASK_TRIGGER_VALUES)
+        TASK_TRIGGER_VALUES = ('next appointment - text', 'next appointment 2 - text', 'send confirmation - text', 'scheduled')
+        skip_confirm = not (status_lower in TASK_TRIGGER_VALUES or substatus_lower in TASK_TRIGGER_VALUES or status_lower.startswith('scheduled') or substatus_lower.startswith('scheduled'))
         if skip_confirm:
             print("[*] Status/SubStatus is not 'Next appointment' / 'Send confirmation text' / 'Scheduled': SO will be created as quotation (no task).")
         
