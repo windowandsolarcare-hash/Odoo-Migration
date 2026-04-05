@@ -317,16 +317,16 @@ def get_schedule_for_date(date_iso: str) -> str:
     # Query by task date_deadline (always correct) rather than SO date_order (can be stale)
     tasks = odoo_rpc('project.task', 'search_read',
         [[['project_id', '=', 2],
-          ['date_deadline', '>=', date_start],
-          ['date_deadline', '<=', date_end],
+          ['planned_date_begin', '>=', date_start],
+          ['planned_date_begin', '<=', date_end],
           ['sale_line_id', '!=', False]]],
-        {'fields': ['name', 'date_deadline', 'sale_line_id'], 'order': 'date_deadline asc'})
+        {'fields': ['name', 'planned_date_begin', 'sale_line_id'], 'order': 'planned_date_begin asc'})
 
     if not tasks:
         return f"No jobs found for {date_iso}"
 
-    # Deduplicate by SO — keep earliest task deadline per SO
-    so_map = {}  # so_name -> {'deadline': ..., 'task_name': ..., 'line_id': ...}
+    # Deduplicate by SO — keep earliest task start per SO
+    so_map = {}  # so_name -> {'start': ..., 'task_name': ..., 'line_id': ...}
     for t in tasks:
         line_ref = t.get('sale_line_id')
         if not line_ref:
@@ -334,9 +334,9 @@ def get_schedule_for_date(date_iso: str) -> str:
         line_id = line_ref[0]
         line_display = line_ref[1]  # e.g. "004324 - Includes: ..."
         so_name = line_display.split(' - ')[0].strip()
-        deadline = t.get('date_deadline', '')
-        if so_name not in so_map or deadline < so_map[so_name]['deadline']:
-            so_map[so_name] = {'deadline': deadline, 'task_name': t['name'], 'line_id': line_id}
+        start = t.get('planned_date_begin', '')
+        if so_name not in so_map or start < so_map[so_name]['start']:
+            so_map[so_name] = {'start': start, 'task_name': t['name'], 'line_id': line_id}
 
     if not so_map:
         return f"No jobs found for {date_iso}"
@@ -350,13 +350,13 @@ def get_schedule_for_date(date_iso: str) -> str:
 
     lines = [f"Schedule for {date_iso} ({len(so_map)} job{'s' if len(so_map) != 1 else ''}):"]
     total = 0
-    for so_name, info in sorted(so_map.items(), key=lambda x: x[1]['deadline']):
+    for so_name, info in sorted(so_map.items(), key=lambda x: x[1]['start']):
         so = so_by_name.get(so_name, {})
         uuid = so.get('x_studio_x_studio_workiz_uuid', '')
         # Customer name comes from task title ("FirstName LastName - City")
         task_name = info['task_name']
         customer_short = task_name.split(' - ')[0].strip() if ' - ' in task_name else task_name
-        time_str = utc_to_pacific(info['deadline'])
+        time_str = utc_to_pacific(info['start'])
         amount = float(so.get('amount_total', 0) or 0)  # Odoo as primary price source
         wstatus = ''
         if uuid:
