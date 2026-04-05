@@ -80,7 +80,7 @@ ODOO_TASK_PROPERTY_PARTNER_FIELD = False  # Odoo 19 FSM project.task has no 'par
 ODOO_TASK_START_DATETIME_FIELD = "planned_date_begin"  # Odoo 19 FSM: planned start datetime (UTC)
 ODOO_TASK_END_DATETIME_FIELD = "date_end"             # Odoo 19 FSM: planned end datetime (UTC); set False to skip
 # Workiz: job start = JobDateTime. End: if your Workiz job has end date/time, set the key here (e.g. "JobEndDateTime").
-WORKIZ_JOB_END_DATETIME_FIELD = ""              # e.g. "JobEndDateTime" or "EndTime" — leave "" if not in API
+WORKIZ_JOB_END_DATETIME_FIELD = "JobEndDateTime" # Workiz returns this field with job end time
 
 # Line item matching for confirmed SOs: Set to False to disable "set qty=0 for removed items" behavior
 ENABLE_LINE_ITEM_REMOVAL_ON_CONFIRMED_SO = True  # True = set qty=0 for items not in Workiz; False = only update/add
@@ -373,15 +373,36 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 if job_datetime_utc:
                     if ODOO_TASK_START_DATETIME_FIELD:
                         create_vals[ODOO_TASK_START_DATETIME_FIELD] = job_datetime_utc
-                    try:
-                        dt_end = datetime.strptime(job_datetime_utc[:19], "%Y-%m-%d %H:%M:%S") + timedelta(hours=1)
-                        end_str = dt_end.strftime("%Y-%m-%d %H:%M:%S")
+                    # End: use Workiz JobEndDateTime if available, else start+1h
+                    end_str = None
+                    if WORKIZ_JOB_END_DATETIME_FIELD and workiz_job.get(WORKIZ_JOB_END_DATETIME_FIELD):
+                        raw_end = str(workiz_job.get(WORKIZ_JOB_END_DATETIME_FIELD)).strip()
+                        if raw_end:
+                            try:
+                                end_str = convert_pacific_to_utc(raw_end)
+                            except Exception:
+                                end_str = raw_end
+                    if not end_str:
+                        try:
+                            dt_end = datetime.strptime(job_datetime_utc[:19], "%Y-%m-%d %H:%M:%S") + timedelta(hours=1)
+                            end_str = dt_end.strftime("%Y-%m-%d %H:%M:%S")
+                        except Exception:
+                            pass
+                    if end_str:
                         if ODOO_TASK_END_DATETIME_FIELD:
                             create_vals[ODOO_TASK_END_DATETIME_FIELD] = end_str
                         if ODOO_TASK_PLANNED_DATE_FIELD:
                             create_vals[ODOO_TASK_PLANNED_DATE_FIELD] = end_str
+                    # planned_hours: compute from start/end so duration clock shows correctly
+                    try:
+                        if end_str:
+                            dt_s = datetime.strptime(job_datetime_utc[:19], "%Y-%m-%d %H:%M:%S")
+                            dt_e = datetime.strptime(end_str[:19], "%Y-%m-%d %H:%M:%S")
+                            create_vals["planned_hours"] = max(round((dt_e - dt_s).total_seconds() / 3600, 2), 0.25)
+                        else:
+                            create_vals["planned_hours"] = 1.0
                     except Exception:
-                        pass
+                        create_vals["planned_hours"] = 1.0
                 # Create the task
                 create_payload = {
                     "jsonrpc": "2.0", "method": "call",
