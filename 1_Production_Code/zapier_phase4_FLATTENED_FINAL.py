@@ -364,7 +364,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                             create_vals["description"] = desc_parts[1]
                     if ODOO_TASK_PARTNER_FIELD:
                         create_vals[ODOO_TASK_PARTNER_FIELD] = pid
-                # Assignee from Workiz team
+                # Assignee from Workiz team; fall back to project manager (ODOO_USER_ID) so task is never unassigned
                 team_raw = workiz_job.get("Team") or workiz_job.get("team") or []
                 if isinstance(team_raw, list) and team_raw and ODOO_TASK_ASSIGNEE_FIELD:
                     for m in team_raw:
@@ -377,6 +377,8 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                                 else:
                                     create_vals[ODOO_TASK_ASSIGNEE_FIELD] = uid
                             break
+                if ODOO_TASK_ASSIGNEE_FIELD and "user_ids" not in create_vals and ODOO_TASK_ASSIGNEE_FIELD not in create_vals:
+                    create_vals["user_ids"] = [(6, 0, [ODOO_USER_ID])]
                 # Planned dates from job datetime
                 if job_datetime_utc:
                     if ODOO_TASK_START_DATETIME_FIELD:
