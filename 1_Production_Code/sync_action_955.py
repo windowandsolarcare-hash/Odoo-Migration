@@ -190,7 +190,8 @@ if _job_end_str and len(_job_end_str) >= 16:
             try:
                 _delta_hours = (_dt_end_utc - datetime.datetime.strptime(_job_start_utc, '%Y-%m-%d %H:%M:%S')).total_seconds() / 3600.0
                 if _delta_hours > 0:
-                    _task_date_updates['allocated_hours'] = _delta_hours
+                    _num_lines = max(len(record.order_line), 1)
+                    _task_date_updates['allocated_hours'] = round(_delta_hours / _num_lines, 2)
             except Exception:
                 pass
     except Exception as _e:
