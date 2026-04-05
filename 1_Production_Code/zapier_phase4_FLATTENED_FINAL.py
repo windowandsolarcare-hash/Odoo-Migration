@@ -327,7 +327,86 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
         print(f"[!] Task search failed: {e}")
         return _ret(error=f"Task search failed: {e}")
     if not task_ids:
-        print("[!] No tasks found linked to this SO's order lines (sale_line_id in line_ids). Task sync skipped.")
+        print("[!] No tasks found linked to this SO's order lines (sale_line_id in line_ids). Checking for backfill...")
+        # Backfill: if SO is confirmed (state=sale) and in a scheduling status, create tasks directly via API.
+        # Avoids cancel/draft/confirm cycle which risks breaking SOs with invoices/payments.
+        so_check = _odoo_search_read("sale.order", [["id", "=", so_id]], ["state", "partner_id", "partner_shipping_id"], limit=1)
+        wiz_status = workiz_job.get("Status", "")
+        wiz_substatus = workiz_job.get("SubStatus", "")
+        if so_check and so_check[0].get("state") == "sale" and is_task_trigger_status(wiz_status, wiz_substatus):
+            print(f"[*] Backfill triggered: confirmed SO, substatus={wiz_substatus or wiz_status}, {len(line_ids)} order line(s)")
+            backfilled = 0
+            for ol_id in line_ids:
+                create_vals = {"project_id": DEFAULT_PROJECT_ID, "sale_line_id": ol_id}
+                # Task name: "{ContactName} - {City}" — same format Phase 3 uses
+                so_partner = so_check[0].get("partner_id")
+                pid = so_partner[0] if isinstance(so_partner, (list, tuple)) else so_partner
+                if pid:
+                    prop = _odoo_search_read("res.partner", [["id", "=", pid]], ["name", "parent_id", "city"], limit=1)
+                    if prop:
+                        city = (prop[0].get("city") or "").strip()
+                        contact_id = prop[0].get("parent_id")
+                        contact_id = contact_id[0] if isinstance(contact_id, (list, tuple)) else contact_id
+                        customer_name = (prop[0].get("name") or "").strip()
+                        if contact_id:
+                            contact = _odoo_search_read("res.partner", [["id", "=", contact_id]], ["name"], limit=1)
+                            if contact:
+                                customer_name = (contact[0].get("name") or customer_name).strip()
+                        task_name = (f"{customer_name} - {city}".strip(" - ").strip() if city else customer_name) or "New Task"
+                        create_vals["name"] = task_name
+                    if ODOO_TASK_PARTNER_FIELD:
+                        create_vals[ODOO_TASK_PARTNER_FIELD] = pid
+                # Assignee from Workiz team
+                team_raw = workiz_job.get("Team") or workiz_job.get("team") or []
+                if isinstance(team_raw, list) and team_raw and ODOO_TASK_ASSIGNEE_FIELD:
+                    for m in team_raw:
+                        fname = (m.get("Name") or m.get("name") or "") if isinstance(m, dict) else ""
+                        if fname:
+                            uid = _odoo_find_user_id_by_name(str(fname).strip())
+                            if uid:
+                                if ODOO_TASK_ASSIGNEE_FIELD == "user_ids":
+                                    create_vals["user_ids"] = [(6, 0, [uid])]
+                                else:
+                                    create_vals[ODOO_TASK_ASSIGNEE_FIELD] = uid
+                            break
+                # Planned dates from job datetime
+                if job_datetime_utc:
+                    if ODOO_TASK_START_DATETIME_FIELD:
+                        create_vals[ODOO_TASK_START_DATETIME_FIELD] = job_datetime_utc
+                    try:
+                        dt_end = datetime.strptime(job_datetime_utc[:19], "%Y-%m-%d %H:%M:%S") + timedelta(hours=1)
+                        end_str = dt_end.strftime("%Y-%m-%d %H:%M:%S")
+                        if ODOO_TASK_END_DATETIME_FIELD:
+                            create_vals[ODOO_TASK_END_DATETIME_FIELD] = end_str
+                        if ODOO_TASK_PLANNED_DATE_FIELD:
+                            create_vals[ODOO_TASK_PLANNED_DATE_FIELD] = end_str
+                    except Exception:
+                        pass
+                # Create the task
+                create_payload = {
+                    "jsonrpc": "2.0", "method": "call",
+                    "params": {
+                        "service": "object", "method": "execute_kw",
+                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "create", [create_vals]]
+                    }
+                }
+                try:
+                    cr = requests.post(ODOO_URL, json=create_payload, timeout=10)
+                    new_id = cr.json().get("result")
+                    if new_id:
+                        print(f"[OK] Backfilled task id={new_id} for order_line {ol_id} (name: {create_vals.get('name')})")
+                        backfilled += 1
+                    else:
+                        print(f"[!] Backfill task create for line {ol_id} returned no id: {cr.json()}")
+                except Exception as e:
+                    print(f"[!] Backfill task create failed for line {ol_id}: {e}")
+            if backfilled > 0:
+                print(f"[OK] Backfilled {backfilled} task(s) for confirmed SO with no existing tasks")
+                return _ret(tasks_found=backfilled, tasks_updated=True)
+            return _ret(tasks_found=0, error="Backfill attempted but 0 tasks created")
+        else:
+            so_st = so_check[0].get("state") if so_check else "unknown"
+            print(f"[!] No backfill: state={so_st}, substatus={wiz_substatus or wiz_status} (need state=sale + scheduling status)")
         return _ret(tasks_found=0, error="No tasks with sale_line_id in this SO's lines")
     n_tasks = len(task_ids)
 
