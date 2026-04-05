@@ -2455,11 +2455,17 @@ def main(input_data):
     if substatus:
         print(f"[*] Job SubStatus: {substatus}")
     
-    # Do not run when status is Submitted. Phase 5 creates the next job with status Submitted; if we run here we'd create/update SO for that new job before Phase 3 (New Job trigger) runs. Desired flow: Phase 6 → Phase 5 → Phase 3 (New Job) → later when you change status to send text, Phase 4 runs.
+    # For Submitted status: only run if an SO already exists for this job UUID.
+    # If no SO exists, skip and let Phase 3 (New Job trigger) create it — avoids race condition where
+    # Phase 4 and Phase 3 both try to create an SO simultaneously for the same new job.
+    # If SO already exists, go ahead and update it (e.g. Phase 3 already ran, or job was imported).
     if (status or '').strip().lower() == 'submitted':
-        print("[*] Skipping Phase 4 for status 'Submitted' (new job from Phase 5; Phase 3 will create SO when New Job triggers)")
-        print("="*70)
-        return {'success': True, 'skipped': True, 'reason': 'status_is_submitted'}
+        existing_check = search_sales_order_by_uuid(job_uuid)
+        if not existing_check:
+            print("[*] Skipping Phase 4 for status 'Submitted' with no existing SO (Phase 3 will create it via New Job trigger)")
+            print("="*70)
+            return {'success': True, 'skipped': True, 'reason': 'status_is_submitted_no_so'}
+        print("[*] Status is Submitted but SO already exists — continuing Phase 4 update")
     
     # -------------------------------------------------------------------------
     # GRAVEYARD JOB AUTO-CLOSE: Detect manually scheduled reactivation jobs
