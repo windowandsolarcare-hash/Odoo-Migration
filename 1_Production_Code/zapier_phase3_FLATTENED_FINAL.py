@@ -1242,14 +1242,15 @@ def execute_path_a(contact_id, property_id, workiz_job, skip_confirm=False):
         confirm_result = confirm_sales_order(sales_order_id)
         if not confirm_result:
             print("[WARNING] Could not confirm sales order")
+        # Odoo resets date_order to now() during action_confirm — write the correct job date back immediately
+        if booking_datetime:
+            update_sales_order_date(sales_order_id, booking_datetime)
+            print(f"[*] Restored date_order after confirm: {booking_datetime}")
+        else:
+            print("[WARNING] No booking_datetime — date_order will be wrong (Odoo reset to now during confirm)")
     else:
         print("[*] Quotation only (no confirm → no task).")
-    
-    # Step 4: date_order is now set during SO creation (no longer need to update separately)
-    # update_result = update_sales_order_date(sales_order_id, booking_datetime)
-    # if not update_result:
-    #     print("[WARNING] Could not update date_order")
-    # Step 4b: Sync tasks only when SO was confirmed
+    # Step 4: Sync tasks only when SO was confirmed
     if not skip_confirm:
         sync_tasks_from_so_and_job(sales_order_id, workiz_job, booking_datetime)
     
@@ -1330,13 +1331,14 @@ def execute_path_b(contact_id, service_address, workiz_job, skip_confirm=False):
         confirm_result = confirm_sales_order(sales_order_id)
         if not confirm_result:
             print("[WARNING] Could not confirm sales order")
+        # Odoo resets date_order to now() during action_confirm — write the correct job date back immediately
+        if booking_datetime:
+            update_sales_order_date(sales_order_id, booking_datetime)
+            print(f"[*] Restored date_order after confirm: {booking_datetime}")
+        else:
+            print("[WARNING] No booking_datetime — date_order will be wrong (Odoo reset to now during confirm)")
     else:
         print("[*] Quotation only (no confirm → no task).")
-    
-    # Step 7: date_order is now set during SO creation (no longer need to update separately)
-    # update_result = update_sales_order_date(sales_order_id, booking_datetime)
-    # if not update_result:
-    #     print("[WARNING] Could not update date_order")
     if not skip_confirm:
         sync_tasks_from_so_and_job(sales_order_id, workiz_job, booking_datetime)
     
@@ -1422,13 +1424,14 @@ def execute_path_c(customer_name, service_address, workiz_job, client_id, skip_c
         confirm_result = confirm_sales_order(sales_order_id)
         if not confirm_result:
             print("[WARNING] Could not confirm sales order")
+        # Odoo resets date_order to now() during action_confirm — write the correct job date back immediately
+        if booking_datetime:
+            update_sales_order_date(sales_order_id, booking_datetime)
+            print(f"[*] Restored date_order after confirm: {booking_datetime}")
+        else:
+            print("[WARNING] No booking_datetime — date_order will be wrong (Odoo reset to now during confirm)")
     else:
         print("[*] Quotation only (no confirm → no task).")
-    
-    # Step 8: date_order is now set during SO creation (no longer need to update separately)
-    # update_result = update_sales_order_date(sales_order_id, booking_datetime)
-    # if not update_result:
-    #     print("[WARNING] Could not update date_order")
     if not skip_confirm:
         sync_tasks_from_so_and_job(sales_order_id, workiz_job, booking_datetime)
     
