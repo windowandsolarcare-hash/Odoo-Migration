@@ -1502,14 +1502,21 @@ def main(input_data):
         print(f"[*] Address: {service_address}")
         print(f"[*] JobType: {job_type}")
         
-        # FILTER: Skip "Reactivation Lead" graveyard jobs (they're just for SMS, not real work)
-        if job_type == "Reactivation Lead":
-            print(f"\n[SKIP] Reactivation Lead detected - graveyard job for SMS only, no SO needed")
+        # FILTER: Skip "Reactivation Lead" graveyard jobs ONLY when unscheduled (Submitted status).
+        # Once the customer books and the job is scheduled (status changes away from Submitted),
+        # it's a real job and needs an SO — Phase 4 will have delegated here to create it.
+        _react_status = (workiz_job.get('Status') or '').strip().lower()
+        _react_substatus = (workiz_job.get('SubStatus') or '').strip().lower()
+        _react_is_scheduled = _react_substatus in ('scheduled', 'next appointment - text', 'next appointment 2 - text', 'send confirmation - text') or _react_status == 'scheduled'
+        if job_type == "Reactivation Lead" and not _react_is_scheduled:
+            print(f"\n[SKIP] Reactivation Lead (unscheduled/Submitted) - graveyard job for SMS only, no SO needed")
             return {
-                'success': True, 
+                'success': True,
                 'message': 'Skipped: Reactivation graveyard job (no SO created)',
                 'path': 'SKIP'
             }
+        if job_type == "Reactivation Lead" and _react_is_scheduled:
+            print(f"[*] Reactivation Lead is now scheduled (substatus={_react_substatus}) - creating SO as real job")
         
         if not client_id:
             return {'success': False, 'error': 'Missing ClientId from Workiz job'}
