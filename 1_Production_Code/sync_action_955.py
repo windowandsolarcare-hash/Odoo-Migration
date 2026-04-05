@@ -210,21 +210,27 @@ _existing_tasks = env['project.task'].search([('sale_line_id', 'in', record.orde
 if not _job_is_submitted and not _existing_tasks and record.state == 'sale':
     _tech_user_ids = [2]
     _backfill_count = 0
-    for _line in record.order_line:
+    _per_task_hours = _task_date_updates.get('allocated_hours', 0)
+    _per_task_secs = _per_task_hours * 3600 if _per_task_hours else 0
+    _bf_start_dt = datetime.datetime.strptime(_job_start_utc, '%Y-%m-%d %H:%M:%S') if _job_start_utc else None
+    for _bf_i, _line in enumerate(record.order_line):
         _task_vals = {
             'name': _task_name,
             'project_id': 2,
             'sale_line_id': _line.id,
             'user_ids': [(6, 0, _tech_user_ids)],
         }
-        if _task_date_updates.get('planned_date_begin'):
+        if _bf_start_dt and _per_task_secs:
+            _t_start = _bf_start_dt + datetime.timedelta(seconds=_bf_i * _per_task_secs)
+            _t_end = _t_start + datetime.timedelta(seconds=_per_task_secs)
+            _task_vals['planned_date_begin'] = _t_start.strftime('%Y-%m-%d %H:%M:%S')
+            _task_vals['planned_date_start'] = _t_start.strftime('%Y-%m-%d %H:%M:%S')
+            _task_vals['date_deadline'] = _t_end.strftime('%Y-%m-%d %H:%M:%S')
+            _task_vals['date_end'] = _t_end.strftime('%Y-%m-%d %H:%M:%S')
+            _task_vals['allocated_hours'] = _per_task_hours
+        elif _task_date_updates.get('planned_date_begin'):
             _task_vals['planned_date_begin'] = _task_date_updates['planned_date_begin']
             _task_vals['planned_date_start'] = _task_date_updates['planned_date_begin']
-        if _task_date_updates.get('date_deadline'):
-            _task_vals['date_deadline'] = _task_date_updates['date_deadline']
-            _task_vals['date_end'] = _task_date_updates['date_deadline']
-        if _task_date_updates.get('allocated_hours'):
-            _task_vals['allocated_hours'] = _task_date_updates['allocated_hours']
         if _task_tag_ids:
             _task_vals['tag_ids'] = [(6, 0, _task_tag_ids)]
         if _line.name:
@@ -249,11 +255,23 @@ if not _job_is_submitted and _task_tag_ids:
         _linked_tasks.write({'tag_ids': [(6, 0, _task_tag_ids)]})
         log_lines.append(str(len(_linked_tasks)) + ' task(s) tags updated')
 
-# --- Sync start/end dates to existing tasks ---
+# --- Sync start/end dates to existing tasks (staggered per task) ---
 if not _job_is_submitted and _task_date_updates:
-    _linked_tasks_dates = env['project.task'].search([('sale_line_id', 'in', record.order_line.ids)])
+    _linked_tasks_dates = env['project.task'].search([('sale_line_id', 'in', record.order_line.ids)], order='id asc')
     if _linked_tasks_dates:
-        _linked_tasks_dates.write(_task_date_updates)
+        _per_task_hours = _task_date_updates.get('allocated_hours', 0)
+        _per_task_secs = _per_task_hours * 3600 if _per_task_hours else 0
+        _sync_start_dt = datetime.datetime.strptime(_job_start_utc, '%Y-%m-%d %H:%M:%S') if _job_start_utc else None
+        for _si, _stask in enumerate(_linked_tasks_dates):
+            _stask_vals = dict(_task_date_updates)
+            if _sync_start_dt and _per_task_secs and len(_linked_tasks_dates) > 1:
+                _t_start = _sync_start_dt + datetime.timedelta(seconds=_si * _per_task_secs)
+                _t_end = _t_start + datetime.timedelta(seconds=_per_task_secs)
+                _stask_vals['planned_date_begin'] = _t_start.strftime('%Y-%m-%d %H:%M:%S')
+                _stask_vals['planned_date_start'] = _t_start.strftime('%Y-%m-%d %H:%M:%S')
+                _stask_vals['date_deadline'] = _t_end.strftime('%Y-%m-%d %H:%M:%S')
+                _stask_vals['date_end'] = _t_end.strftime('%Y-%m-%d %H:%M:%S')
+            _stask.write(_stask_vals)
         log_lines.append(str(len(_linked_tasks_dates)) + ' task(s) start/end updated')
 
 timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
