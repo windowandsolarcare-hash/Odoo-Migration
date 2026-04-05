@@ -523,6 +523,32 @@ def execute_action(action: str, params: dict, resolved: dict) -> str:
 # API routes
 # ---------------------------------------------------------------------------
 
+HELP_TEXT = """Here's what I can do:
+
+SCHEDULE & INFO
+• What's my schedule today / tomorrow / Monday
+• What's my next job
+• What are my sales today
+• What's the status of [customer]
+
+UPDATE WORKIZ
+• Gate code for [customer] is [code]
+• Pricing for [customer] is [amount]
+• Update job notes for [customer] to [text]
+• Change status of [customer] to [substatus]
+• Mark [customer] job done
+
+LOG & TASKS
+• Add a note to [customer] — [text]
+• Create a follow-up to-do for [customer] in [N] days"""
+
+HELP_PHRASES = {
+    'what can you do', 'what do you do', 'help', 'commands', 'what are your commands',
+    'what can i say', 'what are my options', 'show me what you can do',
+    'what do you know how to do', 'capabilities'
+}
+
+
 @app.post('/ask')
 async def ask(request: Request):
     body = await request.json()
@@ -534,6 +560,10 @@ async def ask(request: Request):
 
     if not user_input:
         return JSONResponse({'error': 'No input provided'})
+
+    # Help shortcut — no AI call needed
+    if user_input.lower().strip('?.!') in HELP_PHRASES:
+        return JSONResponse({'status': 'done', 'message': HELP_TEXT})
 
     # 1. Parse intent via Claude
     try:
