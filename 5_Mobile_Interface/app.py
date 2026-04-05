@@ -308,38 +308,68 @@ def get_schedule_for_date(date_iso: str) -> str:
     import datetime
     # Odoo stores UTC — to capture a Pacific day we need to search UTC+7/8 range
     # e.g. Monday Pacific = Monday 07:00 UTC to Tuesday 06:59 UTC
-    offset_hours = 7  # PDT (adjust to 8 for PST Nov-Mar)
+    d = datetime.date.fromisoformat(date_iso)
+    offset_hours = 7 if 3 <= d.month <= 11 else 8  # PDT=7, PST=8
     date_start = date_iso + f' {offset_hours:02d}:00:00'
-    next_day = (datetime.date.fromisoformat(date_iso) + datetime.timedelta(days=1)).isoformat()
+    next_day = (d + datetime.timedelta(days=1)).isoformat()
     date_end = next_day + f' {offset_hours - 1:02d}:59:59'
 
-    sos = odoo_rpc('sale.order', 'search_read',
-        [[['date_order', '>=', date_start], ['date_order', '<=', date_end],
-          ['state', 'in', ['sale', 'done']], ['x_studio_x_studio_workiz_uuid', '!=', False]]],
-        {'fields': ['name', 'date_order', 'x_studio_x_studio_workiz_uuid', 'partner_id'],
-         'order': 'date_order asc'})
-    if not sos:
+    # Query by task date_deadline (always correct) rather than SO date_order (can be stale)
+    tasks = odoo_rpc('project.task', 'search_read',
+        [[['project_id', '=', 2],
+          ['date_deadline', '>=', date_start],
+          ['date_deadline', '<=', date_end],
+          ['sale_line_id', '!=', False]]],
+        {'fields': ['name', 'date_deadline', 'sale_line_id'], 'order': 'date_deadline asc'})
+
+    if not tasks:
         return f"No jobs found for {date_iso}"
 
-    lines = [f"Schedule for {date_iso} ({len(sos)} jobs):"]
+    # Deduplicate by SO — keep earliest task deadline per SO
+    so_map = {}  # so_name -> {'deadline': ..., 'task_name': ..., 'line_id': ...}
+    for t in tasks:
+        line_ref = t.get('sale_line_id')
+        if not line_ref:
+            continue
+        line_id = line_ref[0]
+        line_display = line_ref[1]  # e.g. "004324 - Includes: ..."
+        so_name = line_display.split(' - ')[0].strip()
+        deadline = t.get('date_deadline', '')
+        if so_name not in so_map or deadline < so_map[so_name]['deadline']:
+            so_map[so_name] = {'deadline': deadline, 'task_name': t['name'], 'line_id': line_id}
+
+    if not so_map:
+        return f"No jobs found for {date_iso}"
+
+    # Fetch SOs by name for UUID and Odoo price
+    so_names = list(so_map.keys())
+    sos = odoo_rpc('sale.order', 'search_read',
+        [[['name', 'in', so_names], ['state', 'in', ['sale', 'done']]]],
+        {'fields': ['name', 'partner_id', 'x_studio_x_studio_workiz_uuid', 'amount_total']})
+    so_by_name = {s['name']: s for s in sos}
+
+    lines = [f"Schedule for {date_iso} ({len(so_map)} job{'s' if len(so_map) != 1 else ''}):"]
     total = 0
-    for so in sos:
+    for so_name, info in sorted(so_map.items(), key=lambda x: x[1]['deadline']):
+        so = so_by_name.get(so_name, {})
         uuid = so.get('x_studio_x_studio_workiz_uuid', '')
-        customer = so['partner_id'][1] if so.get('partner_id') else 'Unknown'
-        customer_short = customer.split(',')[0].strip()
-        time_str = utc_to_pacific(so.get('date_order', ''))
-        amount = 0
+        # Customer name comes from task title ("FirstName LastName - City")
+        task_name = info['task_name']
+        customer_short = task_name.split(' - ')[0].strip() if ' - ' in task_name else task_name
+        time_str = utc_to_pacific(info['deadline'])
+        amount = float(so.get('amount_total', 0) or 0)  # Odoo as primary price source
         wstatus = ''
-        # Get amount and status from Workiz (source of truth)
         if uuid:
             raw = workiz_get(f'job/get/{uuid}/')
-            if raw:
+            if raw and 'error' not in raw:
                 job = raw.get('data', {})
                 job = job[0] if isinstance(job, list) else job
-                amount = float(job.get('JobTotalPrice', 0) or 0)
-                wstatus = f" [{job.get('SubStatus', job.get('Status','?'))}]"
+                workiz_price = float(job.get('JobTotalPrice', 0) or 0)
+                if workiz_price > 0:
+                    amount = workiz_price
+                wstatus = f" [{job.get('SubStatus', job.get('Status', '?'))}]"
         total += amount
-        lines.append(f"  {time_str} | {customer_short} | ${amount:.0f}{wstatus} | {so['name']}")
+        lines.append(f"  {time_str} | {customer_short} | ${amount:.0f}{wstatus} | {so_name}")
     lines.append(f"Total: ${total:.0f}")
     return '\n'.join(lines)
 
