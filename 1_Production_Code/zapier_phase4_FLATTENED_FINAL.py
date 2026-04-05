@@ -354,6 +354,14 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                                 customer_name = (contact[0].get("name") or customer_name).strip()
                         task_name = (f"{customer_name} - {city}".strip(" - ").strip() if city else customer_name) or "New Task"
                         create_vals["name"] = task_name
+                    # Description: copy order line name (product + description text) — mirrors what action_confirm() does
+                    ol_line = _odoo_search_read("sale.order.line", [["id", "=", ol_id]], ["name"], limit=1)
+                    if ol_line:
+                        ol_name = (ol_line[0].get("name") or "").strip()
+                        # Description is the part after the first line (product name is line 1)
+                        desc_parts = ol_name.split("\n", 1)
+                        if len(desc_parts) > 1 and desc_parts[1].strip():
+                            create_vals["description"] = desc_parts[1]
                     if ODOO_TASK_PARTNER_FIELD:
                         create_vals[ODOO_TASK_PARTNER_FIELD] = pid
                 # Assignee from Workiz team
