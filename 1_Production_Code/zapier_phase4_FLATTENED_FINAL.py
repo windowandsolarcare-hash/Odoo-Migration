@@ -506,6 +506,18 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
         end_val = task_vals[ODOO_TASK_END_DATETIME_FIELD]
         if end_val:
             task_vals[ODOO_TASK_PLANNED_DATE_FIELD] = str(end_val)
+    # planned_hours (allocated time): compute from start/end so the clock icon fills in correctly
+    start_val = task_vals.get(ODOO_TASK_START_DATETIME_FIELD)
+    end_val = task_vals.get(ODOO_TASK_END_DATETIME_FIELD)
+    if start_val and end_val:
+        try:
+            dt_s = datetime.strptime(str(start_val)[:19], "%Y-%m-%d %H:%M:%S")
+            dt_e = datetime.strptime(str(end_val)[:19], "%Y-%m-%d %H:%M:%S")
+            task_vals["planned_hours"] = max(round((dt_e - dt_s).total_seconds() / 3600, 2), 0.25)
+        except Exception:
+            task_vals["planned_hours"] = 1.0
+    elif start_val:
+        task_vals["planned_hours"] = 1.0
 
     # SO: partner_id = Property (customer); partner_shipping_id = Property. Contact = Property.parent_id.
     so_list = _odoo_search_read("sale.order", [["id", "=", so_id]], ["partner_id", "partner_shipping_id", "tag_ids"], limit=1)
