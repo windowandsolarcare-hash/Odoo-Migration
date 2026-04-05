@@ -224,23 +224,28 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
             user_id = _odoo_find_user_id_by_name(str(first_name).strip())
             if user_id is not None:
                 task_vals[ODOO_TASK_ASSIGNEE_FIELD] = [(6, 0, [user_id])] if ODOO_TASK_ASSIGNEE_FIELD == "user_ids" else user_id
-    # Planned start/end: Odoo FSM requires planned_date_begin < date_end. Do not set date_deadline from start date (becomes midnight and fails constraint); set it from end date when we have date_end.
+    # Default assignee to project manager when no Workiz tech found
+    if ODOO_TASK_ASSIGNEE_FIELD and "user_ids" not in task_vals and ODOO_TASK_ASSIGNEE_FIELD not in task_vals:
+        task_vals["user_ids"] = [(6, 0, [ODOO_USER_ID])]
+    # Planned start/end: Odoo FSM requires planned_date_begin < date_end.
     order_date_str = (job_datetime_utc or "").strip()
     if order_date_str:
-        date_part = order_date_str.split()[0] if " " in order_date_str else order_date_str
         if ODOO_TASK_START_DATETIME_FIELD:
             task_vals[ODOO_TASK_START_DATETIME_FIELD] = order_date_str
         if ODOO_TASK_PLANNED_DATE_FIELD and not ODOO_TASK_START_DATETIME_FIELD:
-            task_vals[ODOO_TASK_PLANNED_DATE_FIELD] = date_part
+            task_vals[ODOO_TASK_PLANNED_DATE_FIELD] = order_date_str.split()[0]
+    # End time: use Workiz JobEndDateTime (convert Pacific→UTC), else start+1h
     if WORKIZ_JOB_END_DATETIME_FIELD and workiz_job.get(WORKIZ_JOB_END_DATETIME_FIELD) and ODOO_TASK_END_DATETIME_FIELD:
-        end_str = str(workiz_job.get(WORKIZ_JOB_END_DATETIME_FIELD)).strip()
-        if end_str:
-            task_vals[ODOO_TASK_END_DATETIME_FIELD] = end_str if " " in end_str else (end_str + " 17:00:00")
+        raw_end = str(workiz_job.get(WORKIZ_JOB_END_DATETIME_FIELD)).strip()
+        if raw_end:
+            try:
+                task_vals[ODOO_TASK_END_DATETIME_FIELD] = convert_pacific_to_utc(raw_end)
+            except Exception:
+                task_vals[ODOO_TASK_END_DATETIME_FIELD] = raw_end
     elif ODOO_TASK_END_DATETIME_FIELD and order_date_str and task_vals.get(ODOO_TASK_START_DATETIME_FIELD):
         try:
             dt = datetime.strptime(order_date_str, "%Y-%m-%d %H:%M:%S")
-            end_dt = dt + timedelta(hours=1)
-            task_vals[ODOO_TASK_END_DATETIME_FIELD] = end_dt.strftime("%Y-%m-%d %H:%M:%S")
+            task_vals[ODOO_TASK_END_DATETIME_FIELD] = (dt + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
         except Exception:
             pass
     if task_vals.get(ODOO_TASK_START_DATETIME_FIELD) and not task_vals.get(ODOO_TASK_END_DATETIME_FIELD) and ODOO_TASK_END_DATETIME_FIELD:
@@ -263,9 +268,17 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
         except Exception:
             pass
     if task_vals.get(ODOO_TASK_END_DATETIME_FIELD) and ODOO_TASK_PLANNED_DATE_FIELD:
-        end_val = task_vals[ODOO_TASK_END_DATETIME_FIELD]
-        if end_val:
-            task_vals[ODOO_TASK_PLANNED_DATE_FIELD] = (str(end_val).split()[0] if " " in str(end_val) else str(end_val))
+        task_vals[ODOO_TASK_PLANNED_DATE_FIELD] = str(task_vals[ODOO_TASK_END_DATETIME_FIELD])
+    # allocated_hours: compute from start/end so duration clock fills in correctly
+    if start_val and task_vals.get(ODOO_TASK_END_DATETIME_FIELD):
+        try:
+            dt_s = datetime.strptime(str(start_val)[:19], "%Y-%m-%d %H:%M:%S")
+            dt_e = datetime.strptime(str(task_vals[ODOO_TASK_END_DATETIME_FIELD])[:19], "%Y-%m-%d %H:%M:%S")
+            task_vals["allocated_hours"] = max(round((dt_e - dt_s).total_seconds() / 3600, 2), 0.25)
+        except Exception:
+            task_vals["allocated_hours"] = 1.0
+    elif start_val:
+        task_vals["allocated_hours"] = 1.0
     so_list = _odoo_search_read("sale.order", [["id", "=", so_id]], ["partner_id", "partner_shipping_id", "tag_ids"], limit=1)
     if so_list:
         so = so_list[0]
