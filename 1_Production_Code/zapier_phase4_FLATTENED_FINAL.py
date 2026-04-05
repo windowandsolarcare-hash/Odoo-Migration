@@ -2556,7 +2556,29 @@ def main(input_data):
         so_state = existing_so.get('state')
         
         result = update_existing_sales_order(so_id, workiz_job, so_state=so_state)
-        
+
+        # When job goes back to Submitted (unscheduled), remove any tasks — job is off the schedule.
+        if (status or '').strip().lower() == 'submitted':
+            so_lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], ["id"], limit=500)
+            line_ids = [l["id"] for l in so_lines]
+            if line_ids:
+                try:
+                    task_ids_resp = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                        "service": "object", "method": "execute_kw",
+                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "search", [[["sale_line_id", "in", line_ids]]]]
+                    }}, timeout=10)
+                    task_ids_to_del = task_ids_resp.json().get("result", [])
+                    if task_ids_to_del:
+                        requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                            "service": "object", "method": "execute_kw",
+                            "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "unlink", [task_ids_to_del]]
+                        }}, timeout=10)
+                        print(f"[*] Removed {len(task_ids_to_del)} task(s) — job back to Submitted (unscheduled)")
+                    else:
+                        print("[*] Status=Submitted: no tasks to remove")
+                except Exception as _e:
+                    print(f"[!] Task removal on Submitted failed: {_e}")
+
         # When SO was quotation (draft) and job is now scheduled, confirm SO so tasks are created, then sync task fields.
         if so_state == 'draft' and should_trigger_tasks:
             print("[*] Quotation → scheduling: confirming SO and syncing tasks (assignee, planned date, start/end, phone).")
