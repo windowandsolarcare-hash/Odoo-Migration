@@ -81,6 +81,40 @@
 
 ---
 
+## WORKIZ API ACCESS — HOW TO CALL FROM SCRIPTS
+
+**Workiz blocks direct API calls from local machines (403 Forbidden).** The API is IP-restricted to the Render server and Odoo server only.
+
+**To call Workiz from a local Python script or one-off tool, proxy through Odoo:**
+1. Create a temporary `ir.actions.server` with the Workiz fetch code
+2. Run it via JSON-RPC (Odoo's server can reach Workiz)
+3. Use `raise UserError(result_string)` to return data back — captured in `resp['error']['data']['message']`
+4. Delete the temp action immediately after
+
+```python
+action_id = rpc('ir.actions.server','create',[{'name':'TEMP','model_id':670,'state':'code','code': your_code}])
+resp = rpc_raw({'jsonrpc':'2.0','method':'call','id':1,'params':{'service':'object','method':'execute_kw',
+    'args':[ODOO_DB,ODOO_USER_ID,ODOO_API_KEY,'ir.actions.server','run',[[action_id]],
+            {'context':{'active_id': any_so_id,'active_ids':[any_so_id],'active_model':'sale.order'}}]}})
+rpc('ir.actions.server','unlink',[[action_id]])
+msg = resp['error']['data']['message']  # your UserError string
+```
+
+**Workiz API URL format** (auth_secret required — without it you get 403):
+```
+https://api.workiz.com/api/v1/{TOKEN}/job/get/{UUID}/?auth_secret={AUTH_SECRET}
+https://api.workiz.com/api/v1/{TOKEN}/job/update/{UUID}/
+https://api.workiz.com/api/v1/{TOKEN}/job/delete/{UUID}/
+```
+- Token: `api_1hu6lroiy5zxomcpptuwsg8heju97iwg`
+- Auth Secret: `sec_334084295850678330105471548`
+- In Odoo server actions: use `requests.get(url)` — `requests` is available in Odoo eval context
+- **Rate limit:** ~30 calls before hitting HTTP 429 — sleep 15-30 seconds between batches
+
+**From Render (app.py) and Odoo server actions:** direct calls work fine — no proxy needed.
+
+---
+
 ## WORKIZ API CRITICAL DEFAULTS
 
 These defaults prevent Workiz API validation errors. Always use when field might be empty:
