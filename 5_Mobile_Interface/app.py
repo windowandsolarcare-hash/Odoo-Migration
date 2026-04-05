@@ -200,7 +200,7 @@ PARAMS by action:
 - get_info: {}
 - get_schedule: {"date": "today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday|YYYY-MM-DD"}
 - get_next_job: {}
-- get_sales_today: {}
+- get_sales_today: {"date": "today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday|YYYY-MM-DD"}
 - mark_job_done: {}
 
 IMPORTANT ROUTING RULES:
@@ -234,7 +234,10 @@ Input: "what's my next job"
 Output: {"action":"get_next_job","customer_name":null,"so_number":null,"params":{},"confirmation_text":"Show next upcoming job today","is_read_only":true}
 
 Input: "what are my sales today"
-Output: {"action":"get_sales_today","customer_name":null,"so_number":null,"params":{},"confirmation_text":"Show total sales for today","is_read_only":true}
+Output: {"action":"get_sales_today","customer_name":null,"so_number":null,"params":{"date":"today"},"confirmation_text":"Show total sales for today","is_read_only":true}
+
+Input: "what are my sales for next Wednesday"
+Output: {"action":"get_sales_today","customer_name":null,"so_number":null,"params":{"date":"wednesday"},"confirmation_text":"Show total sales for Wednesday","is_read_only":true}
 
 Input: "what time does Kenneth start today"
 Output: {"action":"get_info","customer_name":"Kenneth","so_number":null,"params":{},"confirmation_text":"Look up job info for Kenneth","is_read_only":true}
@@ -474,9 +477,9 @@ def execute_action(action: str, params: dict, resolved: dict) -> str:
         return f"Next job: {customer} at {time_str}\nSO: {so['name']} | ${so.get('amount_total',0):.0f}{winfo}"
 
     elif action == 'get_sales_today':
-        import datetime
-        today_iso = datetime.date.today().isoformat()
-        return get_schedule_for_date(today_iso)
+        date_raw = params.get('date', 'today')
+        date_iso = resolve_date(date_raw)
+        return get_schedule_for_date(date_iso)
 
     elif action == 'add_chatter_note':
         if not so_id:
@@ -526,9 +529,9 @@ def execute_action(action: str, params: dict, resolved: dict) -> str:
 HELP_TEXT = """Here's what I can do:
 
 SCHEDULE & INFO
-• What's my schedule today / tomorrow / Monday
+• What's my schedule today / tomorrow / Monday / next Wednesday
 • What's my next job
-• What are my sales today
+• What are my sales today / tomorrow / next Friday
 • What's the status of [customer]
 
 UPDATE WORKIZ
@@ -539,7 +542,8 @@ UPDATE WORKIZ
 • Mark [customer] job done
 
 LOG & TASKS
-• Add a note to [customer] — [text]
+• Add a note to [customer] — [text]  (posts to Odoo SO chatter)
+• Update Workiz job notes for [customer] — [text]  (updates Workiz job)
 • Create a follow-up to-do for [customer] in [N] days"""
 
 HELP_PHRASES = {
