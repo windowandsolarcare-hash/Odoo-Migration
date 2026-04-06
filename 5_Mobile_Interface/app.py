@@ -658,14 +658,18 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
             payload['gate_code'] = str(args['gate_code'])
 
         raw = workiz_post('job/create/', payload)
-        # Parse response: [{"flag": true, "data": [{"UUID": "...", "link": "..."}]}]
+        # Response: {"flag": true, "data": [{"UUID": "...", "link": "..."}], "code": 201}
         uuid = ''
         link = ''
-        if isinstance(raw, list) and raw:
-            data = raw[0].get('data', [])
-            if isinstance(data, list) and data:
-                uuid = data[0].get('UUID') or ''
-                link = data[0].get('link') or ''
+        if isinstance(raw, dict):
+            data = raw.get('data', [])
+        elif isinstance(raw, list) and raw:
+            data = raw[0].get('data', []) if isinstance(raw[0], dict) else raw
+        else:
+            data = []
+        if isinstance(data, list) and data:
+            uuid = data[0].get('UUID') or ''
+            link = data[0].get('link') or ''
         if uuid:
             return f"[WORKIZ] Job created for {pname} — UUID: {uuid}\nWorkiz link: {link}\n(Zapier will sync to Odoo automatically)"
         return f"[WORKIZ] Job created for {pname} (no UUID returned — check Workiz)"
