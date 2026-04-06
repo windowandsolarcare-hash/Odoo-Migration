@@ -219,6 +219,7 @@ if not _job_is_submitted and not _existing_tasks and record.state == 'sale':
             'project_id': 2,
             'sale_line_id': _line.id,
             'user_ids': [(6, 0, _tech_user_ids)],
+            'partner_id': record.partner_id.id,
         }
         if _bf_start_dt and _per_task_secs:
             _t_start = _bf_start_dt + datetime.timedelta(seconds=_bf_i * _per_task_secs)
@@ -242,10 +243,10 @@ if not _job_is_submitted and not _existing_tasks and record.state == 'sale':
     if _backfill_count:
         log_lines.append('Backfilled ' + str(_backfill_count) + ' missing task(s)')
 
-# --- Sync name and user_ids to existing tasks ---
+# --- Sync name, user_ids, and partner_id to existing tasks ---
 _linked_tasks_users = env['project.task'].search([('sale_line_id', 'in', record.order_line.ids)]) if not _job_is_submitted else []
 if _linked_tasks_users:
-    _linked_tasks_users.write({'name': _task_name, 'user_ids': [(6, 0, [2])]})
+    _linked_tasks_users.write({'name': _task_name, 'user_ids': [(6, 0, [2])], 'partner_id': record.partner_id.id})
     log_lines.append(str(len(_linked_tasks_users)) + ' task(s) name/tech updated')
 
 # --- Sync tags to existing tasks ---
