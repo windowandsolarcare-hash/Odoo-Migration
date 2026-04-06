@@ -1,6 +1,5 @@
 # ==============================================================================
-# WINDOW & SOLAR CARE — MOBILE VOICE INTERFACE BACKEND (v2 — Agent Architecture)
-# Author: DJ Sanders
+# WINDOW & SOLAR CARE — MOBILE VOICE INTERFACE BACKEND (v3)
 # Deploy: Render.com (env vars: ODOO_API_KEY, WORKIZ_TOKEN, WORKIZ_SECRET, OPENAI_API_KEY, ACCESS_CODE)
 # ==============================================================================
 
@@ -11,7 +10,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from openai import OpenAI
 
 # ---------------------------------------------------------------------------
-# Config — all from environment variables
+# Config
 # ---------------------------------------------------------------------------
 ODOO_URL      = os.environ.get('ODOO_URL',        'https://window-solar-care.odoo.com')
 ODOO_DB       = os.environ.get('ODOO_DB',         'window-solar-care')
@@ -23,6 +22,22 @@ OPENAI_KEY    = os.environ.get('OPENAI_API_KEY',  '')
 ACCESS_CODE   = os.environ.get('ACCESS_CODE',     'wsc2026')
 
 app = FastAPI()
+
+# ---------------------------------------------------------------------------
+# Session memory — keyed by session_id, stores conversation history
+# Cleared per session when a write is confirmed or session closes
+# ---------------------------------------------------------------------------
+_sessions: dict = {}
+
+def get_history(session_id: str) -> list:
+    return list(_sessions.get(session_id, []))
+
+def save_history(session_id: str, messages: list):
+    _sessions[session_id] = messages[-20:]  # keep last 20 turns max
+
+def clear_history(session_id: str):
+    _sessions.pop(session_id, None)
+
 
 # ---------------------------------------------------------------------------
 # Odoo JSON-RPC helper
@@ -59,8 +74,8 @@ def workiz_get(endpoint):
 
 
 def workiz_post(endpoint, data):
-    sep = '&' if '?' in endpoint else '?'
-    url = f'https://api.workiz.com/api/v1/{WORKIZ_TOKEN}/{endpoint}{sep}auth_secret={WORKIZ_SECRET}'
+    url = f'https://api.workiz.com/api/v1/{WORKIZ_TOKEN}/{endpoint}'
+    data['auth_secret'] = WORKIZ_SECRET
     resp = httpx.post(url, json=data, timeout=20)
     if resp.status_code == 204:
         return {'success': True}
@@ -83,19 +98,57 @@ def resolve_date(date_str: str):
         target_wd = day_names.index(ds)
         days_ahead = (target_wd - today.weekday()) % 7 or 7
         return (today + datetime.timedelta(days=days_ahead)).isoformat(), ds.capitalize()
-    return date_str, date_str  # assume YYYY-MM-DD
+    return date_str, date_str
 
 
 # ---------------------------------------------------------------------------
-# READ TOOL IMPLEMENTATIONS — GPT calls these freely, no confirmation needed
+# Field name maps
+# ---------------------------------------------------------------------------
+# Workiz job fields (used with job/update/)
+WORKIZ_JOB_FIELDS = {
+    'gate_code':            'gate_code',
+    'pricing':              'pricing',
+    'notes':                'JobNotes',
+    'job_notes':            'JobNotes',
+    'substatus':            'SubStatus',
+    'status':               'SubStatus',
+    'type_of_service':      'type_of_service_2',
+    'frequency':            'frequency',
+    'alternating':          'alternating',
+    'last_date_cleaned':    'last_date_cleaned',
+    'ok_to_text':           'ok_to_text',
+    'confirmation_method':  'confirmation_method',
+}
+
+# Odoo partner fields (used with res.partner write)
+ODOO_CONTACT_FIELDS = {
+    'pricing':              'x_studio_x_pricing',
+    'frequency':            'x_studio_x_frequency',
+    'type_of_service':      'x_studio_x_type_of_service',
+    'alternating':          'x_studio_x_alternating',
+    'gate_code':            'x_studio_x_gate_code',
+    'ok_to_text':           'x_studio_x_studio_ok_to_text',
+    'confirmation_method':  'x_studio_x_studio_confirm_send',
+    'last_date_cleaned':    'x_studio_x_studio_last_service_date',
+}
+
+# Odoo SO snapshot fields (synced from Workiz on job update)
+ODOO_SO_SNAPSHOT_FIELDS = {
+    'gate_code':    'x_studio_x_gate_snapshot',
+    'pricing':      'x_studio_x_studio_pricing_snapshot',
+}
+
+
+# ---------------------------------------------------------------------------
+# READ TOOL IMPLEMENTATIONS
 # ---------------------------------------------------------------------------
 
 def tool_search_customers(query: str) -> list:
-    """Search Odoo customers by name. Returns up to 5 matches with SO/job info."""
     clean = re.sub(r"'s\s*$", '', query, flags=re.IGNORECASE).strip()
     partners = odoo_rpc('res.partner', 'search_read',
         [[['name', 'ilike', clean], ['active', '=', True]]],
-        {'fields': ['id', 'name', 'city', 'street', 'x_studio_x_studio_record_category'], 'limit': 8})
+        {'fields': ['id', 'name', 'city', 'street', 'phone',
+                    'ref', 'x_studio_x_studio_record_category'], 'limit': 8})
     if not partners:
         return [{'error': f'No customers found matching "{query}"'}]
     results = []
@@ -111,6 +164,8 @@ def tool_search_customers(query: str) -> list:
             'name': p['name'],
             'city': p.get('city') or '',
             'street': p.get('street') or '',
+            'phone': p.get('phone') or '',
+            'workiz_client_id': p.get('ref') or '',
             'record_category': p.get('x_studio_x_studio_record_category') or '',
             'so_id': so.get('id'),
             'so_name': so.get('name') or '',
@@ -122,11 +177,51 @@ def tool_search_customers(query: str) -> list:
     return results
 
 
+def tool_get_customer_profile(partner_id: int) -> dict:
+    """Get full contact profile including all custom fields and address — used before creating a job."""
+    p = odoo_rpc('res.partner', 'read', [[partner_id]], {
+        'fields': ['name', 'street', 'street2', 'city', 'state_id', 'zip', 'country_id',
+                   'phone', 'mobile', 'email', 'ref',
+                   'x_studio_x_pricing', 'x_studio_x_frequency', 'x_studio_x_type_of_service',
+                   'x_studio_x_alternating', 'x_studio_x_gate_code',
+                   'x_studio_x_studio_ok_to_text', 'x_studio_x_studio_confirm_send',
+                   'x_studio_x_studio_last_service_date', 'x_studio_x_studio_service_area',
+                   'x_studio_x_studio_record_category']
+    })
+    if not p:
+        return {'error': 'Customer not found'}
+    rec = p[0]
+    state_name = rec['state_id'][1] if isinstance(rec.get('state_id'), list) else ''
+    return {
+        'partner_id': partner_id,
+        'name': rec.get('name') or '',
+        'first_name': (rec.get('name') or '').split()[0] if rec.get('name') else '',
+        'last_name': ' '.join((rec.get('name') or '').split()[1:]) if rec.get('name') else '',
+        'street': rec.get('street') or '',
+        'street2': rec.get('street2') or '',
+        'city': rec.get('city') or '',
+        'state': state_name,
+        'zip': rec.get('zip') or '',
+        'phone': rec.get('phone') or rec.get('mobile') or '',
+        'email': rec.get('email') or '',
+        'workiz_client_id': rec.get('ref') or '',
+        'pricing': rec.get('x_studio_x_pricing') or '',
+        'frequency': rec.get('x_studio_x_frequency') or '',
+        'type_of_service': rec.get('x_studio_x_type_of_service') or '',
+        'alternating': rec.get('x_studio_x_alternating') or '',
+        'gate_code': rec.get('x_studio_x_gate_code') or '',
+        'ok_to_text': rec.get('x_studio_x_studio_ok_to_text') or '',
+        'confirmation_method': rec.get('x_studio_x_studio_confirm_send') or '',
+        'last_date_cleaned': rec.get('x_studio_x_studio_last_service_date') or '',
+        'service_area': rec.get('x_studio_x_studio_service_area') or '',
+        'record_category': rec.get('x_studio_x_studio_record_category') or '',
+    }
+
+
 def tool_get_job_details(partner_id: int) -> dict:
-    """Get full job details: SO info + Workiz job info for a customer."""
     sos = odoo_rpc('sale.order', 'search_read',
         [[['partner_id', '=', partner_id], ['state', 'in', ['sale', 'done']]]],
-        {'fields': ['id', 'name', 'date_order', 'amount_total', 'amount_untaxed',
+        {'fields': ['id', 'name', 'date_order', 'amount_total',
                     'x_studio_x_studio_workiz_uuid', 'x_studio_x_studio_workiz_status',
                     'x_studio_x_studio_workiz_tech', 'x_studio_x_gate_snapshot',
                     'x_studio_x_studio_pricing_snapshot', 'x_studio_x_studio_type_of_service_so',
@@ -155,14 +250,18 @@ def tool_get_job_details(partner_id: int) -> dict:
             job_data = raw.get('data', {})
             job = job_data[0] if isinstance(job_data, list) else job_data
             if job:
-                result['workiz_notes'] = job.get('JobNotes') or ''
+                result['workiz_notes']     = job.get('JobNotes') or ''
                 result['workiz_substatus'] = job.get('SubStatus') or job.get('Status') or ''
-                result['workiz_address'] = f"{job.get('Address','')  } {job.get('City','')}".strip()
+                result['workiz_frequency'] = job.get('frequency') or ''
+                result['workiz_alternating'] = job.get('alternating') or ''
+                result['workiz_ok_to_text'] = job.get('ok_to_text') or ''
+                result['workiz_confirmation'] = job.get('confirmation_method') or ''
+                result['workiz_last_cleaned'] = job.get('last_date_cleaned') or ''
+                result['workiz_address'] = f"{job.get('Address', '')} {job.get('City', '')}".strip()
     return result
 
 
 def tool_get_schedule(date: str) -> str:
-    """Get all jobs scheduled for a given date."""
     date_iso, label = resolve_date(date)
     sos = odoo_rpc('sale.order', 'search_read',
         [[['date_order', '>=', date_iso + ' 00:00:00'],
@@ -182,14 +281,13 @@ def tool_get_schedule(date: str) -> str:
         status = so.get('x_studio_x_studio_workiz_status') or ''
         amount = float(so.get('amount_total') or 0)
         total += amount
-        lines.append(f"  {time_str} | {customer} | ${amount:.0f} | {status}")
+        lines.append(f"  {time_str} UTC | {customer} | ${amount:.0f} | {status}")
     lines.append(f"Total: ${total:.2f}")
     return '\n'.join(lines)
 
 
 def tool_get_next_job() -> dict:
-    """Get the next upcoming job today — returns customer, time, address, SO info."""
-    now_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    now_str   = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     today_iso = datetime.date.today().isoformat()
     sos = odoo_rpc('sale.order', 'search_read',
         [[['date_order', '>=', now_str],
@@ -202,14 +300,11 @@ def tool_get_next_job() -> dict:
     if not sos:
         return {'error': 'No more jobs scheduled for today'}
     so = sos[0]
-    customer = so['partner_id'][1].split(',')[0].strip() if so.get('partner_id') else 'Unknown'
+    customer   = so['partner_id'][1].split(',')[0].strip() if so.get('partner_id') else 'Unknown'
     partner_id = so['partner_id'][0] if so.get('partner_id') else None
     result = {
-        'customer': customer,
-        'partner_id': partner_id,
-        'time_utc': so['date_order'][11:16],
-        'so_name': so['name'],
-        'so_id': so['id'],
+        'customer': customer, 'partner_id': partner_id,
+        'time_utc': so['date_order'][11:16], 'so_name': so['name'], 'so_id': so['id'],
         'amount': float(so.get('amount_total') or 0),
         'workiz_uuid': so.get('x_studio_x_studio_workiz_uuid') or '',
         'status': so.get('x_studio_x_studio_workiz_status') or ''
@@ -225,7 +320,6 @@ def tool_get_next_job() -> dict:
 
 
 def tool_get_sales(date: str) -> str:
-    """Get total sales revenue for a given date."""
     date_iso, label = resolve_date(date)
     sos = odoo_rpc('sale.order', 'search_read',
         [[['date_order', '>=', date_iso + ' 00:00:00'],
@@ -238,8 +332,34 @@ def tool_get_sales(date: str) -> str:
     return f"Sales for {label}: ${total:.2f} across {len(sos)} job(s)"
 
 
+def tool_get_jobs_list(start_date: str = '', records: int = 50,
+                       only_open: bool = True, offset: int = 0,
+                       status: list = None) -> list:
+    """Fetch jobs from Workiz with pagination. offset=0 → records 1-100, offset=1 → 101-200."""
+    params = f'start_date={start_date}&records={records}&only_open={str(only_open).lower()}&offset={offset}'
+    if status:
+        for s in status:
+            params += f'&status[]={urllib.parse.quote(s)}'
+    raw = workiz_get(f'job/all/?{params}')
+    if not raw:
+        return []
+    jobs = raw if isinstance(raw, list) else raw.get('data', [])
+    result = []
+    for j in jobs:
+        result.append({
+            'uuid': j.get('UUID') or '',
+            'client_id': j.get('ClientId') or '',
+            'name': f"{j.get('FirstName','')} {j.get('LastName','')}".strip(),
+            'date': (j.get('JobDateTime') or '')[:16],
+            'status': j.get('Status') or '',
+            'substatus': j.get('SubStatus') or '',
+            'type_of_service': j.get('type_of_service_2') or '',
+            'city': j.get('City') or '',
+        })
+    return result
+
+
 def tool_navigate_to(partner_id: int, customer_name: str = '') -> str:
-    """Get a Google Maps navigation button for a customer's address. Returns HTML."""
     p = odoo_rpc('res.partner', 'read', [[partner_id]],
         {'fields': ['name', 'street', 'street2', 'city', 'state_id', 'zip']})
     if not p:
@@ -269,46 +389,52 @@ def tool_navigate_to(partner_id: int, customer_name: str = '') -> str:
 
 
 # ---------------------------------------------------------------------------
-# WRITE TOOL IMPLEMENTATIONS — called after user confirms
+# WRITE TOOL IMPLEMENTATIONS — executed after confirmation
 # ---------------------------------------------------------------------------
 
 def execute_write_tool(tool_name: str, args: dict) -> str:
-    name = args.get('partner_name', 'customer')
+    pname = args.get('partner_name', 'customer')
 
-    if tool_name == 'update_workiz_gate_code':
-        workiz_post(f'job/update/{args["uuid"]}/', {'gate_code': args['gate_code']})
+    # --- Update a Workiz job field ---
+    if tool_name == 'update_workiz_field':
+        field_key   = args['field_name'].lower().replace(' ', '_')
+        workiz_field = WORKIZ_JOB_FIELDS.get(field_key, field_key)
+        value       = args['value']
+        uuid        = args['uuid']
+        workiz_post(f'job/update/{uuid}/', {workiz_field: str(value)})
+        # Also sync snapshot to Odoo SO if applicable
         so_id = args.get('so_id')
-        if so_id:
-            odoo_rpc('sale.order', 'write', [[so_id], {'x_studio_x_gate_snapshot': args['gate_code']}])
-        return f"Gate code updated for {name}: {args['gate_code']}"
+        if so_id and field_key in ODOO_SO_SNAPSHOT_FIELDS:
+            odoo_rpc('sale.order', 'write', [[so_id],
+                {ODOO_SO_SNAPSHOT_FIELDS[field_key]: str(value)}])
+            return f"[WORKIZ + Odoo] {args['field_name'].title()} updated for {pname}: {value}"
+        return f"[WORKIZ] {args['field_name'].title()} updated for {pname}: {value}"
 
-    if tool_name == 'update_workiz_pricing':
-        workiz_post(f'job/update/{args["uuid"]}/', {'pricing': args['pricing']})
-        so_id = args.get('so_id')
-        if so_id:
-            odoo_rpc('sale.order', 'write', [[so_id], {'x_studio_x_studio_pricing_snapshot': args['pricing']}])
-        return f"Pricing updated for {name}: {args['pricing']}"
+    # --- Update an Odoo contact profile field ---
+    if tool_name == 'update_odoo_contact':
+        field_key   = args['field_name'].lower().replace(' ', '_')
+        odoo_field  = ODOO_CONTACT_FIELDS.get(field_key)
+        if not odoo_field:
+            return f"Unknown contact field: {args['field_name']}"
+        odoo_rpc('res.partner', 'write', [[args['partner_id']],
+            {odoo_field: str(args['value'])}])
+        return f"[ODOO] Contact {args['field_name'].title()} updated for {pname}: {args['value']}"
 
-    if tool_name == 'update_workiz_notes':
-        workiz_post(f'job/update/{args["uuid"]}/', {'JobNotes': args['notes']})
-        return f"Job notes updated for {name}"
-
-    if tool_name == 'update_workiz_substatus':
-        workiz_post(f'job/update/{args["uuid"]}/', {'SubStatus': args['substatus']})
-        return f"Job status updated for {name}: {args['substatus']}"
-
+    # --- Post a note to Odoo chatter ---
     if tool_name == 'post_odoo_note':
-        odoo_rpc('sale.order', 'message_post', [[args['so_id']]], {'body': f'[Voice] {args["note"]}'})
-        return f"Note posted to {name} chatter: \"{args['note']}\""
+        odoo_rpc('sale.order', 'message_post', [[args['so_id']]],
+            {'body': f'[Voice] {args["note"]}'})
+        return f"[ODOO] Note posted to {pname} chatter: \"{args['note']}\""
 
+    # --- Create a follow-up To-do ---
     if tool_name == 'create_todo':
         days = int(args.get('days', 7))
-        due_dt = datetime.datetime.now() + datetime.timedelta(days=days)
-        due_str = due_dt.strftime('%Y-%m-%d 12:00:00')
-        due_display = due_dt.strftime('%m-%d-%Y')
         note = args.get('note', 'Follow-up')
+        due_dt  = datetime.datetime.now() + datetime.timedelta(days=days)
+        due_str = due_dt.strftime('%Y-%m-%d 12:00:00')
+        due_disp = due_dt.strftime('%m-%d-%Y')
         todo_id = odoo_rpc('project.task', 'create', [{
-            'name': f'Follow-up: {name}',
+            'name': f'Follow-up: {pname}',
             'description': note,
             'project_id': False,
             'user_ids': [(4, ODOO_USER_ID)],
@@ -319,34 +445,83 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         if so_id and todo_id:
             todo_url = f'https://window-solar-care.odoo.com/odoo/to-do/{todo_id}'
             odoo_rpc('sale.order', 'message_post', [[so_id]], {
-                'body': f'[Voice] To-Do created | Customer: {name} | Due: {due_display} | {todo_url}'
+                'body': f'[Voice] To-Do | Customer: {pname} | Due: {due_disp} | {todo_url}'
             })
-        return f"To-do created for {name} due {due_display}: \"{note}\""
+        return f"[ODOO] To-do created for {pname} due {due_disp}: \"{note}\""
 
+    # --- Mark job Done ---
     if tool_name == 'mark_job_done':
         workiz_post(f'job/update/{args["uuid"]}/', {'Status': 'Done'})
-        return f"Marked job Done for {name}"
+        return f"[WORKIZ] Job marked Done for {pname}"
+
+    # --- Create a new Workiz job ---
+    if tool_name == 'create_workiz_job':
+        payload = {
+            'ClientId':           int(args['client_id']),
+            'FirstName':          str(args.get('first_name') or ''),
+            'LastName':           str(args.get('last_name') or ''),
+            'Phone':              str(args.get('phone') or ''),
+            'Address':            str(args.get('address') or ''),
+            'City':               str(args.get('city') or ''),
+            'State':              str(args.get('state') or 'CA'),
+            'PostalCode':         str(args.get('postal_code') or ''),
+            'Country':            'US',
+            'JobType':            str(args.get('job_type') or 'Window Cleaning'),
+            'ServiceArea':        str(args.get('service_area') or ''),
+            'type_of_service_2':  str(args.get('type_of_service') or 'On Request'),
+            'frequency':          str(args.get('frequency') or 'Unknown'),
+            'confirmation_method': str(args.get('confirmation_method') or 'Cell Phone'),
+            'ok_to_text':         str(args.get('ok_to_text') or 'Yes'),
+            'JobSource':          'Referral',
+        }
+        if args.get('job_datetime'):
+            payload['JobDateTime'] = args['job_datetime']
+        if args.get('notes'):
+            payload['JobNotes'] = args['notes']
+        if args.get('pricing'):
+            payload['pricing'] = str(args['pricing'])
+        if args.get('gate_code'):
+            payload['gate_code'] = str(args['gate_code'])
+
+        raw = workiz_post('job/create/', payload)
+        # Parse response: [{"flag": true, "data": [{"UUID": "...", "link": "..."}]}]
+        uuid = ''
+        link = ''
+        if isinstance(raw, list) and raw:
+            data = raw[0].get('data', [])
+            if isinstance(data, list) and data:
+                uuid = data[0].get('UUID') or ''
+                link = data[0].get('link') or ''
+        if uuid:
+            return f"[WORKIZ] Job created for {pname} — UUID: {uuid}\nWorkiz link: {link}\n(Zapier will sync to Odoo automatically)"
+        return f"[WORKIZ] Job created for {pname} (no UUID returned — check Workiz)"
 
     return f"Unknown write action: {tool_name}"
 
 
 def _describe_write(tool_name: str, args: dict) -> str:
-    name = args.get('partner_name', 'customer')
-    if tool_name == 'update_workiz_gate_code':
-        return f"[WORKIZ + Odoo] Update gate code for {name} to: {args.get('gate_code')}"
-    if tool_name == 'update_workiz_pricing':
-        return f"[WORKIZ + Odoo] Update pricing for {name} to: {args.get('pricing')}"
-    if tool_name == 'update_workiz_notes':
-        return f"[WORKIZ] Update job notes for {name} to: {args.get('notes')}"
-    if tool_name == 'update_workiz_substatus':
-        return f"[WORKIZ] Update job status for {name} to: {args.get('substatus')}"
+    pname = args.get('partner_name', 'customer')
+    if tool_name == 'update_workiz_field':
+        sys = '[WORKIZ + Odoo]' if args.get('field_name', '').lower() in ('gate_code', 'pricing') else '[WORKIZ]'
+        return f"{sys} Update {args.get('field_name','').title()} for {pname} to: {args.get('value')}"
+    if tool_name == 'update_odoo_contact':
+        return f"[ODOO] Update contact {args.get('field_name','').title()} for {pname} to: {args.get('value')}"
     if tool_name == 'post_odoo_note':
-        return f"[ODOO] Post note to {name}'s chatter: \"{args.get('note')}\""
+        return f"[ODOO] Post note to {pname} chatter: \"{args.get('note')}\""
     if tool_name == 'create_todo':
-        return f"[ODOO] Create follow-up To-do for {name} in {args.get('days', 7)} days: \"{args.get('note')}\""
+        return f"[ODOO] Create follow-up To-do for {pname} in {args.get('days', 7)} days: \"{args.get('note')}\""
     if tool_name == 'mark_job_done':
-        return f"[WORKIZ] Mark job Done for {name}"
-    return f"Execute {tool_name} for {name}"
+        return f"[WORKIZ] Mark job Done for {pname}"
+    if tool_name == 'create_workiz_job':
+        dt = args.get('job_datetime') or 'unscheduled'
+        svc = args.get('type_of_service') or args.get('job_type') or ''
+        return (f"[WORKIZ] Create new job for {pname}\n"
+                f"  Date/Time: {dt}\n"
+                f"  Service: {svc}\n"
+                f"  Notes: {args.get('notes') or '(none)'}\n"
+                f"  Pricing: {args.get('pricing') or '(none)'}\n"
+                f"  Zapier will sync to Odoo automatically")
+    return f"Execute {tool_name} for {pname}"
 
 
 # ---------------------------------------------------------------------------
@@ -357,11 +532,11 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "search_customers",
-            "description": "Search for customers by name. Always call this first when you need to act on a specific customer — it returns their partner_id, SO info, and Workiz UUID needed for other tools.",
+            "description": "Search for customers by name. Call this first whenever you need to act on a specific customer. Returns partner_id, Workiz UUID, Workiz ClientId, and active SO info.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "query": {"type": "string", "description": "Customer name or partial name. Strip possessives: 'Rigo's' → 'Rigo'"}
+                    "query": {"type": "string", "description": "Name or partial name to search. Strip possessives automatically."}
                 },
                 "required": ["query"]
             }
@@ -370,12 +545,26 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "get_job_details",
-            "description": "Get full job details for a customer: SO status, pricing, gate code, notes, Workiz status and notes.",
+            "name": "get_customer_profile",
+            "description": "Get full contact profile: address, phone, all custom fields (pricing, frequency, type_of_service, alternating, gate_code, ok_to_text, confirmation_method, last_date_cleaned, service_area). Call this before creating a new job.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "partner_id": {"type": "integer", "description": "Odoo partner ID from search_customers"}
+                    "partner_id": {"type": "integer"}
+                },
+                "required": ["partner_id"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_job_details",
+            "description": "Get current job details for a customer: SO info, Workiz status, all job-level fields.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "partner_id": {"type": "integer"}
                 },
                 "required": ["partner_id"]
             }
@@ -389,7 +578,7 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "date": {"type": "string", "description": "today, tomorrow, monday, tuesday, wednesday, thursday, friday, saturday, sunday, or YYYY-MM-DD"}
+                    "date": {"type": "string", "description": "today, tomorrow, monday–sunday, or YYYY-MM-DD"}
                 },
                 "required": ["date"]
             }
@@ -399,7 +588,7 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_next_job",
-            "description": "Get the next upcoming job today — customer name, time, address, SO info.",
+            "description": "Get the next upcoming job today.",
             "parameters": {"type": "object", "properties": {}}
         }
     },
@@ -411,7 +600,7 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "date": {"type": "string", "description": "today, tomorrow, day name, or YYYY-MM-DD"}
+                    "date": {"type": "string"}
                 },
                 "required": ["date"]
             }
@@ -420,13 +609,31 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "navigate_to",
-            "description": "Get a Google Maps navigation button for a customer's address. Use partner_id from search_customers or get_next_job.",
+            "name": "get_jobs_list",
+            "description": "Fetch a list of Workiz jobs with filtering. offset=0 returns first 100, offset=1 returns next 100, etc.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "partner_id": {"type": "integer", "description": "Odoo partner ID"},
-                    "customer_name": {"type": "string", "description": "Customer display name for the button label"}
+                    "start_date":  {"type": "string", "description": "YYYY-MM-DD — fetch jobs from this date until today"},
+                    "records":     {"type": "integer", "description": "Max records per page (max 100, default 50)"},
+                    "only_open":   {"type": "boolean", "description": "Exclude Done and Canceled jobs (default true)"},
+                    "offset":      {"type": "integer", "description": "Page number: 0=first 100, 1=next 100, etc."},
+                    "status":      {"type": "array", "items": {"type": "string"}, "description": "Filter by status values e.g. ['Pending','Submitted']"}
+                },
+                "required": ["start_date"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "navigate_to",
+            "description": "Get a Google Maps navigation button for a customer's address.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "partner_id":    {"type": "integer"},
+                    "customer_name": {"type": "string"}
                 },
                 "required": ["partner_id"]
             }
@@ -435,66 +642,44 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "update_workiz_gate_code",
-            "description": "Update the gate/access code for a customer's Workiz job.",
+            "name": "update_workiz_field",
+            "description": (
+                "Update any field on a Workiz job. "
+                "Valid field_name values: gate_code, pricing, notes, substatus, type_of_service, "
+                "frequency, alternating, last_date_cleaned, ok_to_text, confirmation_method. "
+                "gate_code and pricing also sync the Odoo SO snapshot."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "uuid": {"type": "string", "description": "Workiz job UUID from search_customers"},
-                    "gate_code": {"type": "string"},
-                    "partner_name": {"type": "string", "description": "Full customer name for confirmation"},
-                    "so_id": {"type": "integer", "description": "Odoo SO ID to also update snapshot field"}
-                },
-                "required": ["uuid", "gate_code", "partner_name"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "update_workiz_pricing",
-            "description": "Update the pricing notes for a customer's Workiz job.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "uuid": {"type": "string"},
-                    "pricing": {"type": "string"},
+                    "uuid":         {"type": "string", "description": "Workiz job UUID"},
+                    "field_name":   {"type": "string", "description": "Field to update"},
+                    "value":        {"type": "string", "description": "New value"},
                     "partner_name": {"type": "string"},
-                    "so_id": {"type": "integer"}
+                    "so_id":        {"type": "integer", "description": "Odoo SO ID for snapshot sync (gate_code/pricing)"}
                 },
-                "required": ["uuid", "pricing", "partner_name"]
+                "required": ["uuid", "field_name", "value", "partner_name"]
             }
         }
     },
     {
         "type": "function",
         "function": {
-            "name": "update_workiz_notes",
-            "description": "Update the job notes on a customer's Workiz job.",
+            "name": "update_odoo_contact",
+            "description": (
+                "Update a field on the Odoo contact/partner record (permanent profile, not job-specific). "
+                "Valid field_name values: pricing, frequency, type_of_service, alternating, gate_code, "
+                "ok_to_text, confirmation_method, last_date_cleaned."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "uuid": {"type": "string"},
-                    "notes": {"type": "string"},
+                    "partner_id":   {"type": "integer"},
+                    "field_name":   {"type": "string"},
+                    "value":        {"type": "string"},
                     "partner_name": {"type": "string"}
                 },
-                "required": ["uuid", "notes", "partner_name"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "update_workiz_substatus",
-            "description": "Update the job SubStatus in Workiz (e.g. Scheduled, STOP, Lead, API SMS Test Trigger).",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "uuid": {"type": "string"},
-                    "substatus": {"type": "string"},
-                    "partner_name": {"type": "string"}
-                },
-                "required": ["uuid", "substatus", "partner_name"]
+                "required": ["partner_id", "field_name", "value", "partner_name"]
             }
         }
     },
@@ -502,12 +687,12 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "post_odoo_note",
-            "description": "Post a note to the Odoo sales order chatter (internal log).",
+            "description": "Post a note to the Odoo sales order chatter.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "so_id": {"type": "integer"},
-                    "note": {"type": "string"},
+                    "so_id":        {"type": "integer"},
+                    "note":         {"type": "string"},
                     "partner_name": {"type": "string"}
                 },
                 "required": ["so_id", "note", "partner_name"]
@@ -518,15 +703,15 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "create_todo",
-            "description": "Create a follow-up To-do task in Odoo for a customer.",
+            "description": "Create a follow-up To-do in Odoo for a customer.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "partner_id": {"type": "integer"},
-                    "note": {"type": "string", "description": "What the follow-up is about"},
-                    "days": {"type": "integer", "description": "Days from today when due (default 7)"},
+                    "partner_id":   {"type": "integer"},
+                    "note":         {"type": "string"},
+                    "days":         {"type": "integer", "description": "Days from today (default 7)"},
                     "partner_name": {"type": "string"},
-                    "so_id": {"type": "integer", "description": "Optional — post link to chatter"}
+                    "so_id":        {"type": "integer"}
                 },
                 "required": ["partner_id", "note", "days", "partner_name"]
             }
@@ -536,64 +721,112 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "mark_job_done",
-            "description": "Mark a customer's Workiz job as Done.",
+            "description": "Mark a Workiz job as Done.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "uuid": {"type": "string"},
+                    "uuid":         {"type": "string"},
                     "partner_name": {"type": "string"}
                 },
                 "required": ["uuid", "partner_name"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_workiz_job",
+            "description": (
+                "Create a new job in Workiz for an existing customer. "
+                "Call get_customer_profile first to get client_id, name, address, phone, and default field values. "
+                "Ask DJ for: date/time (or leave unscheduled), type_of_service, pricing, and any notes. "
+                "Zapier will automatically sync the new job to Odoo — do NOT create an Odoo SO separately."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "client_id":          {"type": "string",  "description": "Workiz numeric ClientId (from get_customer_profile)"},
+                    "first_name":         {"type": "string"},
+                    "last_name":          {"type": "string"},
+                    "phone":              {"type": "string"},
+                    "address":            {"type": "string"},
+                    "city":               {"type": "string"},
+                    "state":              {"type": "string",  "description": "Default: CA"},
+                    "postal_code":        {"type": "string"},
+                    "job_type":           {"type": "string",  "description": "e.g. Window Cleaning, Solar Panel Cleaning"},
+                    "service_area":       {"type": "string"},
+                    "job_datetime":       {"type": "string",  "description": "YYYY-MM-DD HH:MM:SS in Pacific Time. Omit for unscheduled."},
+                    "type_of_service":    {"type": "string",  "description": "e.g. Full House, Solar Only, Interior/Exterior"},
+                    "frequency":          {"type": "string"},
+                    "confirmation_method": {"type": "string"},
+                    "ok_to_text":         {"type": "string"},
+                    "notes":              {"type": "string"},
+                    "pricing":            {"type": "string"},
+                    "gate_code":          {"type": "string"},
+                    "partner_name":       {"type": "string"}
+                },
+                "required": ["client_id", "first_name", "last_name", "phone",
+                             "address", "city", "postal_code", "job_type", "partner_name"]
             }
         }
     }
 ]
 
 WRITE_TOOLS = {
-    'update_workiz_gate_code', 'update_workiz_pricing', 'update_workiz_notes',
-    'update_workiz_substatus', 'post_odoo_note', 'create_todo', 'mark_job_done'
+    'update_workiz_field', 'update_odoo_contact', 'post_odoo_note',
+    'create_todo', 'mark_job_done', 'create_workiz_job'
 }
 
 READ_TOOL_MAP = {
-    'search_customers': lambda a: tool_search_customers(a['query']),
-    'get_job_details':  lambda a: tool_get_job_details(a['partner_id']),
-    'get_schedule':     lambda a: tool_get_schedule(a['date']),
-    'get_next_job':     lambda a: tool_get_next_job(),
-    'get_sales':        lambda a: tool_get_sales(a['date']),
-    'navigate_to':      lambda a: tool_navigate_to(a['partner_id'], a.get('customer_name', '')),
+    'search_customers':    lambda a: tool_search_customers(a['query']),
+    'get_customer_profile': lambda a: tool_get_customer_profile(a['partner_id']),
+    'get_job_details':     lambda a: tool_get_job_details(a['partner_id']),
+    'get_schedule':        lambda a: tool_get_schedule(a['date']),
+    'get_next_job':        lambda a: tool_get_next_job(),
+    'get_sales':           lambda a: tool_get_sales(a['date']),
+    'get_jobs_list':       lambda a: tool_get_jobs_list(
+        a['start_date'], a.get('records', 50),
+        a.get('only_open', True), a.get('offset', 0), a.get('status')
+    ),
+    'navigate_to':         lambda a: tool_navigate_to(a['partner_id'], a.get('customer_name', '')),
 }
 
 
 # ---------------------------------------------------------------------------
 # System prompt
 # ---------------------------------------------------------------------------
-SYSTEM_PROMPT = """You are a field assistant for Window & Solar Care, a window and solar panel cleaning company in Southern California. DJ Sanders is the owner and sole technician — he talks to you by voice while driving or at job sites.
+SYSTEM_PROMPT = """You are a field assistant for Window & Solar Care, a window and solar panel cleaning company in Southern California. DJ Sanders is the owner and sole technician. He speaks to you by voice while driving or at job sites.
 
-You have tools to read from and write to his Odoo (business system) and Workiz (job scheduling) accounts.
+You have tools to read and write data in Odoo (business system) and Workiz (job scheduling).
 
-HOW TO RESPOND:
+GUIDELINES:
 - Be very concise — DJ is on the road
-- Always call search_customers before updating or navigating to a customer
-- If search returns multiple matches, list them briefly and ask which one
-- For navigation requests: search_customers → navigate_to with the partner_id
-- For "navigate to next job": get_next_job → navigate_to with the partner_id from the result
-- Times in the database are UTC. Pacific Time is UTC-7 (Mar–Nov) or UTC-8 (Nov–Mar)
-- If a customer has no active SO, tell DJ clearly
+- Always call search_customers before acting on a specific customer
+- If multiple customers match, list them briefly and ask which one
+- For navigation: search_customers → navigate_to
+- For next job navigation: get_next_job → navigate_to with the partner_id
+- Before creating a new job: search_customers → get_customer_profile (to get client_id and defaults) → ask DJ for date/time and service type → create_workiz_job
+- New jobs go to Workiz ONLY — Zapier handles the Odoo sync automatically
+- Times in Odoo are UTC. Pacific Time is UTC-7 (Mar–Nov) or UTC-8 (Nov–Mar)
+- For multi-step tasks (like job creation), ask for missing info in a single message — collect everything before calling the write tool
 """
 
 
 # ---------------------------------------------------------------------------
 # Agent loop
 # ---------------------------------------------------------------------------
-def run_agent(user_input: str, mode: str = 'confirm') -> dict:
-    client = OpenAI(api_key=OPENAI_KEY)
-    today_str = datetime.datetime.now().strftime('%A, %B %d, %Y — current UTC time: %H:%M')
-    messages = [
-        {'role': 'system', 'content': SYSTEM_PROMPT + f'\nToday: {today_str}'},
-        {'role': 'user',   'content': user_input}
-    ]
+def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> dict:
+    client   = OpenAI(api_key=OPENAI_KEY)
+    today_str = datetime.datetime.utcnow().strftime('%A, %B %d, %Y — current UTC time: %H:%M')
 
-    for _ in range(10):
+    # Load session history
+    history = get_history(session_id) if session_id else []
+
+    messages = [{'role': 'system', 'content': SYSTEM_PROMPT + f'\nToday: {today_str}'}]
+    messages += history
+    messages.append({'role': 'user', 'content': user_input})
+
+    for _ in range(12):
         resp = client.chat.completions.create(
             model='gpt-4o-mini',
             messages=messages,
@@ -604,7 +837,14 @@ def run_agent(user_input: str, mode: str = 'confirm') -> dict:
         msg = resp.choices[0].message
 
         if not msg.tool_calls:
-            return {'status': 'done', 'message': msg.content or 'Done.'}
+            # GPT is asking a question or giving a final answer
+            content = msg.content or 'Done.'
+            # Save conversation turn to session
+            if session_id:
+                history.append({'role': 'user', 'content': user_input})
+                history.append({'role': 'assistant', 'content': content})
+                save_history(session_id, history)
+            return {'status': 'done', 'message': content}
 
         messages.append(msg)
 
@@ -618,12 +858,15 @@ def run_agent(user_input: str, mode: str = 'confirm') -> dict:
             if name in WRITE_TOOLS:
                 if mode == 'immediate':
                     result = execute_write_tool(name, args)
+                    if session_id:
+                        clear_history(session_id)
                     return {'status': 'done', 'message': result}
                 else:
                     return {
                         'status': 'pending',
                         'confirmation': _describe_write(name, args),
-                        'write_action': {'tool': name, 'args': args}
+                        'write_action': {'tool': name, 'args': args},
+                        'session_id': session_id
                     }
 
             elif name in READ_TOOL_MAP:
@@ -632,7 +875,7 @@ def run_agent(user_input: str, mode: str = 'confirm') -> dict:
                 except Exception as e:
                     result = {'error': str(e)}
 
-                # navigate_to returns HTML — return immediately, don't feed back to GPT
+                # navigate_to returns HTML — return immediately
                 if name == 'navigate_to' and isinstance(result, str) and '<a href=' in result:
                     return {'status': 'done', 'message': result}
 
@@ -662,21 +905,28 @@ SCHEDULE & INFO
 • What's my schedule today / tomorrow / Monday
 • What's my next job
 • What are my sales today / this Friday
-• What's the status of [customer]  (checks Odoo + Workiz)
+• What's the status of [customer]
+• Get a list of open Workiz jobs since [date]
 
 NAVIGATE
 • Navigate to [customer]
 • Take me to my next job
 
-UPDATE WORKIZ
-• Gate code for [customer] is [code]
-• Pricing for [customer] is [amount/description]
-• Update job notes for [customer] to [text]
-• Change status of [customer] to [substatus]
-• Mark [customer] job done
+CREATE A JOB
+• Create a job for [customer]
+  (I'll ask for date, time, and service type — everything else I pull from the customer record)
+
+UPDATE WORKIZ JOB FIELDS
+• Gate code / pricing / notes / status for [customer] is [value]
+• Update frequency / type of service / alternating / ok to text / confirmation method
+  for [customer] to [value]
+
+UPDATE ODOO CONTACT PROFILE
+• Update [customer]'s contact pricing / frequency / type of service to [value]
+  (permanent profile — affects all future jobs)
 
 LOG & TASKS
-• Add a note to [customer]: [text]  (Odoo chatter)
+• Add a note to [customer]: [text]
 • Create a follow-up to-do for [customer] in [N] days"""
 
 HELP_PHRASES = {
@@ -694,6 +944,7 @@ async def ask(request: Request):
 
     user_input = body.get('input', '').strip()
     mode       = body.get('mode', 'confirm')
+    session_id = body.get('session_id', '')
 
     if not user_input:
         return JSONResponse({'error': 'No input provided'})
@@ -702,7 +953,7 @@ async def ask(request: Request):
         return JSONResponse({'status': 'done', 'message': HELP_TEXT})
 
     try:
-        result = run_agent(user_input, mode=mode)
+        result = run_agent(user_input, mode=mode, session_id=session_id)
         return JSONResponse(result)
     except Exception as ex:
         return JSONResponse({'status': 'error', 'message': str(ex)})
@@ -715,11 +966,14 @@ async def execute(request: Request):
         raise HTTPException(status_code=401, detail='Invalid access code')
 
     write_action = body.get('write_action', {})
-    tool_name = write_action.get('tool', '')
-    args      = write_action.get('args', {})
+    tool_name    = write_action.get('tool', '')
+    args         = write_action.get('args', {})
+    session_id   = body.get('session_id', '')
 
     try:
         result = execute_write_tool(tool_name, args)
+        if session_id:
+            clear_history(session_id)
         return JSONResponse({'status': 'done', 'message': result})
     except Exception as ex:
         return JSONResponse({'status': 'error', 'message': str(ex)})
