@@ -204,8 +204,14 @@ PARAMS by action:
 - navigate_to: {}
 - mark_job_done: {}
 
+CUSTOMER NAME RULES:
+- Always strip possessives: "Rigo's" → "Rigo", "Smith's" → "Smith", "Kenneth's" → "Kenneth"
+- Strip filler words: "the", "job", "place", "house", "property" are not part of the name
+- Be flexible: "Rigo", "rigo", "RIGO" all mean the same customer
+
 IMPORTANT ROUTING RULES:
-- "navigate", "directions", "take me to", "how do I get to" → use navigate_to
+- "navigate", "directions", "take me to", "how do I get to", "go to" → use navigate_to
+- "navigate to next job", "take me to my next job", "directions to next job" → use get_next_job (navigate=true in params)
 - "gate code" → ALWAYS use update_odoo_gate_code, never add_chatter_note
 - "pricing" or "price" or "charges" → ALWAYS use update_odoo_pricing, never add_chatter_note
 - "note", "comment", "log", "record that" → use add_chatter_note
@@ -258,6 +264,18 @@ Output: {"action":"navigate_to","customer_name":"Kenneth","so_number":null,"para
 
 Input: "take me to the Smith job"
 Output: {"action":"navigate_to","customer_name":"Smith","so_number":null,"params":{},"confirmation_text":"Open Google Maps directions to Smith","is_read_only":true}
+
+Input: "navigate to Rigo's"
+Output: {"action":"navigate_to","customer_name":"Rigo","so_number":null,"params":{},"confirmation_text":"Open Google Maps directions to Rigo","is_read_only":true}
+
+Input: "navigate to my next job"
+Output: {"action":"get_next_job","customer_name":null,"so_number":null,"params":{"navigate":true},"confirmation_text":"Navigate to next job","is_read_only":true}
+
+Input: "take me to my next job"
+Output: {"action":"get_next_job","customer_name":null,"so_number":null,"params":{"navigate":true},"confirmation_text":"Navigate to next job","is_read_only":true}
+
+Input: "directions to next job"
+Output: {"action":"get_next_job","customer_name":null,"so_number":null,"params":{"navigate":true},"confirmation_text":"Navigate to next job","is_read_only":true}
 """
 
 
@@ -482,6 +500,37 @@ def execute_action(action: str, params: dict, resolved: dict) -> str:
                 job = raw.get('data', {})
                 job = job[0] if isinstance(job, list) else job
                 winfo = f"\nAddress: {job.get('Address','')} {job.get('City','')}\nStatus: {job.get('SubStatus', job.get('Status',''))}"
+        # If navigate=true in params, chain into navigate_to using the partner from this job
+        if params.get('navigate'):
+            nav_partner_id = so['partner_id'][0] if so.get('partner_id') else None
+            nav_partner_name = customer
+            if nav_partner_id:
+                addr_parts = []
+                p = odoo_rpc('res.partner', 'read', [[nav_partner_id]],
+                    {'fields': ['street', 'street2', 'city', 'state_id', 'zip']})
+                if p:
+                    rec = p[0]
+                    if rec.get('street'):   addr_parts.append(rec['street'])
+                    if rec.get('street2'):  addr_parts.append(rec['street2'])
+                    if rec.get('city'):     addr_parts.append(rec['city'])
+                    if rec.get('state_id'): addr_parts.append(rec['state_id'][1] if isinstance(rec['state_id'], list) else '')
+                    if rec.get('zip'):      addr_parts.append(rec['zip'])
+                if addr_parts:
+                    full_address = ', '.join(a for a in addr_parts if a)
+                    import urllib.parse
+                    maps_url = 'https://maps.google.com/?q=' + urllib.parse.quote(full_address)
+                    return (
+                        f'<div style="margin-bottom:8px;font-size:15px;">'
+                        f'<b>Next job: {nav_partner_name} at {time_str}</b><br>'
+                        f'<span style="color:#94a3b8;font-size:13px;">{full_address}</span>'
+                        f'</div>'
+                        f'<a href="{maps_url}" target="_blank" rel="noopener" '
+                        f'style="display:block;padding:16px;background:#16a34a;color:white;'
+                        f'font-size:18px;font-weight:700;text-align:center;border-radius:12px;'
+                        f'text-decoration:none;">Open in Google Maps</a>'
+                    )
+            return f"Next job: {nav_partner_name} at {time_str} — no address on file."
+
         return f"Next job: {customer} at {time_str}\nSO: {so['name']} | ${so.get('amount_total',0):.0f}{winfo}"
 
     elif action == 'get_sales_today':
