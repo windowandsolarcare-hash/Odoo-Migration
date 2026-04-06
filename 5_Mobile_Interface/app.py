@@ -274,29 +274,37 @@ def tool_get_job_details(partner_id: int) -> dict:
     return result
 
 
-def tool_get_schedule(date: str) -> str:
+def tool_get_schedule(date: str) -> dict:
+    """Returns structured schedule data including partner_ids so follow-up queries don't need to re-search."""
     date_iso, label = resolve_date(date)
     sos = odoo_rpc('sale.order', 'search_read',
         [[['date_order', '>=', date_iso + ' 00:00:00'],
           ['date_order', '<=', date_iso + ' 23:59:59'],
           ['state', 'in', ['sale', 'done']],
           ['x_studio_x_studio_workiz_uuid', '!=', False]]],
-        {'fields': ['name', 'date_order', 'partner_id', 'amount_total',
-                    'x_studio_x_studio_workiz_status'],
+        {'fields': ['id', 'name', 'date_order', 'partner_id', 'amount_total',
+                    'x_studio_x_studio_workiz_status', 'x_studio_x_studio_workiz_uuid'],
          'order': 'date_order asc'})
     if not sos:
-        return f"No jobs scheduled for {label} ({date_iso})."
-    lines = [f"Schedule for {label} ({date_iso}) — {len(sos)} job(s):"]
+        return {'label': label, 'date': date_iso, 'count': 0, 'jobs': [], 'total': 0}
+    jobs = []
     total = 0.0
     for so in sos:
         customer = so['partner_id'][1].split(',')[0].strip() if so.get('partner_id') else 'Unknown'
-        time_str = so['date_order'][11:16] if so.get('date_order') else '?'
-        status = so.get('x_studio_x_studio_workiz_status') or ''
+        partner_id = so['partner_id'][0] if so.get('partner_id') else None
         amount = float(so.get('amount_total') or 0)
         total += amount
-        lines.append(f"  {time_str} UTC | {customer} | ${amount:.0f} | {status}")
-    lines.append(f"Total: ${total:.2f}")
-    return '\n'.join(lines)
+        jobs.append({
+            'customer': customer,
+            'partner_id': partner_id,
+            'so_id': so['id'],
+            'so_name': so['name'],
+            'workiz_uuid': so.get('x_studio_x_studio_workiz_uuid') or '',
+            'time_utc': so['date_order'][11:16] if so.get('date_order') else '?',
+            'amount': amount,
+            'status': so.get('x_studio_x_studio_workiz_status') or ''
+        })
+    return {'label': label, 'date': date_iso, 'count': len(jobs), 'jobs': jobs, 'total': total}
 
 
 def tool_get_next_job() -> dict:
@@ -816,8 +824,9 @@ GUIDELINES:
 - Be very concise — DJ is on the road
 - Always call search_customers before acting on a specific customer
 - If multiple customers match, list them briefly and ask which one
-- CONTEXT AWARENESS: If a customer was already identified in this conversation (e.g., from a schedule listing or previous search), use their FULL NAME in any follow-up search — never search by first name only when you already know the full name. Example: if previous context shows "Dana Zusman" and DJ says "does Dana have a gate code", search for "Dana Zusman" not "Dana".
-- If search returns no exact match, consider that the spelling may be slightly off. Look at the results and use context from earlier in the conversation to pick the right one.
+- CONTEXT AWARENESS: get_schedule returns structured data including partner_id for each job. If a customer was already identified in this conversation (from a schedule result or previous search), use their partner_id DIRECTLY — do NOT search again. Example: if previous context shows Dana Zusman with partner_id 456, and DJ asks "does Dana have a gate code", call get_job_details(partner_id=456) immediately.
+- For gate codes, notes, status, pricing — use get_job_details, not get_customer_profile.
+- If you do need to search and get no exact match, consider the spelling may be off. Try the first name alone. Use context to pick the right result.
 - For navigation: search_customers → navigate_to
 - For next job navigation: get_next_job → navigate_to with the partner_id
 - Before creating a new job: search_customers → get_customer_profile (to get client_id and defaults) → ask DJ for date/time and service type → create_workiz_job
