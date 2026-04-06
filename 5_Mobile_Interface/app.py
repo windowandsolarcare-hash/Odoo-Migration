@@ -899,9 +899,7 @@ TOOLS = [
                              "address", "city", "postal_code", "job_type", "partner_name"]
             }
         }
-    }
-]
-
+    },
     {
         "type": "function",
         "function": {
