@@ -170,6 +170,9 @@ ODOO_CONTACT_FIELDS = {
     'ok_to_text':           'x_studio_x_studio_ok_to_text',
     'confirmation_method':  'x_studio_x_studio_confirm_send',
     'last_date_cleaned':    'x_studio_x_studio_last_service_date',
+    'notes':                'comment',
+    'internal_notes':       'comment',
+    'comment':              'comment',
 }
 
 # Odoo SO snapshot fields (synced from Workiz on job update)
@@ -847,7 +850,7 @@ TOOLS = [
             "description": (
                 "Update a field on the Odoo contact/partner record (permanent profile, not job-specific). "
                 "Valid field_name values: pricing, frequency, type_of_service, alternating, gate_code, "
-                "ok_to_text, confirmation_method, last_date_cleaned."
+                "ok_to_text, confirmation_method, last_date_cleaned, notes (internal notes — permanent reminders like 'has a dog', 'prefers morning appointments')."
             ),
             "parameters": {
                 "type": "object",
