@@ -333,19 +333,19 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
 def _describe_write(tool_name: str, args: dict) -> str:
     name = args.get('partner_name', 'customer')
     if tool_name == 'update_workiz_gate_code':
-        return f"Update gate code for {name} to: {args.get('gate_code')}"
+        return f"[WORKIZ + Odoo] Update gate code for {name} to: {args.get('gate_code')}"
     if tool_name == 'update_workiz_pricing':
-        return f"Update pricing for {name} to: {args.get('pricing')}"
+        return f"[WORKIZ + Odoo] Update pricing for {name} to: {args.get('pricing')}"
     if tool_name == 'update_workiz_notes':
-        return f"Update Workiz job notes for {name} to: {args.get('notes')}"
+        return f"[WORKIZ] Update job notes for {name} to: {args.get('notes')}"
     if tool_name == 'update_workiz_substatus':
-        return f"Update job status for {name} to: {args.get('substatus')}"
+        return f"[WORKIZ] Update job status for {name} to: {args.get('substatus')}"
     if tool_name == 'post_odoo_note':
-        return f"Post note to {name}'s chatter: \"{args.get('note')}\""
+        return f"[ODOO] Post note to {name}'s chatter: \"{args.get('note')}\""
     if tool_name == 'create_todo':
-        return f"Create follow-up To-do for {name} in {args.get('days', 7)} days: \"{args.get('note')}\""
+        return f"[ODOO] Create follow-up To-do for {name} in {args.get('days', 7)} days: \"{args.get('note')}\""
     if tool_name == 'mark_job_done':
-        return f"Mark job Done for {name}"
+        return f"[WORKIZ] Mark job Done for {name}"
     return f"Execute {tool_name} for {name}"
 
 
