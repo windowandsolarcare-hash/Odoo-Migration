@@ -232,14 +232,39 @@ def tool_get_customer_profile(partner_id: int) -> dict:
 
 
 def tool_get_job_details(partner_id: int) -> dict:
+    # Search by billing partner first, then by shipping/property partner
+    # Odoo SOs can have either the contact or the property as partner_id
+    fields = ['id', 'name', 'date_order', 'amount_total',
+              'x_studio_x_studio_workiz_uuid', 'x_studio_x_studio_workiz_status',
+              'x_studio_x_studio_workiz_tech', 'x_studio_x_gate_snapshot',
+              'x_studio_x_studio_pricing_snapshot', 'x_studio_x_studio_type_of_service_so',
+              'x_studio_x_studio_notes_snapshot1']
     sos = odoo_rpc('sale.order', 'search_read',
         [[['partner_id', '=', partner_id], ['state', 'in', ['sale', 'done']]]],
-        {'fields': ['id', 'name', 'date_order', 'amount_total',
-                    'x_studio_x_studio_workiz_uuid', 'x_studio_x_studio_workiz_status',
-                    'x_studio_x_studio_workiz_tech', 'x_studio_x_gate_snapshot',
-                    'x_studio_x_studio_pricing_snapshot', 'x_studio_x_studio_type_of_service_so',
-                    'x_studio_x_studio_notes_snapshot1'],
-         'order': 'date_order desc', 'limit': 1})
+        {'fields': fields, 'order': 'date_order desc', 'limit': 1})
+    if not sos:
+        # Try as shipping/property partner
+        sos = odoo_rpc('sale.order', 'search_read',
+            [[['partner_shipping_id', '=', partner_id], ['state', 'in', ['sale', 'done']]]],
+            {'fields': fields, 'order': 'date_order desc', 'limit': 1})
+    if not sos:
+        # Last resort: search all partners under same parent (contact → properties)
+        parent = odoo_rpc('res.partner', 'read', [[partner_id]], {'fields': ['parent_id', 'child_ids']})
+        if parent:
+            rec = parent[0]
+            related_ids = [partner_id]
+            if rec.get('parent_id'):
+                related_ids.append(rec['parent_id'][0])
+            if rec.get('child_ids'):
+                related_ids.extend(rec['child_ids'])
+            if len(related_ids) > 1:
+                sos = odoo_rpc('sale.order', 'search_read',
+                    [[['partner_id', 'in', related_ids], ['state', 'in', ['sale', 'done']]]],
+                    {'fields': fields, 'order': 'date_order desc', 'limit': 1})
+                if not sos:
+                    sos = odoo_rpc('sale.order', 'search_read',
+                        [[['partner_shipping_id', 'in', related_ids], ['state', 'in', ['sale', 'done']]]],
+                        {'fields': fields, 'order': 'date_order desc', 'limit': 1})
     if not sos:
         return {'error': 'No active sales order found for this customer'}
     so = sos[0]
