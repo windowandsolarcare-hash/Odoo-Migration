@@ -388,7 +388,7 @@
     }
 
     if (data.status === 'pending') {
-      pendingAction = {action: data.action, params: data.params, resolved: data.resolved};
+      pendingAction = {write_action: data.write_action};
       showResponse('pending', 'Confirm action:\n\n' + data.confirmation);
       showConfirm();
       return;
