@@ -29,6 +29,36 @@ app = FastAPI()
 # ---------------------------------------------------------------------------
 _sessions: dict = {}
 
+# ---------------------------------------------------------------------------
+# Persistent agent memory — stored in Odoo ir.config_parameter
+# Survives Render restarts, deploys, and everything else
+# ---------------------------------------------------------------------------
+_MEMORY_KEY = 'wsc.agent.memory'
+
+def load_agent_memory() -> dict:
+    try:
+        params = odoo_rpc('ir.config_parameter', 'search_read',
+            [[['key', '=', _MEMORY_KEY]]],
+            {'fields': ['value'], 'limit': 1})
+        if params and params[0].get('value'):
+            return json.loads(params[0]['value'])
+    except Exception:
+        pass
+    return {}
+
+def save_agent_memory(memories: dict):
+    try:
+        existing = odoo_rpc('ir.config_parameter', 'search',
+            [[['key', '=', _MEMORY_KEY]]])
+        if existing:
+            odoo_rpc('ir.config_parameter', 'write',
+                [existing, {'value': json.dumps(memories)}])
+        else:
+            odoo_rpc('ir.config_parameter', 'create',
+                [{'key': _MEMORY_KEY, 'value': json.dumps(memories)}])
+    except Exception:
+        pass
+
 def get_history(session_id: str) -> list:
     return list(_sessions.get(session_id, []))
 
@@ -430,6 +460,28 @@ def tool_get_jobs_list(start_date: str = '', records: int = 50,
             'city': j.get('City') or '',
         })
     return result
+
+
+def tool_save_memory(key: str, value: str) -> str:
+    memories = load_agent_memory()
+    memories[key.strip()] = value.strip()
+    save_agent_memory(memories)
+    return f"Remembered: {key} = {value}"
+
+def tool_delete_memory(key: str) -> str:
+    memories = load_agent_memory()
+    if key.strip() in memories:
+        del memories[key.strip()]
+        save_agent_memory(memories)
+        return f"Forgot: {key}"
+    # Try case-insensitive match
+    lower_key = key.strip().lower()
+    for k in list(memories.keys()):
+        if k.lower() == lower_key:
+            del memories[k]
+            save_agent_memory(memories)
+            return f"Forgot: {k}"
+    return f"No memory found for: {key}"
 
 
 def tool_navigate_to(partner_id: int, customer_name: str = '') -> str:
@@ -845,6 +897,41 @@ TOOLS = [
     }
 ]
 
+    {
+        "type": "function",
+        "function": {
+            "name": "save_memory",
+            "description": (
+                "Save a fact to persistent memory that will be remembered across all future conversations. "
+                "Call this when DJ says 'remember that...', 'always remember...', or provides info worth keeping forever. "
+                "Use a short descriptive key (e.g. 'home_city', 'preferred_greeting', 'default_service_area')."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "key":   {"type": "string", "description": "Short identifier for this memory (snake_case)"},
+                    "value": {"type": "string", "description": "The value to remember"}
+                },
+                "required": ["key", "value"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "delete_memory",
+            "description": "Remove a previously saved memory. Call when DJ says 'forget that...' or 'stop remembering...'",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "key": {"type": "string", "description": "The memory key to remove"}
+                },
+                "required": ["key"]
+            }
+        }
+    }
+]
+
 WRITE_TOOLS = {
     'update_workiz_field', 'update_odoo_contact', 'post_odoo_note',
     'create_todo', 'mark_job_done', 'create_workiz_job'
@@ -862,6 +949,8 @@ READ_TOOL_MAP = {
         a.get('only_open', True), a.get('offset', 0), a.get('status')
     ),
     'navigate_to':         lambda a: tool_navigate_to(a['partner_id'], a.get('customer_name', '')),
+    'save_memory':         lambda a: tool_save_memory(a['key'], a['value']),
+    'delete_memory':       lambda a: tool_delete_memory(a['key']),
 }
 
 
@@ -911,10 +1000,18 @@ def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> d
     client   = OpenAI(api_key=OPENAI_KEY)
     today_str = datetime.datetime.utcnow().strftime('%A, %B %d, %Y — current UTC time: %H:%M')
 
+    # Load persistent memories and inject into system prompt
+    memories = load_agent_memory()
+    memory_text = ''
+    if memories:
+        memory_text = '\n\nPERSISTENT MEMORIES (facts DJ has asked you to remember across all conversations):\n'
+        for k, v in memories.items():
+            memory_text += f'- {k}: {v}\n'
+
     # Load session history
     history = get_history(session_id) if session_id else []
 
-    messages = [{'role': 'system', 'content': SYSTEM_PROMPT + f'\nToday: {today_str}'}]
+    messages = [{'role': 'system', 'content': SYSTEM_PROMPT + memory_text + f'\nToday: {today_str}'}]
     messages += history
     messages.append({'role': 'user', 'content': user_input})
     turn_start = len(messages) - 1  # index of the user message that starts this turn
@@ -1021,7 +1118,13 @@ UPDATE ODOO CONTACT PROFILE
 
 LOG & TASKS
 • Add a note to [customer]: [text]
-• Create a follow-up to-do for [customer] in [N] days"""
+• Create a follow-up to-do for [customer] in [N] days
+
+MEMORY (persists forever across all conversations)
+• Remember that [fact]
+• Always remember [key info]
+• Forget that [fact]
+• What do you remember about me"""
 
 HELP_PHRASES = {
     'what can you do', 'what do you do', 'help', 'commands', 'what are your commands',
@@ -1045,6 +1148,17 @@ async def ask(request: Request):
 
     if user_input.lower().strip('?.! ') in HELP_PHRASES:
         return JSONResponse({'status': 'done', 'message': HELP_TEXT})
+
+    # Handle "what do you remember" directly
+    lower_input = user_input.lower().strip('?.! ')
+    if any(p in lower_input for p in ('what do you remember', 'what have you remembered', 'show me your memory', 'what do you know about me')):
+        memories = load_agent_memory()
+        if not memories:
+            return JSONResponse({'status': 'done', 'message': "I don't have any saved memories yet. Say 'remember that...' to save something."})
+        lines = ['Here\'s what I remember:\n']
+        for k, v in memories.items():
+            lines.append(f'• {k}: {v}')
+        return JSONResponse({'status': 'done', 'message': '\n'.join(lines)})
 
     try:
         result = run_agent(user_input, mode=mode, session_id=session_id)
