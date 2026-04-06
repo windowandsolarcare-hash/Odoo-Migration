@@ -204,11 +204,6 @@ PARAMS by action:
 - navigate_to: {}
 - mark_job_done: {}
 
-CUSTOMER NAME RULES:
-- Always strip possessives: "Rigo's" → "Rigo", "Smith's" → "Smith", "Kenneth's" → "Kenneth"
-- Strip filler words: "the", "job", "place", "house", "property" are not part of the name
-- Be flexible: "Rigo", "rigo", "RIGO" all mean the same customer
-
 IMPORTANT ROUTING RULES:
 - "navigate", "directions", "take me to", "how do I get to", "go to" → use navigate_to
 - "navigate to next job", "take me to my next job", "directions to next job" → use get_next_job (navigate=true in params)
@@ -669,6 +664,11 @@ async def ask(request: Request):
     params          = intent.get('params', {})
     confirmation    = intent.get('confirmation_text', '')
     is_read_only    = intent.get('is_read_only', False)
+
+    # Normalize customer_name: strip possessives ("Rigo's" → "Rigo") and trailing whitespace
+    import re
+    if customer_name:
+        customer_name = re.sub(r"'s\s*$", '', customer_name, flags=re.IGNORECASE).strip()
 
     # Actions that don't need a customer lookup
     NO_CUSTOMER_ACTIONS = {'get_schedule', 'get_next_job', 'get_sales_today'}
