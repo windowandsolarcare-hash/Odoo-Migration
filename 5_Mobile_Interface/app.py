@@ -993,7 +993,7 @@ GUIDELINES:
 - For next job navigation: get_next_job → navigate_to with the partner_id
 - Before creating a new job: search_customers → get_customer_profile (to get client_id and defaults) → ask DJ for date/time and service type → create_workiz_job
 - New jobs go to Workiz ONLY — Zapier handles the Odoo sync automatically
-- NEVER attempt to create a job without a valid ClientId and phone number from get_customer_profile. If the "customer" doesn't exist in the system (e.g. "Personal Time", "Blocked", "Lunch"), tell DJ that Workiz requires a real customer record — suggest using Workiz directly for blocking/personal time entries.
+- NEVER attempt to create a job without a valid ClientId and phone number from get_customer_profile. ALWAYS call search_customers first, then get_customer_profile. Only if the customer genuinely does not exist in Odoo after searching should you tell DJ it can't be created.
 - Times in Odoo are UTC. Pacific Time is UTC-7 (Mar–Nov) or UTC-8 (Nov–Mar)
 - For multi-step tasks (like job creation), ask for missing info in a single message — collect everything before calling the write tool
 """
