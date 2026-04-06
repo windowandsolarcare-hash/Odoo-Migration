@@ -201,9 +201,11 @@ PARAMS by action:
 - get_schedule: {"date": "today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday|YYYY-MM-DD"}
 - get_next_job: {}
 - get_sales_today: {"date": "today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday|YYYY-MM-DD"}
+- navigate_to: {}
 - mark_job_done: {}
 
 IMPORTANT ROUTING RULES:
+- "navigate", "directions", "take me to", "how do I get to" → use navigate_to
 - "gate code" → ALWAYS use update_odoo_gate_code, never add_chatter_note
 - "pricing" or "price" or "charges" → ALWAYS use update_odoo_pricing, never add_chatter_note
 - "note", "comment", "log", "record that" → use add_chatter_note
@@ -250,6 +252,12 @@ Output: {"action":"update_workiz_pricing","customer_name":"Smith","so_number":nu
 
 Input: "create a follow-up to-do for Williams in two weeks"
 Output: {"action":"create_todo","customer_name":"Williams","so_number":null,"params":{"note":"Follow-up","days":14},"confirmation_text":"Create a To-do for Williams due in 14 days","is_read_only":false}
+
+Input: "navigate to Kenneth"
+Output: {"action":"navigate_to","customer_name":"Kenneth","so_number":null,"params":{},"confirmation_text":"Open Google Maps directions to Kenneth","is_read_only":true}
+
+Input: "take me to the Smith job"
+Output: {"action":"navigate_to","customer_name":"Smith","so_number":null,"params":{},"confirmation_text":"Open Google Maps directions to Smith","is_read_only":true}
 """
 
 
@@ -513,6 +521,36 @@ def execute_action(action: str, params: dict, resolved: dict) -> str:
             })
         return f"Created To-do for {partner_name} due {due_display}:\n\"{note}\""
 
+    elif action == 'navigate_to':
+        # Get address from the property (SO partner_id) or contact
+        addr_parts = []
+        lookup_id = resolved.get('property_id') or resolved.get('partner_id')
+        if lookup_id:
+            p = odoo_rpc('res.partner', 'read', [[lookup_id]],
+                {'fields': ['street', 'street2', 'city', 'state_id', 'zip']})
+            if p:
+                rec = p[0]
+                if rec.get('street'):   addr_parts.append(rec['street'])
+                if rec.get('street2'):  addr_parts.append(rec['street2'])
+                if rec.get('city'):     addr_parts.append(rec['city'])
+                if rec.get('state_id'): addr_parts.append(rec['state_id'][1] if isinstance(rec['state_id'], list) else '')
+                if rec.get('zip'):      addr_parts.append(rec['zip'])
+        if not addr_parts:
+            return f"No address found for {partner_name}."
+        full_address = ', '.join(a for a in addr_parts if a)
+        import urllib.parse
+        maps_url = 'https://maps.google.com/?q=' + urllib.parse.quote(full_address)
+        return (
+            f'<div style="margin-bottom:8px;font-size:15px;">'
+            f'<b>{partner_name}</b><br>'
+            f'<span style="color:#94a3b8;font-size:13px;">{full_address}</span>'
+            f'</div>'
+            f'<a href="{maps_url}" target="_blank" rel="noopener" '
+            f'style="display:block;padding:16px;background:#16a34a;color:white;'
+            f'font-size:18px;font-weight:700;text-align:center;border-radius:12px;'
+            f'text-decoration:none;">Open in Google Maps</a>'
+        )
+
     elif action == 'mark_job_done':
         if not uuid:
             return f"No Workiz UUID found for {partner_name}. Cannot mark Done."
@@ -533,6 +571,7 @@ SCHEDULE & INFO
 • What's my next job
 • What are my sales today / tomorrow / next Friday
 • What's the status of [customer]
+• Navigate to [customer]  (opens Google Maps)
 
 UPDATE WORKIZ
 • Gate code for [customer] is [code]
