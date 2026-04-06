@@ -607,6 +607,24 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         # postal_code may come from get_customer_profile as 'zip' — accept both
         postal = str(args.get('postal_code') or args.get('zip') or '').strip()
 
+        # If still missing, look up directly from Odoo using ClientId (ref field)
+        addr_fallback = {}
+        if not postal or not args.get('address') or not args.get('city'):
+            try:
+                partners = odoo_rpc('res.partner', 'search_read',
+                    [[['ref', '=', str(client_id_int)]]],
+                    {'fields': ['street', 'city', 'state_id', 'zip'], 'limit': 1})
+                if partners:
+                    rec = partners[0]
+                    addr_fallback['address'] = rec.get('street') or ''
+                    addr_fallback['city']    = rec.get('city') or ''
+                    addr_fallback['state']   = rec['state_id'][1] if isinstance(rec.get('state_id'), list) else ''
+                    addr_fallback['postal']  = rec.get('zip') or ''
+                    if not postal:
+                        postal = addr_fallback['postal']
+            except Exception:
+                pass
+
         payload = {
             'ClientId':           client_id_int,
             'FirstName':          str(args.get('first_name') or ''),
@@ -621,9 +639,13 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
             'JobSource':          'Referral',
         }
         # Only include address fields if non-empty — Workiz rejects empty required strings
-        if args.get('address'):   payload['Address']    = str(args['address'])
-        if args.get('city'):      payload['City']       = str(args['city'])
-        if args.get('state'):     payload['State']      = str(args['state'])
+        # Use GPT-provided values first, fall back to Odoo lookup
+        address_val = str(args.get('address') or addr_fallback.get('address') or '')
+        city_val    = str(args.get('city')    or addr_fallback.get('city')    or '')
+        state_val   = str(args.get('state')   or addr_fallback.get('state')   or '')
+        if address_val: payload['Address'] = address_val
+        if city_val:    payload['City']    = city_val
+        if state_val:   payload['State']   = state_val
         if postal:                payload['PostalCode'] = postal
         if args.get('service_area'): payload['ServiceArea'] = str(args['service_area'])
         if args.get('job_datetime'):
