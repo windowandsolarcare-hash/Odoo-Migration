@@ -593,12 +593,9 @@ def create_property(contact_id, service_address, workiz_job, location_id=None):
     alternating = workiz_job.get('alternating', '')
     type_of_service = workiz_job.get('type_of_service', '')
     
-    # SO Customer column shows partner name; use "Contact Name, Address"
-    first_name = (workiz_job.get('FirstName') or '').strip()
-    last_name = (workiz_job.get('LastName') or '').strip()
-    contact_name = f"{first_name} {last_name}".strip()
+    # Property name = address only (contact name is on the parent record)
     address = service_address.strip()
-    property_display_name = f"{contact_name}, {address}".strip(", ").strip() if contact_name else address
+    property_display_name = address
     
     property_data = {
         "name": property_display_name,
