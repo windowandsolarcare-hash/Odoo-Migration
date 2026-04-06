@@ -1035,9 +1035,8 @@ def create_property(address, city, postal_code, contact_id, location_id, frequen
     if alternating:
         alternating_text = "Yes" if str(alternating) == "1" else "No" if str(alternating) == "0" else alternating
     
-    # SO Customer column shows partner name; use "Contact Name, Address" when we have contact name
-    contact_name = (contact_name or "").strip()
-    property_display_name = f"{contact_name}, {address}".strip(", ").strip() if contact_name else address
+    # Property name = address only (contact name is on the parent record)
+    property_display_name = address
     
     payload = {
         "jsonrpc": "2.0",
