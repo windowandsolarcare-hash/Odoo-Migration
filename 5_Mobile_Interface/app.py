@@ -149,6 +149,19 @@ def tool_search_customers(query: str) -> list:
         [[['name', 'ilike', clean], ['active', '=', True]]],
         {'fields': ['id', 'name', 'city', 'street', 'phone',
                     'ref', 'x_studio_x_studio_record_category'], 'limit': 8})
+
+    # Fuzzy fallback: if full query returns nothing and has multiple words,
+    # try each word individually (handles misspellings like "Sussman" → "Zusman")
+    if not partners and ' ' in clean:
+        for word in clean.split():
+            if len(word) > 2:
+                partners = odoo_rpc('res.partner', 'search_read',
+                    [[['name', 'ilike', word], ['active', '=', True]]],
+                    {'fields': ['id', 'name', 'city', 'street', 'phone',
+                                'ref', 'x_studio_x_studio_record_category'], 'limit': 8})
+                if partners:
+                    break  # use first word that returns results
+
     if not partners:
         return [{'error': f'No customers found matching "{query}"'}]
     results = []
@@ -803,6 +816,8 @@ GUIDELINES:
 - Be very concise — DJ is on the road
 - Always call search_customers before acting on a specific customer
 - If multiple customers match, list them briefly and ask which one
+- CONTEXT AWARENESS: If a customer was already identified in this conversation (e.g., from a schedule listing or previous search), use their FULL NAME in any follow-up search — never search by first name only when you already know the full name. Example: if previous context shows "Dana Zusman" and DJ says "does Dana have a gate code", search for "Dana Zusman" not "Dana".
+- If search returns no exact match, consider that the spelling may be slightly off. Look at the results and use context from earlier in the conversation to pick the right one.
 - For navigation: search_customers → navigate_to
 - For next job navigation: get_next_job → navigate_to with the partner_id
 - Before creating a new job: search_customers → get_customer_profile (to get client_id and defaults) → ask DJ for date/time and service type → create_workiz_job
@@ -815,6 +830,22 @@ GUIDELINES:
 # ---------------------------------------------------------------------------
 # Agent loop
 # ---------------------------------------------------------------------------
+def _serialize_msg(msg) -> dict:
+    """Convert an OpenAI message object to a plain dict for history storage."""
+    if isinstance(msg, dict):
+        return msg
+    d = {'role': msg.role}
+    if msg.content:
+        d['content'] = msg.content
+    if hasattr(msg, 'tool_calls') and msg.tool_calls:
+        d['tool_calls'] = [
+            {'id': tc.id, 'type': 'function',
+             'function': {'name': tc.function.name, 'arguments': tc.function.arguments}}
+            for tc in msg.tool_calls
+        ]
+    return d
+
+
 def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> dict:
     client   = OpenAI(api_key=OPENAI_KEY)
     today_str = datetime.datetime.utcnow().strftime('%A, %B %d, %Y — current UTC time: %H:%M')
@@ -825,6 +856,7 @@ def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> d
     messages = [{'role': 'system', 'content': SYSTEM_PROMPT + f'\nToday: {today_str}'}]
     messages += history
     messages.append({'role': 'user', 'content': user_input})
+    turn_start = len(messages) - 1  # index of the user message that starts this turn
 
     for _ in range(12):
         resp = client.chat.completions.create(
@@ -839,11 +871,12 @@ def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> d
         if not msg.tool_calls:
             # GPT is asking a question or giving a final answer
             content = msg.content or 'Done.'
-            # Save conversation turn to session
+            # Save full turn to session — user msg + all tool calls/results + final response
+            # This gives GPT full context in subsequent turns (e.g., partner_id from schedule)
             if session_id:
-                history.append({'role': 'user', 'content': user_input})
-                history.append({'role': 'assistant', 'content': content})
-                save_history(session_id, history)
+                new_turn = [_serialize_msg(m) for m in messages[turn_start:]]
+                new_turn.append({'role': 'assistant', 'content': content})
+                save_history(session_id, history + new_turn)
             return {'status': 'done', 'message': content}
 
         messages.append(msg)
