@@ -292,6 +292,16 @@
   let accessCode   = '';
   let pendingAction = null;
 
+  // Session ID — unique per browser tab, resets when tab closes
+  function getSessionId() {
+    let sid = sessionStorage.getItem('wsc_session');
+    if (!sid) {
+      sid = Math.random().toString(36).substr(2, 12);
+      sessionStorage.setItem('wsc_session', sid);
+    }
+    return sid;
+  }
+
   // ---- Access ----
   function checkAccess() {
     const val = document.getElementById('access-input').value.trim();
@@ -349,7 +359,7 @@
       const resp = await fetch('/ask', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({input, mode: getMode(), access_code: accessCode})
+        body: JSON.stringify({input, mode: getMode(), access_code: accessCode, session_id: getSessionId()})
       });
       const data = await resp.json();
       handleResponse(data, input);
@@ -403,7 +413,7 @@
       const resp = await fetch('/execute', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({...pendingAction, access_code: accessCode})
+        body: JSON.stringify({...pendingAction, access_code: accessCode, session_id: getSessionId()})
       });
       const data = await resp.json();
       if (data.status === 'done') {
