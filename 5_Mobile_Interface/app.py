@@ -217,10 +217,12 @@ def tool_search_customers(query: str) -> list:
                 })
             return results
 
+    _search_fields = ['id', 'name', 'city', 'street', 'phone', 'mobile', 'email',
+                      'ref', 'x_studio_x_studio_record_category']
+
     partners = odoo_rpc('res.partner', 'search_read',
         [[['name', 'ilike', clean], ['active', '=', True]]],
-        {'fields': ['id', 'name', 'city', 'street', 'phone',
-                    'ref', 'x_studio_x_studio_record_category'], 'limit': 8})
+        {'fields': _search_fields, 'limit': 8})
 
     # Fuzzy fallback: if full query returns nothing and has multiple words,
     # try each word individually (handles misspellings like "Sussman" → "Zusman")
@@ -229,8 +231,7 @@ def tool_search_customers(query: str) -> list:
             if len(word) > 2:
                 partners = odoo_rpc('res.partner', 'search_read',
                     [[['name', 'ilike', word], ['active', '=', True]]],
-                    {'fields': ['id', 'name', 'city', 'street', 'phone',
-                                'ref', 'x_studio_x_studio_record_category'], 'limit': 8})
+                    {'fields': _search_fields, 'limit': 8})
                 if partners:
                     break  # use first word that returns results
 
@@ -249,7 +250,8 @@ def tool_search_customers(query: str) -> list:
             'name': p['name'],
             'city': p.get('city') or '',
             'street': p.get('street') or '',
-            'phone': p.get('phone') or '',
+            'phone': p.get('phone') or p.get('mobile') or '',
+            'email': p.get('email') or '',
             'workiz_client_id': p.get('ref') or '',
             'record_category': p.get('x_studio_x_studio_record_category') or '',
             'so_id': so.get('id'),
