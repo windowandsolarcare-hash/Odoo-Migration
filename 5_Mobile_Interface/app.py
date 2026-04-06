@@ -20,6 +20,7 @@ WORKIZ_TOKEN  = os.environ.get('WORKIZ_TOKEN',    '')
 WORKIZ_SECRET = os.environ.get('WORKIZ_SECRET',   'sec_334084295850678330105471548')
 OPENAI_KEY    = os.environ.get('OPENAI_API_KEY',  '')
 ACCESS_CODE   = os.environ.get('ACCESS_CODE',     'wsc2026')
+OWNER_EMAIL   = os.environ.get('OWNER_EMAIL',     '')
 
 app = FastAPI()
 
@@ -497,6 +498,38 @@ def tool_delete_memory(key: str) -> str:
     return f"No memory found for: {key}"
 
 
+def tool_send_email(subject: str, body: str, to_email: str = '') -> str:
+    """Send an email via Odoo's mail system."""
+    # Resolve recipient — use provided address, env var, or fall back to owner's Odoo email
+    recipient = (to_email or OWNER_EMAIL or '').strip()
+    if not recipient:
+        # Look up owner email from Odoo user record
+        try:
+            user = odoo_rpc('res.users', 'read', [[ODOO_USER_ID]], {'fields': ['email', 'name']})
+            if user and user[0].get('email'):
+                recipient = user[0]['email']
+        except Exception:
+            pass
+    if not recipient:
+        return "Cannot send email: no recipient address found. Set OWNER_EMAIL env var on Render or say 'remember that my email is you@example.com'."
+
+    # Check persistent memory for email if still not set
+    if not recipient:
+        memories = load_agent_memory()
+        recipient = memories.get('email') or memories.get('owner_email') or ''
+
+    # Send via Odoo mail.mail
+    mail_id = odoo_rpc('mail.mail', 'create', [{
+        'subject':       subject,
+        'body_html':     f'<pre style="font-family:monospace;font-size:14px;">{body}</pre>',
+        'email_to':      recipient,
+        'email_from':    'noreply@window-solar-care.odoo.com',
+        'auto_delete':   True,
+    }])
+    odoo_rpc('mail.mail', 'send', [[mail_id]])
+    return f"Email sent to {recipient}: \"{subject}\""
+
+
 def tool_navigate_to(partner_id: int, customer_name: str = '') -> str:
     p = odoo_rpc('res.partner', 'read', [[partner_id]],
         {'fields': ['name', 'street', 'street2', 'city', 'state_id', 'zip']})
@@ -954,6 +987,26 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "send_email",
+            "description": (
+                "Send an email to DJ with any content — reports, schedules, customer details, summaries. "
+                "Call this when DJ says 'email me', 'send me', or 'email that to me'. "
+                "Generate the full readable content as the body first, then call this tool."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "subject":   {"type": "string", "description": "Email subject line"},
+                    "body":      {"type": "string", "description": "Plain text email body — full content, well formatted"},
+                    "to_email":  {"type": "string", "description": "Recipient email — omit to use DJ's default address"}
+                },
+                "required": ["subject", "body"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "save_memory",
             "description": (
                 "Save a fact to persistent memory that will be remembered across all future conversations. "
@@ -1003,6 +1056,7 @@ READ_TOOL_MAP = {
         a.get('only_open', True), a.get('offset', 0), a.get('status')
     ),
     'navigate_to':         lambda a: tool_navigate_to(a['partner_id'], a.get('customer_name', '')),
+    'send_email':          lambda a: tool_send_email(a['subject'], a['body'], a.get('to_email', '')),
     'save_memory':         lambda a: tool_save_memory(a['key'], a['value']),
     'delete_memory':       lambda a: tool_delete_memory(a['key']),
 }
@@ -1174,6 +1228,12 @@ UPDATE ODOO CONTACT PROFILE
 LOG & TASKS
 • Add a note to [customer]: [text]
 • Create a follow-up to-do for [customer] in [N] days
+
+EMAIL
+• Email me today's schedule
+• Email me this week's sales report
+• Email me [customer]'s job details
+• Send me that (emails whatever was just shown)
 
 MEMORY (persists forever across all conversations)
 • Remember that [fact]
