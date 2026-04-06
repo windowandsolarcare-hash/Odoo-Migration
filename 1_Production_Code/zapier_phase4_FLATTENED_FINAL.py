@@ -337,7 +337,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
             print(f"[*] Backfill triggered: confirmed SO, substatus={wiz_substatus or wiz_status}, {len(line_ids)} order line(s)")
             backfilled = 0
             for ol_id in line_ids:
-                create_vals = {"project_id": DEFAULT_PROJECT_ID, "sale_line_id": ol_id}
+                create_vals = {"project_id": DEFAULT_PROJECT_ID, "sale_line_id": ol_id, "stage_id": 17}  # Planned
                 # Task name: "{ContactName} - {City}" — same format Phase 3 uses
                 so_partner = so_check[0].get("partner_id")
                 pid = so_partner[0] if isinstance(so_partner, (list, tuple)) else so_partner
