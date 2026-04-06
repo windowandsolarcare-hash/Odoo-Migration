@@ -243,6 +243,12 @@ if not _job_is_submitted and not _existing_tasks and record.state == 'sale':
     if _backfill_count:
         log_lines.append('Backfilled ' + str(_backfill_count) + ' missing task(s)')
 
+# --- Ensure property partner has country_id set (required for FSM Navigate To) ---
+if record.partner_id and not record.partner_id.country_id:
+    _us_country = env['res.country'].search([('code', '=', 'US')], limit=1)
+    if _us_country:
+        record.partner_id.write({'country_id': _us_country.id})
+
 # --- Sync name, user_ids, and partner_id to existing tasks ---
 _linked_tasks_users = env['project.task'].search([('sale_line_id', 'in', record.order_line.ids)]) if not _job_is_submitted else []
 if _linked_tasks_users:
