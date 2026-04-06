@@ -114,7 +114,12 @@ def workiz_post(endpoint, data):
     resp = httpx.post(url, json=data, timeout=20)
     if resp.status_code == 204:
         return {'success': True}
-    resp.raise_for_status()
+    if not resp.is_success:
+        try:
+            detail = resp.json()
+        except Exception:
+            detail = resp.text
+        raise ValueError(f"Workiz API {resp.status_code}: {detail}")
     return resp.json()
 
 
@@ -586,11 +591,24 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
 
     # --- Create a new Workiz job ---
     if tool_name == 'create_workiz_job':
+        # ClientId must be a valid positive integer — catch bad values early
+        try:
+            client_id_int = int(args['client_id'])
+            if client_id_int <= 0:
+                return "Cannot create job: no valid Workiz ClientId. Search for the customer first using search_customers, then get_customer_profile to get their ClientId."
+        except (ValueError, TypeError):
+            return "Cannot create job: ClientId is missing or invalid. Get the customer profile first."
+
+        # Phone is required by Workiz — must be a valid phone string
+        phone_val = str(args.get('phone') or '').strip()
+        if not phone_val:
+            return "Cannot create job: phone number is required by Workiz. Get the customer profile first to retrieve their phone number."
+
         payload = {
-            'ClientId':           int(args['client_id']),
+            'ClientId':           client_id_int,
             'FirstName':          str(args.get('first_name') or ''),
             'LastName':           str(args.get('last_name') or ''),
-            'Phone':              str(args.get('phone') or ''),
+            'Phone':              phone_val,
             'Address':            str(args.get('address') or ''),
             'City':               str(args.get('city') or ''),
             'State':              str(args.get('state') or 'CA'),
@@ -975,6 +993,7 @@ GUIDELINES:
 - For next job navigation: get_next_job → navigate_to with the partner_id
 - Before creating a new job: search_customers → get_customer_profile (to get client_id and defaults) → ask DJ for date/time and service type → create_workiz_job
 - New jobs go to Workiz ONLY — Zapier handles the Odoo sync automatically
+- NEVER attempt to create a job without a valid ClientId and phone number from get_customer_profile. If the "customer" doesn't exist in the system (e.g. "Personal Time", "Blocked", "Lunch"), tell DJ that Workiz requires a real customer record — suggest using Workiz directly for blocking/personal time entries.
 - Times in Odoo are UTC. Pacific Time is UTC-7 (Mar–Nov) or UTC-8 (Nov–Mar)
 - For multi-step tasks (like job creation), ask for missing info in a single message — collect everything before calling the write tool
 """
