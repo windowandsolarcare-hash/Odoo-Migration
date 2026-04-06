@@ -63,7 +63,12 @@ def get_history(session_id: str) -> list:
     return list(_sessions.get(session_id, []))
 
 def save_history(session_id: str, messages: list):
-    _sessions[session_id] = messages[-20:]  # keep last 20 turns max
+    trimmed = messages[-40:]  # generous buffer
+    # Never start mid-turn — an orphaned tool message causes OpenAI 400 errors.
+    # Always trim from the front until we land on a user message.
+    while trimmed and trimmed[0].get('role') != 'user':
+        trimmed = trimmed[1:]
+    _sessions[session_id] = trimmed
 
 def clear_history(session_id: str):
     _sessions.pop(session_id, None)
