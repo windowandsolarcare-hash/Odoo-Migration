@@ -145,6 +145,34 @@ ODOO_SO_SNAPSHOT_FIELDS = {
 
 def tool_search_customers(query: str) -> list:
     clean = re.sub(r"'s\s*$", '', query, flags=re.IGNORECASE).strip()
+
+    # Detect SO number (e.g. "4400", "004400", "S04400") and look up directly
+    so_match = re.match(r'^[Ss]?0*(\d{3,6})$', clean)
+    if so_match:
+        so_num = so_match.group(1)
+        sos = odoo_rpc('sale.order', 'search_read',
+            [[['name', 'ilike', so_num]]],
+            {'fields': ['id', 'name', 'partner_id', 'date_order', 'amount_total',
+                        'x_studio_x_studio_workiz_uuid', 'x_studio_x_studio_workiz_status',
+                        'state'], 'limit': 3})
+        if sos:
+            results = []
+            for so in sos:
+                pid = so['partner_id'][0] if so.get('partner_id') else None
+                pname = so['partner_id'][1].split(',')[0].strip() if so.get('partner_id') else ''
+                results.append({
+                    'partner_id': pid,
+                    'name': pname,
+                    'so_id': so['id'],
+                    'so_name': so['name'],
+                    'workiz_uuid': so.get('x_studio_x_studio_workiz_uuid') or '',
+                    'job_date': (so.get('date_order') or '')[:16],
+                    'amount': so.get('amount_total') or 0,
+                    'workiz_status': so.get('x_studio_x_studio_workiz_status') or '',
+                    'state': so.get('state') or ''
+                })
+            return results
+
     partners = odoo_rpc('res.partner', 'search_read',
         [[['name', 'ilike', clean], ['active', '=', True]]],
         {'fields': ['id', 'name', 'city', 'street', 'phone',
@@ -305,8 +333,7 @@ def tool_get_schedule(date: str) -> dict:
     sos = odoo_rpc('sale.order', 'search_read',
         [[['date_order', '>=', date_iso + ' 00:00:00'],
           ['date_order', '<=', date_iso + ' 23:59:59'],
-          ['state', 'in', ['sale', 'done']],
-          ['x_studio_x_studio_workiz_uuid', '!=', False]]],
+          ['state', 'in', ['sale', 'done']]]],
         {'fields': ['id', 'name', 'date_order', 'partner_id', 'amount_total',
                     'x_studio_x_studio_workiz_status', 'x_studio_x_studio_workiz_uuid'],
          'order': 'date_order asc'})
