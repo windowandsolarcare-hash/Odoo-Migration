@@ -604,24 +604,28 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         if not phone_val:
             return "Cannot create job: phone number is required by Workiz. Get the customer profile first to retrieve their phone number."
 
+        # postal_code may come from get_customer_profile as 'zip' — accept both
+        postal = str(args.get('postal_code') or args.get('zip') or '').strip()
+
         payload = {
             'ClientId':           client_id_int,
             'FirstName':          str(args.get('first_name') or ''),
             'LastName':           str(args.get('last_name') or ''),
             'Phone':              phone_val,
-            'Address':            str(args.get('address') or ''),
-            'City':               str(args.get('city') or ''),
-            'State':              str(args.get('state') or 'CA'),
-            'PostalCode':         str(args.get('postal_code') or ''),
             'Country':            'US',
             'JobType':            str(args.get('job_type') or 'Window Cleaning'),
-            'ServiceArea':        str(args.get('service_area') or ''),
             'type_of_service_2':  str(args.get('type_of_service') or 'On Request'),
             'frequency':          str(args.get('frequency') or 'Unknown'),
             'confirmation_method': str(args.get('confirmation_method') or 'Cell Phone'),
             'ok_to_text':         str(args.get('ok_to_text') or 'Yes'),
             'JobSource':          'Referral',
         }
+        # Only include address fields if non-empty — Workiz rejects empty required strings
+        if args.get('address'):   payload['Address']    = str(args['address'])
+        if args.get('city'):      payload['City']       = str(args['city'])
+        if args.get('state'):     payload['State']      = str(args['state'])
+        if postal:                payload['PostalCode'] = postal
+        if args.get('service_area'): payload['ServiceArea'] = str(args['service_area'])
         if args.get('job_datetime'):
             payload['JobDateTime'] = args['job_datetime']
         if args.get('notes'):
@@ -900,7 +904,7 @@ TOOLS = [
                     "address":            {"type": "string"},
                     "city":               {"type": "string"},
                     "state":              {"type": "string",  "description": "Default: CA"},
-                    "postal_code":        {"type": "string"},
+                    "postal_code":        {"type": "string", "description": "ZIP code — use the 'zip' field from get_customer_profile"},
                     "job_type":           {"type": "string",  "description": "e.g. Window Cleaning, Solar Panel Cleaning"},
                     "service_area":       {"type": "string"},
                     "job_datetime":       {"type": "string",  "description": "YYYY-MM-DD HH:MM:SS in Pacific Time. Omit for unscheduled."},
