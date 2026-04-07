@@ -451,6 +451,31 @@ def tool_get_sales(date: str) -> str:
     return f"Sales for {label}: ${total:.2f} across {len(sos)} job(s)"
 
 
+def tool_get_sales_week(date: str = '') -> str:
+    """Returns total sales for the week (Mon–Sun) containing the given date."""
+    date_iso, _ = resolve_date(date if date else 'today')
+    try:
+        d = datetime.date.fromisoformat(date_iso)
+    except Exception:
+        d = datetime.date.today()
+    monday = d - datetime.timedelta(days=d.weekday())
+    sunday = monday + datetime.timedelta(days=6)
+    sos = odoo_rpc('sale.order', 'search_read',
+        [[['date_order', '>=', monday.isoformat() + ' 00:00:00'],
+          ['date_order', '<=', sunday.isoformat() + ' 23:59:59'],
+          ['state', 'in', ['sale', 'done']]]],
+        {'fields': ['amount_total', 'date_order', 'partner_id']})
+    if not sos:
+        return f"No sales for week of {monday} – {sunday}."
+    total = sum(float(so.get('amount_total') or 0) for so in sos)
+    by_day = {}
+    for so in sos:
+        day = (so.get('date_order') or '')[:10]
+        by_day[day] = by_day.get(day, 0) + float(so.get('amount_total') or 0)
+    day_lines = ', '.join(f"{k}: ${v:.0f}" for k, v in sorted(by_day.items()) if v > 0)
+    return f"Week of {monday} – {sunday}: ${total:.2f} across {len(sos)} job(s). By day: {day_lines}"
+
+
 def tool_get_jobs_list(start_date: str = '', records: int = 50,
                        only_open: bool = True, offset: int = 0,
                        status: list = None) -> list:
@@ -812,13 +837,27 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_sales",
-            "description": "Get total sales revenue for a given day.",
+            "description": "Get total sales revenue for a single specific day. For weekly totals use get_sales_week instead.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "date": {"type": "string"}
                 },
                 "required": ["date"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_sales_week",
+            "description": "Get total sales revenue for the week (Monday–Sunday) containing a given date. Use this for 'this week', 'last week', 'weekly sales', or 'how much did I make this week' questions. Filters by scheduled job date in Odoo — do NOT use get_jobs_list for revenue questions.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "date": {"type": "string", "description": "Any date in the week (YYYY-MM-DD or 'today'). Defaults to current week if omitted."}
+                },
+                "required": []
             }
         }
     },
@@ -1053,6 +1092,7 @@ READ_TOOL_MAP = {
     'get_schedule':        lambda a: tool_get_schedule(a['date']),
     'get_next_job':        lambda a: tool_get_next_job(),
     'get_sales':           lambda a: tool_get_sales(a['date']),
+    'get_sales_week':      lambda a: tool_get_sales_week(a.get('date', '')),
     'get_jobs_list':       lambda a: tool_get_jobs_list(
         a['start_date'], a.get('records', 50),
         a.get('only_open', True), a.get('offset', 0), a.get('status')
@@ -1085,6 +1125,8 @@ GUIDELINES:
 - NEVER attempt to create a job without a valid ClientId and phone number from get_customer_profile. ALWAYS call search_customers first, then get_customer_profile. Only if the customer genuinely does not exist in Odoo after searching should you tell DJ it can't be created.
 - Times in Odoo are UTC. Pacific Time is UTC-7 (Mar–Nov) or UTC-8 (Nov–Mar)
 - For multi-step tasks (like job creation), ask for missing info in a single message — collect everything before calling the write tool
+- REVENUE QUERIES: Use get_sales for a single day, get_sales_week for any weekly total. NEVER use get_jobs_list for revenue or sales questions — it pulls from Workiz by job creation date, not scheduled date, and will give wrong numbers.
+- get_jobs_list is only for browsing open Workiz jobs (e.g. "show me all pending jobs"). It is NOT a financial tool.
 """
 
 
