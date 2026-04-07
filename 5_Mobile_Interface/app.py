@@ -217,7 +217,7 @@ def tool_search_customers(query: str) -> list:
                 })
             return results
 
-    _search_fields = ['id', 'name', 'city', 'street', 'phone', 'mobile', 'email',
+    _search_fields = ['id', 'name', 'city', 'street', 'phone', 'email',
                       'ref', 'x_studio_x_studio_record_category']
 
     partners = odoo_rpc('res.partner', 'search_read',
@@ -268,7 +268,7 @@ def tool_get_customer_profile(partner_id: int) -> dict:
     """Get full contact profile including all custom fields and address — used before creating a job."""
     p = odoo_rpc('res.partner', 'read', [[partner_id]], {
         'fields': ['name', 'street', 'street2', 'city', 'state_id', 'zip', 'country_id',
-                   'phone', 'mobile', 'email', 'ref',
+                   'phone', 'email', 'ref',
                    'x_studio_x_pricing', 'x_studio_x_frequency', 'x_studio_x_type_of_service',
                    'x_studio_x_alternating', 'x_studio_x_gate_code',
                    'x_studio_x_studio_ok_to_text', 'x_studio_x_studio_confirm_send',
@@ -289,7 +289,7 @@ def tool_get_customer_profile(partner_id: int) -> dict:
         'city': rec.get('city') or '',
         'state': state_name,
         'zip': rec.get('zip') or '',
-        'phone': rec.get('phone') or rec.get('mobile') or '',
+        'phone': rec.get('phone') or '',
         'email': rec.get('email') or '',
         'workiz_client_id': rec.get('ref') or '',
         'pricing': rec.get('x_studio_x_pricing') or '',
