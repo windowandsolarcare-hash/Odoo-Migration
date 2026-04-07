@@ -2564,7 +2564,7 @@ def main(input_data):
                 try:
                     task_ids_resp = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
                         "service": "object", "method": "execute_kw",
-                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "search", [[["sale_line_id", "in", line_ids]]]]
+                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "search", [[["sale_line_id", "in", line_ids], ["stage_id", "in", [16, 17]]]]]
                     }}, timeout=10)
                     task_ids_to_del = task_ids_resp.json().get("result", [])
                     if task_ids_to_del:
