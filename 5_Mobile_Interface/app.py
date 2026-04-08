@@ -737,6 +737,95 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
             return f"[WORKIZ] Job created for {pname} — UUID: {uuid}\nWorkiz link: {link}\n(Zapier will sync to Odoo automatically)"
         return f"[WORKIZ] Job created for {pname} (no UUID returned — check Workiz)"
 
+    # --- Duplicate an existing Workiz job with a new date ---
+    if tool_name == 'duplicate_workiz_job':
+        # Resolve source UUID
+        uuid = str(args.get('source_uuid') or '').strip()
+        partner_id = args.get('partner_id')
+        if not uuid and partner_id:
+            sos = odoo_rpc('sale.order', 'search_read',
+                [[['partner_id', '=', partner_id], ['state', 'in', ['sale', 'done']],
+                  ['x_studio_x_studio_workiz_uuid', '!=', False]]],
+                {'fields': ['x_studio_x_studio_workiz_uuid'], 'order': 'date_order desc', 'limit': 1})
+            if not sos:
+                sos = odoo_rpc('sale.order', 'search_read',
+                    [[['partner_shipping_id', '=', partner_id], ['state', 'in', ['sale', 'done']],
+                      ['x_studio_x_studio_workiz_uuid', '!=', False]]],
+                    {'fields': ['x_studio_x_studio_workiz_uuid'], 'order': 'date_order desc', 'limit': 1})
+            if sos:
+                uuid = sos[0].get('x_studio_x_studio_workiz_uuid') or ''
+        if not uuid:
+            return "Cannot duplicate: no Workiz job found for this customer."
+
+        # Fetch source job from Workiz
+        raw_job = workiz_get(f'job/get/{uuid}/')
+        if not raw_job:
+            return f"Cannot duplicate: could not fetch job {uuid} from Workiz."
+        job_data = raw_job.get('data', {})
+        job = job_data[0] if isinstance(job_data, list) and job_data else job_data
+        if not job:
+            return "Cannot duplicate: no job data returned from Workiz."
+
+        # Validate ClientId
+        try:
+            client_id_int = int(str(job.get('ClientId') or '').replace('CL-', '').strip())
+            if client_id_int <= 0:
+                raise ValueError
+        except (ValueError, TypeError):
+            return f"Cannot duplicate: invalid ClientId on source job."
+
+        phone = str(job.get('Phone') or job.get('Phone2') or '').strip()
+        if not phone:
+            return "Cannot duplicate: source job has no phone number."
+
+        new_dt = str(args.get('new_datetime') or '').strip()
+        if not new_dt:
+            return "Cannot duplicate: no new date/time provided."
+
+        payload = {
+            'ClientId':            client_id_int,
+            'FirstName':           str(job.get('FirstName') or ''),
+            'LastName':            str(job.get('LastName') or ''),
+            'Phone':               phone,
+            'Country':             'US',
+            'JobType':             str(job.get('JobType') or 'Window Cleaning'),
+            'type_of_service_2':   str(job.get('type_of_service_2') or 'On Request'),
+            'frequency':           str(job.get('frequency') or 'Unknown'),
+            'confirmation_method': str(job.get('confirmation_method') or 'Cell Phone'),
+            'ok_to_text':          str(job.get('ok_to_text') or 'Yes'),
+            'JobSource':           'Referral',
+            'JobDateTime':         new_dt,
+        }
+        if job.get('Address'):    payload['Address']    = str(job['Address'])
+        if job.get('City'):       payload['City']       = str(job['City'])
+        if job.get('State'):      payload['State']      = str(job['State'])
+        if job.get('PostalCode'): payload['PostalCode'] = str(job['PostalCode'])
+        if job.get('gate_code'):  payload['gate_code']  = str(job['gate_code'])
+        if job.get('pricing'):    payload['pricing']    = str(job['pricing'])
+        if job.get('JobNotes'):   payload['JobNotes']   = str(job['JobNotes'])
+
+        raw_result = workiz_post('job/create/', payload)
+        new_uuid = ''
+        new_link = ''
+        if isinstance(raw_result, dict):
+            data = raw_result.get('data', [])
+        elif isinstance(raw_result, list) and raw_result:
+            data = raw_result[0].get('data', []) if isinstance(raw_result[0], dict) else raw_result
+        else:
+            data = []
+        if isinstance(data, list) and data:
+            new_uuid = data[0].get('UUID') or ''
+            new_link = data[0].get('link') or ''
+
+        cust = pname or f"{job.get('FirstName', '')} {job.get('LastName', '')}".strip()
+        if new_uuid:
+            return (f"[WORKIZ] Job duplicated for {cust} — UUID: {new_uuid}\n"
+                    f"  Copied from: {uuid}\n"
+                    f"  New date: {new_dt}\n"
+                    f"  Workiz link: {new_link}\n"
+                    f"  (Zapier will sync to Odoo automatically)")
+        return f"[WORKIZ] Job duplicated for {cust} (no UUID returned — check Workiz)"
+
     return f"Unknown write action: {tool_name}"
 
 
@@ -761,6 +850,12 @@ def _describe_write(tool_name: str, args: dict) -> str:
                 f"  Service: {svc}\n"
                 f"  Notes: {args.get('notes') or '(none)'}\n"
                 f"  Pricing: {args.get('pricing') or '(none)'}\n"
+                f"  Zapier will sync to Odoo automatically")
+    if tool_name == 'duplicate_workiz_job':
+        return (f"[WORKIZ] Duplicate job for {pname}\n"
+                f"  New date/time: {args.get('new_datetime')}\n"
+                f"  Copied from: {args.get('source_uuid') or 'most recent job'}\n"
+                f"  All fields (address, gate code, pricing, notes) will be copied\n"
                 f"  Zapier will sync to Odoo automatically")
     return f"Execute {tool_name} for {pname}"
 
@@ -1028,6 +1123,28 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "duplicate_workiz_job",
+            "description": (
+                "Duplicate an existing Workiz job for a customer and schedule it on a new date. "
+                "Copies all fields from the source job (address, gate code, pricing, notes, service type, etc). "
+                "Use when DJ says 'duplicate', 'copy', 'reschedule', or 'make another job like the last one'. "
+                "Call search_customers first to get partner_id. Source UUID is optional — if omitted, uses the customer's most recent job."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "partner_id":   {"type": "integer", "description": "From search_customers"},
+                    "partner_name": {"type": "string"},
+                    "new_datetime": {"type": "string", "description": "New scheduled date/time: YYYY-MM-DD HH:MM:SS in Pacific Time"},
+                    "source_uuid":  {"type": "string", "description": "UUID of the job to copy. Omit to use most recent job."}
+                },
+                "required": ["partner_id", "partner_name", "new_datetime"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "send_email",
             "description": (
                 "Send an email to DJ with any content — reports, schedules, customer details, summaries. "
@@ -1082,7 +1199,7 @@ TOOLS = [
 
 WRITE_TOOLS = {
     'update_workiz_field', 'update_odoo_contact', 'post_odoo_note',
-    'create_todo', 'mark_job_done', 'create_workiz_job'
+    'create_todo', 'mark_job_done', 'create_workiz_job', 'duplicate_workiz_job'
 }
 
 READ_TOOL_MAP = {
