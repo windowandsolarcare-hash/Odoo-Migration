@@ -452,28 +452,28 @@ def tool_get_sales(date: str) -> str:
 
 
 def tool_get_sales_week(date: str = '') -> str:
-    """Returns total sales for the week (Mon–Sun) containing the given date."""
+    """Returns total sales for the work week (Mon–Sat) containing the given date. Sundays excluded."""
     date_iso, _ = resolve_date(date if date else 'today')
     try:
         d = datetime.date.fromisoformat(date_iso)
     except Exception:
         d = datetime.date.today()
     monday = d - datetime.timedelta(days=d.weekday())
-    sunday = monday + datetime.timedelta(days=6)
+    saturday = monday + datetime.timedelta(days=5)
     sos = odoo_rpc('sale.order', 'search_read',
         [[['date_order', '>=', monday.isoformat() + ' 00:00:00'],
-          ['date_order', '<=', sunday.isoformat() + ' 23:59:59'],
+          ['date_order', '<=', saturday.isoformat() + ' 23:59:59'],
           ['state', 'in', ['sale', 'done']]]],
         {'fields': ['amount_total', 'date_order', 'partner_id']})
     if not sos:
-        return f"No sales for week of {monday} – {sunday}."
-    total = sum(float(so.get('amount_total') or 0) for so in sos)
+        return f"No sales for week of {monday} – {saturday}."
     by_day = {}
     for so in sos:
         day = (so.get('date_order') or '')[:10]
         by_day[day] = by_day.get(day, 0) + float(so.get('amount_total') or 0)
+    total = sum(by_day.values())
     day_lines = ', '.join(f"{k}: ${v:.0f}" for k, v in sorted(by_day.items()) if v > 0)
-    return f"Week of {monday} – {sunday}: ${total:.2f} across {len(sos)} job(s). By day: {day_lines}"
+    return f"Week of {monday} – {saturday}: ${total:.2f} across {len(sos)} job(s). By day: {day_lines}"
 
 
 def tool_get_jobs_list(start_date: str = '', records: int = 50,
