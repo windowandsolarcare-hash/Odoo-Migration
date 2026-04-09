@@ -621,7 +621,7 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
     # --- Post a note to Odoo chatter ---
     if tool_name == 'post_odoo_note':
         odoo_rpc('sale.order', 'message_post', [[args['so_id']]],
-            {'body': f'[Voice] {args["note"]}'})
+            {'body': f'[Render] {args["note"]}'})
         return f"[ODOO] Note posted to {pname} chatter: \"{args['note']}\""
 
     # --- Create a follow-up To-do ---
@@ -632,7 +632,7 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         due_str = due_dt.strftime('%Y-%m-%d 12:00:00')
         due_disp = due_dt.strftime('%m-%d-%Y')
         todo_id = odoo_rpc('project.task', 'create', [{
-            'name': f'Follow-up: {pname}',
+            'name': f'[Render] Follow-up: {pname}',
             'description': note,
             'project_id': False,
             'user_ids': [(4, ODOO_USER_ID)],
@@ -643,7 +643,7 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         if so_id and todo_id:
             todo_url = f'https://window-solar-care.odoo.com/odoo/to-do/{todo_id}'
             odoo_rpc('sale.order', 'message_post', [[so_id]], {
-                'body': f'[Voice] To-Do | Customer: {pname} | Due: {due_disp} | {todo_url}'
+                'body': f'[Render] To-Do | Customer: {pname} | Due: {due_disp} | {todo_url}'
             })
         return f"[ODOO] To-do created for {pname} due {due_disp}: \"{note}\""
 
