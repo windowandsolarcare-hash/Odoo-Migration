@@ -156,9 +156,16 @@ def main(input_data):
         return {'success': False, 'error': 'Invoice has no sale order origin'}
 
     # 2) Get SO and Workiz job UUID
-    sos = odoo_call("sale.order", "search_read", [[["name", "=", origin]]], {"fields": ["id", "name", "x_studio_x_studio_workiz_uuid"], "limit": 1})
+    sos = odoo_call("sale.order", "search_read", [[["name", "=", origin]]], {"fields": ["id", "name", "x_studio_x_studio_workiz_uuid", "x_studio_x_studio_workiz_tech"], "limit": 1})
     if not sos:
         return {'success': False, 'error': 'Sale order not found for origin ' + str(origin)}
+
+    workiz_tech = (sos[0].get("x_studio_x_studio_workiz_tech") or "").strip()
+    if not workiz_tech:
+        print(f"[!] BLOCKED: SO {origin} has no Workiz tech assigned — cannot process payment")
+        return {'success': False, 'error': f"SO {origin} has no technician assigned. Assign tech in Workiz, run Sync on the SO in Odoo, then re-invoice."}
+
+    print(f"[*] Tech verified on SO: {workiz_tech}")
     job_uuid = sos[0].get("x_studio_x_studio_workiz_uuid")
     if not job_uuid:
         return {'success': False, 'error': 'Sale order has no Workiz UUID'}
@@ -274,28 +281,8 @@ def main(input_data):
         print("="*70)
         return {'success': True, 'invoice_id': invoice_id, 'job_uuid': job_uuid, 'amount': amount_total, 'workiz_type': workiz_type, 'payment_date': payment_date, 'mark_done': 'skipped', 'reason': 'invoice_balance_not_zero'}
 
-    # Fetch job to verify technician is assigned — Workiz requires a tech to mark Done
-    # If no tech: stop and return clear error. Every job must have a tech.
-    team_ids = []
-    try:
-        get_url = f"{WORKIZ_BASE_URL.rstrip('/')}/job/get/{job_uuid}/?auth_secret={WORKIZ_AUTH_SECRET}"
-        get_resp = requests.get(get_url, timeout=15)
-        if get_resp.status_code == 200:
-            get_data = get_resp.json().get('data', {})
-            job_rec = get_data[0] if isinstance(get_data, list) and get_data else get_data
-            raw_team = job_rec.get('Team') or []
-            team_ids = [t['id'] for t in raw_team if t.get('id')]
-    except Exception as e:
-        print(f"[!] Could not fetch job to check tech: {e}")
-
-    if not team_ids:
-        print(f"[!] BLOCKED: Job {job_uuid} has no technician assigned — cannot mark Done")
-        return {'success': False, 'add_payment': 'ok', 'mark_done': 'blocked',
-                'reason': f"Job {job_uuid} has no technician assigned. Assign a tech in Workiz first, then re-invoice to trigger Phase 6 again."}
-
-    print(f"[*] Tech verified (TeamId: {team_ids}) — proceeding to mark Done")
     update_url = f"{WORKIZ_BASE_URL.rstrip('/')}/job/update/"
-    update_body = {"auth_secret": WORKIZ_AUTH_SECRET, "UUID": job_uuid, "Status": "Done", "TeamId": team_ids}
+    update_body = {"auth_secret": WORKIZ_AUTH_SECRET, "UUID": job_uuid, "Status": "Done"}
     try:
         resp2 = requests.post(update_url, json=update_body, timeout=15)
         if resp2.status_code not in (200, 201, 204):
