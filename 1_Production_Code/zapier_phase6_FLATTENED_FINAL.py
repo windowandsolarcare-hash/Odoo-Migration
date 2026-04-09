@@ -274,8 +274,24 @@ def main(input_data):
         print("="*70)
         return {'success': True, 'invoice_id': invoice_id, 'job_uuid': job_uuid, 'amount': amount_total, 'workiz_type': workiz_type, 'payment_date': payment_date, 'mark_done': 'skipped', 'reason': 'invoice_balance_not_zero'}
 
+    # Fetch job to get existing TeamId — Workiz requires a technician to mark Done
+    team_ids = []
+    try:
+        get_url = f"{WORKIZ_BASE_URL.rstrip('/')}/job/get/{job_uuid}/?auth_secret={WORKIZ_AUTH_SECRET}"
+        get_resp = requests.get(get_url, timeout=15)
+        if get_resp.status_code == 200:
+            get_data = get_resp.json().get('data', {})
+            job_rec = get_data[0] if isinstance(get_data, list) and get_data else get_data
+            raw_team = job_rec.get('Team') or []
+            team_ids = [t['id'] for t in raw_team if t.get('id')]
+            print(f"[*] Job team IDs for Done update: {team_ids}")
+    except Exception as e:
+        print(f"[!] Could not fetch job team (will try Done without TeamId): {e}")
+
     update_url = f"{WORKIZ_BASE_URL.rstrip('/')}/job/update/"
     update_body = {"auth_secret": WORKIZ_AUTH_SECRET, "UUID": job_uuid, "Status": "Done"}
+    if team_ids:
+        update_body["TeamId"] = team_ids
     try:
         resp2 = requests.post(update_url, json=update_body, timeout=15)
         if resp2.status_code not in (200, 201, 204):
