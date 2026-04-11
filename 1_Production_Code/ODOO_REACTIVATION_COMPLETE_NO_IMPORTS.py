@@ -415,7 +415,7 @@ Primary Service: {primary_service_str}"""
             # Use Odoo contact's last_visit_all_properties as the authoritative date —
             # this is the same date shown in the SMS, ensuring they match.
             # Fall back to the historical job's last_date_cleaned only if Odoo has nothing.
-            "last_date_cleaned": (last_visit.strftime('%Y-%m-%d') if last_visit and hasattr(last_visit, 'strftime') else fixed_last_date),
+            "last_date_cleaned": (last_visit.strftime('%Y-%m-%d') if last_visit else fixed_last_date),
             "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
             "confirmation_method": str(historical_job.get("confirmation_method") or "Cell Phone"),
             # LINE ITEMS: Actual prices sent in SMS (for manual entry when customer books)
