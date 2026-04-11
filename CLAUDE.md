@@ -1,5 +1,5 @@
 # Claude Code - Project Instructions
-**Last Updated:** 2026-04-05
+**Last Updated:** 2026-04-11
 **Migration:** Cursor → Claude Code (permanent)
 
 ---
@@ -34,7 +34,8 @@
 ## CRITICAL RULES
 
 1. **Zapier:** Code in GitHub. Zapier fetches on every run. Push to main = deploy.
-2. **Odoo Server Actions:** NO imports, NO docstrings, NO env.user.message_post in webhooks
+2. **Odoo Server Actions — TWO-STEP DEPLOY:** When fixing a bug in a reactivation script or any Odoo server action, you MUST do BOTH steps: (a) update the local file and push to GitHub, AND (b) write the fixed code directly into the Odoo server action via `ir.actions.server` write API. GitHub is the source of truth for version history, but Odoo runs the code stored in its own database — pushing to GitHub alone does NOT update what Odoo executes. Always patch the live server action immediately after updating the file. Key server action IDs: LAUNCH=563, PREVIEW=559 (DNU). Find others by searching `ir.actions.server` where name ilike the script name.
+3. **Odoo Server Actions — code restrictions:** NO imports, NO docstrings, NO env.user.message_post in webhooks, NO hasattr, NO response/result variable names
 3. **Odoo Webhook payload:** Often already dict - check `isinstance(payload, str)` before json.loads
 4. **Workiz STOP:** Filter on SubStatus (not Status). Status stays "Pending"
 5. **Property search:** Use `x_studio_x_studio_record_category` = "Property", NOT type="other"
