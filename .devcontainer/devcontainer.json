@@ -1,0 +1,25 @@
+{
+  "name": "Window & Solar Care - Odoo Migration",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code",
+  "remoteEnv": {
+    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}"
+  },
+  "secrets": {
+    "ANTHROPIC_API_KEY": {
+      "description": "Your Anthropic API key from console.anthropic.com. Required to run Claude Code.",
+      "documentationUrl": "https://console.anthropic.com/settings/api-keys"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "postStartCommand": "bash .devcontainer/welcome.sh"
+}
