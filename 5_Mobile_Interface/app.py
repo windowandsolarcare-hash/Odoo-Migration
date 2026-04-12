@@ -826,6 +826,46 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
                     f"  (Zapier will sync to Odoo automatically)")
         return f"[WORKIZ] Job duplicated for {cust} (no UUID returned — check Workiz)"
 
+    # --- Start timer on an Odoo task ---
+    if tool_name == 'start_task_timer':
+        task_id = args.get('task_id')
+        task_name = args.get('task_name', '')
+        if not task_id and task_name:
+            tasks = odoo_rpc('project.task', 'search_read',
+                [[['name', 'ilike', task_name]]],
+                {'fields': ['id', 'name'], 'limit': 5})
+            if not tasks:
+                return f"No task found matching '{task_name}'"
+            if len(tasks) > 1:
+                names = ', '.join(f"{t['name']} (ID {t['id']})" for t in tasks)
+                return f"Multiple tasks match — be more specific: {names}"
+            task_id = tasks[0]['id']
+            task_name = tasks[0]['name']
+        if not task_id:
+            return "No task ID or name provided."
+        odoo_rpc('project.task', 'action_timer_start', [[task_id]])
+        return f"[ODOO] Timer started on task: {task_name or task_id}"
+
+    # --- Stop timer on an Odoo task ---
+    if tool_name == 'stop_task_timer':
+        task_id = args.get('task_id')
+        task_name = args.get('task_name', '')
+        if not task_id and task_name:
+            tasks = odoo_rpc('project.task', 'search_read',
+                [[['name', 'ilike', task_name]]],
+                {'fields': ['id', 'name'], 'limit': 5})
+            if not tasks:
+                return f"No task found matching '{task_name}'"
+            if len(tasks) > 1:
+                names = ', '.join(f"{t['name']} (ID {t['id']})" for t in tasks)
+                return f"Multiple tasks match — be more specific: {names}"
+            task_id = tasks[0]['id']
+            task_name = tasks[0]['name']
+        if not task_id:
+            return "No task ID or name provided."
+        odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
+        return f"[ODOO] Timer stopped on task: {task_name or task_id}"
+
     return f"Unknown write action: {tool_name}"
 
 
@@ -857,6 +897,12 @@ def _describe_write(tool_name: str, args: dict) -> str:
                 f"  Copied from: {args.get('source_uuid') or 'most recent job'}\n"
                 f"  All fields (address, gate code, pricing, notes) will be copied\n"
                 f"  Zapier will sync to Odoo automatically")
+    if tool_name == 'start_task_timer':
+        task_ref = args.get('task_name') or f"ID {args.get('task_id')}"
+        return f"[ODOO] Start timer on task: {task_ref}"
+    if tool_name == 'stop_task_timer':
+        task_ref = args.get('task_name') or f"ID {args.get('task_id')}"
+        return f"[ODOO] Stop timer on task: {task_ref}"
     return f"Execute {tool_name} for {pname}"
 
 
@@ -1194,12 +1240,41 @@ TOOLS = [
                 "required": ["key"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "start_task_timer",
+            "description": "Start the timer/clock on an Odoo To-Do or task. Use when DJ says 'start the clock on [task]' or 'start timer on [task]'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "task_id":   {"type": "integer", "description": "Odoo task ID (if known)"},
+                    "task_name": {"type": "string",  "description": "Task name or partial name to search for"}
+                }
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "stop_task_timer",
+            "description": "Stop the timer/clock on an Odoo To-Do or task and record the time. Use when DJ says 'stop the clock on [task]' or 'stop timer on [task]'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "task_id":   {"type": "integer", "description": "Odoo task ID (if known)"},
+                    "task_name": {"type": "string",  "description": "Task name or partial name to search for"}
+                }
+            }
+        }
     }
 ]
 
 WRITE_TOOLS = {
     'update_workiz_field', 'update_odoo_contact', 'post_odoo_note',
-    'create_todo', 'mark_job_done', 'create_workiz_job', 'duplicate_workiz_job'
+    'create_todo', 'mark_job_done', 'create_workiz_job', 'duplicate_workiz_job',
+    'start_task_timer', 'stop_task_timer'
 }
 
 READ_TOOL_MAP = {
