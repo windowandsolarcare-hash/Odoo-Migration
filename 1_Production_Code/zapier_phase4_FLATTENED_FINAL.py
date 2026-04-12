@@ -363,7 +363,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                     print(f"[!] Orphan cleanup failed (non-fatal): {_oe}")
             backfilled = 0
             for ol_id in line_ids:
-                create_vals = {"project_id": DEFAULT_PROJECT_ID, "sale_line_id": ol_id, "stage_id": 17}  # Planned
+                create_vals = {"project_id": DEFAULT_PROJECT_ID, "sale_line_id": ol_id, "sale_order_id": so_id, "stage_id": 17}  # Planned
                 # Task name: "{ContactName} - {City}" — same format Phase 3 uses
                 so_partner = so_check[0].get("partner_id")
                 pid = so_partner[0] if isinstance(so_partner, (list, tuple)) else so_partner
