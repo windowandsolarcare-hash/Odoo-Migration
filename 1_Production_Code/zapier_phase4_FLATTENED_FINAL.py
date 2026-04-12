@@ -362,7 +362,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 except Exception as _oe:
                     print(f"[!] Orphan cleanup failed (non-fatal): {_oe}")
             backfilled = 0
-            for ol_id in line_ids:
+            for _task_idx, ol_id in enumerate(line_ids):
                 create_vals = {"project_id": DEFAULT_PROJECT_ID, "sale_line_id": ol_id, "sale_order_id": so_id, "stage_id": 17}  # Planned
                 # Task name: "{ContactName} - {City}" — same format Phase 3 uses
                 so_partner = so_check[0].get("partner_id")
@@ -405,41 +405,50 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                             break
                 if ODOO_TASK_ASSIGNEE_FIELD and "user_ids" not in create_vals and ODOO_TASK_ASSIGNEE_FIELD not in create_vals:
                     create_vals["user_ids"] = [(6, 0, [ODOO_USER_ID])]
-                # Planned dates from job datetime
+                # Planned dates from job datetime — stagger each task's slot within the total job window
                 if job_datetime_utc:
-                    if ODOO_TASK_START_DATETIME_FIELD:
-                        create_vals[ODOO_TASK_START_DATETIME_FIELD] = job_datetime_utc
-                    # End: use Workiz JobEndDateTime if available, else start+1h
-                    end_str = None
+                    # Compute total duration and per-task hours first
+                    _n_lines = max(len(line_ids), 1)
+                    _raw_end = None
                     if WORKIZ_JOB_END_DATETIME_FIELD and workiz_job.get(WORKIZ_JOB_END_DATETIME_FIELD):
-                        raw_end = str(workiz_job.get(WORKIZ_JOB_END_DATETIME_FIELD)).strip()
-                        if raw_end:
-                            try:
-                                end_str = convert_pacific_to_utc(raw_end)
-                            except Exception:
-                                end_str = raw_end
-                    if not end_str:
+                        _raw_end = str(workiz_job.get(WORKIZ_JOB_END_DATETIME_FIELD)).strip()
+                    _end_utc = None
+                    if _raw_end:
                         try:
-                            dt_end = datetime.strptime(job_datetime_utc[:19], "%Y-%m-%d %H:%M:%S") + timedelta(hours=1)
-                            end_str = dt_end.strftime("%Y-%m-%d %H:%M:%S")
+                            _end_utc = convert_pacific_to_utc(_raw_end)
+                        except Exception:
+                            _end_utc = _raw_end
+                    if not _end_utc:
+                        try:
+                            _end_utc = (datetime.strptime(job_datetime_utc[:19], "%Y-%m-%d %H:%M:%S") + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
                         except Exception:
                             pass
-                    if end_str:
-                        if ODOO_TASK_END_DATETIME_FIELD:
-                            create_vals[ODOO_TASK_END_DATETIME_FIELD] = end_str
-                        if ODOO_TASK_PLANNED_DATE_FIELD:
-                            create_vals[ODOO_TASK_PLANNED_DATE_FIELD] = end_str
-                    # allocated_hours: total job duration divided equally across all tasks for this SO
-                    _n_lines = max(len(line_ids), 1)
                     try:
-                        if end_str:
-                            dt_s = datetime.strptime(job_datetime_utc[:19], "%Y-%m-%d %H:%M:%S")
-                            dt_e = datetime.strptime(end_str[:19], "%Y-%m-%d %H:%M:%S")
-                            total_hrs = max(round((dt_e - dt_s).total_seconds() / 3600, 2), 0.25)
-                            create_vals["allocated_hours"] = round(total_hrs / _n_lines, 2)
+                        _dt_base = datetime.strptime(job_datetime_utc[:19], "%Y-%m-%d %H:%M:%S")
+                        if _end_utc:
+                            _dt_full_end = datetime.strptime(_end_utc[:19], "%Y-%m-%d %H:%M:%S")
+                            _total_hrs = max(round((_dt_full_end - _dt_base).total_seconds() / 3600, 2), 0.25)
                         else:
-                            create_vals["allocated_hours"] = round(1.0 / _n_lines, 2)
+                            _total_hrs = 1.0
+                        _per_hrs = round(_total_hrs / _n_lines, 2)
+                        _dt_task_start = _dt_base + timedelta(hours=_task_idx * _per_hrs)
+                        _dt_task_end = _dt_base + timedelta(hours=(_task_idx + 1) * _per_hrs)
+                        if ODOO_TASK_START_DATETIME_FIELD:
+                            create_vals[ODOO_TASK_START_DATETIME_FIELD] = _dt_task_start.strftime("%Y-%m-%d %H:%M:%S")
+                        if ODOO_TASK_END_DATETIME_FIELD:
+                            create_vals[ODOO_TASK_END_DATETIME_FIELD] = _dt_task_end.strftime("%Y-%m-%d %H:%M:%S")
+                        if ODOO_TASK_PLANNED_DATE_FIELD:
+                            create_vals[ODOO_TASK_PLANNED_DATE_FIELD] = _dt_task_end.strftime("%Y-%m-%d %H:%M:%S")
+                        create_vals["allocated_hours"] = _per_hrs
                     except Exception:
+                        # Fallback: no stagger, just use job start/end
+                        if ODOO_TASK_START_DATETIME_FIELD:
+                            create_vals[ODOO_TASK_START_DATETIME_FIELD] = job_datetime_utc
+                        if _end_utc:
+                            if ODOO_TASK_END_DATETIME_FIELD:
+                                create_vals[ODOO_TASK_END_DATETIME_FIELD] = _end_utc
+                            if ODOO_TASK_PLANNED_DATE_FIELD:
+                                create_vals[ODOO_TASK_PLANNED_DATE_FIELD] = _end_utc
                         create_vals["allocated_hours"] = round(1.0 / _n_lines, 2)
                 # Create the task
                 create_payload = {
@@ -627,20 +636,58 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
         print("[!] No task_vals to write (missing JobDateTime/Team/partner?); task sync skipped.")
         return _ret(tasks_found=n_tasks, error="No fields to write (JobDateTime/Team/partner missing?)")
     print(f"[*] Writing to {len(task_ids)} task(s): {list(task_vals.keys())}")
-    payload_write = {
-        "jsonrpc": "2.0", "method": "call",
-        "params": {
-            "service": "object", "method": "execute_kw",
-            "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [task_ids, task_vals]]
-        }
-    }
+
+    # When multiple tasks share the same SO, stagger their time slots so they don't overlap.
+    # Task 0: job_start → job_start + per_task_hrs
+    # Task 1: job_start + per_task_hrs → job_start + 2*per_task_hrs, etc.
+    _time_fields = {"planned_date_begin", "date_end", "date_deadline", "allocated_hours"}
+    _common_vals = {k: v for k, v in task_vals.items() if k not in _time_fields}
+    _has_time = any(k in task_vals for k in _time_fields)
+
     try:
-        wr = requests.post(ODOO_URL, json=payload_write, timeout=10)
-        resp = wr.json()
-        if resp.get("error"):
-            err = str(resp.get("error", ""))
-            print(f"[ERROR] Task write failed: {err}")
-            return _ret(tasks_found=n_tasks, error=f"Odoo write failed: {err}")
+        # Write non-time fields to all tasks at once
+        if _common_vals:
+            wr = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                "service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [task_ids, _common_vals]]
+            }}, timeout=10)
+            if wr.json().get("error"):
+                raise Exception(str(wr.json()["error"]))
+
+        # Write staggered time fields per task
+        if _has_time:
+            _sorted_ids = sorted(task_ids)
+            _per_hrs = task_vals.get("allocated_hours", round(1.0 / max(n_tasks, 1), 2))
+            _base_start = task_vals.get(ODOO_TASK_START_DATETIME_FIELD)
+            if _base_start and n_tasks > 1:
+                dt_base = datetime.strptime(str(_base_start)[:19], "%Y-%m-%d %H:%M:%S")
+                for _i, tid in enumerate(_sorted_ids):
+                    dt_s = dt_base + timedelta(hours=_i * _per_hrs)
+                    dt_e = dt_base + timedelta(hours=(_i + 1) * _per_hrs)
+                    _t_vals = {"allocated_hours": _per_hrs}
+                    if ODOO_TASK_START_DATETIME_FIELD:
+                        _t_vals[ODOO_TASK_START_DATETIME_FIELD] = dt_s.strftime("%Y-%m-%d %H:%M:%S")
+                    if ODOO_TASK_END_DATETIME_FIELD:
+                        _t_vals[ODOO_TASK_END_DATETIME_FIELD] = dt_e.strftime("%Y-%m-%d %H:%M:%S")
+                    if ODOO_TASK_PLANNED_DATE_FIELD:
+                        _t_vals[ODOO_TASK_PLANNED_DATE_FIELD] = dt_e.strftime("%Y-%m-%d %H:%M:%S")
+                    wr = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                        "service": "object", "method": "execute_kw",
+                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [[tid], _t_vals]]
+                    }}, timeout=10)
+                    if wr.json().get("error"):
+                        print(f"[!] Stagger write error task {tid}: {wr.json()['error']}")
+            else:
+                # Single task or no base start — write time fields normally
+                _time_only = {k: v for k, v in task_vals.items() if k in _time_fields}
+                if _time_only:
+                    wr = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                        "service": "object", "method": "execute_kw",
+                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [task_ids, _time_only]]
+                    }}, timeout=10)
+                    if wr.json().get("error"):
+                        raise Exception(str(wr.json()["error"]))
+
         print(f"[OK] Synced {len(task_ids)} task(s): assignee, planned date, tags, customer, contact number")
         return _ret(tasks_found=n_tasks, tasks_updated=True)
     except Exception as e:
