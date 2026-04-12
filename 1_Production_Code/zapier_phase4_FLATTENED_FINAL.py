@@ -335,6 +335,32 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
         wiz_substatus = workiz_job.get("SubStatus", "")
         if so_check and so_check[0].get("state") == "sale" and is_task_trigger_status(wiz_status, wiz_substatus):
             print(f"[*] Backfill triggered: confirmed SO, substatus={wiz_substatus or wiz_status}, {len(line_ids)} order line(s)")
+            # Clean up orphaned tasks (no sale_line_id) before creating proper ones.
+            # These are created by Odoo's action_confirm but without the sale_line_id link,
+            # so Phase 4's sale_line_id search never finds them — they accumulate as ghosts.
+            # Safe: only removes New(16)/Planned(17), never In Progress(18)/Done(19).
+            so_partner_raw = so_check[0].get("partner_id")
+            so_partner_id = so_partner_raw[0] if isinstance(so_partner_raw, (list, tuple)) else so_partner_raw
+            if so_partner_id:
+                try:
+                    p_rec = _odoo_search_read("res.partner", [["id", "=", so_partner_id]], ["name"], limit=1)
+                    if p_rec:
+                        p_name = (p_rec[0].get("name") or "").strip()
+                        if p_name:
+                            orphan_ids = _odoo_search_read("project.task",
+                                [["sale_line_id", "=", False], ["partner_id", "=", False],
+                                 ["project_id", "=", DEFAULT_PROJECT_ID], ["name", "ilike", p_name],
+                                 ["stage_id", "in", [16, 17]]],
+                                ["id"], limit=20)
+                            if orphan_ids:
+                                ids_to_del = [t["id"] for t in orphan_ids]
+                                requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                                    "service": "object", "method": "execute_kw",
+                                    "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "unlink", [ids_to_del]]
+                                }}, timeout=10)
+                                print(f"[*] Cleaned {len(ids_to_del)} orphaned task(s) for '{p_name}' before backfill")
+                except Exception as _oe:
+                    print(f"[!] Orphan cleanup failed (non-fatal): {_oe}")
             backfilled = 0
             for ol_id in line_ids:
                 create_vals = {"project_id": DEFAULT_PROJECT_ID, "sale_line_id": ol_id, "stage_id": 17}  # Planned
