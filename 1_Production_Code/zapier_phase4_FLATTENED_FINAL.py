@@ -429,16 +429,18 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                             create_vals[ODOO_TASK_END_DATETIME_FIELD] = end_str
                         if ODOO_TASK_PLANNED_DATE_FIELD:
                             create_vals[ODOO_TASK_PLANNED_DATE_FIELD] = end_str
-                    # allocated_hours: compute from start/end so duration clock shows correctly
+                    # allocated_hours: total job duration divided equally across all tasks for this SO
+                    _n_lines = max(len(line_ids), 1)
                     try:
                         if end_str:
                             dt_s = datetime.strptime(job_datetime_utc[:19], "%Y-%m-%d %H:%M:%S")
                             dt_e = datetime.strptime(end_str[:19], "%Y-%m-%d %H:%M:%S")
-                            create_vals["allocated_hours"] = max(round((dt_e - dt_s).total_seconds() / 3600, 2), 0.25)
+                            total_hrs = max(round((dt_e - dt_s).total_seconds() / 3600, 2), 0.25)
+                            create_vals["allocated_hours"] = round(total_hrs / _n_lines, 2)
                         else:
-                            create_vals["allocated_hours"] = 1.0
+                            create_vals["allocated_hours"] = round(1.0 / _n_lines, 2)
                     except Exception:
-                        create_vals["allocated_hours"] = 1.0
+                        create_vals["allocated_hours"] = round(1.0 / _n_lines, 2)
                 # Create the task
                 create_payload = {
                     "jsonrpc": "2.0", "method": "call",
@@ -542,18 +544,20 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
         end_val = task_vals[ODOO_TASK_END_DATETIME_FIELD]
         if end_val:
             task_vals[ODOO_TASK_PLANNED_DATE_FIELD] = str(end_val)
-    # allocated_hours (allocated time): compute from start/end so the clock icon fills in correctly
+    # allocated_hours: total job duration divided equally across all tasks for this SO
+    _n = max(n_tasks, 1)
     start_val = task_vals.get(ODOO_TASK_START_DATETIME_FIELD)
     end_val = task_vals.get(ODOO_TASK_END_DATETIME_FIELD)
     if start_val and end_val:
         try:
             dt_s = datetime.strptime(str(start_val)[:19], "%Y-%m-%d %H:%M:%S")
             dt_e = datetime.strptime(str(end_val)[:19], "%Y-%m-%d %H:%M:%S")
-            task_vals["allocated_hours"] = max(round((dt_e - dt_s).total_seconds() / 3600, 2), 0.25)
+            total_hrs = max(round((dt_e - dt_s).total_seconds() / 3600, 2), 0.25)
+            task_vals["allocated_hours"] = round(total_hrs / _n, 2)
         except Exception:
-            task_vals["allocated_hours"] = 1.0
+            task_vals["allocated_hours"] = round(1.0 / _n, 2)
     elif start_val:
-        task_vals["allocated_hours"] = 1.0
+        task_vals["allocated_hours"] = round(1.0 / _n, 2)
 
     # SO: partner_id = Property (customer); partner_shipping_id = Property. Contact = Property.parent_id.
     so_list = _odoo_search_read("sale.order", [["id", "=", so_id]], ["partner_id", "partner_shipping_id", "tag_ids"], limit=1)
