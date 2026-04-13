@@ -76,10 +76,16 @@ if contact:
 
     # 5. Mark any open CRM opportunity as Lost
     open_opps = env['crm.lead'].search([
+        '|',
+        ('partner_id', '=', contact.id),
         ('x_odoo_contact_id', '=', contact.id),
-        ('active', '=', True)
+        ('active', '=', True),
+        ('type', '=', 'opportunity'),
     ])
     if open_opps:
         for opp in open_opps:
             opp.message_post(body='[STOP] Customer replied STOP to SMS. Opportunity marked Lost automatically.')
         open_opps.action_set_lost()
+        contact.sudo().message_post(body='[STOP] ' + str(len(open_opps)) + ' opportunity/ies marked Lost. IDs: ' + str(open_opps.ids))
+    else:
+        contact.sudo().message_post(body='[STOP] No open opportunities found to mark Lost (contact.id=' + str(contact.id) + ')')
