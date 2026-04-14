@@ -642,7 +642,7 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
             'partner_id': args['partner_id'],
             'planned_date_begin': begin_str,
             'date_deadline': end_str,
-            'color': 9,
+            'color': 3,
             'tag_ids': [(4, 13)],
         }])
         so_id = args.get('so_id')
