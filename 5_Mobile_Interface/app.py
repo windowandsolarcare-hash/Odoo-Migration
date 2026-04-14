@@ -629,15 +629,21 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         days = int(args.get('days', 7))
         note = args.get('note', 'Follow-up')
         due_dt  = datetime.datetime.now() + datetime.timedelta(days=days)
-        due_str = due_dt.strftime('%Y-%m-%d 12:00:00')
-        due_disp = due_dt.strftime('%m-%d-%Y')
+        # 7am PDT = 14:00 UTC; 7:30am PDT = 14:30 UTC
+        begin_str = due_dt.strftime('%Y-%m-%d 14:00:00')
+        end_str   = due_dt.strftime('%Y-%m-%d 14:30:00')
+        due_disp  = due_dt.strftime('%m-%d-%Y')
         todo_id = odoo_rpc('project.task', 'create', [{
             'name': f'[Render] Follow-up: {pname}',
             'description': note,
-            'project_id': False,
+            'project_id': 2,
+            'stage_id': 17,
             'user_ids': [(4, ODOO_USER_ID)],
             'partner_id': args['partner_id'],
-            'date_deadline': due_str,
+            'planned_date_begin': begin_str,
+            'date_deadline': end_str,
+            'color': 9,
+            'tag_ids': [(4, 13)],
         }])
         so_id = args.get('so_id')
         if so_id and todo_id:
@@ -1546,3 +1552,4 @@ async def index():
     html_path = os.path.join(os.path.dirname(__file__), 'static', 'index.html')
     with open(html_path, 'r', encoding='utf-8') as f:
         return f.read()
+
