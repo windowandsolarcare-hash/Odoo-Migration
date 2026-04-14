@@ -302,12 +302,12 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
     if (pid is None or not pid) and so_list and so_list[0].get("partner_id"):
         p = so_list[0].get("partner_id")
         pid = p[0] if isinstance(p, (list, tuple)) else p
-    # Task name = "Customer Name - City" (customer = Contact; city from Property).
+    # Task name = "Customer Name - Line Item" per task + color (Solar=blue/6, Window=green/5)
+    customer_name = ""
     if pid:
-        prop = _odoo_search_read("res.partner", [["id", "=", pid]], ["name", "parent_id", "city"], limit=1)
+        prop = _odoo_search_read("res.partner", [["id", "=", pid]], ["name", "parent_id"], limit=1)
         if prop:
             prop = prop[0]
-            city = (prop.get("city") or "").strip()
             contact_id = prop.get("parent_id")
             if contact_id is not None:
                 contact_id = contact_id[0] if isinstance(contact_id, (list, tuple)) else contact_id
@@ -316,10 +316,6 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 contact = _odoo_search_read("res.partner", [["id", "=", contact_id]], ["name"], limit=1)
                 if contact:
                     customer_name = (contact[0].get("name") or customer_name).strip()
-            if customer_name or city:
-                task_name = f"{customer_name} - {city}".strip(" - ").strip() if city else customer_name
-                if task_name:
-                    task_vals["name"] = task_name
     # Phone: SO partner is Property; phone lives on Contact. Get Contact via Property.parent_id.
     if pid and ODOO_TASK_PHONE_FIELD:
         partners = _odoo_search_read("res.partner", [["id", "=", pid]], ["phone", "parent_id"], limit=1)
@@ -332,14 +328,50 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                     phone = (contact_partners[0].get("phone") or "").strip()
             if phone:
                 task_vals[ODOO_TASK_PHONE_FIELD] = phone
-    if not task_vals:
+    if not task_vals and not customer_name:
         return
     task_vals['stage_id'] = 17  # Planned stage
+    # Read each task's sale_line_id to assign per-task name + color
     try:
-        requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw", "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [task_ids, task_vals]]}}, timeout=10)
-        print(f"[OK] Synced {len(task_ids)} task(s): assignee, planned date, tags, customer, contact number -> Planned")
+        r = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw", "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "read", [task_ids, ["id", "sale_line_id"]]]}}, timeout=10)
+        task_details = r.json().get("result") or []
     except Exception:
-        pass
+        task_details = []
+    detail_line_ids = [t["sale_line_id"][0] for t in task_details if t.get("sale_line_id")]
+    line_product_map = {}
+    if detail_line_ids:
+        try:
+            r2 = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw", "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "sale.order.line", "read", [detail_line_ids, ["id", "product_id"]]]}}, timeout=10)
+            for ln in (r2.json().get("result") or []):
+                prod_name = ln["product_id"][1] if ln.get("product_id") else ""
+                line_product_map[ln["id"]] = prod_name
+        except Exception:
+            pass
+    def _task_name_color(product_name, cname):
+        n = (product_name or "").lower()
+        if "solar" in n:
+            return (f"{cname} - Solar Panel Cleaning" if cname else "Solar Panel Cleaning"), 6
+        if "window" in n:
+            return (f"{cname} - Window Cleaning" if cname else "Window Cleaning"), 5
+        first = (product_name or "").split("\n")[0].strip()
+        label = f"{cname} - {first}".strip(" - ") if cname and first else (cname or first)
+        return label, 0
+    task_detail_map = {t["id"]: t for t in task_details}
+    for tid in task_ids:
+        per_vals = dict(task_vals)
+        td = task_detail_map.get(tid, {})
+        line_id = td.get("sale_line_id")
+        line_id = line_id[0] if isinstance(line_id, (list, tuple)) else line_id
+        product_name = line_product_map.get(line_id, "") if line_id else ""
+        name, color = _task_name_color(product_name, customer_name)
+        if name:
+            per_vals["name"] = name
+        per_vals["color"] = color
+        try:
+            requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw", "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [[tid], per_vals]]}}, timeout=10)
+        except Exception:
+            pass
+    print(f"[OK] Synced {len(task_ids)} task(s): name+color by line item, assignee, planned date, tags, contact -> Planned")
 
 
 def format_serial_id(serial_id):
