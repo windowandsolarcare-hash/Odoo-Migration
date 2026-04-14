@@ -350,9 +350,9 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
     def _task_name_color(product_name, cname):
         n = (product_name or "").lower()
         if "solar" in n:
-            return (f"{cname} - Solar Panel Cleaning" if cname else "Solar Panel Cleaning"), 6
+            return (f"{cname} - Solar Panel Cleaning" if cname else "Solar Panel Cleaning"), 1
         if "window" in n:
-            return (f"{cname} - Window Cleaning" if cname else "Window Cleaning"), 5
+            return (f"{cname} - Window Cleaning" if cname else "Window Cleaning"), 4
         first = (product_name or "").split("\n")[0].strip()
         label = f"{cname} - {first}".strip(" - ") if cname and first else (cname or first)
         return label, 0
