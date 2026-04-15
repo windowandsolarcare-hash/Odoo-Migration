@@ -85,6 +85,7 @@ if contact:
     if open_opps:
         for opp in open_opps:
             opp.message_post(body='[STOP] Customer replied STOP to SMS. Opportunity marked Lost automatically.')
+        open_opps.write({'stage_id': 6})
         open_opps.action_set_lost()
         contact.sudo().message_post(body='[STOP] ' + str(len(open_opps)) + ' opportunity/ies marked Lost. IDs: ' + str(open_opps.ids))
     else:
