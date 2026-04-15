@@ -1053,7 +1053,17 @@ def create_sales_order(contact_id, property_id, workiz_job_data, booking_datetim
 
 
 def confirm_sales_order(sales_order_id):
-    """Confirm sales order (Quotation -> Sales Order)."""
+    """Confirm sales order (Quotation -> Sales Order). Skips if already confirmed to prevent duplicate task creation."""
+    # Check current state first — calling action_confirm on an already-confirmed SO creates duplicate tasks
+    try:
+        check = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw", "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "sale.order", "read", [[sales_order_id], ["state"]]]}}, timeout=10)
+        state = (check.json().get("result") or [{}])[0].get("state", "")
+        if state == "sale":
+            print(f"[*] SO {sales_order_id} already confirmed (state=sale) — skipping action_confirm to prevent duplicate tasks.")
+            return {'success': True}
+    except Exception:
+        pass
+
     payload = {
         "jsonrpc": "2.0",
         "method": "call",
@@ -1070,11 +1080,11 @@ def confirm_sales_order(sales_order_id):
             ]
         }
     }
-    
+
     try:
         response = requests.post(ODOO_URL, json=payload, timeout=10)
         result = response.json()
-        
+
         if result.get("result") is not None:
             return {'success': True}
         else:
