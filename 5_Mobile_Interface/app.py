@@ -2272,6 +2272,72 @@ async def api_search(q: str = '', access_code: str = ''):
             {'fields': ['id', 'name', 'street', 'city', 'phone',
                         'x_studio_x_type_of_service', 'x_studio_x_frequency'],
              'limit': 15, 'order': 'name asc'})
+        if not partners:
+            return {'results': []}
+
+        partner_ids = [p['id'] for p in partners]
+        today = datetime.date.today().isoformat()
+
+        # SOs are linked to Property children, not the Contact directly.
+        # Find all Property children for these contacts in one call.
+        children = odoo_rpc('res.partner', 'search_read',
+            [[['parent_id', 'in', partner_ids],
+              ['x_studio_x_studio_record_category', '=', 'Property']]],
+            {'fields': ['id', 'parent_id'], 'limit': 150})
+        child_to_contact = {}
+        for c in children:
+            if c.get('parent_id'):
+                cid = c['parent_id'][0] if isinstance(c['parent_id'], (list, tuple)) else c['parent_id']
+                child_to_contact[c['id']] = cid
+
+        all_so_pids = list(set(partner_ids + list(child_to_contact.keys())))
+
+        def pid_to_contact(pid):
+            if pid in partner_ids: return pid
+            return child_to_contact.get(pid)
+
+        def fmt_date(date_order):
+            try:
+                return datetime.date.fromisoformat((date_order or '')[:10]).strftime('%b %-d')
+            except Exception:
+                return ''
+
+        # Next scheduled job (today or future, not Done/Canceled)
+        SKIP = {'done', 'canceled', 'cancelled'}
+        next_sos = odoo_rpc('sale.order', 'search_read',
+            [[['partner_id', 'in', all_so_pids],
+              ['state', 'in', ['sale', 'done']],
+              ['date_order', '>=', today + ' 00:00:00']]],
+            {'fields': ['partner_id', 'date_order', 'x_studio_x_studio_workiz_status'],
+             'order': 'date_order asc', 'limit': 60})
+        next_by = {}
+        for so in next_sos:
+            status = (so.get('x_studio_x_studio_workiz_status') or '').lower()
+            if any(s in status for s in SKIP):
+                continue
+            pid = so['partner_id'][0] if isinstance(so.get('partner_id'), (list, tuple)) else so.get('partner_id')
+            cid = pid_to_contact(pid)
+            if cid and cid not in next_by:
+                next_by[cid] = fmt_date(so.get('date_order'))
+
+        # Last done job
+        last_sos = odoo_rpc('sale.order', 'search_read',
+            [[['partner_id', 'in', all_so_pids],
+              ['state', 'in', ['sale', 'done']],
+              ['x_studio_x_studio_workiz_status', 'ilike', 'done']]],
+            {'fields': ['partner_id', 'date_order'],
+             'order': 'date_order desc', 'limit': 60})
+        last_by = {}
+        for so in last_sos:
+            pid = so['partner_id'][0] if isinstance(so.get('partner_id'), (list, tuple)) else so.get('partner_id')
+            cid = pid_to_contact(pid)
+            if cid and cid not in last_by:
+                last_by[cid] = fmt_date(so.get('date_order'))
+
+        for p in partners:
+            p['next_job'] = next_by.get(p['id'], '')
+            p['last_job'] = last_by.get(p['id'], '')
+
         return {'results': partners}
     except Exception as e:
         return JSONResponse({'status': 'error', 'message': str(e)})
