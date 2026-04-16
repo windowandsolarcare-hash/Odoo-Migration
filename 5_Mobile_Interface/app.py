@@ -965,8 +965,8 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
             task_name = tasks[0]['name']
         if not task_id:
             return "No task ID or name provided."
-        odoo_rpc('project.task', 'action_timer_start', [[task_id]])
-        return f"[ODOO] Timer started on task: {task_name or task_id}"
+        _render_timer_start(task_id)
+        return f"[ODOO] ✅ Timer started on task: {task_name or task_id} — task moved to In Progress"
 
     # --- Stop timer on an Odoo task ---
     if tool_name == 'stop_task_timer':
@@ -985,49 +985,10 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
             task_name = tasks[0]['name']
         if not task_id:
             return "No task ID or name provided."
-        # Read timer_start before stopping so we can calculate elapsed for manual fallback
-        task_data = odoo_rpc('project.task', 'read', [[task_id]],
-                             {'fields': ['timer_start', 'project_id', 'name']})
-        if not task_data:
-            return f"Task {task_id} not found."
-        task_rec        = task_data[0]
-        timer_start_raw = task_rec.get('timer_start') or ''
-        task_name       = task_name or (task_rec.get('name') or str(task_id))
-        # Step 1: call action_timer_stop
-        action_ok = False
-        try:
-            odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
-            action_ok = True
-        except Exception:
-            action_ok = False
-        # Step 2: verify it actually cleared
-        if action_ok:
-            check = odoo_rpc('project.task', 'read', [[task_id]], {'fields': ['timer_start']})
-            if check and check[0].get('timer_start'):
-                action_ok = False  # still running — didn't stick
-        # Step 3: manual fallback — write timesheet + clear timer_start ourselves
-        elapsed_msg = 'time logged'
-        if not action_ok and timer_start_raw:
-            try:
-                start_dt = datetime.datetime.strptime(timer_start_raw, '%Y-%m-%d %H:%M:%S')
-                elapsed_hours = max(round((datetime.datetime.utcnow() - start_dt).total_seconds() / 3600, 4), 0.0001)
-                proj_id = task_rec['project_id'][0] if task_rec.get('project_id') else ODOO_PROJECT_ID
-                odoo_rpc('account.analytic.line', 'create', [{
-                    'employee_id': ODOO_EMPLOYEE_ID,
-                    'project_id':  proj_id,
-                    'task_id':     task_id,
-                    'date':        datetime.date.today().isoformat(),
-                    'unit_amount': elapsed_hours,
-                    'name':        '/',
-                }])
-                odoo_rpc('project.task', 'write', [[task_id], {'timer_start': False}])
-                elapsed_msg = f'{round(elapsed_hours * 60)} min logged (manual fallback)'
-                action_ok = True
-            except Exception as e2:
-                return f"[ODOO] Timer stop failed for {task_name}: {e2}"
-        elif not action_ok:
-            return f"[ODOO] Timer stop failed for {task_name} — no timer_start found to fall back on."
-        return f"[ODOO] ✅ Timer stopped on task: {task_name} — {elapsed_msg}"
+        result = _render_timer_stop(task_id)
+        if not result['ok']:
+            return f"[ODOO] {result['message']}"
+        return f"[ODOO] ✅ Timer stopped on task: {task_name or task_id} — {result['message']}"
 
     # --- Record payment: create invoice → confirm → pay → Phase 6 fires ---
     if tool_name == 'record_check_payment':
@@ -2047,6 +2008,97 @@ async def api_dashboard(access_code: str = ''):
 ODOO_EMPLOYEE_ID = 1   # Dan Saunders — hr.employee ID for user 2
 ODOO_PROJECT_ID  = 2   # Field Service project
 
+# ---------------------------------------------------------------------------
+# Render-owned timer helpers — bypasses Odoo's action_timer_start/stop entirely.
+# Odoo's timer is unreliable (timer_start doesn't clear, duplicate log entries).
+# We store our own start time in ir.config_parameter and create the timesheet
+# entry ourselves on stop. GPS reverse-geocode gives the actual address worked at.
+# ---------------------------------------------------------------------------
+
+def _reverse_geocode(lat, lon) -> str:
+    """Return a human-readable address from lat/lon using OpenStreetMap Nominatim."""
+    try:
+        resp = httpx.get(
+            'https://nominatim.openstreetmap.org/reverse',
+            params={'lat': lat, 'lon': lon, 'format': 'json'},
+            headers={'User-Agent': 'WindowSolarCare/1.0'},
+            timeout=5
+        )
+        data = resp.json()
+        addr = data.get('address', {})
+        parts = []
+        if addr.get('house_number'): parts.append(addr['house_number'])
+        if addr.get('road'):         parts.append(addr['road'])
+        city = addr.get('city') or addr.get('town') or addr.get('village') or ''
+        if city:                     parts.append(city)
+        if addr.get('state'):        parts.append(addr['state'])
+        if addr.get('postcode'):     parts.append(addr['postcode'])
+        return ', '.join(parts) if parts else data.get('display_name', f'{lat:.5f},{lon:.5f}')
+    except Exception:
+        return f'{lat:.5f},{lon:.5f}'
+
+
+def _render_timer_start(task_id: int, lat=None, lon=None) -> dict:
+    """Start our own timer for a task. Stores UTC start in ir.config_parameter.
+    Clears any existing Odoo timer_start. Moves task to In Progress (18)."""
+    start_utc = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    odoo_rpc('ir.config_parameter', 'set_param', [f'render.timer.{task_id}', start_utc])
+    # Clear Odoo's own timer so it never runs (avoids stuck timer in UI)
+    try:
+        odoo_rpc('project.task', 'write', [[task_id], {'timer_start': False}])
+    except Exception:
+        pass
+    # Move to In Progress
+    odoo_rpc('project.task', 'write', [[task_id], {'stage_id': 18}])
+    loc_note = ''
+    if lat is not None and lon is not None:
+        loc_note = f' | GPS: {lat:.5f},{lon:.5f}'
+    return {'ok': True, 'message': f'Timer started{loc_note}', 'start_utc': start_utc}
+
+
+def _render_timer_stop(task_id: int, lat=None, lon=None) -> dict:
+    """Stop our timer, create the timesheet entry, clean up.
+    If GPS provided, reverse-geocodes to get actual address worked at."""
+    param_key   = f'render.timer.{task_id}'
+    start_utc   = odoo_rpc('ir.config_parameter', 'get_param', [param_key]) or ''
+    if not start_utc:
+        return {'ok': False, 'message': 'No Render timer running for this task.'}
+    try:
+        start_dt      = datetime.datetime.strptime(start_utc[:19], '%Y-%m-%d %H:%M:%S')
+        elapsed_hours = max(round((datetime.datetime.utcnow() - start_dt).total_seconds() / 3600, 4), 0.0001)
+    except Exception as e:
+        return {'ok': False, 'message': f'Could not parse timer start: {e}'}
+    # Build timesheet description
+    if lat is not None and lon is not None:
+        address  = _reverse_geocode(lat, lon)
+        log_name = f'[Render Timer] {address}'
+    else:
+        log_name = '[Render Timer]'
+    # Read task for project_id
+    task_data = odoo_rpc('project.task', 'read', [[task_id]], {'fields': ['project_id', 'name']})
+    proj_id   = ODOO_PROJECT_ID
+    if task_data and task_data[0].get('project_id'):
+        p = task_data[0]['project_id']
+        proj_id = p[0] if isinstance(p, (list, tuple)) else p
+    # Create timesheet entry
+    odoo_rpc('account.analytic.line', 'create', [{
+        'employee_id': ODOO_EMPLOYEE_ID,
+        'project_id':  proj_id,
+        'task_id':     task_id,
+        'date':        datetime.date.today().isoformat(),
+        'unit_amount': elapsed_hours,
+        'name':        log_name,
+    }])
+    # Clear our timer param and any stale Odoo timer_start
+    odoo_rpc('ir.config_parameter', 'set_param', [param_key, ''])
+    try:
+        odoo_rpc('project.task', 'write', [[task_id], {'timer_start': False}])
+    except Exception:
+        pass
+    mins = round(elapsed_hours * 60)
+    return {'ok': True, 'message': f'Timer stopped — {mins} min logged', 'elapsed_hours': elapsed_hours, 'log_name': log_name}
+
+
 @app.post('/api/timer/start')
 async def api_timer_start(request: Request):
     body = await request.json()
@@ -2055,19 +2107,11 @@ async def api_timer_start(request: Request):
     task_id = int(body.get('task_id', 0))
     if not task_id:
         return JSONResponse({'status': 'error', 'message': 'task_id required'})
-    lat  = body.get('lat')
-    lon  = body.get('lon')
+    lat = body.get('lat')
+    lon = body.get('lon')
     try:
-        odoo_rpc('project.task', 'action_timer_start', [[task_id]])
-        # Log GPS to chatter if provided
-        if lat and lon:
-            loc_msg = f'[Timer started] GPS: {lat:.5f}, {lon:.5f}'
-            try:
-                odoo_rpc('project.task', 'message_post', [[task_id]],
-                         {'body': loc_msg, 'message_type': 'comment'})
-            except Exception:
-                pass
-        return {'status': 'ok', 'message': 'Timer started'}
+        result = _render_timer_start(task_id, lat, lon)
+        return {'status': 'ok', 'message': result['message']}
     except Exception as e:
         return JSONResponse({'status': 'error', 'message': str(e)})
 
@@ -2082,63 +2126,13 @@ async def api_timer_stop(request: Request):
         return JSONResponse({'status': 'error', 'message': 'task_id required'})
     lat = body.get('lat')
     lon = body.get('lon')
-
-    # Step 1: read timer_start BEFORE stopping so we can calculate elapsed ourselves if needed
-    task_data = odoo_rpc('project.task', 'read', [[task_id]],
-                         {'fields': ['timer_start', 'project_id', 'name']})
-    if not task_data:
-        return JSONResponse({'status': 'error', 'message': f'Task {task_id} not found'})
-    task       = task_data[0]
-    timer_start_raw = task.get('timer_start') or ''
-
-    # Step 2: try Odoo's action_timer_stop
-    action_ok = False
     try:
-        odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
-        action_ok = True
-    except Exception:
-        action_ok = False
-
-    # Step 3: verify the timer actually cleared
-    if action_ok:
-        check = odoo_rpc('project.task', 'read', [[task_id]], {'fields': ['timer_start']})
-        if check and check[0].get('timer_start'):
-            action_ok = False   # still running — action didn't stick
-
-    # Step 4: manual fallback — write timesheet + clear timer_start ourselves
-    if not action_ok and timer_start_raw:
-        try:
-            import datetime as _dt
-            start_dt = _dt.datetime.strptime(timer_start_raw, '%Y-%m-%d %H:%M:%S')
-            elapsed_hours = ((_dt.datetime.utcnow() - start_dt).total_seconds()) / 3600.0
-            elapsed_hours = max(round(elapsed_hours, 4), 0.0001)
-            proj_id = task['project_id'][0] if task.get('project_id') else ODOO_PROJECT_ID
-            odoo_rpc('account.analytic.line', 'create', [{
-                'employee_id':  ODOO_EMPLOYEE_ID,
-                'project_id':   proj_id,
-                'task_id':      task_id,
-                'date':         _dt.date.today().isoformat(),
-                'unit_amount':  elapsed_hours,
-                'name':         '/',
-            }])
-            odoo_rpc('project.task', 'write', [[task_id], {'timer_start': False}])
-            mins = round(elapsed_hours * 60)
-            action_ok = True
-            elapsed_msg = f'{mins} min logged (manual)'
-        except Exception as e2:
-            return JSONResponse({'status': 'error', 'message': f'Timer stop failed: {str(e2)}'})
-    else:
-        elapsed_msg = 'time logged'
-
-    # Step 5: log GPS to chatter if provided
-    if lat and lon:
-        try:
-            odoo_rpc('project.task', 'message_post', [[task_id]],
-                     {'body': f'[Timer stopped] GPS: {lat:.5f}, {lon:.5f}', 'message_type': 'comment'})
-        except Exception:
-            pass
-
-    return {'status': 'ok', 'message': f'Timer stopped — {elapsed_msg}'}
+        result = _render_timer_stop(task_id, lat, lon)
+        if not result['ok']:
+            return JSONResponse({'status': 'error', 'message': result['message']})
+        return {'status': 'ok', 'message': result['message']}
+    except Exception as e:
+        return JSONResponse({'status': 'error', 'message': str(e)})
 
 
 @app.post('/api/payment')
