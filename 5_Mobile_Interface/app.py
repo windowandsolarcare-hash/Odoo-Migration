@@ -1042,6 +1042,11 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         invoice_name  = draft_inv[0]['name']
         invoice_total = float(draft_inv[0].get('amount_total') or 0)
 
+        # Chatter on SO: audit trail for invoice creation
+        odoo_rpc('sale.order', 'message_post', [[so_id]], {
+            'body': f'[Render] Invoice {invoice_name} created | Customer: {pname} | Amount: ${invoice_total:.2f} | {today}'
+        })
+
         # Confirm the invoice
         odoo_rpc('account.move', 'action_post', [[invoice_id]])
 
@@ -1056,6 +1061,11 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         }], {'context': wizard_ctx})
         odoo_rpc('account.payment.register', 'action_create_payments', [[wizard_id]],
                  {'context': wizard_ctx})
+
+        # Chatter on invoice: audit trail for payment
+        odoo_rpc('account.move', 'message_post', [[invoice_id]], {
+            'body': f'[Render] Payment recorded | Customer: {pname} | ${amount:.2f} | Method: {raw_method.title()} | Ref: {memo} | {today}'
+        })
 
         partial_note = f' (partial — invoice total ${invoice_total:.2f})' if abs(amount - invoice_total) > 0.01 else ''
         return (f"[ODOO] ✅ Invoice {invoice_name} created & paid\n"
@@ -1943,6 +1953,11 @@ def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str) 
     inv_name  = draft_inv[0]['name']
     inv_total = float(draft_inv[0].get('amount_total') or 0)
 
+    # Chatter on SO: audit trail for invoice creation
+    odoo_rpc('sale.order', 'message_post', [[so_id]], {
+        'body': f'[Render] Invoice {inv_name} created | Customer: {customer} | Amount: ${inv_total:.2f} | {today}'
+    })
+
     odoo_rpc('account.move', 'action_post', [[inv_id]])
     ctx = {'active_model': 'account.move', 'active_ids': [inv_id], 'active_id': inv_id}
     wiz = odoo_rpc('account.payment.register', 'create', [{
@@ -1950,6 +1965,11 @@ def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str) 
         'journal_id': 6, 'payment_method_line_id': pml,
     }], {'context': ctx})
     odoo_rpc('account.payment.register', 'action_create_payments', [[wiz]], {'context': ctx})
+
+    # Chatter on invoice: audit trail for payment
+    odoo_rpc('account.move', 'message_post', [[inv_id]], {
+        'body': f'[Render] Payment recorded | Customer: {customer} | ${amount:.2f} | Method: {raw_method.title()} | Ref: {memo} | {today}'
+    })
 
     partial = f' (partial — inv ${inv_total:.2f})' if abs(amount - inv_total) > 0.01 else ''
     return {'ok': True, 'message': f'{inv_name} | {customer} | {raw_method.title()} ${amount:.2f}{partial} | Phase 6 syncing'}
