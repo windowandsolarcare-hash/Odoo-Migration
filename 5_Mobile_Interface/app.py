@@ -2298,7 +2298,10 @@ async def api_search(q: str = '', access_code: str = ''):
 
         def fmt_date(date_order):
             try:
-                return datetime.date.fromisoformat((date_order or '')[:10]).strftime('%b %-d')
+                d = datetime.date.fromisoformat((date_order or '')[:10])
+                if d.year != datetime.date.today().year:
+                    return d.strftime('%b %-d, %Y')
+                return d.strftime('%b %-d')
             except Exception:
                 return ''
 
