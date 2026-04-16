@@ -43,6 +43,7 @@
 - HTML in chatter gets escaped — use plain text with | separators, unicode emoji OK
 - Workiz filter on SubStatus not Status
 - Deleted Workiz job returns HTTP 204 not 404
+- action_timer_stop on project.task returns a wizard (hr.timesheet.stop.timer.confirmation.wizard), NOT the stopped state — must create wizard record + call action_save_timesheet to actually stop. Fixed in app.py 2026-04-16.
 
 ## WORKIZ API DEFAULTS (required to avoid validation errors)
 - type_of_service_2: 'On Request'
