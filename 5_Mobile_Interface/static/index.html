@@ -547,12 +547,24 @@ function stopTick() {
 }
 function pad(n){return String(n).padStart(2,'0');}
 
+function getGPS() {
+  return new Promise(resolve => {
+    if (!navigator.geolocation) { resolve({}); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({lat: pos.coords.latitude, lon: pos.coords.longitude}),
+      ()  => resolve({}),
+      {timeout: 5000, maximumAge: 30000}
+    );
+  });
+}
+
 async function doStartTimer() {
   if(!activeTask) return;
   showStatus('inf','Starting timer…');
   try {
+    const gps = await getGPS();
     const r = await fetch('/api/timer/start',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({access_code:AC,task_id:activeTask.task_id})});
+      body:JSON.stringify({access_code:AC,task_id:activeTask.task_id, ...gps})});
     const d = await r.json();
     if(d.status==='ok'){
       activeTask.timer_running=true; startTick(new Date()); renderTimerBtns('running');
@@ -565,12 +577,13 @@ async function doStopTimer() {
   if(!activeTask) return;
   showStatus('inf','Stopping timer…');
   try {
+    const gps = await getGPS();
     const r = await fetch('/api/timer/stop',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({access_code:AC,task_id:activeTask.task_id})});
+      body:JSON.stringify({access_code:AC,task_id:activeTask.task_id, ...gps})});
     const d = await r.json();
     if(d.status==='ok'){
       activeTask.timer_running=false; stopTick(); renderTimerBtns('idle');
-      renderSchedule(); showStatus('ok','⏹ Stopped — time logged');
+      renderSchedule(); showStatus('ok',d.message||'⏹ Stopped — time logged');
       setTimeout(()=>document.getElementById('payment-section').scrollIntoView({behavior:'smooth'}),400);
     } else { showStatus('err',d.message||'Failed'); }
   } catch { showStatus('err','Network error'); }
