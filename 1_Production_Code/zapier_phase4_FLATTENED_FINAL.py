@@ -659,11 +659,13 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
         return _ret(tasks_found=n_tasks, error="No fields to write (JobDateTime/Team/partner missing?)")
 
     # Build per-task product map: task_id → product name (for name+color, same as Phase 3)
+    # Also read stage_id so we can move New(16) → Planned(17) without touching In Progress/Done.
     _task_product_map = {}
+    _task_stage_map = {}  # task_id → current stage_id int
     try:
         td_resp = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
             "service": "object", "method": "execute_kw",
-            "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "read", [task_ids, ["id", "sale_line_id"]]]
+            "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "read", [task_ids, ["id", "sale_line_id", "stage_id"]]]
         }}, timeout=10).json().get("result") or []
         td_line_ids = [t["sale_line_id"][0] for t in td_resp if t.get("sale_line_id")]
         if td_line_ids:
@@ -676,6 +678,8 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 tid2 = td["id"]
                 lid2 = td["sale_line_id"][0] if isinstance(td.get("sale_line_id"), (list, tuple)) else td.get("sale_line_id")
                 _task_product_map[tid2] = lp_map.get(lid2, "") if lid2 else ""
+                raw_stage = td.get("stage_id")
+                _task_stage_map[tid2] = raw_stage[0] if isinstance(raw_stage, (list, tuple)) else raw_stage
     except Exception as _tpe:
         print(f"[!] Per-task product map failed (non-fatal): {_tpe}")
 
@@ -720,6 +724,9 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 _pname, _pcolor = _task_name_color(_task_product_map.get(tid, ""), _cname_for_tasks)
                 _t_vals["name"] = _pname if _pname else task_vals.get("name", "")
                 _t_vals["color"] = _pcolor
+                # Move New(16) → Planned(17); leave In Progress(18)/Done(19) alone
+                if _task_stage_map.get(tid) == 16:
+                    _t_vals["stage_id"] = 17
                 wr = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
                     "service": "object", "method": "execute_kw",
                     "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [[tid], _t_vals]]
@@ -734,6 +741,9 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 _per_t = dict(_time_only)
                 _per_t["name"] = _pname if _pname else task_vals.get("name", "")
                 _per_t["color"] = _pcolor
+                # Move New(16) → Planned(17); leave In Progress(18)/Done(19) alone
+                if _task_stage_map.get(tid) == 16:
+                    _per_t["stage_id"] = 17
                 if _per_t:
                     wr = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
                         "service": "object", "method": "execute_kw",
