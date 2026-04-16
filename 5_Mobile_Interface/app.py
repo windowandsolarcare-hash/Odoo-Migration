@@ -454,6 +454,25 @@ def tool_get_schedule(date: str) -> dict:
             'amount': amount,
             'status': so.get('x_studio_x_studio_workiz_status') or ''
         })
+
+    # Attach open tasks to each job so timer start/stop needs no extra lookup
+    so_ids = [j['so_id'] for j in jobs]
+    if so_ids:
+        all_tasks = odoo_rpc('project.task', 'search_read',
+            [[['sale_order_id', 'in', so_ids], ['stage_id', 'not in', [19]]]],
+            {'fields': ['id', 'name', 'sale_order_id', 'stage_id', 'timer_start'], 'order': 'id asc'})
+        tasks_by_so = {}
+        for t in all_tasks:
+            sid = t['sale_order_id'][0] if t.get('sale_order_id') else None
+            if sid:
+                tasks_by_so.setdefault(sid, []).append({
+                    'task_id': t['id'], 'task_name': t['name'],
+                    'stage': t['stage_id'][1] if t.get('stage_id') else '',
+                    'timer_running': bool(t.get('timer_start'))
+                })
+        for job in jobs:
+            job['tasks'] = tasks_by_so.get(job['so_id'], [])
+
     return {'label': label, 'date': date_iso, 'count': len(jobs), 'jobs': jobs, 'total': total}
 
 
@@ -487,6 +506,20 @@ def tool_get_next_job() -> dict:
             rec = p[0]
             parts = [rec.get('street') or '', rec.get('city') or '', rec.get('zip') or '']
             result['address'] = ', '.join(x for x in parts if x)
+
+    # Fetch open tasks linked to this SO so timer start/stop needs no extra lookup
+    so_id = result.get('so_id')
+    if so_id:
+        tasks = odoo_rpc('project.task', 'search_read',
+            [[['sale_order_id', '=', so_id],
+              ['stage_id', 'not in', [19]]]],  # exclude Done (stage 19)
+            {'fields': ['id', 'name', 'stage_id', 'timer_start'], 'order': 'id asc'})
+        result['tasks'] = [
+            {'task_id': t['id'], 'task_name': t['name'],
+             'stage': t['stage_id'][1] if t.get('stage_id') else '',
+             'timer_running': bool(t.get('timer_start'))}
+            for t in tasks
+        ]
     return result
 
 
@@ -1567,11 +1600,24 @@ WORKIZ FACTS:
 - Deleted job = HTTP 204. Custom field = type_of_service_2 (not type_of_service).
 - Defaults: type_of_service_2='On Request', frequency='Unknown', confirmation_method='Cell Phone', JobSource='Referral'
 
-TOOL GUIDANCE:
+CORE FIELD WORKFLOW (make this seamless — no bumps):
+1. "What's my next job" → get_next_job. Returns customer, address, so_id, partner_id, AND tasks[].
+2. "Navigate" → navigate_to with partner_id from step 1. Never re-search.
+3. "Start the timer" → start_task_timer using task_id from tasks[] in step 1.
+   - If one task: start it immediately.
+   - If multiple tasks: list them briefly, ask which one.
+   - If timer already running on a task: say so, ask if they want to start a different one.
+4. "Stop the timer" → stop_task_timer using task_id from session context. Never re-search.
+5. "Received [method] for $[amount] from [customer]" → record_check_payment.
+   - Customer already known from session: use partner_id and so_id directly.
+   - Only search/ask if genuinely ambiguous.
+
+GENERAL TOOL GUIDANCE:
+- Use partner_id and so_id from session context — never re-search for something already known
 - get_sales / get_sales_week for revenue — never get_jobs_list for financial questions
-- For fixing bugs: read the file with github_read_file, fix it, push with github_push_file, then also write to the live Odoo server action with odoo_write if it's a server action
 - odoo_query for any data lookup not covered by specific tools
-- odoo_write for any Odoo change: field updates, server action code, running actions, anything
+- odoo_write for any Odoo change
+- For code fixes: github_read_file → fix → github_push_file → odoo_write if server action
 
 Pacific Time: UTC-7 (Mar–Nov), UTC-8 (Nov–Mar). Be concise — DJ is in the field."""
 
