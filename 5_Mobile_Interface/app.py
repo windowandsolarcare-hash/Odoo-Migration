@@ -1020,6 +1020,9 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         raw_method          = str(args.get('payment_method', 'check')).lower().strip()
         payment_method_line = PAYMENT_METHOD_LINE.get(raw_method, 8)
         memo                = str(args.get('memo', args.get('check_number', raw_method.title())))
+        # Normalize payment method keywords to title case (e.g. "zelle" → "Zelle")
+        if memo.lower() in ('zelle', 'venmo', 'cash', 'check', 'credit'):
+            memo = memo.title()
         check_number        = memo  # keep variable name for return message
 
         # Check for existing draft invoice on this SO first (avoid duplicates)
@@ -1050,16 +1053,19 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         if not draft_inv:
             return f"[ODOO] Could not create or find a draft invoice for {so_name}. Check Odoo."
         invoice_id    = draft_inv[0]['id']
-        invoice_name  = draft_inv[0]['name']
         invoice_total = float(draft_inv[0].get('amount_total') or 0)
+
+        # Confirm the invoice first — assigns the INV/2026/xxxxx number
+        odoo_rpc('account.move', 'action_post', [[invoice_id]])
+
+        # Read name after confirm (draft name is False before action_post)
+        confirmed = odoo_rpc('account.move', 'read', [[invoice_id]], {'fields': ['name']})
+        invoice_name = confirmed[0]['name'] if confirmed else ''
 
         # Chatter on SO: audit trail for invoice creation
         odoo_rpc('sale.order', 'message_post', [[so_id]], {
             'body': f'[Render] Invoice {invoice_name} created | Customer: {pname} | Amount: ${invoice_total:.2f} | {today}'
         })
-
-        # Confirm the invoice
-        odoo_rpc('account.move', 'action_post', [[invoice_id]])
 
         # Register payment via wizard — handles reconciliation with invoice automatically
         wizard_ctx = {'active_model': 'account.move', 'active_ids': [invoice_id], 'active_id': invoice_id}
@@ -1079,9 +1085,10 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         })
 
         partial_note = f' (partial — invoice total ${invoice_total:.2f})' if abs(amount - invoice_total) > 0.01 else ''
+        ref_label = 'Check #' if raw_method == 'check' else f'{raw_method.title()} ref: ' if check_number.lower() != raw_method else ''
         return (f"[ODOO] ✅ Invoice {invoice_name} created & paid\n"
                 f"  Customer: {pname}\n"
-                f"  Check #{check_number} | ${amount:.2f}{partial_note} | {today}\n"
+                f"  {ref_label}{check_number} | ${amount:.2f}{partial_note} | {today}\n"
                 f"  Phase 6 will sync to Workiz automatically.")
 
     # --- Update SHARED_MEMORY.md on GitHub ---
@@ -1930,6 +1937,9 @@ def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str) 
     pml                 = PAYMENT_METHOD_LINE.get(raw_method, 8)
     if not memo:
         memo = raw_method.title()
+    # Normalize payment method keywords to title case (e.g. "zelle" → "Zelle")
+    if memo.lower() in ('zelle', 'venmo', 'cash', 'check', 'credit'):
+        memo = memo.title()
     today = datetime.date.today().isoformat()
 
     so_data = odoo_rpc('sale.order', 'read', [[so_id]],
@@ -1961,15 +1971,19 @@ def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str) 
         return {'ok': False, 'message': f'Could not create draft invoice for {so_name}'}
 
     inv_id    = draft_inv[0]['id']
-    inv_name  = draft_inv[0]['name']
     inv_total = float(draft_inv[0].get('amount_total') or 0)
+
+    # Confirm invoice first — assigns the INV/2026/xxxxx number (draft name is False)
+    odoo_rpc('account.move', 'action_post', [[inv_id]])
+
+    # Read name after confirm
+    confirmed2 = odoo_rpc('account.move', 'read', [[inv_id]], {'fields': ['name']})
+    inv_name   = confirmed2[0]['name'] if confirmed2 else ''
 
     # Chatter on SO: audit trail for invoice creation
     odoo_rpc('sale.order', 'message_post', [[so_id]], {
         'body': f'[Render] Invoice {inv_name} created | Customer: {customer} | Amount: ${inv_total:.2f} | {today}'
     })
-
-    odoo_rpc('account.move', 'action_post', [[inv_id]])
     ctx = {'active_model': 'account.move', 'active_ids': [inv_id], 'active_id': inv_id}
     wiz = odoo_rpc('account.payment.register', 'create', [{
         'payment_date': today, 'amount': amount, 'communication': memo,
