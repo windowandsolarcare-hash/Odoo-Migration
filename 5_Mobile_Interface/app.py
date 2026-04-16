@@ -4,7 +4,7 @@
 # AI: Anthropic Claude (migrated from OpenAI 2026-04-15)
 # ==============================================================================
 
-import os, json, re, datetime, urllib.parse, base64
+import os, json, re, datetime, urllib.parse, base64, threading
 import httpx
 import anthropic
 from fastapi import FastAPI, Request, HTTPException
@@ -27,6 +27,54 @@ GITHUB_TOKEN   = os.environ.get('GITHUB_TOKEN',    '')
 GITHUB_REPO    = 'windowandsolarcare-hash/Odoo-Migration'
 
 app = FastAPI()
+
+# ---------------------------------------------------------------------------
+# Shared memory — loaded from GitHub SHARED_MEMORY.md
+# Cached on startup, auto-refreshed every 60 min, manual refresh on demand
+# ---------------------------------------------------------------------------
+SHARED_MEMORY_PATH = '3_Documentation/SHARED_MEMORY.md'
+_shared_memory_cache: dict = {'content': '', 'last_loaded': None}
+_shared_memory_lock = threading.Lock()
+
+def _fetch_shared_memory() -> str:
+    """Fetch SHARED_MEMORY.md from GitHub. Returns content string or empty."""
+    if not GITHUB_TOKEN:
+        return ''
+    try:
+        headers = {'Authorization': f'token {GITHUB_TOKEN}', 'Accept': 'application/vnd.github.v3+json'}
+        resp = httpx.get(
+            f'https://api.github.com/repos/{GITHUB_REPO}/contents/{SHARED_MEMORY_PATH}',
+            headers=headers, timeout=10
+        )
+        if resp.status_code == 404:
+            return ''
+        resp.raise_for_status()
+        return base64.b64decode(resp.json()['content'].replace('\n', '')).decode('utf-8')
+    except Exception:
+        return _shared_memory_cache.get('content', '')  # return stale on error
+
+def refresh_shared_memory():
+    """Refresh the shared memory cache from GitHub."""
+    content = _fetch_shared_memory()
+    with _shared_memory_lock:
+        _shared_memory_cache['content'] = content
+        _shared_memory_cache['last_loaded'] = datetime.datetime.utcnow()
+
+def get_shared_memory() -> str:
+    """Return cached shared memory content."""
+    with _shared_memory_lock:
+        return _shared_memory_cache.get('content', '')
+
+def _auto_refresh_loop():
+    """Background thread: refresh shared memory every 60 minutes."""
+    while True:
+        threading.Event().wait(3600)  # 60 minutes
+        refresh_shared_memory()
+
+# Load on startup in background so it doesn't block server start
+threading.Thread(target=refresh_shared_memory, daemon=True).start()
+# Start auto-refresh loop
+threading.Thread(target=_auto_refresh_loop, daemon=True).start()
 
 # ---------------------------------------------------------------------------
 # Session memory — keyed by session_id, stores conversation history
@@ -507,6 +555,16 @@ def tool_get_jobs_list(start_date: str = '', records: int = 50,
     return result
 
 
+def tool_refresh_shared_memory() -> str:
+    """Force-refresh shared memory from GitHub right now."""
+    refresh_shared_memory()
+    content = get_shared_memory()
+    last = _shared_memory_cache.get('last_loaded')
+    last_str = last.strftime('%H:%M UTC') if last else 'unknown'
+    lines = len(content.splitlines()) if content else 0
+    return f"Shared memory refreshed at {last_str} — {lines} lines loaded."
+
+
 def tool_odoo_query(model: str, method: str, args: list, kwargs: dict = None) -> any:
     """Execute any read operation on any Odoo model."""
     SAFE_METHODS = {'search_read', 'read', 'search', 'search_count', 'fields_get',
@@ -895,6 +953,36 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
         return f"[ODOO] Timer stopped on task: {task_name or task_id}"
 
+    # --- Update SHARED_MEMORY.md on GitHub ---
+    if tool_name == 'update_shared_memory':
+        if not GITHUB_TOKEN:
+            return 'GITHUB_TOKEN env var not set on Render.'
+        new_content = args['content']
+        headers     = {'Authorization': f'token {GITHUB_TOKEN}', 'Accept': 'application/vnd.github.v3+json'}
+        get_resp    = httpx.get(
+            f'https://api.github.com/repos/{GITHUB_REPO}/contents/{SHARED_MEMORY_PATH}',
+            headers=headers, timeout=10
+        )
+        sha     = get_resp.json().get('sha', '') if get_resp.status_code == 200 else ''
+        today   = datetime.date.today().isoformat()
+        payload = {
+            'message': f'{today} | SHARED_MEMORY.md | {args.get("summary", "update shared memory")}',
+            'content': base64.b64encode(new_content.encode('utf-8')).decode('utf-8'),
+            'branch':  'main'
+        }
+        if sha:
+            payload['sha'] = sha
+        put_resp = httpx.put(
+            f'https://api.github.com/repos/{GITHUB_REPO}/contents/{SHARED_MEMORY_PATH}',
+            headers=headers, json=payload, timeout=20
+        )
+        put_resp.raise_for_status()
+        # Update local cache immediately
+        with _shared_memory_lock:
+            _shared_memory_cache['content'] = new_content
+            _shared_memory_cache['last_loaded'] = datetime.datetime.utcnow()
+        return f"[GITHUB] SHARED_MEMORY.md updated and cache refreshed."
+
     # --- General Odoo write/create/unlink/action ---
     if tool_name == 'odoo_write':
         result = odoo_rpc(args['model'], args['method'], args['args'], args.get('kwargs') or {})
@@ -964,6 +1052,8 @@ def _describe_write(tool_name: str, args: dict) -> str:
     if tool_name == 'stop_task_timer':
         task_ref = args.get('task_name') or f"ID {args.get('task_id')}"
         return f"[ODOO] Stop timer on task: {task_ref}"
+    if tool_name == 'update_shared_memory':
+        return f"[GITHUB] Update SHARED_MEMORY.md: {args.get('summary','')}"
     if tool_name == 'odoo_write':
         return f"[ODOO] {args.get('method','write')} on {args.get('model')}\n  {args.get('description','')}\n  args: {json.dumps(args.get('args',''))[:200]}"
     if tool_name == 'github_push_file':
@@ -1296,6 +1386,23 @@ TOOLS = [
             },
             "required": ["file_path", "content", "commit_message"]
         }
+    },
+    {
+        "name": "refresh_shared_memory",
+        "description": "Force-refresh shared memory from GitHub right now. Use when DJ says 'refresh your memory' or 'refresh memory'.",
+        "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+        "name": "update_shared_memory",
+        "description": "Write updated content to SHARED_MEMORY.md on GitHub — the shared brain accessible by both Render Claude and Claude Code. Use when DJ says 'save that to shared memory' or after important context changes.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "content": {"type": "string", "description": "Full new content of SHARED_MEMORY.md"},
+                "summary": {"type": "string", "description": "One-line description of what changed"}
+            },
+            "required": ["content", "summary"]
+        }
     }
 ]
 
@@ -1303,7 +1410,7 @@ WRITE_TOOLS = {
     'update_workiz_field', 'update_odoo_contact', 'post_odoo_note',
     'create_todo', 'mark_job_done', 'create_workiz_job', 'duplicate_workiz_job',
     'start_task_timer', 'stop_task_timer',
-    'odoo_write', 'github_push_file'
+    'odoo_write', 'github_push_file', 'update_shared_memory'
 }
 
 READ_TOOL_MAP = {
@@ -1322,8 +1429,9 @@ READ_TOOL_MAP = {
     'send_email':           lambda a: tool_send_email(a['subject'], a['body'], a.get('to_email', '')),
     'save_memory':          lambda a: tool_save_memory(a['key'], a['value']),
     'delete_memory':        lambda a: tool_delete_memory(a['key']),
-    'odoo_query':           lambda a: tool_odoo_query(a['model'], a['method'], a['args'], a.get('kwargs')),
-    'github_read_file':     lambda a: tool_github_read_file(a['file_path']),
+    'odoo_query':              lambda a: tool_odoo_query(a['model'], a['method'], a['args'], a.get('kwargs')),
+    'github_read_file':        lambda a: tool_github_read_file(a['file_path']),
+    'refresh_shared_memory':   lambda a: tool_refresh_shared_memory(),
 }
 
 
@@ -1371,15 +1479,19 @@ def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> d
     client    = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
     today_str = datetime.datetime.utcnow().strftime('%A, %B %d, %Y — current UTC time: %H:%M')
 
-    # Load persistent memories and inject into system prompt
-    memories = load_agent_memory()
-    memory_text = ''
-    if memories:
-        memory_text = '\n\nPERSISTENT MEMORIES (facts DJ has asked you to remember across all conversations):\n'
-        for k, v in memories.items():
-            memory_text += f'- {k}: {v}\n'
+    # Inject shared memory from GitHub (cached, refreshed every 60 min)
+    shared_mem = get_shared_memory()
+    shared_mem_text = f'\n\nSHARED MEMORY (synced from GitHub — known facts about this business and project):\n{shared_mem}' if shared_mem else ''
 
-    system_prompt = SYSTEM_PROMPT + memory_text + f'\nToday: {today_str}'
+    # Legacy Odoo memories (kept for backward compat — will phase out)
+    memories = load_agent_memory()
+    odoo_mem_text = ''
+    if memories:
+        odoo_mem_text = '\n\nADDITIONAL MEMORIES (Odoo store):\n'
+        for k, v in memories.items():
+            odoo_mem_text += f'- {k}: {v}\n'
+
+    system_prompt = SYSTEM_PROMPT + shared_mem_text + odoo_mem_text + f'\nToday: {today_str}'
 
     # Load session history — Anthropic messages contain only user/assistant roles (no system)
     history = get_history(session_id) if session_id else []
@@ -1553,15 +1665,29 @@ async def ask(request: Request):
     if user_input.lower().strip('?.! ') in HELP_PHRASES:
         return JSONResponse({'status': 'done', 'message': HELP_TEXT})
 
-    # Handle "what do you remember" directly
+    # Handle explicit memory refresh
     lower_input = user_input.lower().strip('?.! ')
+    if any(p in lower_input for p in ('refresh your memory', 'refresh memory', 'update your memory', 'reload memory')):
+        refresh_shared_memory()
+        last = _shared_memory_cache.get('last_loaded')
+        last_str = last.strftime('%H:%M UTC') if last else 'now'
+        content  = get_shared_memory()
+        lines    = len(content.splitlines()) if content else 0
+        return JSONResponse({'status': 'done', 'message': f"Memory refreshed at {last_str} — {lines} lines loaded from GitHub."})
+
+    # Handle "what do you remember" directly
     if any(p in lower_input for p in ('what do you remember', 'what have you remembered', 'show me your memory', 'what do you know about me')):
-        memories = load_agent_memory()
-        if not memories:
-            return JSONResponse({'status': 'done', 'message': "I don't have any saved memories yet. Say 'remember that...' to save something."})
-        lines = ['Here\'s what I remember:\n']
-        for k, v in memories.items():
-            lines.append(f'• {k}: {v}')
+        shared = get_shared_memory()
+        odoo_mems = load_agent_memory()
+        lines = []
+        if shared:
+            lines.append('SHARED MEMORY (GitHub):\n' + shared)
+        if odoo_mems:
+            lines.append('\nODOO MEMORIES:')
+            for k, v in odoo_mems.items():
+                lines.append(f'• {k}: {v}')
+        if not lines:
+            return JSONResponse({'status': 'done', 'message': "No saved memories yet. Say 'remember that...' to save something."})
         return JSONResponse({'status': 'done', 'message': '\n'.join(lines)})
 
     try:
