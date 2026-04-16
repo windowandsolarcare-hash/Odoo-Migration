@@ -985,11 +985,49 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
             task_name = tasks[0]['name']
         if not task_id:
             return "No task ID or name provided."
-        # action_timer_stop stops the timer AND commits the timesheet entry automatically.
-        # The wizard it returns is browser-only confirmation UI — do NOT call it via API
-        # (calling the wizard with time_spent=0 overwrites the logged time with 0 hours).
-        odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
-        return f"[ODOO] Timer stopped on task: {task_name or task_id}"
+        # Read timer_start before stopping so we can calculate elapsed for manual fallback
+        task_data = odoo_rpc('project.task', 'read', [[task_id]],
+                             {'fields': ['timer_start', 'project_id', 'name']})
+        if not task_data:
+            return f"Task {task_id} not found."
+        task_rec        = task_data[0]
+        timer_start_raw = task_rec.get('timer_start') or ''
+        task_name       = task_name or (task_rec.get('name') or str(task_id))
+        # Step 1: call action_timer_stop
+        action_ok = False
+        try:
+            odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
+            action_ok = True
+        except Exception:
+            action_ok = False
+        # Step 2: verify it actually cleared
+        if action_ok:
+            check = odoo_rpc('project.task', 'read', [[task_id]], {'fields': ['timer_start']})
+            if check and check[0].get('timer_start'):
+                action_ok = False  # still running — didn't stick
+        # Step 3: manual fallback — write timesheet + clear timer_start ourselves
+        elapsed_msg = 'time logged'
+        if not action_ok and timer_start_raw:
+            try:
+                start_dt = datetime.datetime.strptime(timer_start_raw, '%Y-%m-%d %H:%M:%S')
+                elapsed_hours = max(round((datetime.datetime.utcnow() - start_dt).total_seconds() / 3600, 4), 0.0001)
+                proj_id = task_rec['project_id'][0] if task_rec.get('project_id') else ODOO_PROJECT_ID
+                odoo_rpc('account.analytic.line', 'create', [{
+                    'employee_id': ODOO_EMPLOYEE_ID,
+                    'project_id':  proj_id,
+                    'task_id':     task_id,
+                    'date':        datetime.date.today().isoformat(),
+                    'unit_amount': elapsed_hours,
+                    'name':        '/',
+                }])
+                odoo_rpc('project.task', 'write', [[task_id], {'timer_start': False}])
+                elapsed_msg = f'{round(elapsed_hours * 60)} min logged (manual fallback)'
+                action_ok = True
+            except Exception as e2:
+                return f"[ODOO] Timer stop failed for {task_name}: {e2}"
+        elif not action_ok:
+            return f"[ODOO] Timer stop failed for {task_name} — no timer_start found to fall back on."
+        return f"[ODOO] ✅ Timer stopped on task: {task_name} — {elapsed_msg}"
 
     # --- Record payment: create invoice → confirm → pay → Phase 6 fires ---
     if tool_name == 'record_check_payment':
