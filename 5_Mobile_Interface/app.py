@@ -1,26 +1,28 @@
 # ==============================================================================
 # WINDOW & SOLAR CARE — MOBILE VOICE INTERFACE BACKEND (v3)
-# Deploy: Render.com (env vars: ODOO_API_KEY, WORKIZ_TOKEN, WORKIZ_SECRET, OPENAI_API_KEY, ACCESS_CODE)
+# Deploy: Render.com (env vars: ODOO_API_KEY, WORKIZ_TOKEN, WORKIZ_SECRET, ANTHROPIC_API_KEY, ACCESS_CODE)
+# AI: Anthropic Claude (migrated from OpenAI 2026-04-15)
 # ==============================================================================
 
 import os, json, re, datetime, urllib.parse
 import httpx
+import anthropic
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
-from openai import OpenAI
 
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-ODOO_URL      = os.environ.get('ODOO_URL',        'https://window-solar-care.odoo.com')
-ODOO_DB       = os.environ.get('ODOO_DB',         'window-solar-care')
-ODOO_USER_ID  = int(os.environ.get('ODOO_USER_ID', '2'))
-ODOO_API_KEY  = os.environ.get('ODOO_API_KEY',    '')
-WORKIZ_TOKEN  = os.environ.get('WORKIZ_TOKEN',    '')
-WORKIZ_SECRET = os.environ.get('WORKIZ_SECRET',   'sec_334084295850678330105471548')
-OPENAI_KEY    = os.environ.get('OPENAI_API_KEY',  '')
-ACCESS_CODE   = os.environ.get('ACCESS_CODE',     'wsc2026')
-OWNER_EMAIL   = os.environ.get('OWNER_EMAIL',     '')
+ODOO_URL       = os.environ.get('ODOO_URL',         'https://window-solar-care.odoo.com')
+ODOO_DB        = os.environ.get('ODOO_DB',          'window-solar-care')
+ODOO_USER_ID   = int(os.environ.get('ODOO_USER_ID', '2'))
+ODOO_API_KEY   = os.environ.get('ODOO_API_KEY',     '')
+WORKIZ_TOKEN   = os.environ.get('WORKIZ_TOKEN',     '')
+WORKIZ_SECRET  = os.environ.get('WORKIZ_SECRET',    'sec_334084295850678330105471548')
+ANTHROPIC_KEY  = os.environ.get('ANTHROPIC_API_KEY','')
+CLAUDE_MODEL   = os.environ.get('CLAUDE_MODEL',     'claude-sonnet-4-6')
+ACCESS_CODE    = os.environ.get('ACCESS_CODE',      'wsc2026')
+OWNER_EMAIL    = os.environ.get('OWNER_EMAIL',      '')
 
 app = FastAPI()
 
@@ -65,9 +67,9 @@ def get_history(session_id: str) -> list:
 
 def save_history(session_id: str, messages: list):
     trimmed = messages[-40:]  # generous buffer
-    # Never start mid-turn — an orphaned tool message causes OpenAI 400 errors.
-    # Always trim from the front until we land on a user message.
-    while trimmed and trimmed[0].get('role') != 'user':
+    # Never start mid-turn — orphaned tool_result blocks cause Anthropic errors.
+    # Always trim from the front until we land on a plain user text message.
+    while trimmed and (trimmed[0].get('role') != 'user' or isinstance(trimmed[0].get('content'), list)):
         trimmed = trimmed[1:]
     _sessions[session_id] = trimmed
 
@@ -629,21 +631,15 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         days = int(args.get('days', 7))
         note = args.get('note', 'Follow-up')
         due_dt  = datetime.datetime.now() + datetime.timedelta(days=days)
-        # 7am PDT = 14:00 UTC; 7:30am PDT = 14:30 UTC
-        begin_str = due_dt.strftime('%Y-%m-%d 14:00:00')
-        end_str   = due_dt.strftime('%Y-%m-%d 14:30:00')
-        due_disp  = due_dt.strftime('%m-%d-%Y')
+        due_str = due_dt.strftime('%Y-%m-%d 12:00:00')
+        due_disp = due_dt.strftime('%m-%d-%Y')
         todo_id = odoo_rpc('project.task', 'create', [{
             'name': f'[Render] Follow-up: {pname}',
             'description': note,
-            'project_id': 2,
-            'stage_id': 17,
+            'project_id': False,
             'user_ids': [(4, ODOO_USER_ID)],
             'partner_id': args['partner_id'],
-            'planned_date_begin': begin_str,
-            'date_deadline': end_str,
-            'color': 3,
-            'tag_ids': [(4, 13)],
+            'date_deadline': due_str,
         }])
         so_id = args.get('so_id')
         if so_id and todo_id:
@@ -913,7 +909,7 @@ def _describe_write(tool_name: str, args: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Tool definitions for OpenAI
+# Tool definitions (OpenAI format — converted to Anthropic format at runtime)
 # ---------------------------------------------------------------------------
 TOOLS = [
     {
@@ -1331,24 +1327,27 @@ GUIDELINES:
 # ---------------------------------------------------------------------------
 # Agent loop
 # ---------------------------------------------------------------------------
-def _serialize_msg(msg) -> dict:
-    """Convert an OpenAI message object to a plain dict for history storage."""
-    if isinstance(msg, dict):
-        return msg
-    d = {'role': msg.role}
-    if msg.content:
-        d['content'] = msg.content
-    if hasattr(msg, 'tool_calls') and msg.tool_calls:
-        d['tool_calls'] = [
-            {'id': tc.id, 'type': 'function',
-             'function': {'name': tc.function.name, 'arguments': tc.function.arguments}}
-            for tc in msg.tool_calls
-        ]
-    return d
+
+def _openai_tools_to_anthropic(tools: list) -> list:
+    """Convert OpenAI-format tool definitions to Anthropic format.
+    OpenAI: {"type": "function", "function": {"name": ..., "description": ..., "parameters": {...}}}
+    Anthropic: {"name": ..., "description": ..., "input_schema": {...}}
+    """
+    result = []
+    for t in tools:
+        fn = t.get('function', t)
+        result.append({
+            'name': fn['name'],
+            'description': fn.get('description', ''),
+            'input_schema': fn.get('parameters', {'type': 'object', 'properties': {}})
+        })
+    return result
+
+ANTHROPIC_TOOLS = _openai_tools_to_anthropic(TOOLS)
 
 
 def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> dict:
-    client   = OpenAI(api_key=OPENAI_KEY)
+    client    = anthropic.Anthropic(api_key=ANTHROPIC_KEY)
     today_str = datetime.datetime.utcnow().strftime('%A, %B %d, %Y — current UTC time: %H:%M')
 
     # Load persistent memories and inject into system prompt
@@ -1359,80 +1358,107 @@ def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> d
         for k, v in memories.items():
             memory_text += f'- {k}: {v}\n'
 
-    # Load session history
-    history = get_history(session_id) if session_id else []
+    system_prompt = SYSTEM_PROMPT + memory_text + f'\nToday: {today_str}'
 
-    messages = [{'role': 'system', 'content': SYSTEM_PROMPT + memory_text + f'\nToday: {today_str}'}]
-    messages += history
+    # Load session history — Anthropic messages contain only user/assistant roles (no system)
+    history = get_history(session_id) if session_id else []
+    turn_start_idx = len(history)  # index in combined list where this turn begins
+
+    messages = list(history)
     messages.append({'role': 'user', 'content': user_input})
-    turn_start = len(messages) - 1  # index of the user message that starts this turn
 
     for _ in range(12):
-        resp = client.chat.completions.create(
-            model='gpt-4o-mini',
+        resp = client.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=1024,
+            system=system_prompt,
             messages=messages,
-            tools=TOOLS,
-            tool_choice='auto',
-            max_tokens=800
+            tools=ANTHROPIC_TOOLS
         )
-        msg = resp.choices[0].message
 
-        if not msg.tool_calls:
-            # GPT is asking a question or giving a final answer
-            content = msg.content or 'Done.'
-            # Save full turn to session — user msg + all tool calls/results + final response
-            # This gives GPT full context in subsequent turns (e.g., partner_id from schedule)
+        if resp.stop_reason == 'end_turn':
+            # Claude is done — extract text from content blocks
+            content = next((b.text for b in resp.content if hasattr(b, 'text')), 'Done.')
             if session_id:
-                new_turn = [_serialize_msg(m) for m in messages[turn_start:]]
+                new_turn = messages[turn_start_idx:]
                 new_turn.append({'role': 'assistant', 'content': content})
                 save_history(session_id, history + new_turn)
             return {'status': 'done', 'message': content}
 
-        messages.append(msg)
+        if resp.stop_reason == 'tool_use':
+            # Add Claude's response (with tool_use blocks) to messages
+            # Anthropic requires the raw content list as the assistant message
+            assistant_content = [
+                b.model_dump() if hasattr(b, 'model_dump') else b
+                for b in resp.content
+            ]
+            messages.append({'role': 'assistant', 'content': assistant_content})
 
-        for tool_call in msg.tool_calls:
-            name = tool_call.function.name
-            try:
-                args = json.loads(tool_call.function.arguments)
-            except Exception:
-                args = {}
+            tool_results = []
+            pending_write = None
 
-            if name in WRITE_TOOLS:
-                if mode == 'immediate':
-                    result = execute_write_tool(name, args)
-                    if session_id:
-                        clear_history(session_id)
-                    return {'status': 'done', 'message': result}
+            for block in resp.content:
+                if not hasattr(block, 'type') or block.type != 'tool_use':
+                    continue
+
+                name = block.name
+                args = block.input  # already a dict in Anthropic (not a JSON string)
+
+                if name in WRITE_TOOLS:
+                    if mode == 'immediate':
+                        result = execute_write_tool(name, args)
+                        if session_id:
+                            clear_history(session_id)
+                        return {'status': 'done', 'message': result}
+                    else:
+                        # Return pending confirmation — caller will re-submit with mode='immediate'
+                        pending_write = {
+                            'status': 'pending',
+                            'confirmation': _describe_write(name, args),
+                            'write_action': {'tool': name, 'args': args},
+                            'session_id': session_id
+                        }
+                        # Still need to send a tool_result so Anthropic doesn't error on resume
+                        tool_results.append({
+                            'type': 'tool_result',
+                            'tool_use_id': block.id,
+                            'content': 'Awaiting user confirmation.'
+                        })
+
+                elif name in READ_TOOL_MAP:
+                    try:
+                        result = READ_TOOL_MAP[name](args)
+                    except Exception as e:
+                        result = {'error': str(e)}
+
+                    # navigate_to returns HTML — return immediately
+                    if name == 'navigate_to' and isinstance(result, str) and '<a href=' in result:
+                        return {'status': 'done', 'message': result}
+
+                    tool_results.append({
+                        'type': 'tool_result',
+                        'tool_use_id': block.id,
+                        'content': json.dumps(result) if not isinstance(result, str) else result
+                    })
+
                 else:
-                    return {
-                        'status': 'pending',
-                        'confirmation': _describe_write(name, args),
-                        'write_action': {'tool': name, 'args': args},
-                        'session_id': session_id
-                    }
+                    tool_results.append({
+                        'type': 'tool_result',
+                        'tool_use_id': block.id,
+                        'content': f'Unknown tool: {name}'
+                    })
 
-            elif name in READ_TOOL_MAP:
-                try:
-                    result = READ_TOOL_MAP[name](args)
-                except Exception as e:
-                    result = {'error': str(e)}
+            # All tool results go into a single user message (Anthropic requirement)
+            if tool_results:
+                messages.append({'role': 'user', 'content': tool_results})
 
-                # navigate_to returns HTML — return immediately
-                if name == 'navigate_to' and isinstance(result, str) and '<a href=' in result:
-                    return {'status': 'done', 'message': result}
+            # Return pending write confirmation after tool results are appended
+            if pending_write:
+                return pending_write
 
-                messages.append({
-                    'role': 'tool',
-                    'tool_call_id': tool_call.id,
-                    'content': json.dumps(result) if not isinstance(result, str) else result
-                })
-
-            else:
-                messages.append({
-                    'role': 'tool',
-                    'tool_call_id': tool_call.id,
-                    'content': f'Unknown tool: {name}'
-                })
+        else:
+            # Unexpected stop reason
+            break
 
     return {'status': 'error', 'message': 'Could not complete the request.'}
 
@@ -1552,4 +1578,3 @@ async def index():
     html_path = os.path.join(os.path.dirname(__file__), 'static', 'index.html')
     with open(html_path, 'r', encoding='utf-8') as f:
         return f.read()
-
