@@ -1971,6 +1971,9 @@ async def api_dashboard(access_code: str = ''):
     return {'schedule': schedule, 'next_job': next_job, 'week_sales': week_sales}
 
 
+ODOO_EMPLOYEE_ID = 1   # Dan Saunders — hr.employee ID for user 2
+ODOO_PROJECT_ID  = 2   # Field Service project
+
 @app.post('/api/timer/start')
 async def api_timer_start(request: Request):
     body = await request.json()
@@ -1979,8 +1982,18 @@ async def api_timer_start(request: Request):
     task_id = int(body.get('task_id', 0))
     if not task_id:
         return JSONResponse({'status': 'error', 'message': 'task_id required'})
+    lat  = body.get('lat')
+    lon  = body.get('lon')
     try:
         odoo_rpc('project.task', 'action_timer_start', [[task_id]])
+        # Log GPS to chatter if provided
+        if lat and lon:
+            loc_msg = f'[Timer started] GPS: {lat:.5f}, {lon:.5f}'
+            try:
+                odoo_rpc('project.task', 'message_post', [[task_id]],
+                         {'body': loc_msg, 'message_type': 'comment'})
+            except Exception:
+                pass
         return {'status': 'ok', 'message': 'Timer started'}
     except Exception as e:
         return JSONResponse({'status': 'error', 'message': str(e)})
@@ -1994,11 +2007,65 @@ async def api_timer_stop(request: Request):
     task_id = int(body.get('task_id', 0))
     if not task_id:
         return JSONResponse({'status': 'error', 'message': 'task_id required'})
+    lat = body.get('lat')
+    lon = body.get('lon')
+
+    # Step 1: read timer_start BEFORE stopping so we can calculate elapsed ourselves if needed
+    task_data = odoo_rpc('project.task', 'read', [[task_id]],
+                         {'fields': ['timer_start', 'project_id', 'name']})
+    if not task_data:
+        return JSONResponse({'status': 'error', 'message': f'Task {task_id} not found'})
+    task       = task_data[0]
+    timer_start_raw = task.get('timer_start') or ''
+
+    # Step 2: try Odoo's action_timer_stop
+    action_ok = False
     try:
         odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
-        return {'status': 'ok', 'message': 'Timer stopped — time logged'}
-    except Exception as e:
-        return JSONResponse({'status': 'error', 'message': str(e)})
+        action_ok = True
+    except Exception:
+        action_ok = False
+
+    # Step 3: verify the timer actually cleared
+    if action_ok:
+        check = odoo_rpc('project.task', 'read', [[task_id]], {'fields': ['timer_start']})
+        if check and check[0].get('timer_start'):
+            action_ok = False   # still running — action didn't stick
+
+    # Step 4: manual fallback — write timesheet + clear timer_start ourselves
+    if not action_ok and timer_start_raw:
+        try:
+            import datetime as _dt
+            start_dt = _dt.datetime.strptime(timer_start_raw, '%Y-%m-%d %H:%M:%S')
+            elapsed_hours = ((_dt.datetime.utcnow() - start_dt).total_seconds()) / 3600.0
+            elapsed_hours = max(round(elapsed_hours, 4), 0.0001)
+            proj_id = task['project_id'][0] if task.get('project_id') else ODOO_PROJECT_ID
+            odoo_rpc('account.analytic.line', 'create', [{
+                'employee_id':  ODOO_EMPLOYEE_ID,
+                'project_id':   proj_id,
+                'task_id':      task_id,
+                'date':         _dt.date.today().isoformat(),
+                'unit_amount':  elapsed_hours,
+                'name':         '/',
+            }])
+            odoo_rpc('project.task', 'write', [[task_id], {'timer_start': False}])
+            mins = round(elapsed_hours * 60)
+            action_ok = True
+            elapsed_msg = f'{mins} min logged (manual)'
+        except Exception as e2:
+            return JSONResponse({'status': 'error', 'message': f'Timer stop failed: {str(e2)}'})
+    else:
+        elapsed_msg = 'time logged'
+
+    # Step 5: log GPS to chatter if provided
+    if lat and lon:
+        try:
+            odoo_rpc('project.task', 'message_post', [[task_id]],
+                     {'body': f'[Timer stopped] GPS: {lat:.5f}, {lon:.5f}', 'message_type': 'comment'})
+        except Exception:
+            pass
+
+    return {'status': 'ok', 'message': f'Timer stopped — {elapsed_msg}'}
 
 
 @app.post('/api/payment')
