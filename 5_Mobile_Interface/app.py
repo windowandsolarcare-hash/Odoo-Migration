@@ -956,6 +956,63 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
         return f"[ODOO] Timer stopped on task: {task_name or task_id}"
 
+    # --- Record check payment: create invoice → confirm → pay → Phase 6 fires ---
+    if tool_name == 'record_check_payment':
+        so_id        = args['so_id']
+        so_name      = args.get('so_name', '')
+        amount       = float(args['amount'])
+        check_number = str(args['check_number'])
+        today        = datetime.date.today().isoformat()
+
+        # Check for existing draft invoice on this SO first (avoid duplicates)
+        so_data = odoo_rpc('sale.order', 'read', [[so_id]], {'fields': ['invoice_ids', 'name']})
+        if not so_data:
+            return f"Sales order not found: {so_id}"
+        existing_inv_ids = so_data[0].get('invoice_ids', [])
+        draft_inv = []
+        if existing_inv_ids:
+            draft_inv = odoo_rpc('account.move', 'search_read',
+                [[['id', 'in', existing_inv_ids], ['state', '=', 'draft'],
+                  ['move_type', '=', 'out_invoice']]],
+                {'fields': ['id', 'name', 'amount_total'], 'limit': 1})
+
+        if not draft_inv:
+            # Create invoice from SO
+            odoo_rpc('sale.order', 'action_create_invoices', [[so_id]])
+            so_data2     = odoo_rpc('sale.order', 'read', [[so_id]], {'fields': ['invoice_ids']})
+            new_inv_ids  = so_data2[0].get('invoice_ids', []) if so_data2 else []
+            draft_inv    = odoo_rpc('account.move', 'search_read',
+                [[['id', 'in', new_inv_ids], ['state', '=', 'draft'],
+                  ['move_type', '=', 'out_invoice']]],
+                {'fields': ['id', 'name', 'amount_total'], 'limit': 1})
+
+        if not draft_inv:
+            return f"[ODOO] Could not create or find a draft invoice for {so_name}. Check Odoo."
+        invoice_id    = draft_inv[0]['id']
+        invoice_name  = draft_inv[0]['name']
+        invoice_total = float(draft_inv[0].get('amount_total') or 0)
+
+        # Confirm the invoice
+        odoo_rpc('account.move', 'action_post', [[invoice_id]])
+
+        # Register payment via wizard — handles reconciliation with invoice automatically
+        wizard_ctx = {'active_model': 'account.move', 'active_ids': [invoice_id], 'active_id': invoice_id}
+        wizard_id  = odoo_rpc('account.payment.register', 'create', [{
+            'payment_date':           today,
+            'amount':                 amount,
+            'communication':          check_number,
+            'journal_id':             6,   # Bank
+            'payment_method_line_id': 8,   # Check (Bank)
+        }], {'context': wizard_ctx})
+        odoo_rpc('account.payment.register', 'action_create_payments', [[wizard_id]],
+                 {'context': wizard_ctx})
+
+        partial_note = f' (partial — invoice total ${invoice_total:.2f})' if abs(amount - invoice_total) > 0.01 else ''
+        return (f"[ODOO] ✅ Invoice {invoice_name} created & paid\n"
+                f"  Customer: {pname}\n"
+                f"  Check #{check_number} | ${amount:.2f}{partial_note} | {today}\n"
+                f"  Phase 6 will sync to Workiz automatically.")
+
     # --- Update SHARED_MEMORY.md on GitHub ---
     if tool_name == 'update_shared_memory':
         if not GITHUB_TOKEN:
@@ -1055,6 +1112,11 @@ def _describe_write(tool_name: str, args: dict) -> str:
     if tool_name == 'stop_task_timer':
         task_ref = args.get('task_name') or f"ID {args.get('task_id')}"
         return f"[ODOO] Stop timer on task: {task_ref}"
+    if tool_name == 'record_check_payment':
+        return (f"[ODOO] Create invoice + register check payment\n"
+                f"  Customer: {pname} | SO: {args.get('so_name')}\n"
+                f"  Check #{args.get('check_number')} | ${float(args.get('amount',0)):.2f} | {datetime.date.today().isoformat()}\n"
+                f"  Phase 6 will sync to Workiz automatically")
     if tool_name == 'update_shared_memory':
         return f"[GITHUB] Update SHARED_MEMORY.md: {args.get('summary','')}"
     if tool_name == 'odoo_write':
@@ -1391,6 +1453,29 @@ TOOLS = [
         }
     },
     {
+        "name": "record_check_payment",
+        "description": (
+            "Create an invoice from a Sales Order, confirm it, and register a check payment. "
+            "Use when DJ says 'received check [number] for $[amount] from [customer]'. "
+            "First call search_customers to get partner_id, then use odoo_query to find their confirmed SOs "
+            "(search sale.order where partner_id=X and state in [sale,done]). "
+            "If multiple open SOs exist, list them and ask DJ which one. "
+            "Phase 6 fires automatically after payment is posted — no Workiz action needed."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "partner_id":   {"type": "integer"},
+                "partner_name": {"type": "string"},
+                "so_id":        {"type": "integer", "description": "The SO to invoice"},
+                "so_name":      {"type": "string",  "description": "e.g. S04400"},
+                "amount":       {"type": "number",  "description": "Payment amount in dollars"},
+                "check_number": {"type": "string",  "description": "Check number — goes in memo field"}
+            },
+            "required": ["partner_id", "partner_name", "so_id", "so_name", "amount", "check_number"]
+        }
+    },
+    {
         "name": "refresh_shared_memory",
         "description": "Force-refresh shared memory from GitHub right now. Use when DJ says 'refresh your memory' or 'refresh memory'.",
         "input_schema": {"type": "object", "properties": {}}
@@ -1413,7 +1498,7 @@ WRITE_TOOLS = {
     'update_workiz_field', 'update_odoo_contact', 'post_odoo_note',
     'create_todo', 'mark_job_done', 'create_workiz_job', 'duplicate_workiz_job',
     'start_task_timer', 'stop_task_timer',
-    'odoo_write', 'github_push_file', 'update_shared_memory'
+    'odoo_write', 'github_push_file', 'update_shared_memory', 'record_check_payment'
 }
 
 READ_TOOL_MAP = {
