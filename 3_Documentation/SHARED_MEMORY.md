@@ -51,6 +51,33 @@
 - confirmation_method: 'Cell Phone'
 - JobSource: 'Referral'
 
+## ODOO INVOICE + PAYMENT API PATTERN (reuse for QB migration)
+# Creates invoice from SO, confirms it, registers payment, reconciles — Phase 6 fires automatically
+# Journal: Bank (ID=6) | Check method line: ID=8 "Check (Bank)" | Memo = check number
+# Payment method line IDs on Bank journal:
+#   1=Manual Payment, 2=Batch Deposit, 3=Manual Payment, 4=Checks, 5=NACHA
+#   6=Cash, 7=Credit, 8=Check (Bank)
+#
+# Step 1: Check for existing draft invoice, else create:
+#   odoo_call('sale.order', 'action_create_invoices', [[so_id]])
+#   so_data = odoo_call('sale.order', 'read', [[so_id]], {'fields': ['invoice_ids']})
+#   draft_inv = odoo_call('account.move', 'search_read',
+#       [[['id','in', so_data[0]['invoice_ids']], ['state','=','draft'], ['move_type','=','out_invoice']]],
+#       {'fields': ['id','name','amount_total'], 'limit': 1})
+#
+# Step 2: Confirm invoice:
+#   odoo_call('account.move', 'action_post', [[invoice_id]])
+#
+# Step 3: Register payment via wizard (handles reconciliation):
+#   ctx = {'active_model':'account.move','active_ids':[invoice_id],'active_id':invoice_id}
+#   wizard_id = odoo_call('account.payment.register', 'create',
+#       [{'payment_date': today, 'amount': amount, 'communication': check_number,
+#         'journal_id': 6, 'payment_method_line_id': 8}], {'context': ctx})
+#   odoo_call('account.payment.register', 'action_create_payments', [[wizard_id]], {'context': ctx})
+#
+# For QB migration: same pattern but loop over historical payments, match SO by name/origin
+# payment_method_line_id values: 8=Check, 6=Cash, 7=Credit, 1=Manual(bank transfer)
+
 ## RECENT DECISIONS / CONTEXT
 - 2026-04-16: Migrated Render app from OpenAI to Claude native (no wrapper), added power tools (odoo_query, odoo_write, github_read_file, github_push_file), added shared memory system
 - 2026-04-15: Migrated Render app from ChatGPT to Claude (Anthropic SDK)
