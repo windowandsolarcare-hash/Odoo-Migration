@@ -24,15 +24,16 @@ CLAUDE_MODEL   = os.environ.get('CLAUDE_MODEL',     'claude-sonnet-4-6')
 ACCESS_CODE    = os.environ.get('ACCESS_CODE',      'wsc2026')
 OWNER_EMAIL    = os.environ.get('OWNER_EMAIL',      '')
 GITHUB_TOKEN   = os.environ.get('GITHUB_TOKEN',    '')
-GITHUB_REPO    = 'windowandsolarcare-hash/Odoo-Migration'
+GITHUB_REPO    = os.environ.get('GITHUB_REPO',    'windowandsolarcare-hash/Odoo-Migration')
+SHARED_MEMORY_PATH = os.environ.get('SHARED_MEMORY_PATH', '3_Documentation/SHARED_MEMORY.md')
 
 app = FastAPI()
 
 # ---------------------------------------------------------------------------
 # Shared memory — loaded from GitHub SHARED_MEMORY.md
 # Cached on startup, auto-refreshed every 60 min, manual refresh on demand
+# GITHUB_REPO and SHARED_MEMORY_PATH are env vars — update on Render to switch projects
 # ---------------------------------------------------------------------------
-SHARED_MEMORY_PATH = '3_Documentation/SHARED_MEMORY.md'
 _shared_memory_cache: dict = {'content': '', 'last_loaded': None}
 _shared_memory_lock = threading.Lock()
 
