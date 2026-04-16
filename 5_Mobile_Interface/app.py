@@ -874,6 +874,18 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
                     [[['partner_shipping_id', '=', partner_id], ['state', 'in', ['sale', 'done']],
                       ['x_studio_x_studio_workiz_uuid', '!=', False]]],
                     {'fields': ['x_studio_x_studio_workiz_uuid'], 'order': 'date_order desc', 'limit': 1})
+            if not sos:
+                # partner_id may be the Contact — look up its Property children and search those
+                children = odoo_rpc('res.partner', 'search_read',
+                    [[['parent_id', '=', partner_id],
+                      ['x_studio_x_studio_record_category', '=', 'Property']]],
+                    {'fields': ['id'], 'limit': 20})
+                child_ids = [c['id'] for c in children]
+                if child_ids:
+                    sos = odoo_rpc('sale.order', 'search_read',
+                        [[['partner_id', 'in', child_ids], ['state', 'in', ['sale', 'done']],
+                          ['x_studio_x_studio_workiz_uuid', '!=', False]]],
+                        {'fields': ['x_studio_x_studio_workiz_uuid'], 'order': 'date_order desc', 'limit': 1})
             if sos:
                 uuid = sos[0].get('x_studio_x_studio_workiz_uuid') or ''
         if not uuid:
