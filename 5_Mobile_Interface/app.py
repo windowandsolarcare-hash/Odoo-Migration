@@ -469,7 +469,8 @@ def tool_get_schedule(date: str) -> dict:
                 tasks_by_so.setdefault(sid, []).append({
                     'task_id': t['id'], 'task_name': t['name'],
                     'stage': t['stage_id'][1] if t.get('stage_id') else '',
-                    'timer_running': bool(t.get('timer_start'))
+                    'timer_running': bool(t.get('timer_start')),
+                    'timer_start': t.get('timer_start') or ''
                 })
         for job in jobs:
             job['tasks'] = tasks_by_so.get(job['so_id'], [])
@@ -1873,23 +1874,92 @@ async def execute(request: Request):
 # ---------------------------------------------------------------------------
 # Serve frontend
 # ---------------------------------------------------------------------------
+def _batch_addresses(jobs: list) -> dict:
+    """Batch-fetch addresses for a list of jobs. Returns {partner_id: address_string}."""
+    pids = list({j['partner_id'] for j in jobs if j.get('partner_id')})
+    if not pids:
+        return {}
+    try:
+        partners = odoo_rpc('res.partner', 'read', [pids],
+            {'fields': ['id', 'street', 'city', 'state_id', 'zip']})
+        result = {}
+        for p in partners:
+            parts = [p.get('street') or '', p.get('city') or '', p.get('zip') or '']
+            result[p['id']] = ', '.join(x for x in parts if x)
+        return result
+    except Exception:
+        return {}
+
+
+def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str) -> dict:
+    """Record payment on an SO. Returns {'ok': bool, 'message': str}."""
+    PAYMENT_METHOD_LINE = {'check': 8, 'cash': 6, 'zelle': 6, 'venmo': 6, 'credit': 7}
+    raw_method          = str(payment_method or 'check').lower().strip()
+    pml                 = PAYMENT_METHOD_LINE.get(raw_method, 8)
+    if not memo:
+        memo = raw_method.title()
+    today = datetime.date.today().isoformat()
+
+    so_data = odoo_rpc('sale.order', 'read', [[so_id]],
+        {'fields': ['invoice_ids', 'name', 'partner_id']})
+    if not so_data:
+        return {'ok': False, 'message': f'SO {so_id} not found'}
+    so_name  = so_data[0].get('name', '')
+    partner  = so_data[0].get('partner_id') or [None, '']
+    customer = partner[1].split(',')[0].strip() if partner else ''
+
+    existing = so_data[0].get('invoice_ids', [])
+    draft_inv = []
+    if existing:
+        draft_inv = odoo_rpc('account.move', 'search_read',
+            [[['id', 'in', existing], ['state', '=', 'draft'], ['move_type', '=', 'out_invoice']]],
+            {'fields': ['id', 'name', 'amount_total'], 'limit': 1})
+    if not draft_inv:
+        odoo_rpc('sale.order', 'action_create_invoices', [[so_id]])
+        so2      = odoo_rpc('sale.order', 'read', [[so_id]], {'fields': ['invoice_ids']})
+        new_ids  = so2[0].get('invoice_ids', []) if so2 else []
+        draft_inv = odoo_rpc('account.move', 'search_read',
+            [[['id', 'in', new_ids], ['state', '=', 'draft'], ['move_type', '=', 'out_invoice']]],
+            {'fields': ['id', 'name', 'amount_total'], 'limit': 1})
+    if not draft_inv:
+        return {'ok': False, 'message': f'Could not create draft invoice for {so_name}'}
+
+    inv_id    = draft_inv[0]['id']
+    inv_name  = draft_inv[0]['name']
+    inv_total = float(draft_inv[0].get('amount_total') or 0)
+
+    odoo_rpc('account.move', 'action_post', [[inv_id]])
+    ctx = {'active_model': 'account.move', 'active_ids': [inv_id], 'active_id': inv_id}
+    wiz = odoo_rpc('account.payment.register', 'create', [{
+        'payment_date': today, 'amount': amount, 'communication': memo,
+        'journal_id': 6, 'payment_method_line_id': pml,
+    }], {'context': ctx})
+    odoo_rpc('account.payment.register', 'action_create_payments', [[wiz]], {'context': ctx})
+
+    partial = f' (partial — inv ${inv_total:.2f})' if abs(amount - inv_total) > 0.01 else ''
+    return {'ok': True, 'message': f'{inv_name} | {customer} | {raw_method.title()} ${amount:.2f}{partial} | Phase 6 syncing'}
+
+
 @app.get('/api/dashboard')
 async def api_dashboard(access_code: str = ''):
     if access_code != ACCESS_CODE:
-        from fastapi.responses import JSONResponse as _JR
-        return _JR({'error': 'unauthorized'}, status_code=401)
+        return JSONResponse({'error': 'unauthorized'}, status_code=401)
     try:
         schedule = tool_get_schedule('today')
-    except Exception as e:
+        addr_map = _batch_addresses(schedule.get('jobs', []))
+        for job in schedule.get('jobs', []):
+            if job.get('partner_id') and not job.get('address'):
+                job['address'] = addr_map.get(job['partner_id'], '')
+    except Exception:
         schedule = {'count': 0, 'total': 0, 'jobs': []}
     try:
         next_job_raw = tool_get_next_job()
         next_job = {
-            'customer': next_job_raw.get('customer', ''),
-            'address':  next_job_raw.get('address', ''),
-            'time_utc': next_job_raw.get('time_utc', ''),
-            'amount':   next_job_raw.get('amount', 0),
-            'so_id':    next_job_raw.get('so_id'),
+            'customer':   next_job_raw.get('customer', ''),
+            'address':    next_job_raw.get('address', ''),
+            'time_utc':   next_job_raw.get('time_utc', ''),
+            'amount':     next_job_raw.get('amount', 0),
+            'so_id':      next_job_raw.get('so_id'),
             'partner_id': next_job_raw.get('partner_id'),
         } if not next_job_raw.get('error') else {}
     except Exception:
@@ -1898,11 +1968,140 @@ async def api_dashboard(access_code: str = ''):
         week_sales = tool_get_sales_week('')
     except Exception:
         week_sales = ''
-    return {
-        'schedule':   schedule,
-        'next_job':   next_job,
-        'week_sales': week_sales,
-    }
+    return {'schedule': schedule, 'next_job': next_job, 'week_sales': week_sales}
+
+
+@app.post('/api/timer/start')
+async def api_timer_start(request: Request):
+    body = await request.json()
+    if body.get('access_code') != ACCESS_CODE:
+        return JSONResponse({'error': 'unauthorized'}, status_code=401)
+    task_id = int(body.get('task_id', 0))
+    if not task_id:
+        return JSONResponse({'status': 'error', 'message': 'task_id required'})
+    try:
+        odoo_rpc('project.task', 'action_timer_start', [[task_id]])
+        return {'status': 'ok', 'message': 'Timer started'}
+    except Exception as e:
+        return JSONResponse({'status': 'error', 'message': str(e)})
+
+
+@app.post('/api/timer/stop')
+async def api_timer_stop(request: Request):
+    body = await request.json()
+    if body.get('access_code') != ACCESS_CODE:
+        return JSONResponse({'error': 'unauthorized'}, status_code=401)
+    task_id = int(body.get('task_id', 0))
+    if not task_id:
+        return JSONResponse({'status': 'error', 'message': 'task_id required'})
+    try:
+        odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
+        return {'status': 'ok', 'message': 'Timer stopped — time logged'}
+    except Exception as e:
+        return JSONResponse({'status': 'error', 'message': str(e)})
+
+
+@app.post('/api/payment')
+async def api_payment(request: Request):
+    body = await request.json()
+    if body.get('access_code') != ACCESS_CODE:
+        return JSONResponse({'error': 'unauthorized'}, status_code=401)
+    so_id          = int(body.get('so_id', 0))
+    amount         = float(body.get('amount', 0))
+    payment_method = str(body.get('payment_method', 'check'))
+    memo           = str(body.get('memo', '') or '')
+    if not so_id or amount <= 0:
+        return JSONResponse({'status': 'error', 'message': 'so_id and amount required'})
+    try:
+        result = _execute_payment(so_id, amount, payment_method, memo)
+        status = 'ok' if result['ok'] else 'error'
+        return {'status': status, 'message': result['message']}
+    except Exception as e:
+        return JSONResponse({'status': 'error', 'message': str(e)})
+
+
+@app.get('/api/upcoming')
+async def api_upcoming(access_code: str = ''):
+    if access_code != ACCESS_CODE:
+        return JSONResponse({'error': 'unauthorized'}, status_code=401)
+    try:
+        today  = datetime.date.today()
+        end    = today + datetime.timedelta(days=7)
+        sos    = odoo_rpc('sale.order', 'search_read',
+            [[['date_order', '>=', today.isoformat() + ' 00:00:00'],
+              ['date_order', '<=', end.isoformat() + ' 23:59:59'],
+              ['state', 'in', ['sale', 'done']]]],
+            {'fields': ['name', 'date_order', 'partner_id', 'amount_total',
+                        'x_studio_x_studio_workiz_status'],
+             'order': 'date_order asc'})
+        by_day = {}
+        for so in sos:
+            day = (so.get('date_order') or '')[:10]
+            if day not in by_day:
+                by_day[day] = {'date': day, 'jobs': [], 'total': 0.0}
+            customer = so['partner_id'][1].split(',')[0].strip() if so.get('partner_id') else 'Unknown'
+            amount   = float(so.get('amount_total') or 0)
+            by_day[day]['total'] += amount
+            by_day[day]['jobs'].append({
+                'customer': customer,
+                'time_utc': so['date_order'][11:16] if so.get('date_order') else '?',
+                'amount':   amount,
+                'status':   so.get('x_studio_x_studio_workiz_status') or '',
+            })
+        days = []
+        for d in sorted(by_day.keys()):
+            entry = by_day[d]
+            try:
+                dt = datetime.date.fromisoformat(d)
+                label = dt.strftime('%a %b %-d') if d != today.isoformat() else 'Today'
+            except Exception:
+                label = d
+            entry['label'] = label
+            days.append(entry)
+        return {'days': days}
+    except Exception as e:
+        return JSONResponse({'status': 'error', 'message': str(e)})
+
+
+@app.get('/api/todos')
+async def api_todos(access_code: str = ''):
+    if access_code != ACCESS_CODE:
+        return JSONResponse({'error': 'unauthorized'}, status_code=401)
+    try:
+        acts = odoo_rpc('mail.activity', 'search_read',
+            [[['user_id', '=', ODOO_USER_ID]]],
+            {'fields': ['summary', 'date_deadline', 'activity_type_id', 'res_name', 'note'],
+             'order': 'date_deadline asc', 'limit': 30})
+        todos = []
+        for a in acts:
+            todos.append({
+                'summary': a.get('summary') or '',
+                'type':    a['activity_type_id'][1] if a.get('activity_type_id') else '',
+                'date':    a.get('date_deadline') or '',
+                'record':  a.get('res_name') or '',
+                'note':    (a.get('note') or '').replace('<p>', '').replace('</p>', ' ').strip()[:120],
+            })
+        return {'todos': todos}
+    except Exception as e:
+        return JSONResponse({'status': 'error', 'message': str(e)})
+
+
+@app.get('/api/search')
+async def api_search(q: str = '', access_code: str = ''):
+    if access_code != ACCESS_CODE:
+        return JSONResponse({'error': 'unauthorized'}, status_code=401)
+    if not q or len(q) < 2:
+        return {'results': []}
+    try:
+        partners = odoo_rpc('res.partner', 'search_read',
+            [[['name', 'ilike', q], ['active', '=', True],
+              ['x_studio_x_studio_record_category', '!=', 'Property']]],
+            {'fields': ['id', 'name', 'street', 'city', 'phone',
+                        'x_studio_x_type_of_service', 'x_studio_x_frequency'],
+             'limit': 15, 'order': 'name asc'})
+        return {'results': partners}
+    except Exception as e:
+        return JSONResponse({'status': 'error', 'message': str(e)})
 
 
 @app.get('/', response_class=HTMLResponse)
