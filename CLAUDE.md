@@ -232,7 +232,13 @@ Use type `project` for technical facts about how the system behaves. Include **W
 - Push via `gh api` using the standard deployment script
 - Commit message format: `YYYY-MM-DD | SHARED_MEMORY.md | brief description of what was added`
 
-Render Claude can also write to SHARED_MEMORY.md via its `update_shared_memory` tool. When resuming a session, check if the file has been updated since your last read.
+Render Claude can also write to SHARED_MEMORY.md via its `update_shared_memory` tool.
+
+### SESSION START RULE — READ SHARED_MEMORY.md FIRST
+
+**At the start of every Claude Code session, read `3_Documentation/SHARED_MEMORY.md` from the local repo before doing any work.** Render Claude writes facts back to this file in the field — if you skip this read, you miss decisions and fixes that happened since your last session.
+
+The file is already loaded as a system-reminder at session start (see top of this context), but always verify it's current. If you discover it has been updated since the session-reminder was generated, re-read it to get the latest version.
 
 ---
 
