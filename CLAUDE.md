@@ -224,6 +224,16 @@ Memory directory: `C:\Users\dj\.claude\projects\C--Users-dj-Documents-Business-A
 
 Use type `project` for technical facts about how the system behaves. Include **Why:** and **How to apply:** lines.
 
+### DUAL-WRITE RULE — SHARED MEMORY SYNC
+
+**When writing any local memory file, ALSO update `3_Documentation/SHARED_MEMORY.md` in GitHub.** This file is the shared brain between Claude Code (local) and Render Claude (field assistant on phone). Render Claude loads it on every session start.
+
+- Add key facts to the relevant section in SHARED_MEMORY.md
+- Push via `gh api` using the standard deployment script
+- Commit message format: `YYYY-MM-DD | SHARED_MEMORY.md | brief description of what was added`
+
+Render Claude can also write to SHARED_MEMORY.md via its `update_shared_memory` tool. When resuming a session, check if the file has been updated since your last read.
+
 ---
 
 ## CODE MODIFICATION WORKFLOW
