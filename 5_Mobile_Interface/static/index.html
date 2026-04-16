@@ -5,849 +5,786 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>WSC Dashboard</title>
+  <title>WSC Field</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
-      min-height: 100vh;
+      background: #0f172a; color: #e2e8f0;
+      min-height: 100vh; overflow-x: hidden;
     }
 
-    /* ---- Access gate ---- */
+    /* ── ACCESS ── */
     #access-screen {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      gap: 16px;
-      padding: 24px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 100vh; gap: 16px; padding: 24px;
     }
     #access-screen h2 { font-size: 22px; color: #38bdf8; }
     #access-screen p  { font-size: 14px; color: #64748b; }
     #access-input {
-      font-size: 24px;
-      padding: 12px 16px;
-      width: 220px;
-      text-align: center;
-      border: 2px solid #334155;
-      background: #1e293b;
-      color: #e2e8f0;
-      border-radius: 12px;
-      letter-spacing: 4px;
+      font-size: 24px; padding: 12px 16px; width: 220px; text-align: center;
+      border: 2px solid #334155; background: #1e293b; color: #e2e8f0;
+      border-radius: 12px; letter-spacing: 4px; outline: none;
     }
     #access-btn {
-      padding: 14px 36px;
-      background: #0284c7;
-      color: white;
-      font-size: 16px;
-      font-weight: 700;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
+      padding: 14px 36px; background: #0284c7; color: white;
+      font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer;
     }
     #access-error { color: #dc2626; font-size: 13px; display: none; }
 
-    /* ---- Dashboard ---- */
-    #dashboard {
-      display: none;
-      padding: 16px 16px 100px;
+    /* ── APP SHELL ── */
+    #app { display: none; height: 100dvh; overflow: hidden; }
+    #field-panel { display: flex; flex-direction: column; height: 100dvh; background: #0f172a; }
+    #office-panel { display: none; }
+
+    @media (min-width: 600px) {
+      #app { display: flex !important; flex-direction: row; }
+      #field-panel { width: 380px; min-width: 340px; border-right: 1px solid #1e293b; flex-shrink: 0; }
+      #office-panel { display: flex; flex-direction: column; flex: 1; min-width: 0; background: #111827; }
     }
 
-    .dash-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 16px;
+    /* ── FIELD HEADER ── */
+    #field-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: #0f172a; border-bottom: 1px solid #1e293b; flex-shrink: 0;
     }
-    .dash-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #38bdf8;
+    .hdr-date  { font-size: 12px; color: #64748b; }
+    .hdr-total { font-size: 20px; font-weight: 700; color: #38bdf8; line-height: 1.1; }
+    .hdr-count { font-size: 11px; color: #475569; }
+    #refresh-btn {
+      background: none; border: none; color: #64748b; font-size: 22px;
+      cursor: pointer; padding: 4px 8px; border-radius: 8px; line-height: 1;
     }
-    .dash-date {
-      font-size: 12px;
-      color: #64748b;
-      margin-top: 3px;
-    }
-    .refresh-btn {
-      background: #1e293b;
-      border: 1px solid #334155;
-      color: #94a3b8;
-      font-size: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-left: 8px;
-    }
-    .refresh-btn:active { background: #334155; }
+    #refresh-btn:active { background: #1e293b; }
 
-    /* Stats row */
-    .stats-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .stat-card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 14px;
-      padding: 14px 16px;
-    }
-    .stat-label {
-      font-size: 11px;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-    .stat-value {
-      font-size: 26px;
-      font-weight: 700;
-      color: #f1f5f9;
-      line-height: 1;
-    }
-    .stat-sub {
-      font-size: 12px;
-      color: #64748b;
-      margin-top: 5px;
-    }
-
-    /* Section labels */
-    .section-label {
-      font-size: 11px;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 8px;
-      margin-top: 18px;
-    }
-
-    /* Next job card */
-    .next-job-card {
-      background: #0c4a6e;
-      border: 1px solid #0284c7;
-      border-radius: 14px;
-      padding: 16px;
-    }
-    .next-job-time {
-      font-size: 13px;
-      color: #38bdf8;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .next-job-name {
-      font-size: 20px;
-      font-weight: 700;
-      color: #f1f5f9;
-      margin-bottom: 4px;
-    }
-    .next-job-address {
-      font-size: 13px;
-      color: #7dd3fc;
-      margin-bottom: 10px;
-    }
-    .next-job-amount {
-      font-size: 22px;
-      font-weight: 700;
-      color: #38bdf8;
-    }
-    .next-job-empty {
-      color: #475569;
-      font-size: 14px;
-      text-align: center;
-      padding: 14px 0;
-    }
-
-    /* Schedule rows */
+    /* ── SCHEDULE LIST ── */
+    #schedule-section { flex: 1; overflow-y: auto; padding: 4px 0; }
     .job-row {
-      display: flex;
-      align-items: center;
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 8px;
-      gap: 10px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 16px; cursor: pointer; border-bottom: 1px solid #1a2234;
+      transition: background .1s;
     }
-    .job-time {
-      font-size: 13px;
-      font-weight: 600;
-      color: #94a3b8;
-      min-width: 64px;
-    }
-    .job-name {
-      flex: 1;
-      font-size: 15px;
-      font-weight: 500;
-      color: #e2e8f0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .job-amount {
-      font-size: 14px;
-      font-weight: 600;
-      color: #94a3b8;
-      min-width: 50px;
-      text-align: right;
-    }
-    .status-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 7px;
-      border-radius: 6px;
-      white-space: nowrap;
-    }
-    .s-done       { background: #052e16; color: #4ade80; }
-    .s-scheduled  { background: #0c4a6e; color: #38bdf8; }
-    .s-inprogress { background: #431407; color: #fb923c; }
-    .s-canceled   { background: #2d0a0a; color: #f87171; }
-    .s-pending    { background: #1e293b; color: #64748b; border: 1px solid #334155; }
+    .job-row:active, .job-row.selected { background: #1e293b; }
+    .job-row.selected { border-left: 3px solid #0284c7; }
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .dot-pending    { background: #475569; }
+    .dot-active     { background: #38bdf8; animation: pulse 1.4s ease-in-out infinite; }
+    .dot-inprogress { background: #f59e0b; }
+    .dot-done       { background: #16a34a; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .job-time   { font-size: 13px; color: #64748b; min-width: 48px; flex-shrink: 0; }
+    .job-name   { flex: 1; font-size: 15px; font-weight: 500; }
+    .job-amount { font-size: 13px; color: #94a3b8; flex-shrink: 0; }
+    .no-jobs    { padding: 40px 16px; text-align: center; color: #475569; font-size: 14px; }
 
-    .schedule-empty {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      color: #475569;
-      font-size: 14px;
+    /* ── ACTIVE JOB PANEL ── */
+    #active-panel {
+      background: #1e293b; border-top: 2px solid #0284c7;
+      flex-shrink: 0; max-height: 62vh; overflow-y: auto; display: none;
     }
+    #active-panel.open { display: block; }
+    .ap-header {
+      padding: 12px 16px 6px; display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .ap-customer { font-size: 18px; font-weight: 700; }
+    .ap-so       { font-size: 12px; color: #475569; margin-top: 2px; }
+    .ap-close    { background: none; border: none; color: #475569; font-size: 22px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0; }
+    .ap-address  { padding: 2px 16px 10px; font-size: 14px; color: #94a3b8; }
 
-    /* Loading */
-    .loading-text {
-      color: #475569;
-      font-size: 14px;
-      padding: 14px 0;
-      text-align: center;
+    .nav-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin: 0 16px 12px; padding: 13px; background: #0369a1; color: white;
+      font-size: 15px; font-weight: 700; border: none; border-radius: 12px;
+      cursor: pointer; width: calc(100% - 32px);
     }
-    .spinner-sm {
-      display: inline-block;
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,.15);
-      border-top-color: #38bdf8;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .nav-btn:active { background: #0284c7; }
 
-    /* ---- Mic FAB ---- */
+    /* Task selector */
+    #task-selector { padding: 0 16px 8px; }
+    .section-label { font-size: 11px; color: #475569; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .task-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px; background: #0f172a; border-radius: 8px;
+      margin-bottom: 6px; cursor: pointer; border: 2px solid transparent;
+    }
+    .task-row.selected { border-color: #0284c7; }
+    .task-name  { font-size: 14px; }
+    .task-stage { font-size: 12px; color: #475569; }
+    .task-timer-on { font-size: 12px; color: #f59e0b; font-weight: 600; }
+
+    /* Timer */
+    #timer-section { padding: 6px 16px 12px; }
+    #timer-display {
+      font-size: 38px; font-weight: 700; color: #38bdf8;
+      text-align: center; font-variant-numeric: tabular-nums;
+      letter-spacing: 2px; padding: 6px 0;
+    }
+    #timer-display.idle { color: #334155; }
+    .timer-btns { display: flex; gap: 10px; }
+    .btn-start { flex: 1; padding: 14px; background: #15803d; color: white; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; }
+    .btn-start:active { background: #166534; }
+    .btn-stop  { flex: 1; padding: 14px; background: #dc2626; color: white; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; }
+    .btn-stop:active  { background: #b91c1c; }
+    .btn-muted { flex: 1; padding: 14px; background: #1e293b; color: #475569; font-size: 14px; border: none; border-radius: 12px; cursor: default; }
+
+    /* Payment */
+    #payment-section { padding: 0 16px 16px; border-top: 1px solid #334155; margin-top: 4px; }
+    .amount-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .dollar-sign { font-size: 22px; color: #475569; }
+    .amount-input {
+      flex: 1; padding: 10px 12px; font-size: 20px; font-weight: 700;
+      background: #0f172a; color: #e2e8f0; border: 2px solid #334155;
+      border-radius: 10px; outline: none;
+    }
+    .amount-input:focus { border-color: #0284c7; }
+    .method-btns { display: flex; gap: 6px; margin-bottom: 10px; }
+    .method-btn {
+      flex: 1; padding: 9px 4px; background: #0f172a; color: #64748b;
+      font-size: 13px; font-weight: 600; border: 2px solid #334155;
+      border-radius: 8px; cursor: pointer; text-align: center;
+    }
+    .method-btn.sel { background: #0c4a6e; color: #38bdf8; border-color: #0284c7; }
+    .method-btn:active { background: #1e293b; }
+    .memo-input {
+      width: 100%; padding: 10px 12px; font-size: 14px;
+      background: #0f172a; color: #e2e8f0; border: 2px solid #334155;
+      border-radius: 10px; outline: none; margin-bottom: 10px; display: none;
+    }
+    .memo-input.show { display: block; }
+    .memo-input:focus { border-color: #0284c7; }
+    .pay-btn { width: 100%; padding: 14px; background: #15803d; color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; }
+    .pay-btn:active   { background: #166534; }
+    .pay-btn:disabled { background: #1e293b; color: #475569; cursor: default; }
+
+    /* Field status bar */
+    #field-status { margin: 8px 16px 4px; padding: 10px 14px; font-size: 14px; border-radius: 10px; display: none; }
+    #field-status.ok  { background: #052e16; color: #86efac; border: 1px solid #16a34a; }
+    #field-status.err { background: #2d0a0a; color: #fca5a5; border: 1px solid #dc2626; }
+    #field-status.inf { background: #1c2f46; color: #bae6fd; border: 1px solid #0284c7; }
+
+    /* ── MIC FAB ── */
     #mic-fab {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 62px;
-      height: 62px;
-      border-radius: 50%;
-      background: #0284c7;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(2, 132, 199, 0.5);
-      z-index: 50;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      transition: background .15s, transform .15s;
+      position: fixed; bottom: 24px; right: 20px;
+      width: 54px; height: 54px; border-radius: 50%;
+      background: #0284c7; color: white; font-size: 22px;
+      border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,.5);
+      display: flex; align-items: center; justify-content: center; z-index: 50;
     }
-    #mic-fab:active { transform: scale(0.9); }
-    #mic-fab.open   { background: #1e293b; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+    #mic-fab:active { background: #0369a1; }
+    @media (min-width: 600px) { #mic-fab { display: none; } }
 
-    /* ---- Voice panel overlay ---- */
-    #voice-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.65);
-      z-index: 100;
-      display: none;
-      align-items: flex-end;
-    }
-    #voice-overlay.visible { display: flex; }
+    /* ── VOICE MODAL ── */
+    #voice-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 200; align-items: flex-end; }
+    #voice-modal.open { display: flex; }
+    .vm-sheet { background: #1e293b; width: 100%; padding: 20px; border-radius: 20px 20px 0 0; }
+    .vm-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .vm-title  { font-size: 16px; font-weight: 700; }
+    .vm-close  { background: none; border: none; color: #475569; font-size: 24px; cursor: pointer; }
+    .vm-input  { width: 100%; min-height: 80px; padding: 12px; font-size: 16px; background: #0f172a; color: #e2e8f0; border: 2px solid #334155; border-radius: 12px; resize: none; outline: none; margin-bottom: 10px; }
+    .vm-input:focus { border-color: #0284c7; }
+    .vm-send   { width: 100%; padding: 14px; background: #0284c7; color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 10px; }
+    .vm-send:active { background: #0369a1; }
+    .vm-response { font-size: 14px; padding: 10px; background: #0f172a; border-radius: 10px; white-space: pre-wrap; display: none; color: #94a3b8; }
 
-    #voice-panel {
-      width: 100%;
-      max-height: 82vh;
-      background: #0f172a;
-      border-top: 2px solid #334155;
-      border-radius: 20px 20px 0 0;
-      overflow-y: auto;
-      padding: 0 16px 28px;
-      transform: translateY(100%);
-      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    /* ── OFFICE PANEL ── */
+    #tab-bar { display: flex; background: #0f172a; border-bottom: 1px solid #1e293b; flex-shrink: 0; }
+    .tab-btn {
+      flex: 1; padding: 13px 4px; font-size: 11px; font-weight: 700;
+      color: #475569; background: none; border: none; cursor: pointer;
+      border-bottom: 2px solid transparent; text-transform: uppercase; letter-spacing: .5px;
     }
-    #voice-panel.open { transform: translateY(0); }
+    .tab-btn.active { color: #38bdf8; border-bottom-color: #0284c7; }
+    .tab-btn:active { background: #1e293b; }
+    #tab-content { flex: 1; overflow-y: auto; }
+    .tab-pane { display: none; padding: 16px; }
+    .tab-pane.active { display: block; }
 
-    .panel-handle {
-      width: 40px;
-      height: 4px;
-      background: #334155;
-      border-radius: 2px;
-      margin: 12px auto 16px;
-    }
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-    .panel-title { font-size: 17px; font-weight: 600; color: #38bdf8; }
-    .panel-close {
-      background: none;
-      border: none;
-      color: #64748b;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 4px 8px;
-      line-height: 1;
-      border-radius: 8px;
-    }
-    .panel-close:active { background: #1e293b; }
+    /* Stats */
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: #1e293b; border-radius: 12px; padding: 14px; }
+    .stat-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .stat-value { font-size: 26px; font-weight: 700; }
+    .stat-sub   { font-size: 12px; color: #475569; margin-top: 4px; }
+    .week-detail { font-size: 12px; color: #334155; margin-top: 8px; }
 
-    /* Mode toggle */
-    .mode-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .mode-label { font-size: 13px; color: #94a3b8; }
-    .toggle { position: relative; width: 52px; height: 28px; }
-    .toggle input { opacity: 0; width: 0; height: 0; }
-    .toggle-slider {
-      position: absolute;
-      inset: 0;
-      background: #334155;
-      border-radius: 28px;
-      cursor: pointer;
-      transition: .2s;
-    }
-    .toggle-slider:before {
-      content: '';
-      position: absolute;
-      width: 20px; height: 20px;
-      left: 4px; top: 4px;
-      background: white;
-      border-radius: 50%;
-      transition: .2s;
-    }
-    input:checked + .toggle-slider { background: #0284c7; }
-    input:checked + .toggle-slider:before { transform: translateX(24px); }
-    .mode-badge {
-      font-size: 12px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 6px;
-      background: #334155;
-      color: #94a3b8;
-    }
-    .mode-badge.immediate { background: #0c4a6e; color: #38bdf8; }
+    /* Upcoming */
+    .day-group { margin-bottom: 18px; }
+    .day-head  { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 8px; border-bottom: 1px solid #1e293b; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .upcoming-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #1a2234; }
+    .upcoming-time { font-size: 13px; color: #64748b; min-width: 48px; }
+    .upcoming-name { flex: 1; font-size: 14px; }
+    .upcoming-amt  { font-size: 13px; color: #94a3b8; }
 
-    /* Textarea */
-    textarea {
-      width: 100%;
-      min-height: 100px;
-      padding: 14px;
-      font-size: 17px;
-      line-height: 1.5;
-      background: #1e293b;
-      color: #f1f5f9;
-      border: 2px solid #334155;
-      border-radius: 14px;
-      resize: none;
-      outline: none;
-      -webkit-appearance: none;
-    }
-    textarea:focus { border-color: #0284c7; }
-    textarea::placeholder { color: #475569; }
+    /* Voice */
+    #voice-textarea { width: 100%; min-height: 90px; padding: 12px; font-size: 16px; background: #1e293b; color: #f1f5f9; border: 2px solid #334155; border-radius: 12px; resize: none; outline: none; margin-bottom: 10px; }
+    #voice-textarea:focus { border-color: #0284c7; }
+    #voice-send-btn { width: 100%; padding: 13px; background: #0284c7; color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 12px; }
+    #voice-send-btn:disabled { background: #334155; color: #64748b; cursor: default; }
+    #voice-resp { padding: 12px; border-radius: 12px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; display: none; }
+    #voice-resp.pending { background: #1c2f46; border: 2px solid #0284c7; color: #bae6fd; }
+    #voice-resp.ok      { background: #052e16; border: 2px solid #16a34a; color: #86efac; }
+    #voice-resp.err     { background: #2d0a0a; border: 2px solid #dc2626; color: #fca5a5; }
+    #voice-resp.info    { background: #1e1e2e; border: 2px solid #334155; color: #e2e8f0; }
+    #voice-confirm { display: none; gap: 10px; margin-top: 10px; }
+    #voice-confirm button { flex: 1; padding: 13px; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; }
+    #vc-yes { background: #15803d; color: white; }
+    #vc-no  { background: #dc2626; color: white; }
 
-    /* Submit */
-    #submit-btn {
-      width: 100%;
-      margin-top: 10px;
-      padding: 16px;
-      font-size: 17px;
-      font-weight: 700;
-      background: #0284c7;
-      color: white;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: background .15s;
-    }
-    #submit-btn:active { background: #0369a1; }
-    #submit-btn:disabled { background: #334155; color: #64748b; cursor: default; }
+    /* Customers */
+    #cust-search { width: 100%; padding: 12px; font-size: 16px; background: #1e293b; color: #e2e8f0; border: 2px solid #334155; border-radius: 12px; outline: none; margin-bottom: 12px; }
+    #cust-search:focus { border-color: #0284c7; }
+    .cust-card { padding: 12px; background: #1e293b; border-radius: 10px; margin-bottom: 8px; }
+    .cust-name { font-size: 15px; font-weight: 600; }
+    .cust-sub  { font-size: 13px; color: #64748b; margin-top: 3px; }
 
-    /* Response */
-    #response-area { margin-top: 14px; display: none; }
-    .response-box {
-      padding: 14px;
-      border-radius: 14px;
-      font-size: 15px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    .response-box.pending  { background: #1c2f46; border: 2px solid #0284c7; color: #bae6fd; }
-    .response-box.success  { background: #052e16; border: 2px solid #16a34a; color: #86efac; }
-    .response-box.error    { background: #2d0a0a; border: 2px solid #dc2626; color: #fca5a5; }
-    .response-box.info     { background: #1e1e2e; border: 2px solid #475569; color: #e2e8f0; }
+    /* Todos */
+    .todo-card { padding: 12px; background: #1e293b; border-radius: 10px; margin-bottom: 8px; border-left: 3px solid #334155; }
+    .todo-card.overdue { border-left-color: #dc2626; }
+    .todo-card.today   { border-left-color: #f59e0b; }
+    .todo-summary { font-size: 14px; font-weight: 600; }
+    .todo-meta    { font-size: 12px; color: #64748b; margin-top: 4px; }
+    .todo-note    { font-size: 12px; color: #475569; margin-top: 4px; }
 
-    /* Confirm buttons */
-    #confirm-row { display: none; gap: 10px; margin-top: 10px; }
-    #confirm-row button {
-      flex: 1;
-      padding: 15px;
-      font-size: 16px;
-      font-weight: 700;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-    }
-    #confirm-yes { background: #16a34a; color: white; }
-    #confirm-yes:active { background: #15803d; }
-    #confirm-no  { background: #dc2626; color: white; }
-    #confirm-no:active  { background: #b91c1c; }
-
-    /* Spinner (inside response box) */
-    .spinner {
-      display: inline-block;
-      width: 18px; height: 18px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      vertical-align: middle;
-      margin-right: 8px;
-    }
-
-    /* History */
-    #history { margin-top: 20px; border-top: 1px solid #1e293b; padding-top: 12px; }
-    .history-label {
-      font-size: 11px;
-      color: #475569;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .history-item {
-      padding: 8px 12px;
-      background: #1e293b;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #94a3b8;
-      margin-bottom: 6px;
-      cursor: pointer;
-    }
-    .history-item:active { background: #334155; }
-    .clear-link {
-      font-size: 12px;
-      color: #475569;
-      text-decoration: underline;
-      cursor: pointer;
-    }
+    /* Shared */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.25); border-top-color: #38bdf8; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .load-msg  { padding: 32px 16px; text-align: center; color: #475569; font-size: 14px; }
+    .empty-msg { padding: 32px 16px; text-align: center; color: #334155; font-size: 14px; }
   </style>
 </head>
 <body>
 
-<!-- Access gate -->
 <div id="access-screen">
-  <h2>WSC Dashboard</h2>
-  <p>Enter access code to continue</p>
-  <input id="access-input" type="password" inputmode="text" maxlength="20" placeholder="••••••••">
+  <h2>WSC Field</h2>
+  <p>Enter access code</p>
+  <input id="access-input" type="password" inputmode="text" maxlength="20" placeholder="••••">
   <button id="access-btn" onclick="checkAccess()">Unlock</button>
   <p id="access-error">Incorrect code</p>
 </div>
 
-<!-- Dashboard -->
-<div id="dashboard">
-  <div class="dash-header">
-    <div>
-      <div class="dash-title">WSC Dashboard</div>
-      <div class="dash-date" id="dash-date"></div>
+<div id="app">
+
+  <!-- FIELD PANEL (cover / left column) -->
+  <div id="field-panel">
+    <div id="field-header">
+      <div>
+        <div class="hdr-date"  id="hdr-date">—</div>
+        <div class="hdr-total" id="hdr-total">—</div>
+        <div class="hdr-count" id="hdr-count"></div>
+      </div>
+      <button id="refresh-btn" onclick="loadField()">↺</button>
     </div>
-    <button class="refresh-btn" onclick="loadDashboard()" title="Refresh">&#8635;</button>
+
+    <div id="schedule-section">
+      <div class="load-msg"><span class="spinner"></span> Loading…</div>
+    </div>
+
+    <div id="active-panel">
+      <div id="field-status"></div>
+      <div class="ap-header">
+        <div>
+          <div class="ap-customer" id="ap-customer">—</div>
+          <div class="ap-so"       id="ap-so"></div>
+        </div>
+        <button class="ap-close" onclick="closeActive()">✕</button>
+      </div>
+      <div class="ap-address" id="ap-address"></div>
+      <button class="nav-btn" onclick="openNav()">🧭 Navigate</button>
+
+      <div id="task-selector" style="display:none">
+        <div style="padding:0 16px 6px">
+          <div class="section-label">Task</div>
+          <div id="task-list"></div>
+        </div>
+      </div>
+
+      <div id="timer-section">
+        <div id="timer-display" class="idle">00:00:00</div>
+        <div class="timer-btns" id="timer-btns">
+          <button class="btn-muted" disabled>Select a task above</button>
+        </div>
+      </div>
+
+      <div id="payment-section">
+        <div style="padding:10px 0 8px" class="section-label">Record Payment</div>
+        <div class="amount-row">
+          <span class="dollar-sign">$</span>
+          <input type="number" class="amount-input" id="pay-amount" placeholder="0" inputmode="decimal">
+        </div>
+        <div class="method-btns">
+          <button class="method-btn sel" data-m="check"  onclick="pickMethod(this)">Check</button>
+          <button class="method-btn"     data-m="cash"   onclick="pickMethod(this)">Cash</button>
+          <button class="method-btn"     data-m="zelle"  onclick="pickMethod(this)">Zelle</button>
+          <button class="method-btn"     data-m="venmo"  onclick="pickMethod(this)">Venmo</button>
+          <button class="method-btn"     data-m="credit" onclick="pickMethod(this)">Credit</button>
+        </div>
+        <input type="text" class="memo-input show" id="pay-memo" placeholder="Check #">
+        <button class="pay-btn" id="pay-btn" onclick="doPayment()">Record Payment</button>
+      </div>
+    </div>
   </div>
 
-  <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-label">Today</div>
-      <div class="stat-value" id="today-count">—</div>
-      <div class="stat-sub"  id="today-total">—</div>
+  <!-- OFFICE PANEL (inner / right column) -->
+  <div id="office-panel">
+    <div id="tab-bar">
+      <button class="tab-btn active" data-tab="stats"     onclick="showTab('stats')">Stats</button>
+      <button class="tab-btn"        data-tab="upcoming"  onclick="showTab('upcoming')">7-Day</button>
+      <button class="tab-btn"        data-tab="voice"     onclick="showTab('voice')">Voice</button>
+      <button class="tab-btn"        data-tab="customers" onclick="showTab('customers')">Customers</button>
+      <button class="tab-btn"        data-tab="todos"     onclick="showTab('todos')">To-Dos</button>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">This Week</div>
-      <div class="stat-value" id="week-total">—</div>
-      <div class="stat-sub"  id="week-jobs">—</div>
+    <div id="tab-content">
+      <div id="pane-stats"     class="tab-pane active"><div class="load-msg">Loading…</div></div>
+      <div id="pane-upcoming"  class="tab-pane"><div class="load-msg">Loading…</div></div>
+      <div id="pane-voice"     class="tab-pane">
+        <textarea id="voice-textarea" placeholder="Type a command…&#10;&#10;e.g. 'Update Michael gate code 1234'&#10;     'Status of Barbara Williams'"></textarea>
+        <button id="voice-send-btn" onclick="voiceSend()">Send</button>
+        <div id="voice-resp"></div>
+        <div id="voice-confirm">
+          <button id="vc-yes" onclick="voiceConfirm(true)">Yes, Do It</button>
+          <button id="vc-no"  onclick="voiceConfirm(false)">Cancel</button>
+        </div>
+      </div>
+      <div id="pane-customers" class="tab-pane">
+        <input type="text" id="cust-search" placeholder="Search by name…" oninput="custSearch(this.value)">
+        <div id="cust-results"><div class="empty-msg">Type to search</div></div>
+      </div>
+      <div id="pane-todos"     class="tab-pane"><div class="load-msg">Loading…</div></div>
     </div>
   </div>
 
-  <div class="section-label">Next Job</div>
-  <div id="next-job-card" class="next-job-card">
-    <div class="loading-text"><span class="spinner-sm"></span>Loading...</div>
-  </div>
-
-  <div class="section-label">Today's Schedule</div>
-  <div id="schedule-list">
-    <div class="loading-text"><span class="spinner-sm"></span>Loading...</div>
-  </div>
 </div>
 
-<!-- Mic FAB -->
-<button id="mic-fab" onclick="toggleVoicePanel()">🎤</button>
+<button id="mic-fab" onclick="openVoiceModal()">🎤</button>
 
-<!-- Voice panel overlay -->
-<div id="voice-overlay" onclick="overlayClick(event)">
-  <div id="voice-panel">
-    <div class="panel-handle"></div>
-    <div class="panel-header">
-      <span class="panel-title">Field Assistant</span>
-      <button class="panel-close" onclick="closeVoicePanel()">✕</button>
+<div id="voice-modal">
+  <div class="vm-sheet">
+    <div class="vm-header">
+      <span class="vm-title">Voice Command</span>
+      <button class="vm-close" onclick="closeVoiceModal()">✕</button>
     </div>
-
-    <div class="mode-row">
-      <span class="mode-label">Mode:</span>
-      <label class="toggle">
-        <input type="checkbox" id="mode-toggle" onchange="updateModeLabel()">
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="mode-badge" id="mode-badge">CONFIRM</span>
-    </div>
-
-    <textarea id="voice-input" placeholder="Tap mic on keyboard and speak...&#10;&#10;Examples:&#10;  What's my schedule today&#10;  Navigate to my next job&#10;  Update Kenneth's gate code to 1234&#10;  Create a follow-up for Barbara in 2 weeks"></textarea>
-
-    <button id="submit-btn" onclick="handleSubmit()">Send</button>
-
-    <div id="response-area">
-      <div id="response-box" class="response-box info"></div>
-      <div id="confirm-row">
-        <button id="confirm-yes" onclick="handleConfirm(true)">Yes, Do It</button>
-        <button id="confirm-no"  onclick="handleConfirm(false)">Cancel</button>
-      </div>
-    </div>
-
-    <div id="history">
-      <div class="history-label">
-        Recent commands <span class="clear-link" onclick="clearHistory()">(clear)</span>
-      </div>
-      <div id="history-list"></div>
-    </div>
+    <textarea class="vm-input" id="vm-input" placeholder="Type or speak…"></textarea>
+    <button class="vm-send" onclick="vmSend()">Send</button>
+    <div class="vm-response" id="vm-response"></div>
   </div>
 </div>
 
 <script>
-  let accessCode   = '';
-  let pendingAction = null;
-  let dashTimer    = null;
+let AC = '', jobs = [], activeJob = null, activeTask = null;
+let tickInterval = null, tickStart = null;
+let payMethod = 'check', pendingVoice = null, activeTab = 'stats';
 
-  // ---- Session ID ----
-  function getSessionId() {
-    let sid = sessionStorage.getItem('wsc_session');
-    if (!sid) { sid = Math.random().toString(36).substr(2, 12); sessionStorage.setItem('wsc_session', sid); }
-    return sid;
+function sid() {
+  let s = sessionStorage.getItem('wsc_s');
+  if (!s) { s = Math.random().toString(36).slice(2,14); sessionStorage.setItem('wsc_s',s); }
+  return s;
+}
+
+// ── ACCESS ──
+function checkAccess() {
+  const v = document.getElementById('access-input').value.trim();
+  if (v.length < 4) { document.getElementById('access-error').style.display='block'; return; }
+  AC = v; localStorage.setItem('wsc_ac', v); boot();
+}
+document.getElementById('access-input').addEventListener('keydown', e => { if(e.key==='Enter') checkAccess(); });
+
+function boot() {
+  document.getElementById('access-screen').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = window.innerWidth >= 600 ? 'flex' : 'block';
+  loadField();
+  if (window.innerWidth >= 600) loadTab('stats');
+  setInterval(loadField, 5*60*1000);
+}
+
+window.addEventListener('resize', () => {
+  if (!AC) return;
+  const app = document.getElementById('app');
+  if (app.style.display === 'none') return;
+  app.style.display = window.innerWidth >= 600 ? 'flex' : 'block';
+});
+
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('wsc_ac');
+  if (saved) { AC = saved; boot(); }
+});
+
+// ── FIELD DATA ──
+async function loadField() {
+  document.getElementById('hdr-date').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const sec = document.getElementById('schedule-section');
+  sec.innerHTML = '<div class="load-msg"><span class="spinner"></span> Loading…</div>';
+  let data;
+  try {
+    const r = await fetch(`/api/dashboard?access_code=${encodeURIComponent(AC)}`);
+    if (!r.ok) throw new Error('auth');
+    data = await r.json();
+  } catch {
+    sec.innerHTML = '<div class="no-jobs">Failed to load — tap ↺</div>'; return;
+  }
+  jobs = (data.schedule && data.schedule.jobs) || [];
+  const total = (data.schedule && data.schedule.total) || 0;
+  const count = (data.schedule && data.schedule.count) || 0;
+  document.getElementById('hdr-total').textContent = '$' + Math.round(total).toLocaleString();
+  document.getElementById('hdr-count').textContent = count + (count===1?' job':' jobs') + ' today';
+  renderSchedule();
+  if (activeJob) { const fresh = jobs.find(j=>j.so_id===activeJob.so_id); if(fresh) openJob(fresh,false); }
+  if (activeTab==='stats' && window.innerWidth>=600) renderStats(data);
+}
+
+function renderSchedule() {
+  const sec = document.getElementById('schedule-section');
+  if (!jobs.length) { sec.innerHTML = '<div class="no-jobs">No jobs today</div>'; return; }
+  sec.innerHTML = jobs.map((j,i) => {
+    const timerOn = (j.tasks||[]).some(t=>t.timer_running);
+    const dot = timerOn ? 'dot-active'
+              : (j.status||'').toLowerCase().includes('done') ? 'dot-done'
+              : (j.status||'').toLowerCase().includes('progress') ? 'dot-inprogress' : 'dot-pending';
+    const sel = (activeJob && activeJob.so_id===j.so_id) ? ' selected' : '';
+    return `<div class="job-row${sel}" onclick="openJob(jobs[${i}])">
+      <span class="status-dot ${dot}"></span>
+      <span class="job-time">${toPT(j.time_utc)}</span>
+      <span class="job-name">${esc(j.customer)}</span>
+      <span class="job-amount">$${Math.round(j.amount||0)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── JOB SELECTION ──
+function openJob(job, scroll=true) {
+  activeJob = job; stopTick(); activeTask = null;
+  document.querySelectorAll('.job-row').forEach((r,i) =>
+    r.classList.toggle('selected', !!(jobs[i] && jobs[i].so_id===job.so_id)));
+  document.getElementById('ap-customer').textContent = job.customer;
+  document.getElementById('ap-so').textContent = job.so_name || '';
+  document.getElementById('ap-address').textContent = job.address || '';
+
+  const tasks = job.tasks || [];
+  const taskSel = document.getElementById('task-selector');
+  const taskList = document.getElementById('task-list');
+  if (!tasks.length) {
+    taskSel.style.display = 'none'; renderTimerBtns('none');
+  } else if (tasks.length === 1) {
+    taskSel.style.display = 'none'; pickTask(tasks[0]);
+  } else {
+    taskSel.style.display = 'block';
+    taskList.innerHTML = tasks.map((t,i) =>
+      `<div class="task-row" onclick="pickTaskByIdx(${i},this)">
+        <div><div class="task-name">${esc(t.task_name)}</div>
+             <div class="task-stage">${esc(t.stage||'')}</div></div>
+        ${t.timer_running?'<span class="task-timer-on">⏱ Running</span>':''}
+      </div>`).join('');
+    const ri = tasks.findIndex(t=>t.timer_running);
+    if (ri>=0) {
+      taskList.querySelectorAll('.task-row')[ri].classList.add('selected');
+      pickTask(tasks[ri]);
+    } else { renderTimerBtns('none'); }
   }
 
-  // ---- Access gate ----
-  function checkAccess() {
-    const val = document.getElementById('access-input').value.trim();
-    if (val.length < 4) { document.getElementById('access-error').style.display = 'block'; return; }
-    accessCode = val;
-    localStorage.setItem('wsc_access', val);
-    showDashboard();
+  if (job.amount) document.getElementById('pay-amount').value = Math.round(job.amount);
+  hideStatus();
+  document.getElementById('active-panel').classList.add('open');
+  if (scroll) document.getElementById('active-panel').scrollIntoView({behavior:'smooth'});
+}
+
+function closeActive() {
+  activeJob=null; activeTask=null; stopTick();
+  document.getElementById('active-panel').classList.remove('open');
+  document.querySelectorAll('.job-row').forEach(r=>r.classList.remove('selected'));
+}
+
+function pickTaskByIdx(idx, el) {
+  document.querySelectorAll('.task-row').forEach(r=>r.classList.remove('selected'));
+  el.classList.add('selected');
+  pickTask(activeJob.tasks[idx]);
+}
+
+function pickTask(task) {
+  activeTask = task;
+  if (task.timer_running) {
+    const start = task.timer_start
+      ? new Date(task.timer_start.replace(' ','T')+'Z')
+      : new Date();
+    startTick(start); renderTimerBtns('running');
+  } else { stopTick(); renderTimerBtns('idle'); }
+}
+
+// ── NAV ──
+function openNav() {
+  if (!activeJob || !activeJob.address) { showStatus('err','No address on file'); return; }
+  window.open('https://maps.google.com/maps?daddr='+encodeURIComponent(activeJob.address)+'&dirflg=d','_blank');
+}
+
+// ── TIMER ──
+function renderTimerBtns(state) {
+  const disp = document.getElementById('timer-display');
+  const btns = document.getElementById('timer-btns');
+  if (state==='running') {
+    disp.className='';
+    btns.innerHTML='<button class="btn-stop" onclick="doStopTimer()">⏹ Stop Timer</button>';
+  } else if (state==='idle') {
+    disp.className='idle';
+    btns.innerHTML='<button class="btn-start" onclick="doStartTimer()">▶ Start Timer</button>';
+  } else {
+    disp.className='idle'; disp.textContent='00:00:00';
+    btns.innerHTML='<button class="btn-muted" disabled>No task available</button>';
   }
+}
 
-  document.getElementById('access-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') checkAccess();
-  });
+function startTick(startDate) {
+  stopTick(); tickStart = startDate;
+  tickInterval = setInterval(()=>{
+    const e = Math.floor((Date.now()-tickStart)/1000);
+    document.getElementById('timer-display').textContent =
+      pad(Math.floor(e/3600))+':'+pad(Math.floor((e%3600)/60))+':'+pad(e%60);
+  },1000);
+}
+function stopTick() {
+  if(tickInterval){clearInterval(tickInterval);tickInterval=null;}
+  tickStart=null;
+  document.getElementById('timer-display').textContent='00:00:00';
+}
+function pad(n){return String(n).padStart(2,'0');}
 
-  function showDashboard() {
-    document.getElementById('access-screen').style.display = 'none';
-    document.getElementById('dashboard').style.display     = 'block';
-    document.getElementById('mic-fab').style.display       = 'flex';
-    loadDashboard();
-    startAutoRefresh();
-    renderHistory();
-  }
+async function doStartTimer() {
+  if(!activeTask) return;
+  showStatus('inf','Starting timer…');
+  try {
+    const r = await fetch('/api/timer/start',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({access_code:AC,task_id:activeTask.task_id})});
+    const d = await r.json();
+    if(d.status==='ok'){
+      activeTask.timer_running=true; startTick(new Date()); renderTimerBtns('running');
+      renderSchedule(); showStatus('ok','▶ Timer running');
+    } else { showStatus('err',d.message||'Failed'); }
+  } catch { showStatus('err','Network error'); }
+}
 
-  window.addEventListener('load', () => {
-    const saved = localStorage.getItem('wsc_access');
-    if (saved) { accessCode = saved; showDashboard(); }
-  });
+async function doStopTimer() {
+  if(!activeTask) return;
+  showStatus('inf','Stopping timer…');
+  try {
+    const r = await fetch('/api/timer/stop',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({access_code:AC,task_id:activeTask.task_id})});
+    const d = await r.json();
+    if(d.status==='ok'){
+      activeTask.timer_running=false; stopTick(); renderTimerBtns('idle');
+      renderSchedule(); showStatus('ok','⏹ Stopped — time logged');
+      setTimeout(()=>document.getElementById('payment-section').scrollIntoView({behavior:'smooth'}),400);
+    } else { showStatus('err',d.message||'Failed'); }
+  } catch { showStatus('err','Network error'); }
+}
 
-  // ---- Dashboard data ----
-  function esc(s) {
-    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
+// ── PAYMENT ──
+function pickMethod(btn) {
+  document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel'); payMethod=btn.dataset.m;
+  const memo=document.getElementById('pay-memo');
+  if(payMethod==='cash'){memo.classList.remove('show');}
+  else if(payMethod==='check'){memo.classList.add('show');memo.placeholder='Check #';}
+  else{memo.classList.add('show');memo.placeholder=payMethod.charAt(0).toUpperCase()+payMethod.slice(1)+' ref # (optional)';}
+}
 
-  function utcToPacific(hhmm) {
-    if (!hhmm || hhmm === '?') return '?';
-    const today = new Date().toISOString().slice(0, 10);
-    const d = new Date(`${today}T${hhmm}:00Z`);
-    return d.toLocaleTimeString('en-US', {
-      timeZone: 'America/Los_Angeles',
-      hour: 'numeric', minute: '2-digit', hour12: true
-    });
-  }
+async function doPayment() {
+  if(!activeJob) return;
+  const amount=parseFloat(document.getElementById('pay-amount').value);
+  if(!amount||amount<=0){showStatus('err','Enter a valid amount');return;}
+  const memo=document.getElementById('pay-memo').value.trim()||payMethod;
+  const btn=document.getElementById('pay-btn');
+  btn.disabled=true; btn.textContent='Processing…'; showStatus('inf','Recording payment…');
+  try {
+    const r=await fetch('/api/payment',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({access_code:AC,so_id:activeJob.so_id,amount,payment_method:payMethod,memo})});
+    const d=await r.json();
+    if(d.status==='ok'){
+      showStatus('ok','✅ '+d.message); btn.textContent='✅ Paid';
+      setTimeout(()=>{loadField();closeActive();},2000);
+    } else { showStatus('err',d.message||'Failed'); btn.disabled=false; btn.textContent='Record Payment'; }
+  } catch { showStatus('err','Network error'); btn.disabled=false; btn.textContent='Record Payment'; }
+}
 
-  function statusClass(s) {
-    const v = (s || '').toLowerCase();
-    if (v === 'done')                       return 's-done';
-    if (v.includes('progress'))             return 's-inprogress';
-    if (v === 'canceled' || v === 'cancelled') return 's-canceled';
-    if (v === 'scheduled')                  return 's-scheduled';
-    return 's-pending';
-  }
+function showStatus(type,msg){const el=document.getElementById('field-status');el.className=type;el.textContent=msg;el.style.display='block';}
+function hideStatus(){document.getElementById('field-status').style.display='none';}
 
-  function parseWeek(str) {
-    const d = (str || '').match(/:\s*\$([\d,]+\.?\d*)/);
-    const j = (str || '').match(/across\s+(\d+)\s+job/i);
-    return { total: d ? '$' + d[1] : '—', jobs: j ? j[1] + ' jobs' : '' };
-  }
+// ── TABS ──
+function showTab(name) {
+  activeTab=name;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+name).classList.add('active');
+  loadTab(name);
+}
+function loadTab(name) {
+  if(name==='stats')    loadStats();
+  if(name==='upcoming') loadUpcoming();
+  if(name==='todos')    loadTodos();
+}
 
-  function fmtMoney(n) {
-    return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-  }
+async function loadStats() {
+  const pane=document.getElementById('pane-stats');
+  pane.innerHTML='<div class="load-msg"><span class="spinner"></span> Loading…</div>';
+  try { renderStats(await(await fetch(`/api/dashboard?access_code=${encodeURIComponent(AC)}`)).json()); }
+  catch { pane.innerHTML='<div class="empty-msg">Failed to load</div>'; }
+}
 
-  async function loadDashboard() {
-    document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US', {
-      weekday: 'long', month: 'short', day: 'numeric'
-    });
+function renderStats(data) {
+  const pane=document.getElementById('pane-stats');
+  const s=data.schedule||{}, j=s.jobs||[];
+  const done=j.filter(x=>(x.status||'').toLowerCase().includes('done')).length;
+  const ws=data.week_sales||'';
+  const wAmt=(ws.match(/\$([\d,]+\.?\d*)/)||[])[1];
+  const wCnt=(ws.match(/across\s+(\d+)\s+job/i)||[])[1];
+  const avg=s.count?Math.round((s.total||0)/s.count):0;
+  pane.innerHTML=`
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">Today</div>
+        <div class="stat-value">$${Math.round(s.total||0).toLocaleString()}</div>
+        <div class="stat-sub">${s.count||0} job${s.count===1?'':'s'}</div></div>
+      <div class="stat-card"><div class="stat-label">This Week</div>
+        <div class="stat-value">${wAmt?'$'+wAmt:'—'}</div>
+        <div class="stat-sub">${wCnt?wCnt+' jobs':''}</div></div>
+      <div class="stat-card"><div class="stat-label">Done Today</div>
+        <div class="stat-value">${done}</div>
+        <div class="stat-sub">${j.length-done} remaining</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Job</div>
+        <div class="stat-value">${avg?'$'+avg.toLocaleString():'—'}</div>
+        <div class="stat-sub">today</div></div>
+    </div>
+    <div class="week-detail">${esc(ws)}</div>`;
+}
 
-    ['today-count','today-total','week-total','week-jobs'].forEach(id => {
-      document.getElementById(id).textContent = '—';
-    });
-    document.getElementById('next-job-card').innerHTML =
-      '<div class="loading-text"><span class="spinner-sm"></span>Loading...</div>';
-    document.getElementById('schedule-list').innerHTML =
-      '<div class="loading-text"><span class="spinner-sm"></span>Loading...</div>';
+async function loadUpcoming() {
+  const pane=document.getElementById('pane-upcoming');
+  pane.innerHTML='<div class="load-msg"><span class="spinner"></span> Loading…</div>';
+  try {
+    const d=await(await fetch(`/api/upcoming?access_code=${encodeURIComponent(AC)}`)).json();
+    if(!d.days||!d.days.length){pane.innerHTML='<div class="empty-msg">No upcoming jobs</div>';return;}
+    pane.innerHTML=d.days.map(day=>`
+      <div class="day-group">
+        <div class="day-head"><span>${esc(day.label)}</span>
+          <span>$${Math.round(day.total||0).toLocaleString()} · ${day.jobs.length} job${day.jobs.length===1?'':'s'}</span></div>
+        ${day.jobs.map(j=>`<div class="upcoming-row">
+          <span class="upcoming-time">${toPT(j.time_utc)}</span>
+          <span class="upcoming-name">${esc(j.customer)}</span>
+          <span class="upcoming-amt">$${Math.round(j.amount||0)}</span>
+        </div>`).join('')}
+      </div>`).join('');
+  } catch { pane.innerHTML='<div class="empty-msg">Failed to load</div>'; }
+}
 
-    let data;
+async function loadTodos() {
+  const pane=document.getElementById('pane-todos');
+  pane.innerHTML='<div class="load-msg"><span class="spinner"></span> Loading…</div>';
+  try {
+    const d=await(await fetch(`/api/todos?access_code=${encodeURIComponent(AC)}`)).json();
+    if(!d.todos||!d.todos.length){pane.innerHTML='<div class="empty-msg">No to-dos</div>';return;}
+    const today=new Date().toISOString().slice(0,10);
+    pane.innerHTML=d.todos.map(t=>{
+      const cls=!t.date?'':t.date<today?'overdue':t.date===today?'today':'';
+      const dl=t.date?(t.date<today?'⚠ Overdue · ':'')+t.date:'';
+      return`<div class="todo-card ${cls}">
+        <div class="todo-summary">${esc(t.summary||t.type||'To-Do')}</div>
+        <div class="todo-meta">${esc(t.record)}${dl?' · '+dl:''}</div>
+        ${t.note?`<div class="todo-note">${esc(t.note)}</div>`:''}
+      </div>`;
+    }).join('');
+  } catch { pane.innerHTML='<div class="empty-msg">Failed to load</div>'; }
+}
+
+let custTimer=null;
+function custSearch(q) {
+  clearTimeout(custTimer);
+  const res=document.getElementById('cust-results');
+  if(!q||q.length<2){res.innerHTML='<div class="empty-msg">Type to search</div>';return;}
+  res.innerHTML='<div class="load-msg"><span class="spinner"></span> Searching…</div>';
+  custTimer=setTimeout(async()=>{
     try {
-      const resp = await fetch(`/api/dashboard?access_code=${encodeURIComponent(accessCode)}`);
-      if (!resp.ok) throw new Error('auth');
-      data = await resp.json();
-    } catch {
-      document.getElementById('next-job-card').innerHTML = '<div class="next-job-empty">Error loading data — tap ↻ to retry</div>';
-      document.getElementById('schedule-list').innerHTML = '<div class="schedule-empty">Could not load schedule</div>';
-      return;
-    }
+      const d=await(await fetch(`/api/search?q=${encodeURIComponent(q)}&access_code=${encodeURIComponent(AC)}`)).json();
+      if(!d.results||!d.results.length){res.innerHTML='<div class="empty-msg">No results</div>';return;}
+      res.innerHTML=d.results.map(c=>{
+        const addr=[c.street,c.city].filter(Boolean).join(', ');
+        const extra=[c.x_studio_x_type_of_service,c.x_studio_x_frequency].filter(Boolean).join(' · ');
+        return`<div class="cust-card"><div class="cust-name">${esc(c.name)}</div>
+          <div class="cust-sub">${esc(addr)}${extra?' — '+esc(extra):''}</div></div>`;
+      }).join('');
+    } catch { res.innerHTML='<div class="empty-msg">Search failed</div>'; }
+  },400);
+}
 
-    // Today stats
-    const sched = data.schedule || {};
-    const jobs  = sched.jobs || [];
-    document.getElementById('today-count').textContent = sched.count != null ? sched.count + (sched.count === 1 ? ' job' : ' jobs') : '—';
-    document.getElementById('today-total').textContent = sched.total != null ? fmtMoney(sched.total) : '—';
+// ── VOICE (inner) ──
+async function voiceSend() {
+  const input=document.getElementById('voice-textarea').value.trim();
+  if(!input) return;
+  const btn=document.getElementById('voice-send-btn');
+  btn.disabled=true; btn.textContent='Thinking…';
+  setVR('pending','⏳ Thinking…');
+  document.getElementById('voice-confirm').style.display='none';
+  try {
+    const d=await(await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({input,mode:'confirm',access_code:AC,session_id:sid()})})).json();
+    handleVR(d);
+  } catch(e){setVR('err','Network error: '+e.message);}
+  finally{btn.disabled=false;btn.textContent='Send';}
+}
+function handleVR(d) {
+  if(d.status==='error'){setVR('err',d.message||'Error');}
+  else if(d.status==='done'){setVR('ok',d.message||'Done.');document.getElementById('voice-textarea').value='';}
+  else if(d.status==='pending'){
+    pendingVoice={write_action:d.write_action};
+    setVR('pending','Confirm:\n\n'+d.confirmation);
+    document.getElementById('voice-confirm').style.display='flex';
+  } else {setVR('info',JSON.stringify(d,null,2));}
+}
+async function voiceConfirm(yes) {
+  document.getElementById('voice-confirm').style.display='none';
+  if(!yes){setVR('info','Canceled.');pendingVoice=null;return;}
+  setVR('pending','⏳ Executing…');
+  try {
+    const d=await(await fetch('/execute',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({...pendingVoice,access_code:AC,session_id:sid()})})).json();
+    setVR(d.status==='done'?'ok':'err',d.message||(d.status==='done'?'Done.':'Error.'));
+    if(d.status==='done') document.getElementById('voice-textarea').value='';
+  } catch(e){setVR('err','Network error: '+e.message);}
+  pendingVoice=null;
+}
+function setVR(type,msg){const el=document.getElementById('voice-resp');el.className=type;el.textContent=msg;el.style.display='block';}
+document.getElementById('voice-textarea').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();voiceSend();}});
 
-    // Week stats
-    if (data.week_sales) {
-      const w = parseWeek(data.week_sales);
-      document.getElementById('week-total').textContent = w.total;
-      document.getElementById('week-jobs').textContent  = w.jobs;
-    }
+// ── VOICE MODAL ──
+function openVoiceModal(){document.getElementById('voice-modal').classList.add('open');document.getElementById('vm-input').focus();}
+function closeVoiceModal(){
+  document.getElementById('voice-modal').classList.remove('open');
+  document.getElementById('vm-response').style.display='none';
+  document.getElementById('vm-input').value='';
+}
+async function vmSend() {
+  const input=document.getElementById('vm-input').value.trim();
+  if(!input) return;
+  const res=document.getElementById('vm-response');
+  res.style.display='block';res.textContent='⏳ Thinking…';res.style.color='#94a3b8';
+  try {
+    const d=await(await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({input,mode:'immediate',access_code:AC,session_id:sid()})})).json();
+    res.textContent=d.message||JSON.stringify(d);
+    res.style.color=d.status==='error'?'#fca5a5':'#86efac';
+  } catch(e){res.textContent='Error: '+e.message;res.style.color='#fca5a5';}
+}
+document.getElementById('vm-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();vmSend();}});
 
-    // Next job
-    const nj = data.next_job || {};
-    if (!nj.customer) {
-      document.getElementById('next-job-card').innerHTML = '<div class="next-job-empty">No more jobs today</div>';
-    } else {
-      const addr = nj.address ? `<div class="next-job-address">${esc(nj.address)}</div>` : '';
-      document.getElementById('next-job-card').innerHTML = `
-        <div class="next-job-time">${utcToPacific(nj.time_utc)}</div>
-        <div class="next-job-name">${esc(nj.customer)}</div>
-        ${addr}
-        <div class="next-job-amount">${fmtMoney(nj.amount)}</div>
-      `;
-    }
-
-    // Schedule list
-    if (!jobs.length) {
-      document.getElementById('schedule-list').innerHTML = '<div class="schedule-empty">No jobs scheduled today</div>';
-    } else {
-      document.getElementById('schedule-list').innerHTML = jobs.map(j => `
-        <div class="job-row">
-          <div class="job-time">${utcToPacific(j.time_utc)}</div>
-          <div class="job-name">${esc(j.customer)}</div>
-          <div class="job-amount">${fmtMoney(j.amount)}</div>
-          <div class="status-badge ${statusClass(j.status)}">${esc(j.status || 'Pending')}</div>
-        </div>
-      `).join('');
-    }
-  }
-
-  function startAutoRefresh() {
-    if (dashTimer) clearInterval(dashTimer);
-    dashTimer = setInterval(loadDashboard, 5 * 60 * 1000);
-  }
-
-  // ---- Voice panel ----
-  function toggleVoicePanel() {
-    const overlay = document.getElementById('voice-overlay');
-    overlay.classList.contains('visible') ? closeVoicePanel() : openVoicePanel();
-  }
-
-  function openVoicePanel() {
-    const overlay = document.getElementById('voice-overlay');
-    const panel   = document.getElementById('voice-panel');
-    const fab     = document.getElementById('mic-fab');
-    overlay.classList.add('visible');
-    setTimeout(() => panel.classList.add('open'), 10);
-    fab.classList.add('open');
-    fab.textContent = '✕';
-  }
-
-  function closeVoicePanel() {
-    const overlay = document.getElementById('voice-overlay');
-    const panel   = document.getElementById('voice-panel');
-    const fab     = document.getElementById('mic-fab');
-    panel.classList.remove('open');
-    setTimeout(() => overlay.classList.remove('visible'), 300);
-    fab.classList.remove('open');
-    fab.textContent = '🎤';
-  }
-
-  function overlayClick(e) {
-    if (e.target === document.getElementById('voice-overlay')) closeVoicePanel();
-  }
-
-  // ---- Mode ----
-  function updateModeLabel() {
-    const on  = document.getElementById('mode-toggle').checked;
-    const b   = document.getElementById('mode-badge');
-    b.textContent = on ? 'IMMEDIATE' : 'CONFIRM';
-    b.className   = 'mode-badge' + (on ? ' immediate' : '');
-  }
-  function getMode() {
-    return document.getElementById('mode-toggle').checked ? 'immediate' : 'confirm';
-  }
-
-  // ---- Submit ----
-  async function handleSubmit() {
-    const input = document.getElementById('voice-input').value.trim();
-    if (!input) return;
-    setLoading(true);
-    showResponse('info', '<span class="spinner"></span>Thinking...');
-    hideConfirm();
-    try {
-      const resp = await fetch('/ask', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ input, mode: getMode(), access_code: accessCode, session_id: getSessionId() })
-      });
-      const data = await resp.json();
-      handleResponse(data, input);
-    } catch (err) {
-      showResponse('error', 'Network error: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleResponse(data, originalInput) {
-    if (data.status === 'error') {
-      let msg = data.message || 'Unknown error';
-      if (data.candidates && data.candidates.length > 0)
-        msg += '\n\n' + data.candidates.map((c, i) => `${i+1}. ${c}`).join('\n');
-      showResponse('error', msg);
-      return;
-    }
-    if (data.status === 'done') {
-      showResponse('success', data.message || 'Done.');
-      addHistory(originalInput);
-      document.getElementById('voice-input').value = '';
-      loadDashboard();
-      return;
-    }
-    if (data.status === 'pending') {
-      pendingAction = { write_action: data.write_action };
-      showResponse('pending', 'Confirm action:\n\n' + data.confirmation);
-      showConfirm();
-      return;
-    }
-    showResponse('info', JSON.stringify(data, null, 2));
-  }
-
-  // ---- Confirm ----
-  async function handleConfirm(confirmed) {
-    hideConfirm();
-    if (!confirmed) { showResponse('info', 'Canceled.'); pendingAction = null; return; }
-    setLoading(true);
-    showResponse('info', '<span class="spinner"></span>Executing...');
-    try {
-      const resp = await fetch('/execute', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ ...pendingAction, access_code: accessCode, session_id: getSessionId() })
-      });
-      const data = await resp.json();
-      if (data.status === 'done') {
-        showResponse('success', data.message || 'Done.');
-        addHistory(document.getElementById('voice-input').value.trim());
-        document.getElementById('voice-input').value = '';
-        loadDashboard();
-      } else {
-        showResponse('error', data.message || 'Error executing action.');
-      }
-    } catch (err) {
-      showResponse('error', 'Network error: ' + err.message);
-    } finally {
-      setLoading(false);
-      pendingAction = null;
-    }
-  }
-
-  // ---- UI helpers ----
-  function showResponse(type, html) {
-    document.getElementById('response-area').style.display = 'block';
-    const box = document.getElementById('response-box');
-    box.className = 'response-box ' + type;
-    box.innerHTML = html;
-  }
-  function showConfirm() { document.getElementById('confirm-row').style.display = 'flex'; }
-  function hideConfirm() { document.getElementById('confirm-row').style.display = 'none'; }
-  function setLoading(on) {
-    const btn = document.getElementById('submit-btn');
-    btn.disabled    = on;
-    btn.textContent = on ? 'Thinking...' : 'Send';
-  }
-
-  document.getElementById('voice-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
-  });
-
-  // ---- History ----
-  function getHistory() {
-    try { return JSON.parse(localStorage.getItem('wsc_history') || '[]'); } catch { return []; }
-  }
-  function addHistory(input) {
-    if (!input) return;
-    let h = getHistory().filter(x => x !== input);
-    h.unshift(input); h = h.slice(0, 8);
-    localStorage.setItem('wsc_history', JSON.stringify(h));
-    renderHistory();
-  }
-  function clearHistory() { localStorage.removeItem('wsc_history'); renderHistory(); }
-  function renderHistory() {
-    const list = document.getElementById('history-list');
-    const h    = getHistory();
-    list.innerHTML = h.length
-      ? h.map(item => `<div class="history-item" onclick="reuseHistory(this.textContent)">${esc(item)}</div>`).join('')
-      : '<div style="font-size:13px;color:#475569;">No recent commands</div>';
-  }
-  function reuseHistory(text) {
-    document.getElementById('voice-input').value = text;
-    document.getElementById('voice-input').focus();
-  }
+// ── HELPERS ──
+function toPT(hhmm) {
+  if(!hhmm||hhmm==='?') return '?';
+  try {
+    const[h,m]=hhmm.split(':').map(Number);
+    const d=new Date(); d.setUTCHours(h,m,0,0);
+    return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/Los_Angeles'});
+  } catch{return hhmm;}
+}
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>
