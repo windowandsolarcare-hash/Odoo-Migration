@@ -177,7 +177,7 @@ cd "C:\Users\dj\Documents\Business\A Window and Solar Care\Migration to Odoo"
 powershell -Command "
 \$repo = 'windowandsolarcare-hash/Odoo-Migration'
 \$filePath = '1_Production_Code/zapier_phase4_FLATTENED_FINAL.py'
-\$sha = (gh api \"repos/\$repo/contents/\$filePath\" --jq '.sha').Trim()
+\$sha = (gh api \"repos/\$repo/contents/\$filePath?ref=main\" --jq '.sha').Trim()
 \$content = Get-Content \$filePath -Raw -Encoding UTF8
 \$bytes = [System.Text.Encoding]::UTF8.GetBytes(\$content)
 \$base64 = [System.Convert]::ToBase64String(\$bytes)
@@ -195,7 +195,7 @@ powershell -Command "
 ```powershell
 $repo = "windowandsolarcare-hash/Odoo-Migration"
 $filePath = "1_Production_Code/zapier_phase3_FLATTENED_FINAL.py"
-$sha = (gh api "repos/$repo/contents/$filePath" --jq '.sha').Trim()
+$sha = (gh api "repos/$repo/contents/$filePath?ref=main" --jq '.sha').Trim()
 $localFile = "C:\Users\dj\Documents\Business\A Window and Solar Care\Migration to Odoo\$filePath"
 $content = Get-Content $localFile -Raw -Encoding UTF8
 $bytes = [System.Text.Encoding]::UTF8.GetBytes($content)
