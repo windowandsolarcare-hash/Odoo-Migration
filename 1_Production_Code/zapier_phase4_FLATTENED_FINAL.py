@@ -306,6 +306,17 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
     # Return dict so caller can put it in output (Zapier Data out); prints often not visible in Code step logs.
     def _ret(tasks_found=0, tasks_updated=False, error=None):
         return {"task_sync_tasks_found": tasks_found, "task_sync_updated": tasks_updated, "task_sync_error": error}
+    # Per-task name+color from product name — same logic as Phase 3.
+    # Solar=color 1, Window Cleaning=color 4, other=color 0 with actual product name.
+    def _task_name_color(product_name, cname):
+        n = (product_name or "").lower()
+        if "solar" in n:
+            return (f"{cname} - Solar Panel Cleaning" if cname else "Solar Panel Cleaning"), 1
+        if "window" in n:
+            return (f"{cname} - Window Cleaning" if cname else "Window Cleaning"), 4
+        first = (product_name or "").split("\n")[0].strip()
+        label = f"{cname} - {first}".strip(" - ") if cname and first else (cname or first)
+        return label, 0
     print(f"[*] Syncing tasks for SO id={so_id} (JobDateTime in payload: {bool(job_datetime_utc)}, Team: {bool(workiz_job.get('Team') or workiz_job.get('team'))})")
     # Resolve SO line ids and task ids
     lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], ["id"], limit=500)
@@ -364,7 +375,8 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
             backfilled = 0
             for _task_idx, ol_id in enumerate(line_ids):
                 create_vals = {"project_id": DEFAULT_PROJECT_ID, "sale_line_id": ol_id, "sale_order_id": so_id, "stage_id": 17}  # Planned
-                # Task name: "{ContactName} - {City}" — same format Phase 3 uses
+                # Task name: per-product via _task_name_color (same as Phase 3)
+                customer_name = ""  # initialize so _task_name_color fallback is safe
                 so_partner = so_check[0].get("partner_id")
                 pid = so_partner[0] if isinstance(so_partner, (list, tuple)) else so_partner
                 if pid:
@@ -381,13 +393,20 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                         task_name = (f"{customer_name} - {city}".strip(" - ").strip() if city else customer_name) or "New Task"
                         create_vals["name"] = task_name
                     # Description: copy order line name (product + description text) — mirrors what action_confirm() does
-                    ol_line = _odoo_search_read("sale.order.line", [["id", "=", ol_id]], ["name"], limit=1)
+                    ol_line = _odoo_search_read("sale.order.line", [["id", "=", ol_id]], ["name", "product_id"], limit=1)
                     if ol_line:
                         ol_name = (ol_line[0].get("name") or "").strip()
                         # Description is the part after the first line (product name is line 1)
                         desc_parts = ol_name.split("\n", 1)
                         if len(desc_parts) > 1 and desc_parts[1].strip():
                             create_vals["description"] = desc_parts[1]
+                        # Name+color per product — same as Phase 3
+                        _prod_id = ol_line[0].get("product_id")
+                        _prod_name = _prod_id[1] if isinstance(_prod_id, (list, tuple)) and _prod_id else ""
+                        _tname, _tcolor = _task_name_color(_prod_name, customer_name)
+                        if _tname:
+                            create_vals["name"] = _tname
+                        create_vals["color"] = _tcolor
                     if ODOO_TASK_PARTNER_FIELD:
                         create_vals[ODOO_TASK_PARTNER_FIELD] = pid
                 # Assignee from Workiz team; fall back to project manager (ODOO_USER_ID) so task is never unassigned
@@ -602,6 +621,8 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
         p = so_list[0].get("partner_id")
         pid = p[0] if isinstance(p, (list, tuple)) else p
     # Task name = "Customer Name - City" (customer = Contact; city from Property). SO partner is Property.
+    # customer_name is saved to _cname_for_tasks so _task_name_color can use it below.
+    _cname_for_tasks = ""
     if pid:
         prop = _odoo_search_read("res.partner", [["id", "=", pid]], ["name", "parent_id", "city"], limit=1)
         if prop:
@@ -615,6 +636,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                 contact = _odoo_search_read("res.partner", [["id", "=", contact_id]], ["name"], limit=1)
                 if contact:
                     customer_name = (contact[0].get("name") or customer_name).strip()
+            _cname_for_tasks = customer_name  # captured for per-task name+color below
             if customer_name or city:
                 task_name = f"{customer_name} - {city}".strip(" - ").strip() if city else customer_name
                 if task_name:
@@ -635,17 +657,41 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
     if not task_vals:
         print("[!] No task_vals to write (missing JobDateTime/Team/partner?); task sync skipped.")
         return _ret(tasks_found=n_tasks, error="No fields to write (JobDateTime/Team/partner missing?)")
+
+    # Build per-task product map: task_id → product name (for name+color, same as Phase 3)
+    _task_product_map = {}
+    try:
+        td_resp = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+            "service": "object", "method": "execute_kw",
+            "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "read", [task_ids, ["id", "sale_line_id"]]]
+        }}, timeout=10).json().get("result") or []
+        td_line_ids = [t["sale_line_id"][0] for t in td_resp if t.get("sale_line_id")]
+        if td_line_ids:
+            lp_resp = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                "service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "sale.order.line", "read", [td_line_ids, ["id", "product_id"]]]
+            }}, timeout=10).json().get("result") or []
+            lp_map = {ln["id"]: (ln["product_id"][1] if isinstance(ln.get("product_id"), (list, tuple)) else "") for ln in lp_resp}
+            for td in td_resp:
+                tid2 = td["id"]
+                lid2 = td["sale_line_id"][0] if isinstance(td.get("sale_line_id"), (list, tuple)) else td.get("sale_line_id")
+                _task_product_map[tid2] = lp_map.get(lid2, "") if lid2 else ""
+    except Exception as _tpe:
+        print(f"[!] Per-task product map failed (non-fatal): {_tpe}")
+
     print(f"[*] Writing to {len(task_ids)} task(s): {list(task_vals.keys())}")
 
     # When multiple tasks share the same SO, stagger their time slots so they don't overlap.
+    # name+color are written per-task (based on product); all other non-time fields written in bulk.
     # Task 0: job_start → job_start + per_task_hrs
     # Task 1: job_start + per_task_hrs → job_start + 2*per_task_hrs, etc.
+    _per_task_fields = {"planned_date_begin", "date_end", "date_deadline", "allocated_hours", "name", "color"}
+    _common_vals = {k: v for k, v in task_vals.items() if k not in _per_task_fields}
     _time_fields = {"planned_date_begin", "date_end", "date_deadline", "allocated_hours"}
-    _common_vals = {k: v for k, v in task_vals.items() if k not in _time_fields}
     _has_time = any(k in task_vals for k in _time_fields)
 
     try:
-        # Write non-time fields to all tasks at once
+        # Write non-time, non-name/color fields to all tasks at once
         if _common_vals:
             wr = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
                 "service": "object", "method": "execute_kw",
@@ -654,41 +700,49 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
             if wr.json().get("error"):
                 raise Exception(str(wr.json()["error"]))
 
-        # Write staggered time fields per task
-        if _has_time:
-            _sorted_ids = sorted(task_ids)
-            _per_hrs = task_vals.get("allocated_hours", round(1.0 / max(n_tasks, 1), 2))
-            _base_start = task_vals.get(ODOO_TASK_START_DATETIME_FIELD)
-            if _base_start and n_tasks > 1:
-                dt_base = datetime.strptime(str(_base_start)[:19], "%Y-%m-%d %H:%M:%S")
-                for _i, tid in enumerate(_sorted_ids):
-                    dt_s = dt_base + timedelta(hours=_i * _per_hrs)
-                    dt_e = dt_base + timedelta(hours=(_i + 1) * _per_hrs)
-                    _t_vals = {"allocated_hours": _per_hrs}
-                    if ODOO_TASK_START_DATETIME_FIELD:
-                        _t_vals[ODOO_TASK_START_DATETIME_FIELD] = dt_s.strftime("%Y-%m-%d %H:%M:%S")
-                    if ODOO_TASK_END_DATETIME_FIELD:
-                        _t_vals[ODOO_TASK_END_DATETIME_FIELD] = dt_e.strftime("%Y-%m-%d %H:%M:%S")
-                    if ODOO_TASK_PLANNED_DATE_FIELD:
-                        _t_vals[ODOO_TASK_PLANNED_DATE_FIELD] = dt_e.strftime("%Y-%m-%d %H:%M:%S")
+        # Write staggered time fields + per-task name+color
+        _sorted_ids = sorted(task_ids)
+        _per_hrs = task_vals.get("allocated_hours", round(1.0 / max(n_tasks, 1), 2))
+        _base_start = task_vals.get(ODOO_TASK_START_DATETIME_FIELD)
+        if _base_start and n_tasks > 1:
+            dt_base = datetime.strptime(str(_base_start)[:19], "%Y-%m-%d %H:%M:%S")
+            for _i, tid in enumerate(_sorted_ids):
+                dt_s = dt_base + timedelta(hours=_i * _per_hrs)
+                dt_e = dt_base + timedelta(hours=(_i + 1) * _per_hrs)
+                _t_vals = {"allocated_hours": _per_hrs}
+                if ODOO_TASK_START_DATETIME_FIELD:
+                    _t_vals[ODOO_TASK_START_DATETIME_FIELD] = dt_s.strftime("%Y-%m-%d %H:%M:%S")
+                if ODOO_TASK_END_DATETIME_FIELD:
+                    _t_vals[ODOO_TASK_END_DATETIME_FIELD] = dt_e.strftime("%Y-%m-%d %H:%M:%S")
+                if ODOO_TASK_PLANNED_DATE_FIELD:
+                    _t_vals[ODOO_TASK_PLANNED_DATE_FIELD] = dt_e.strftime("%Y-%m-%d %H:%M:%S")
+                # Per-task name+color from product
+                _pname, _pcolor = _task_name_color(_task_product_map.get(tid, ""), _cname_for_tasks)
+                _t_vals["name"] = _pname if _pname else task_vals.get("name", "")
+                _t_vals["color"] = _pcolor
+                wr = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                    "service": "object", "method": "execute_kw",
+                    "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [[tid], _t_vals]]
+                }}, timeout=10)
+                if wr.json().get("error"):
+                    print(f"[!] Stagger write error task {tid}: {wr.json()['error']}")
+        else:
+            # Single task or no base start — write time fields + name+color per task
+            _time_only = {k: v for k, v in task_vals.items() if k in _time_fields}
+            for tid in _sorted_ids:
+                _pname, _pcolor = _task_name_color(_task_product_map.get(tid, ""), _cname_for_tasks)
+                _per_t = dict(_time_only)
+                _per_t["name"] = _pname if _pname else task_vals.get("name", "")
+                _per_t["color"] = _pcolor
+                if _per_t:
                     wr = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
                         "service": "object", "method": "execute_kw",
-                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [[tid], _t_vals]]
+                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [[tid], _per_t]]
                     }}, timeout=10)
                     if wr.json().get("error"):
-                        print(f"[!] Stagger write error task {tid}: {wr.json()['error']}")
-            else:
-                # Single task or no base start — write time fields normally
-                _time_only = {k: v for k, v in task_vals.items() if k in _time_fields}
-                if _time_only:
-                    wr = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
-                        "service": "object", "method": "execute_kw",
-                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "write", [task_ids, _time_only]]
-                    }}, timeout=10)
-                    if wr.json().get("error"):
-                        raise Exception(str(wr.json()["error"]))
+                        print(f"[!] Single-task write error task {tid}: {wr.json()['error']}")
 
-        print(f"[OK] Synced {len(task_ids)} task(s): assignee, planned date, tags, customer, contact number")
+        print(f"[OK] Synced {len(task_ids)} task(s): name+color by product, assignee, planned date, tags, customer, contact number")
         return _ret(tasks_found=n_tasks, tasks_updated=True)
     except Exception as e:
         print(f"[ERROR] Task write exception: {e}")
