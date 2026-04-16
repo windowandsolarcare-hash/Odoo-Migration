@@ -831,13 +831,14 @@ function custSearch(q) {
     try {
       const d=await(await fetch(`/api/search?q=${encodeURIComponent(q)}&access_code=${encodeURIComponent(AC)}`)).json();
       if(!d.results||!d.results.length){res.innerHTML='<div class="empty-msg">No results</div>';return;}
-      const PLACEHOLDER = new Set(['unknown','on request','']);
       res.innerHTML=d.results.map(c=>{
         const addr=[c.street,c.city].filter(Boolean).join(', ');
-        const extra=[c.x_studio_x_type_of_service,c.x_studio_x_frequency]
-          .filter(v => v && !PLACEHOLDER.has(v.toLowerCase())).join(' · ');
+        const parts = [];
+        if (c.next_job) parts.push('Next: ' + esc(c.next_job));
+        if (c.last_job) parts.push('Last: ' + esc(c.last_job));
+        const schedule = parts.join(' — ');
         return`<div class="cust-card"><div class="cust-name">${esc(c.name)}</div>
-          <div class="cust-sub">${esc(addr)}${extra?' — '+esc(extra):''}</div></div>`;
+          <div class="cust-sub">${esc(addr)}${schedule?' — '+schedule:''}</div></div>`;
       }).join('');
     } catch { res.innerHTML='<div class="empty-msg">Search failed</div>'; }
   },400);
