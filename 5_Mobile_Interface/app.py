@@ -1873,6 +1873,38 @@ async def execute(request: Request):
 # ---------------------------------------------------------------------------
 # Serve frontend
 # ---------------------------------------------------------------------------
+@app.get('/api/dashboard')
+async def api_dashboard(access_code: str = ''):
+    if access_code != ACCESS_CODE:
+        from fastapi.responses import JSONResponse as _JR
+        return _JR({'error': 'unauthorized'}, status_code=401)
+    try:
+        schedule = tool_get_schedule('today')
+    except Exception as e:
+        schedule = {'count': 0, 'total': 0, 'jobs': []}
+    try:
+        next_job_raw = tool_get_next_job()
+        next_job = {
+            'customer': next_job_raw.get('customer', ''),
+            'address':  next_job_raw.get('address', ''),
+            'time_utc': next_job_raw.get('time_utc', ''),
+            'amount':   next_job_raw.get('amount', 0),
+            'so_id':    next_job_raw.get('so_id'),
+            'partner_id': next_job_raw.get('partner_id'),
+        } if not next_job_raw.get('error') else {}
+    except Exception:
+        next_job = {}
+    try:
+        week_sales = tool_get_sales_week('')
+    except Exception:
+        week_sales = ''
+    return {
+        'schedule':   schedule,
+        'next_job':   next_job,
+        'week_sales': week_sales,
+    }
+
+
 @app.get('/', response_class=HTMLResponse)
 async def index():
     html_path = os.path.join(os.path.dirname(__file__), 'static', 'index.html')
