@@ -4,7 +4,7 @@
 # Format: key facts only — both Claudes read this on every session
 
 ## OWNER
-- DJ Sanders — owner and sole technician, Window & Solar Care, Southern California
+- Dan Saunders (goes by DJ) — owner and sole technician, Window & Solar Care, Southern California
 - Email: windowandsolarcare@gmail.com
 
 ## PLATFORMS
