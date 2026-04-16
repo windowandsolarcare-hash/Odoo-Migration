@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>WSC Field Assistant</title>
+  <title>WSC Dashboard</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,39 +14,24 @@
       background: #0f172a;
       color: #e2e8f0;
       min-height: 100vh;
-      padding: 16px;
     }
 
-    h1 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #38bdf8;
-      margin-bottom: 4px;
-    }
-
-    .subtitle {
-      font-size: 12px;
-      color: #64748b;
-      margin-bottom: 16px;
-    }
-
-    /* Access code screen */
+    /* ---- Access gate ---- */
     #access-screen {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 80vh;
+      min-height: 100vh;
       gap: 16px;
+      padding: 24px;
     }
-
-    #access-screen h2 { font-size: 20px; color: #38bdf8; }
+    #access-screen h2 { font-size: 22px; color: #38bdf8; }
     #access-screen p  { font-size: 14px; color: #64748b; }
-
     #access-input {
       font-size: 24px;
       padding: 12px 16px;
-      width: 200px;
+      width: 220px;
       text-align: center;
       border: 2px solid #334155;
       background: #1e293b;
@@ -54,20 +39,281 @@
       border-radius: 12px;
       letter-spacing: 4px;
     }
-
     #access-btn {
-      padding: 14px 32px;
+      padding: 14px 36px;
       background: #0284c7;
       color: white;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       border: none;
       border-radius: 12px;
       cursor: pointer;
     }
+    #access-error { color: #dc2626; font-size: 13px; display: none; }
 
-    /* Main app */
-    #main-screen { display: none; }
+    /* ---- Dashboard ---- */
+    #dashboard {
+      display: none;
+      padding: 16px 16px 100px;
+    }
+
+    .dash-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .dash-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .dash-date {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+    .refresh-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #94a3b8;
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+    .refresh-btn:active { background: #334155; }
+
+    /* Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: #f1f5f9;
+      line-height: 1;
+    }
+    .stat-sub {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 5px;
+    }
+
+    /* Section labels */
+    .section-label {
+      font-size: 11px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
+
+    /* Next job card */
+    .next-job-card {
+      background: #0c4a6e;
+      border: 1px solid #0284c7;
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .next-job-time {
+      font-size: 13px;
+      color: #38bdf8;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .next-job-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+    .next-job-address {
+      font-size: 13px;
+      color: #7dd3fc;
+      margin-bottom: 10px;
+    }
+    .next-job-amount {
+      font-size: 22px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .next-job-empty {
+      color: #475569;
+      font-size: 14px;
+      text-align: center;
+      padding: 14px 0;
+    }
+
+    /* Schedule rows */
+    .job-row {
+      display: flex;
+      align-items: center;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      gap: 10px;
+    }
+    .job-time {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      min-width: 64px;
+    }
+    .job-name {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+      color: #e2e8f0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .job-amount {
+      font-size: 14px;
+      font-weight: 600;
+      color: #94a3b8;
+      min-width: 50px;
+      text-align: right;
+    }
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .s-done       { background: #052e16; color: #4ade80; }
+    .s-scheduled  { background: #0c4a6e; color: #38bdf8; }
+    .s-inprogress { background: #431407; color: #fb923c; }
+    .s-canceled   { background: #2d0a0a; color: #f87171; }
+    .s-pending    { background: #1e293b; color: #64748b; border: 1px solid #334155; }
+
+    .schedule-empty {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    /* Loading */
+    .loading-text {
+      color: #475569;
+      font-size: 14px;
+      padding: 14px 0;
+      text-align: center;
+    }
+    .spinner-sm {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.15);
+      border-top-color: #38bdf8;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---- Mic FAB ---- */
+    #mic-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: #0284c7;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(2, 132, 199, 0.5);
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      transition: background .15s, transform .15s;
+    }
+    #mic-fab:active { transform: scale(0.9); }
+    #mic-fab.open   { background: #1e293b; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+
+    /* ---- Voice panel overlay ---- */
+    #voice-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+    }
+    #voice-overlay.visible { display: flex; }
+
+    #voice-panel {
+      width: 100%;
+      max-height: 82vh;
+      background: #0f172a;
+      border-top: 2px solid #334155;
+      border-radius: 20px 20px 0 0;
+      overflow-y: auto;
+      padding: 0 16px 28px;
+      transform: translateY(100%);
+      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    }
+    #voice-panel.open { transform: translateY(0); }
+
+    .panel-handle {
+      width: 40px;
+      height: 4px;
+      background: #334155;
+      border-radius: 2px;
+      margin: 12px auto 16px;
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .panel-title { font-size: 17px; font-weight: 600; color: #38bdf8; }
+    .panel-close {
+      background: none;
+      border: none;
+      color: #64748b;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+      border-radius: 8px;
+    }
+    .panel-close:active { background: #1e293b; }
 
     /* Mode toggle */
     .mode-row {
@@ -76,14 +322,8 @@
       gap: 10px;
       margin-bottom: 14px;
     }
-
     .mode-label { font-size: 13px; color: #94a3b8; }
-
-    .toggle {
-      position: relative;
-      width: 52px;
-      height: 28px;
-    }
+    .toggle { position: relative; width: 52px; height: 28px; }
     .toggle input { opacity: 0; width: 0; height: 0; }
     .toggle-slider {
       position: absolute;
@@ -104,7 +344,6 @@
     }
     input:checked + .toggle-slider { background: #0284c7; }
     input:checked + .toggle-slider:before { transform: translateX(24px); }
-
     .mode-badge {
       font-size: 12px;
       font-weight: 700;
@@ -115,10 +354,10 @@
     }
     .mode-badge.immediate { background: #0c4a6e; color: #38bdf8; }
 
-    /* Input area */
+    /* Textarea */
     textarea {
       width: 100%;
-      min-height: 110px;
+      min-height: 100px;
       padding: 14px;
       font-size: 17px;
       line-height: 1.5;
@@ -133,7 +372,7 @@
     textarea:focus { border-color: #0284c7; }
     textarea::placeholder { color: #475569; }
 
-    /* Submit button */
+    /* Submit */
     #submit-btn {
       width: 100%;
       margin-top: 10px;
@@ -150,12 +389,8 @@
     #submit-btn:active { background: #0369a1; }
     #submit-btn:disabled { background: #334155; color: #64748b; cursor: default; }
 
-    /* Response area */
-    #response-area {
-      margin-top: 16px;
-      display: none;
-    }
-
+    /* Response */
+    #response-area { margin-top: 14px; display: none; }
     .response-box {
       padding: 14px;
       border-radius: 14px;
@@ -170,11 +405,7 @@
     .response-box.info     { background: #1e1e2e; border: 2px solid #475569; color: #e2e8f0; }
 
     /* Confirm buttons */
-    #confirm-row {
-      display: none;
-      gap: 10px;
-      margin-top: 10px;
-    }
+    #confirm-row { display: none; gap: 10px; margin-top: 10px; }
     #confirm-row button {
       flex: 1;
       padding: 15px;
@@ -189,7 +420,7 @@
     #confirm-no  { background: #dc2626; color: white; }
     #confirm-no:active  { background: #b91c1c; }
 
-    /* Spinner */
+    /* Spinner (inside response box) */
     .spinner {
       display: inline-block;
       width: 18px; height: 18px;
@@ -200,24 +431,16 @@
       vertical-align: middle;
       margin-right: 8px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Candidates list */
-    .candidates {
-      margin-top: 8px;
-      padding-left: 16px;
-      font-size: 14px;
-      color: #94a3b8;
-    }
-    .candidates li { margin-bottom: 4px; }
 
     /* History */
-    #history {
-      margin-top: 20px;
-      border-top: 1px solid #1e293b;
-      padding-top: 12px;
+    #history { margin-top: 20px; border-top: 1px solid #1e293b; padding-top: 12px; }
+    .history-label {
+      font-size: 11px;
+      color: #475569;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    .history-label { font-size: 11px; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
     .history-item {
       padding: 8px 12px;
       background: #1e293b;
@@ -228,120 +451,282 @@
       cursor: pointer;
     }
     .history-item:active { background: #334155; }
-
-    /* Clear link */
     .clear-link {
       font-size: 12px;
       color: #475569;
       text-decoration: underline;
       cursor: pointer;
-      display: inline-block;
-      margin-top: 4px;
     }
   </style>
 </head>
 <body>
 
-<!-- Access code gate -->
+<!-- Access gate -->
 <div id="access-screen">
-  <h2>WSC Field Assistant</h2>
+  <h2>WSC Dashboard</h2>
   <p>Enter access code to continue</p>
   <input id="access-input" type="password" inputmode="text" maxlength="20" placeholder="••••••••">
   <button id="access-btn" onclick="checkAccess()">Unlock</button>
-  <p id="access-error" style="color:#dc2626;font-size:14px;display:none;">Incorrect code</p>
+  <p id="access-error">Incorrect code</p>
 </div>
 
-<!-- Main interface -->
-<div id="main-screen">
-  <h1>WSC Field Assistant</h1>
-  <p class="subtitle">Tap mic on keyboard, speak your command</p>
-
-  <!-- Mode toggle -->
-  <div class="mode-row">
-    <span class="mode-label">Mode:</span>
-    <label class="toggle">
-      <input type="checkbox" id="mode-toggle" onchange="updateModeLabel()">
-      <span class="toggle-slider"></span>
-    </label>
-    <span class="mode-badge" id="mode-badge">CONFIRM</span>
+<!-- Dashboard -->
+<div id="dashboard">
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">WSC Dashboard</div>
+      <div class="dash-date" id="dash-date"></div>
+    </div>
+    <button class="refresh-btn" onclick="loadDashboard()" title="Refresh">&#8635;</button>
   </div>
 
-  <!-- Voice input -->
-  <textarea id="voice-input" placeholder="Tap the mic on your keyboard and speak...&#10;&#10;Examples:&#10;  Update Kenneth's notes to gate code 1234&#10;  What's the status of Barbara Williams&#10;  Create a follow-up for the Smith property in 2 weeks&#10;  Add a note to P00123 says customer was not home"></textarea>
-
-  <button id="submit-btn" onclick="handleSubmit()">Send</button>
-
-  <!-- Response -->
-  <div id="response-area">
-    <div id="response-box" class="response-box info"></div>
-    <div id="confirm-row">
-      <button id="confirm-yes" onclick="handleConfirm(true)">Yes, Do It</button>
-      <button id="confirm-no"  onclick="handleConfirm(false)">Cancel</button>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Today</div>
+      <div class="stat-value" id="today-count">—</div>
+      <div class="stat-sub"  id="today-total">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">This Week</div>
+      <div class="stat-value" id="week-total">—</div>
+      <div class="stat-sub"  id="week-jobs">—</div>
     </div>
   </div>
 
-  <!-- History -->
-  <div id="history">
-    <div class="history-label">Recent commands <span class="clear-link" onclick="clearHistory()">(clear)</span></div>
-    <div id="history-list"></div>
+  <div class="section-label">Next Job</div>
+  <div id="next-job-card" class="next-job-card">
+    <div class="loading-text"><span class="spinner-sm"></span>Loading...</div>
+  </div>
+
+  <div class="section-label">Today's Schedule</div>
+  <div id="schedule-list">
+    <div class="loading-text"><span class="spinner-sm"></span>Loading...</div>
+  </div>
+</div>
+
+<!-- Mic FAB -->
+<button id="mic-fab" onclick="toggleVoicePanel()">🎤</button>
+
+<!-- Voice panel overlay -->
+<div id="voice-overlay" onclick="overlayClick(event)">
+  <div id="voice-panel">
+    <div class="panel-handle"></div>
+    <div class="panel-header">
+      <span class="panel-title">Field Assistant</span>
+      <button class="panel-close" onclick="closeVoicePanel()">✕</button>
+    </div>
+
+    <div class="mode-row">
+      <span class="mode-label">Mode:</span>
+      <label class="toggle">
+        <input type="checkbox" id="mode-toggle" onchange="updateModeLabel()">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="mode-badge" id="mode-badge">CONFIRM</span>
+    </div>
+
+    <textarea id="voice-input" placeholder="Tap mic on keyboard and speak...&#10;&#10;Examples:&#10;  What's my schedule today&#10;  Navigate to my next job&#10;  Update Kenneth's gate code to 1234&#10;  Create a follow-up for Barbara in 2 weeks"></textarea>
+
+    <button id="submit-btn" onclick="handleSubmit()">Send</button>
+
+    <div id="response-area">
+      <div id="response-box" class="response-box info"></div>
+      <div id="confirm-row">
+        <button id="confirm-yes" onclick="handleConfirm(true)">Yes, Do It</button>
+        <button id="confirm-no"  onclick="handleConfirm(false)">Cancel</button>
+      </div>
+    </div>
+
+    <div id="history">
+      <div class="history-label">
+        Recent commands <span class="clear-link" onclick="clearHistory()">(clear)</span>
+      </div>
+      <div id="history-list"></div>
+    </div>
   </div>
 </div>
 
 <script>
-  const BASE_URL   = '';   // same origin
   let accessCode   = '';
   let pendingAction = null;
+  let dashTimer    = null;
 
-  // Session ID — unique per browser tab, resets when tab closes
+  // ---- Session ID ----
   function getSessionId() {
     let sid = sessionStorage.getItem('wsc_session');
-    if (!sid) {
-      sid = Math.random().toString(36).substr(2, 12);
-      sessionStorage.setItem('wsc_session', sid);
-    }
+    if (!sid) { sid = Math.random().toString(36).substr(2, 12); sessionStorage.setItem('wsc_session', sid); }
     return sid;
   }
 
-  // ---- Access ----
+  // ---- Access gate ----
   function checkAccess() {
     const val = document.getElementById('access-input').value.trim();
-    // Minimal local check — server validates for real
-    if (val.length < 4) {
-      document.getElementById('access-error').style.display = 'block';
-      return;
-    }
+    if (val.length < 4) { document.getElementById('access-error').style.display = 'block'; return; }
     accessCode = val;
     localStorage.setItem('wsc_access', val);
-    showMain();
+    showDashboard();
   }
 
-  document.getElementById('access-input').addEventListener('keydown', (e) => {
+  document.getElementById('access-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') checkAccess();
   });
 
-  function showMain() {
+  function showDashboard() {
     document.getElementById('access-screen').style.display = 'none';
-    document.getElementById('main-screen').style.display  = 'block';
+    document.getElementById('dashboard').style.display     = 'block';
+    document.getElementById('mic-fab').style.display       = 'flex';
+    loadDashboard();
+    startAutoRefresh();
     renderHistory();
   }
 
-  // Auto-unlock if saved
   window.addEventListener('load', () => {
     const saved = localStorage.getItem('wsc_access');
-    if (saved) {
-      accessCode = saved;
-      showMain();
-    }
+    if (saved) { accessCode = saved; showDashboard(); }
   });
+
+  // ---- Dashboard data ----
+  function esc(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function utcToPacific(hhmm) {
+    if (!hhmm || hhmm === '?') return '?';
+    const today = new Date().toISOString().slice(0, 10);
+    const d = new Date(`${today}T${hhmm}:00Z`);
+    return d.toLocaleTimeString('en-US', {
+      timeZone: 'America/Los_Angeles',
+      hour: 'numeric', minute: '2-digit', hour12: true
+    });
+  }
+
+  function statusClass(s) {
+    const v = (s || '').toLowerCase();
+    if (v === 'done')                       return 's-done';
+    if (v.includes('progress'))             return 's-inprogress';
+    if (v === 'canceled' || v === 'cancelled') return 's-canceled';
+    if (v === 'scheduled')                  return 's-scheduled';
+    return 's-pending';
+  }
+
+  function parseWeek(str) {
+    const d = (str || '').match(/:\s*\$([\d,]+\.?\d*)/);
+    const j = (str || '').match(/across\s+(\d+)\s+job/i);
+    return { total: d ? '$' + d[1] : '—', jobs: j ? j[1] + ' jobs' : '' };
+  }
+
+  function fmtMoney(n) {
+    return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  async function loadDashboard() {
+    document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'long', month: 'short', day: 'numeric'
+    });
+
+    ['today-count','today-total','week-total','week-jobs'].forEach(id => {
+      document.getElementById(id).textContent = '—';
+    });
+    document.getElementById('next-job-card').innerHTML =
+      '<div class="loading-text"><span class="spinner-sm"></span>Loading...</div>';
+    document.getElementById('schedule-list').innerHTML =
+      '<div class="loading-text"><span class="spinner-sm"></span>Loading...</div>';
+
+    let data;
+    try {
+      const resp = await fetch(`/api/dashboard?access_code=${encodeURIComponent(accessCode)}`);
+      if (!resp.ok) throw new Error('auth');
+      data = await resp.json();
+    } catch {
+      document.getElementById('next-job-card').innerHTML = '<div class="next-job-empty">Error loading data — tap ↻ to retry</div>';
+      document.getElementById('schedule-list').innerHTML = '<div class="schedule-empty">Could not load schedule</div>';
+      return;
+    }
+
+    // Today stats
+    const sched = data.schedule || {};
+    const jobs  = sched.jobs || [];
+    document.getElementById('today-count').textContent = sched.count != null ? sched.count + (sched.count === 1 ? ' job' : ' jobs') : '—';
+    document.getElementById('today-total').textContent = sched.total != null ? fmtMoney(sched.total) : '—';
+
+    // Week stats
+    if (data.week_sales) {
+      const w = parseWeek(data.week_sales);
+      document.getElementById('week-total').textContent = w.total;
+      document.getElementById('week-jobs').textContent  = w.jobs;
+    }
+
+    // Next job
+    const nj = data.next_job || {};
+    if (!nj.customer) {
+      document.getElementById('next-job-card').innerHTML = '<div class="next-job-empty">No more jobs today</div>';
+    } else {
+      const addr = nj.address ? `<div class="next-job-address">${esc(nj.address)}</div>` : '';
+      document.getElementById('next-job-card').innerHTML = `
+        <div class="next-job-time">${utcToPacific(nj.time_utc)}</div>
+        <div class="next-job-name">${esc(nj.customer)}</div>
+        ${addr}
+        <div class="next-job-amount">${fmtMoney(nj.amount)}</div>
+      `;
+    }
+
+    // Schedule list
+    if (!jobs.length) {
+      document.getElementById('schedule-list').innerHTML = '<div class="schedule-empty">No jobs scheduled today</div>';
+    } else {
+      document.getElementById('schedule-list').innerHTML = jobs.map(j => `
+        <div class="job-row">
+          <div class="job-time">${utcToPacific(j.time_utc)}</div>
+          <div class="job-name">${esc(j.customer)}</div>
+          <div class="job-amount">${fmtMoney(j.amount)}</div>
+          <div class="status-badge ${statusClass(j.status)}">${esc(j.status || 'Pending')}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  function startAutoRefresh() {
+    if (dashTimer) clearInterval(dashTimer);
+    dashTimer = setInterval(loadDashboard, 5 * 60 * 1000);
+  }
+
+  // ---- Voice panel ----
+  function toggleVoicePanel() {
+    const overlay = document.getElementById('voice-overlay');
+    overlay.classList.contains('visible') ? closeVoicePanel() : openVoicePanel();
+  }
+
+  function openVoicePanel() {
+    const overlay = document.getElementById('voice-overlay');
+    const panel   = document.getElementById('voice-panel');
+    const fab     = document.getElementById('mic-fab');
+    overlay.classList.add('visible');
+    setTimeout(() => panel.classList.add('open'), 10);
+    fab.classList.add('open');
+    fab.textContent = '✕';
+  }
+
+  function closeVoicePanel() {
+    const overlay = document.getElementById('voice-overlay');
+    const panel   = document.getElementById('voice-panel');
+    const fab     = document.getElementById('mic-fab');
+    panel.classList.remove('open');
+    setTimeout(() => overlay.classList.remove('visible'), 300);
+    fab.classList.remove('open');
+    fab.textContent = '🎤';
+  }
+
+  function overlayClick(e) {
+    if (e.target === document.getElementById('voice-overlay')) closeVoicePanel();
+  }
 
   // ---- Mode ----
   function updateModeLabel() {
-    const immediate = document.getElementById('mode-toggle').checked;
-    const badge = document.getElementById('mode-badge');
-    badge.textContent = immediate ? 'IMMEDIATE' : 'CONFIRM';
-    badge.className = 'mode-badge' + (immediate ? ' immediate' : '');
+    const on  = document.getElementById('mode-toggle').checked;
+    const b   = document.getElementById('mode-badge');
+    b.textContent = on ? 'IMMEDIATE' : 'CONFIRM';
+    b.className   = 'mode-badge' + (on ? ' immediate' : '');
   }
-
   function getMode() {
     return document.getElementById('mode-toggle').checked ? 'immediate' : 'confirm';
   }
@@ -350,16 +735,14 @@
   async function handleSubmit() {
     const input = document.getElementById('voice-input').value.trim();
     if (!input) return;
-
     setLoading(true);
     showResponse('info', '<span class="spinner"></span>Thinking...');
     hideConfirm();
-
     try {
       const resp = await fetch('/ask', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({input, mode: getMode(), access_code: accessCode, session_id: getSessionId()})
+        body: JSON.stringify({ input, mode: getMode(), access_code: accessCode, session_id: getSessionId() })
       });
       const data = await resp.json();
       handleResponse(data, input);
@@ -373,53 +756,45 @@
   function handleResponse(data, originalInput) {
     if (data.status === 'error') {
       let msg = data.message || 'Unknown error';
-      if (data.candidates && data.candidates.length > 0) {
+      if (data.candidates && data.candidates.length > 0)
         msg += '\n\n' + data.candidates.map((c, i) => `${i+1}. ${c}`).join('\n');
-      }
       showResponse('error', msg);
       return;
     }
-
     if (data.status === 'done') {
       showResponse('success', data.message || 'Done.');
       addHistory(originalInput);
       document.getElementById('voice-input').value = '';
+      loadDashboard();
       return;
     }
-
     if (data.status === 'pending') {
-      pendingAction = {write_action: data.write_action};
+      pendingAction = { write_action: data.write_action };
       showResponse('pending', 'Confirm action:\n\n' + data.confirmation);
       showConfirm();
       return;
     }
-
     showResponse('info', JSON.stringify(data, null, 2));
   }
 
   // ---- Confirm ----
   async function handleConfirm(confirmed) {
     hideConfirm();
-    if (!confirmed) {
-      showResponse('info', 'Canceled.');
-      pendingAction = null;
-      return;
-    }
-
+    if (!confirmed) { showResponse('info', 'Canceled.'); pendingAction = null; return; }
     setLoading(true);
     showResponse('info', '<span class="spinner"></span>Executing...');
-
     try {
       const resp = await fetch('/execute', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({...pendingAction, access_code: accessCode, session_id: getSessionId()})
+        body: JSON.stringify({ ...pendingAction, access_code: accessCode, session_id: getSessionId() })
       });
       const data = await resp.json();
       if (data.status === 'done') {
         showResponse('success', data.message || 'Done.');
         addHistory(document.getElementById('voice-input').value.trim());
         document.getElementById('voice-input').value = '';
+        loadDashboard();
       } else {
         showResponse('error', data.message || 'Error executing action.');
       }
@@ -433,67 +808,42 @@
 
   // ---- UI helpers ----
   function showResponse(type, html) {
-    const area = document.getElementById('response-area');
-    const box  = document.getElementById('response-box');
-    area.style.display = 'block';
+    document.getElementById('response-area').style.display = 'block';
+    const box = document.getElementById('response-box');
     box.className = 'response-box ' + type;
     box.innerHTML = html;
   }
-
-  function showConfirm() {
-    document.getElementById('confirm-row').style.display = 'flex';
-  }
-
-  function hideConfirm() {
-    document.getElementById('confirm-row').style.display = 'none';
-  }
-
+  function showConfirm() { document.getElementById('confirm-row').style.display = 'flex'; }
+  function hideConfirm() { document.getElementById('confirm-row').style.display = 'none'; }
   function setLoading(on) {
     const btn = document.getElementById('submit-btn');
-    btn.disabled = on;
+    btn.disabled    = on;
     btn.textContent = on ? 'Thinking...' : 'Send';
   }
 
-  // Allow Enter to submit (Shift+Enter for newline)
-  document.getElementById('voice-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
+  document.getElementById('voice-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
   });
 
   // ---- History ----
   function getHistory() {
-    try { return JSON.parse(localStorage.getItem('wsc_history') || '[]'); }
-    catch { return []; }
+    try { return JSON.parse(localStorage.getItem('wsc_history') || '[]'); } catch { return []; }
   }
-
   function addHistory(input) {
     if (!input) return;
     let h = getHistory().filter(x => x !== input);
-    h.unshift(input);
-    h = h.slice(0, 8);
+    h.unshift(input); h = h.slice(0, 8);
     localStorage.setItem('wsc_history', JSON.stringify(h));
     renderHistory();
   }
-
-  function clearHistory() {
-    localStorage.removeItem('wsc_history');
-    renderHistory();
-  }
-
+  function clearHistory() { localStorage.removeItem('wsc_history'); renderHistory(); }
   function renderHistory() {
     const list = document.getElementById('history-list');
-    const h = getHistory();
-    if (h.length === 0) {
-      list.innerHTML = '<div style="font-size:13px;color:#475569;">No recent commands</div>';
-      return;
-    }
-    list.innerHTML = h.map(item =>
-      `<div class="history-item" onclick="reuseHistory(this.textContent)">${item}</div>`
-    ).join('');
+    const h    = getHistory();
+    list.innerHTML = h.length
+      ? h.map(item => `<div class="history-item" onclick="reuseHistory(this.textContent)">${esc(item)}</div>`).join('')
+      : '<div style="font-size:13px;color:#475569;">No recent commands</div>';
   }
-
   function reuseHistory(text) {
     document.getElementById('voice-input').value = text;
     document.getElementById('voice-input').focus();
