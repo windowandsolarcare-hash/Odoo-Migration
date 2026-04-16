@@ -950,7 +950,16 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
             task_name = tasks[0]['name']
         if not task_id:
             return "No task ID or name provided."
-        odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
+        # action_timer_stop returns a wizard — must create + confirm it to actually stop
+        wizard_resp = odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
+        timesheet_id = None
+        if isinstance(wizard_resp, dict) and wizard_resp.get('context'):
+            timesheet_id = wizard_resp['context'].get('default_timesheet_id')
+        if timesheet_id:
+            wizard_id = odoo_rpc('hr.timesheet.stop.timer.confirmation.wizard', 'create',
+                [{'timesheet_id': timesheet_id}])
+            odoo_rpc('hr.timesheet.stop.timer.confirmation.wizard', 'action_save_timesheet',
+                [[wizard_id]])
         return f"[ODOO] Timer stopped on task: {task_name or task_id}"
 
     # --- Update SHARED_MEMORY.md on GitHub ---
