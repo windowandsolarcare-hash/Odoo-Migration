@@ -461,7 +461,7 @@ def tool_get_schedule(date: str) -> dict:
     if so_ids:
         all_tasks = odoo_rpc('project.task', 'search_read',
             [[['sale_order_id', 'in', so_ids], ['stage_id', 'not in', [19]]]],
-            {'fields': ['id', 'name', 'sale_order_id', 'stage_id', 'timer_start'], 'order': 'id asc'})
+            {'fields': ['id', 'name', 'sale_order_id', 'stage_id'], 'order': 'id asc'})
         tasks_by_so = {}
         for t in all_tasks:
             sid = t['sale_order_id'][0] if t.get('sale_order_id') else None
@@ -469,9 +469,22 @@ def tool_get_schedule(date: str) -> dict:
                 tasks_by_so.setdefault(sid, []).append({
                     'task_id': t['id'], 'task_name': t['name'],
                     'stage': t['stage_id'][1] if t.get('stage_id') else '',
-                    'timer_running': bool(t.get('timer_start')),
-                    'timer_start': t.get('timer_start') or ''
+                    'timer_running': False, 'timer_start': ''
                 })
+        # Check Render-owned timer (ir.config_parameter keys render.timer.{task_id})
+        all_task_ids = [t['task_id'] for tlist in tasks_by_so.values() for t in tlist]
+        if all_task_ids:
+            param_keys = [f'render.timer.{tid}' for tid in all_task_ids]
+            timer_params = odoo_rpc('ir.config_parameter', 'search_read',
+                [[['key', 'in', param_keys]]],
+                {'fields': ['key', 'value']})
+            running = {int(p['key'].replace('render.timer.', '')): p['value']
+                       for p in timer_params if p.get('value', '').strip()}
+            for tlist in tasks_by_so.values():
+                for t in tlist:
+                    if t['task_id'] in running:
+                        t['timer_running'] = True
+                        t['timer_start'] = running[t['task_id']]
         for job in jobs:
             job['tasks'] = tasks_by_so.get(job['so_id'], [])
 
