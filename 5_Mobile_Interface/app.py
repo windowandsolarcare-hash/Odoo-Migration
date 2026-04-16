@@ -4,7 +4,7 @@
 # AI: Anthropic Claude (migrated from OpenAI 2026-04-15)
 # ==============================================================================
 
-import os, json, re, datetime, urllib.parse
+import os, json, re, datetime, urllib.parse, base64
 import httpx
 import anthropic
 from fastapi import FastAPI, Request, HTTPException
@@ -23,6 +23,8 @@ ANTHROPIC_KEY  = os.environ.get('ANTHROPIC_API_KEY','')
 CLAUDE_MODEL   = os.environ.get('CLAUDE_MODEL',     'claude-sonnet-4-6')
 ACCESS_CODE    = os.environ.get('ACCESS_CODE',      'wsc2026')
 OWNER_EMAIL    = os.environ.get('OWNER_EMAIL',      '')
+GITHUB_TOKEN   = os.environ.get('GITHUB_TOKEN',    '')
+GITHUB_REPO    = 'windowandsolarcare-hash/Odoo-Migration'
 
 app = FastAPI()
 
@@ -505,6 +507,31 @@ def tool_get_jobs_list(start_date: str = '', records: int = 50,
     return result
 
 
+def tool_odoo_query(model: str, method: str, args: list, kwargs: dict = None) -> any:
+    """Execute any read operation on any Odoo model."""
+    SAFE_METHODS = {'search_read', 'read', 'search', 'search_count', 'fields_get',
+                    'name_search', 'name_get', 'default_get', 'get_views', 'get_view'}
+    if method not in SAFE_METHODS:
+        return {'error': f"Method '{method}' not allowed in odoo_query. Use odoo_write for modifications."}
+    return odoo_rpc(model, method, args, kwargs or {})
+
+
+def tool_github_read_file(file_path: str) -> str:
+    """Read any file from the GitHub repo."""
+    if not GITHUB_TOKEN:
+        return 'GITHUB_TOKEN env var not set on Render.'
+    headers = {'Authorization': f'token {GITHUB_TOKEN}', 'Accept': 'application/vnd.github.v3+json'}
+    resp = httpx.get(
+        f'https://api.github.com/repos/{GITHUB_REPO}/contents/{file_path}',
+        headers=headers, timeout=20
+    )
+    if resp.status_code == 404:
+        return f'File not found: {file_path}'
+    resp.raise_for_status()
+    data = resp.json()
+    return base64.b64decode(data['content'].replace('\n', '')).decode('utf-8')
+
+
 def tool_save_memory(key: str, value: str) -> str:
     memories = load_agent_memory()
     memories[key.strip()] = value.strip()
@@ -868,6 +895,38 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
         return f"[ODOO] Timer stopped on task: {task_name or task_id}"
 
+    # --- General Odoo write/create/unlink/action ---
+    if tool_name == 'odoo_write':
+        result = odoo_rpc(args['model'], args['method'], args['args'], args.get('kwargs') or {})
+        return f"[ODOO] {args['method']} on {args['model']}: {json.dumps(result)[:300]}"
+
+    # --- Push a file to GitHub main ---
+    if tool_name == 'github_push_file':
+        if not GITHUB_TOKEN:
+            return 'GITHUB_TOKEN env var not set on Render.'
+        file_path  = args['file_path']
+        content    = args['content']
+        commit_msg = args['commit_message']
+        headers    = {'Authorization': f'token {GITHUB_TOKEN}', 'Accept': 'application/vnd.github.v3+json'}
+        get_resp   = httpx.get(
+            f'https://api.github.com/repos/{GITHUB_REPO}/contents/{file_path}',
+            headers=headers, timeout=20
+        )
+        sha     = get_resp.json().get('sha', '') if get_resp.status_code == 200 else ''
+        payload = {
+            'message': commit_msg,
+            'content': base64.b64encode(content.encode('utf-8')).decode('utf-8'),
+            'branch':  'main'
+        }
+        if sha:
+            payload['sha'] = sha
+        put_resp = httpx.put(
+            f'https://api.github.com/repos/{GITHUB_REPO}/contents/{file_path}',
+            headers=headers, json=payload, timeout=30
+        )
+        put_resp.raise_for_status()
+        return f"[GITHUB] Pushed {file_path} to main: {commit_msg}"
+
     return f"Unknown write action: {tool_name}"
 
 
@@ -905,370 +964,337 @@ def _describe_write(tool_name: str, args: dict) -> str:
     if tool_name == 'stop_task_timer':
         task_ref = args.get('task_name') or f"ID {args.get('task_id')}"
         return f"[ODOO] Stop timer on task: {task_ref}"
+    if tool_name == 'odoo_write':
+        return f"[ODOO] {args.get('method','write')} on {args.get('model')}\n  {args.get('description','')}\n  args: {json.dumps(args.get('args',''))[:200]}"
+    if tool_name == 'github_push_file':
+        return f"[GITHUB] Push to main: {args.get('file_path')}\n  Commit: {args.get('commit_message')}"
     return f"Execute {tool_name} for {pname}"
 
 
 # ---------------------------------------------------------------------------
-# Tool definitions (OpenAI format — converted to Anthropic format at runtime)
+# Tool definitions — Anthropic native format
 # ---------------------------------------------------------------------------
 TOOLS = [
     {
-        "type": "function",
-        "function": {
-            "name": "search_customers",
-            "description": "Search for customers by name. Call this first whenever you need to act on a specific customer. Returns partner_id, Workiz UUID, Workiz ClientId, and active SO info.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "description": "Name or partial name to search. Strip possessives automatically."}
-                },
-                "required": ["query"]
+        "name": "search_customers",
+        "description": "Search for customers by name. Returns partner_id, Workiz UUID, Workiz ClientId, and active SO info.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"}
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "get_customer_profile",
+        "description": "Get full contact profile: address, phone, pricing, frequency, type_of_service, alternating, gate_code, ok_to_text, confirmation_method, last_date_cleaned, service_area, workiz_client_id.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "partner_id": {"type": "integer"}
+            },
+            "required": ["partner_id"]
+        }
+    },
+    {
+        "name": "get_job_details",
+        "description": "Get current job details for a customer: SO info, Workiz status, gate code, pricing, notes, all job-level fields.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "partner_id": {"type": "integer"}
+            },
+            "required": ["partner_id"]
+        }
+    },
+    {
+        "name": "get_schedule",
+        "description": "Get all jobs scheduled for a given day.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "date": {"type": "string", "description": "today, tomorrow, monday–sunday, or YYYY-MM-DD"}
+            },
+            "required": ["date"]
+        }
+    },
+    {
+        "name": "get_next_job",
+        "description": "Get the next upcoming job today.",
+        "input_schema": {"type": "object", "properties": {}}
+    },
+    {
+        "name": "get_sales",
+        "description": "Get total sales revenue for a single day.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "date": {"type": "string"}
+            },
+            "required": ["date"]
+        }
+    },
+    {
+        "name": "get_sales_week",
+        "description": "Get total sales revenue for the work week (Mon–Sat) containing a date. Use for 'this week', 'weekly sales', 'how much this week'. Filters by scheduled job date in Odoo.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "date": {"type": "string", "description": "Any date in the week (YYYY-MM-DD or 'today'). Defaults to current week."}
             }
         }
     },
     {
-        "type": "function",
-        "function": {
-            "name": "get_customer_profile",
-            "description": "Get full contact profile: address, phone, all custom fields (pricing, frequency, type_of_service, alternating, gate_code, ok_to_text, confirmation_method, last_date_cleaned, service_area). Call this before creating a new job.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "partner_id": {"type": "integer"}
-                },
-                "required": ["partner_id"]
+        "name": "get_jobs_list",
+        "description": "Fetch a list of Workiz jobs. For browsing open jobs — NOT for revenue/sales questions.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "start_date":  {"type": "string", "description": "YYYY-MM-DD"},
+                "records":     {"type": "integer", "description": "Max per page (default 50, max 100)"},
+                "only_open":   {"type": "boolean", "description": "Exclude Done/Canceled (default true)"},
+                "offset":      {"type": "integer", "description": "Page: 0=first 100, 1=next 100"},
+                "status":      {"type": "array", "items": {"type": "string"}}
+            },
+            "required": ["start_date"]
+        }
+    },
+    {
+        "name": "navigate_to",
+        "description": "Get a Google Maps navigation button for a customer's address.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "partner_id":    {"type": "integer"},
+                "customer_name": {"type": "string"}
+            },
+            "required": ["partner_id"]
+        }
+    },
+    {
+        "name": "update_workiz_field",
+        "description": "Update a field on a Workiz job. Valid field_name values: gate_code, pricing, notes, substatus, type_of_service, frequency, alternating, last_date_cleaned, ok_to_text, confirmation_method. gate_code and pricing also sync the Odoo SO snapshot.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "uuid":         {"type": "string"},
+                "field_name":   {"type": "string"},
+                "value":        {"type": "string"},
+                "partner_name": {"type": "string"},
+                "so_id":        {"type": "integer", "description": "Odoo SO ID for snapshot sync (gate_code/pricing)"}
+            },
+            "required": ["uuid", "field_name", "value", "partner_name"]
+        }
+    },
+    {
+        "name": "update_odoo_contact",
+        "description": "Update a field on the Odoo contact record (permanent profile). Valid field_name values: pricing, frequency, type_of_service, alternating, gate_code, ok_to_text, confirmation_method, last_date_cleaned, notes.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "partner_id":   {"type": "integer"},
+                "field_name":   {"type": "string"},
+                "value":        {"type": "string"},
+                "partner_name": {"type": "string"}
+            },
+            "required": ["partner_id", "field_name", "value", "partner_name"]
+        }
+    },
+    {
+        "name": "post_odoo_note",
+        "description": "Post a note to the Odoo sales order chatter.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "so_id":        {"type": "integer"},
+                "note":         {"type": "string"},
+                "partner_name": {"type": "string"}
+            },
+            "required": ["so_id", "note", "partner_name"]
+        }
+    },
+    {
+        "name": "create_todo",
+        "description": "Create a follow-up To-do in Odoo for a customer.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "partner_id":   {"type": "integer"},
+                "note":         {"type": "string"},
+                "days":         {"type": "integer", "description": "Days from today (default 7)"},
+                "partner_name": {"type": "string"},
+                "so_id":        {"type": "integer"}
+            },
+            "required": ["partner_id", "note", "days", "partner_name"]
+        }
+    },
+    {
+        "name": "mark_job_done",
+        "description": "Mark a Workiz job as Done.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "uuid":         {"type": "string"},
+                "partner_name": {"type": "string"}
+            },
+            "required": ["uuid", "partner_name"]
+        }
+    },
+    {
+        "name": "create_workiz_job",
+        "description": "Create a new job in Workiz for an existing customer. Call get_customer_profile first to get client_id, address, phone, and defaults. Zapier will sync to Odoo automatically — do NOT create an Odoo SO separately.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "client_id":           {"type": "string"},
+                "first_name":          {"type": "string"},
+                "last_name":           {"type": "string"},
+                "phone":               {"type": "string"},
+                "address":             {"type": "string"},
+                "city":                {"type": "string"},
+                "state":               {"type": "string", "description": "Default: CA"},
+                "postal_code":         {"type": "string"},
+                "job_type":            {"type": "string", "description": "e.g. Window Cleaning, Solar Panel Cleaning"},
+                "service_area":        {"type": "string"},
+                "job_datetime":        {"type": "string", "description": "YYYY-MM-DD HH:MM:SS Pacific. Omit for unscheduled."},
+                "type_of_service":     {"type": "string", "description": "Maintenance, On Request, or Unknown"},
+                "frequency":           {"type": "string"},
+                "confirmation_method": {"type": "string"},
+                "ok_to_text":          {"type": "string"},
+                "notes":               {"type": "string"},
+                "pricing":             {"type": "string"},
+                "gate_code":           {"type": "string"},
+                "partner_name":        {"type": "string"}
+            },
+            "required": ["client_id", "first_name", "last_name", "phone",
+                         "address", "city", "postal_code", "job_type", "partner_name"]
+        }
+    },
+    {
+        "name": "duplicate_workiz_job",
+        "description": "Duplicate an existing Workiz job for a customer with a new date. Copies all fields. Use for 'duplicate', 'copy', 'make another job like the last one'.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "partner_id":   {"type": "integer"},
+                "partner_name": {"type": "string"},
+                "new_datetime": {"type": "string", "description": "YYYY-MM-DD HH:MM:SS Pacific"},
+                "source_uuid":  {"type": "string", "description": "UUID to copy. Omit to use most recent job."}
+            },
+            "required": ["partner_id", "partner_name", "new_datetime"]
+        }
+    },
+    {
+        "name": "send_email",
+        "description": "Send an email to DJ. Use when DJ says 'email me' or 'send me that'.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "subject":  {"type": "string"},
+                "body":     {"type": "string"},
+                "to_email": {"type": "string", "description": "Omit to use DJ's default address"}
+            },
+            "required": ["subject", "body"]
+        }
+    },
+    {
+        "name": "save_memory",
+        "description": "Save a fact to persistent memory across all future conversations. Use for 'remember that...'",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "key":   {"type": "string"},
+                "value": {"type": "string"}
+            },
+            "required": ["key", "value"]
+        }
+    },
+    {
+        "name": "delete_memory",
+        "description": "Remove a saved memory. Use for 'forget that...'",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "key": {"type": "string"}
+            },
+            "required": ["key"]
+        }
+    },
+    {
+        "name": "start_task_timer",
+        "description": "Start the timer on an Odoo To-Do or task.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "task_id":   {"type": "integer"},
+                "task_name": {"type": "string"}
             }
         }
     },
     {
-        "type": "function",
-        "function": {
-            "name": "get_job_details",
-            "description": "Get current job details for a customer: SO info, Workiz status, all job-level fields.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "partner_id": {"type": "integer"}
-                },
-                "required": ["partner_id"]
+        "name": "stop_task_timer",
+        "description": "Stop the timer on an Odoo To-Do or task.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "task_id":   {"type": "integer"},
+                "task_name": {"type": "string"}
             }
         }
     },
+    # ---- POWER TOOLS ----
     {
-        "type": "function",
-        "function": {
-            "name": "get_schedule",
-            "description": "Get all jobs scheduled for a given day.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "date": {"type": "string", "description": "today, tomorrow, monday–sunday, or YYYY-MM-DD"}
-                },
-                "required": ["date"]
-            }
+        "name": "odoo_query",
+        "description": "Execute any read operation on any Odoo model — search_read, read, search, search_count, fields_get. Use when the specific tools above don't cover what you need.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "model":  {"type": "string", "description": "e.g. 'sale.order', 'res.partner', 'account.move', 'ir.actions.server'"},
+                "method": {"type": "string", "description": "search_read, read, search, search_count, fields_get"},
+                "args":   {"type": "array",  "description": "Positional args e.g. [[['name','ilike','Smith']]]"},
+                "kwargs": {"type": "object", "description": "e.g. {'fields': ['id','name'], 'limit': 10}"}
+            },
+            "required": ["model", "method", "args"]
         }
     },
     {
-        "type": "function",
-        "function": {
-            "name": "get_next_job",
-            "description": "Get the next upcoming job today.",
-            "parameters": {"type": "object", "properties": {}}
+        "name": "odoo_write",
+        "description": "Execute any write/create/unlink/action on any Odoo model. Requires confirmation. Use for bug fixes, data corrections, running server actions, updating any field not covered by specific tools.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "model":       {"type": "string"},
+                "method":      {"type": "string", "description": "write, create, unlink, action_confirm, run, execute, message_post, etc."},
+                "args":        {"type": "array"},
+                "kwargs":      {"type": "object"},
+                "description": {"type": "string", "description": "Plain English description of what this does — shown to DJ for confirmation"}
+            },
+            "required": ["model", "method", "args", "description"]
         }
     },
     {
-        "type": "function",
-        "function": {
-            "name": "get_sales",
-            "description": "Get total sales revenue for a single specific day. For weekly totals use get_sales_week instead.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "date": {"type": "string"}
-                },
-                "required": ["date"]
-            }
+        "name": "github_read_file",
+        "description": "Read any file from the GitHub repo windowandsolarcare-hash/Odoo-Migration. Use to inspect current code before making changes.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "file_path": {"type": "string", "description": "e.g. '1_Production_Code/zapier_phase4_FLATTENED_FINAL.py'"}
+            },
+            "required": ["file_path"]
         }
     },
     {
-        "type": "function",
-        "function": {
-            "name": "get_sales_week",
-            "description": "Get total sales revenue for the week (Monday–Sunday) containing a given date. Use this for 'this week', 'last week', 'weekly sales', or 'how much did I make this week' questions. Filters by scheduled job date in Odoo — do NOT use get_jobs_list for revenue questions.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "date": {"type": "string", "description": "Any date in the week (YYYY-MM-DD or 'today'). Defaults to current week if omitted."}
-                },
-                "required": []
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "get_jobs_list",
-            "description": "Fetch a list of Workiz jobs with filtering. offset=0 returns first 100, offset=1 returns next 100, etc.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "start_date":  {"type": "string", "description": "YYYY-MM-DD — fetch jobs from this date until today"},
-                    "records":     {"type": "integer", "description": "Max records per page (max 100, default 50)"},
-                    "only_open":   {"type": "boolean", "description": "Exclude Done and Canceled jobs (default true)"},
-                    "offset":      {"type": "integer", "description": "Page number: 0=first 100, 1=next 100, etc."},
-                    "status":      {"type": "array", "items": {"type": "string"}, "description": "Filter by status values e.g. ['Pending','Submitted']"}
-                },
-                "required": ["start_date"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "navigate_to",
-            "description": "Get a Google Maps navigation button for a customer's address.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "partner_id":    {"type": "integer"},
-                    "customer_name": {"type": "string"}
-                },
-                "required": ["partner_id"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "update_workiz_field",
-            "description": (
-                "Update any field on a Workiz job. "
-                "Valid field_name values: gate_code, pricing, notes, substatus, type_of_service, "
-                "frequency, alternating, last_date_cleaned, ok_to_text, confirmation_method. "
-                "gate_code and pricing also sync the Odoo SO snapshot."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "uuid":         {"type": "string", "description": "Workiz job UUID"},
-                    "field_name":   {"type": "string", "description": "Field to update"},
-                    "value":        {"type": "string", "description": "New value"},
-                    "partner_name": {"type": "string"},
-                    "so_id":        {"type": "integer", "description": "Odoo SO ID for snapshot sync (gate_code/pricing)"}
-                },
-                "required": ["uuid", "field_name", "value", "partner_name"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "update_odoo_contact",
-            "description": (
-                "Update a field on the Odoo contact/partner record (permanent profile, not job-specific). "
-                "Valid field_name values: pricing, frequency, type_of_service, alternating, gate_code, "
-                "ok_to_text, confirmation_method, last_date_cleaned, notes (internal notes — permanent reminders like 'has a dog', 'prefers morning appointments')."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "partner_id":   {"type": "integer"},
-                    "field_name":   {"type": "string"},
-                    "value":        {"type": "string"},
-                    "partner_name": {"type": "string"}
-                },
-                "required": ["partner_id", "field_name", "value", "partner_name"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "post_odoo_note",
-            "description": "Post a note to the Odoo sales order chatter.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "so_id":        {"type": "integer"},
-                    "note":         {"type": "string"},
-                    "partner_name": {"type": "string"}
-                },
-                "required": ["so_id", "note", "partner_name"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "create_todo",
-            "description": "Create a follow-up To-do in Odoo for a customer.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "partner_id":   {"type": "integer"},
-                    "note":         {"type": "string"},
-                    "days":         {"type": "integer", "description": "Days from today (default 7)"},
-                    "partner_name": {"type": "string"},
-                    "so_id":        {"type": "integer"}
-                },
-                "required": ["partner_id", "note", "days", "partner_name"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "mark_job_done",
-            "description": "Mark a Workiz job as Done.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "uuid":         {"type": "string"},
-                    "partner_name": {"type": "string"}
-                },
-                "required": ["uuid", "partner_name"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "create_workiz_job",
-            "description": (
-                "Create a new job in Workiz for an existing customer. "
-                "Call get_customer_profile first to get client_id, name, address, phone, and default field values. "
-                "Ask DJ for: date/time (or leave unscheduled), type_of_service, pricing, and any notes. "
-                "Zapier will automatically sync the new job to Odoo — do NOT create an Odoo SO separately."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "client_id":          {"type": "string",  "description": "Workiz numeric ClientId (from get_customer_profile)"},
-                    "first_name":         {"type": "string"},
-                    "last_name":          {"type": "string"},
-                    "phone":              {"type": "string"},
-                    "address":            {"type": "string"},
-                    "city":               {"type": "string"},
-                    "state":              {"type": "string",  "description": "Default: CA"},
-                    "postal_code":        {"type": "string", "description": "ZIP code — use the 'zip' field from get_customer_profile"},
-                    "job_type":           {"type": "string",  "description": "e.g. Window Cleaning, Solar Panel Cleaning"},
-                    "service_area":       {"type": "string"},
-                    "job_datetime":       {"type": "string",  "description": "YYYY-MM-DD HH:MM:SS in Pacific Time. Omit for unscheduled."},
-                    "type_of_service":    {"type": "string",  "description": "Valid values: Maintenance, On Request, Unknown. Default to On Request if unsure. Do NOT use job_type value here."},
-                    "frequency":          {"type": "string"},
-                    "confirmation_method": {"type": "string"},
-                    "ok_to_text":         {"type": "string"},
-                    "notes":              {"type": "string"},
-                    "pricing":            {"type": "string"},
-                    "gate_code":          {"type": "string"},
-                    "partner_name":       {"type": "string"}
-                },
-                "required": ["client_id", "first_name", "last_name", "phone",
-                             "address", "city", "postal_code", "job_type", "partner_name"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "duplicate_workiz_job",
-            "description": (
-                "Duplicate an existing Workiz job for a customer and schedule it on a new date. "
-                "Copies all fields from the source job (address, gate code, pricing, notes, service type, etc). "
-                "Use when DJ says 'duplicate', 'copy', 'reschedule', or 'make another job like the last one'. "
-                "Call search_customers first to get partner_id. Source UUID is optional — if omitted, uses the customer's most recent job."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "partner_id":   {"type": "integer", "description": "From search_customers"},
-                    "partner_name": {"type": "string"},
-                    "new_datetime": {"type": "string", "description": "New scheduled date/time: YYYY-MM-DD HH:MM:SS in Pacific Time"},
-                    "source_uuid":  {"type": "string", "description": "UUID of the job to copy. Omit to use most recent job."}
-                },
-                "required": ["partner_id", "partner_name", "new_datetime"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "send_email",
-            "description": (
-                "Send an email to DJ with any content — reports, schedules, customer details, summaries. "
-                "Call this when DJ says 'email me', 'send me', or 'email that to me'. "
-                "Generate the full readable content as the body first, then call this tool."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "subject":   {"type": "string", "description": "Email subject line"},
-                    "body":      {"type": "string", "description": "Plain text email body — full content, well formatted"},
-                    "to_email":  {"type": "string", "description": "Recipient email — omit to use DJ's default address"}
-                },
-                "required": ["subject", "body"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "save_memory",
-            "description": (
-                "Save a fact to persistent memory that will be remembered across all future conversations. "
-                "Call this when DJ says 'remember that...', 'always remember...', or provides info worth keeping forever. "
-                "Use a short descriptive key (e.g. 'home_city', 'preferred_greeting', 'default_service_area')."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "key":   {"type": "string", "description": "Short identifier for this memory (snake_case)"},
-                    "value": {"type": "string", "description": "The value to remember"}
-                },
-                "required": ["key", "value"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "delete_memory",
-            "description": "Remove a previously saved memory. Call when DJ says 'forget that...' or 'stop remembering...'",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "key": {"type": "string", "description": "The memory key to remove"}
-                },
-                "required": ["key"]
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "start_task_timer",
-            "description": "Start the timer/clock on an Odoo To-Do or task. Use when DJ says 'start the clock on [task]' or 'start timer on [task]'.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "task_id":   {"type": "integer", "description": "Odoo task ID (if known)"},
-                    "task_name": {"type": "string",  "description": "Task name or partial name to search for"}
-                }
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "stop_task_timer",
-            "description": "Stop the timer/clock on an Odoo To-Do or task and record the time. Use when DJ says 'stop the clock on [task]' or 'stop timer on [task]'.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "task_id":   {"type": "integer", "description": "Odoo task ID (if known)"},
-                    "task_name": {"type": "string",  "description": "Task name or partial name to search for"}
-                }
-            }
+        "name": "github_push_file",
+        "description": "Push a file to GitHub main branch. Deploying to main = Zapier picks it up immediately. For Odoo server actions, also call odoo_write to update the live action.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "file_path":      {"type": "string"},
+                "content":        {"type": "string", "description": "Full file content"},
+                "commit_message": {"type": "string", "description": "Format: YYYY-MM-DD | filename | description"}
+            },
+            "required": ["file_path", "content", "commit_message"]
         }
     }
 ]
@@ -1276,74 +1302,69 @@ TOOLS = [
 WRITE_TOOLS = {
     'update_workiz_field', 'update_odoo_contact', 'post_odoo_note',
     'create_todo', 'mark_job_done', 'create_workiz_job', 'duplicate_workiz_job',
-    'start_task_timer', 'stop_task_timer'
+    'start_task_timer', 'stop_task_timer',
+    'odoo_write', 'github_push_file'
 }
 
 READ_TOOL_MAP = {
-    'search_customers':    lambda a: tool_search_customers(a['query']),
+    'search_customers':     lambda a: tool_search_customers(a['query']),
     'get_customer_profile': lambda a: tool_get_customer_profile(a['partner_id']),
-    'get_job_details':     lambda a: tool_get_job_details(a['partner_id']),
-    'get_schedule':        lambda a: tool_get_schedule(a['date']),
-    'get_next_job':        lambda a: tool_get_next_job(),
-    'get_sales':           lambda a: tool_get_sales(a['date']),
-    'get_sales_week':      lambda a: tool_get_sales_week(a.get('date', '')),
-    'get_jobs_list':       lambda a: tool_get_jobs_list(
+    'get_job_details':      lambda a: tool_get_job_details(a['partner_id']),
+    'get_schedule':         lambda a: tool_get_schedule(a['date']),
+    'get_next_job':         lambda a: tool_get_next_job(),
+    'get_sales':            lambda a: tool_get_sales(a['date']),
+    'get_sales_week':       lambda a: tool_get_sales_week(a.get('date', '')),
+    'get_jobs_list':        lambda a: tool_get_jobs_list(
         a['start_date'], a.get('records', 50),
         a.get('only_open', True), a.get('offset', 0), a.get('status')
     ),
-    'navigate_to':         lambda a: tool_navigate_to(a['partner_id'], a.get('customer_name', '')),
-    'send_email':          lambda a: tool_send_email(a['subject'], a['body'], a.get('to_email', '')),
-    'save_memory':         lambda a: tool_save_memory(a['key'], a['value']),
-    'delete_memory':       lambda a: tool_delete_memory(a['key']),
+    'navigate_to':          lambda a: tool_navigate_to(a['partner_id'], a.get('customer_name', '')),
+    'send_email':           lambda a: tool_send_email(a['subject'], a['body'], a.get('to_email', '')),
+    'save_memory':          lambda a: tool_save_memory(a['key'], a['value']),
+    'delete_memory':        lambda a: tool_delete_memory(a['key']),
+    'odoo_query':           lambda a: tool_odoo_query(a['model'], a['method'], a['args'], a.get('kwargs')),
+    'github_read_file':     lambda a: tool_github_read_file(a['file_path']),
 }
 
 
 # ---------------------------------------------------------------------------
 # System prompt
 # ---------------------------------------------------------------------------
-SYSTEM_PROMPT = """You are a field assistant for Window & Solar Care, a window and solar panel cleaning company in Southern California. DJ Sanders is the owner and sole technician. He speaks to you by voice while driving or at job sites.
+SYSTEM_PROMPT = """You are Claude, a powerful field assistant and business operator for Window & Solar Care — a window and solar panel cleaning company in Southern California. DJ Sanders is the owner and sole technician, often speaking by voice while driving or on job sites.
 
-You have tools to read and write data in Odoo (business system) and Workiz (job scheduling).
+WHAT YOU CAN ACCESS:
+- Odoo (window-solar-care.odoo.com) — CRM, sales orders, contacts, invoicing, server actions, all business data
+- Workiz — job scheduling, statuses, customer fields
+- GitHub repo windowandsolarcare-hash/Odoo-Migration (main) — all automation code; push to main = instant Zapier deploy
+- Zapier — runs Phases 3–6; fetches code from GitHub main on every trigger
 
-GUIDELINES:
-- Be very concise — DJ is on the road
-- Always call search_customers before acting on a specific customer
-- If multiple customers match, list them briefly and ask which one
-- CONTEXT AWARENESS: get_schedule returns structured data including partner_id for each job. If a customer was already identified in this conversation (from a schedule result or previous search), use their partner_id DIRECTLY — do NOT search again. Example: if previous context shows Dana Zusman with partner_id 456, and DJ asks "does Dana have a gate code", call get_job_details(partner_id=456) immediately.
-- For gate codes, notes, status, pricing — use get_job_details, not get_customer_profile.
-- If you do need to search and get no exact match, consider the spelling may be off. Try the first name alone. Use context to pick the right result.
-- For navigation: search_customers → navigate_to
-- For next job navigation: get_next_job → navigate_to with the partner_id
-- Before creating a new job: search_customers → get_customer_profile (to get client_id and defaults) → ask DJ for date/time and service type → create_workiz_job
-- New jobs go to Workiz ONLY — Zapier handles the Odoo sync automatically
-- NEVER attempt to create a job without a valid ClientId and phone number from get_customer_profile. ALWAYS call search_customers first, then get_customer_profile. Only if the customer genuinely does not exist in Odoo after searching should you tell DJ it can't be created.
-- Times in Odoo are UTC. Pacific Time is UTC-7 (Mar–Nov) or UTC-8 (Nov–Mar)
-- For multi-step tasks (like job creation), ask for missing info in a single message — collect everything before calling the write tool
-- REVENUE QUERIES: Use get_sales for a single day, get_sales_week for any weekly total. NEVER use get_jobs_list for revenue or sales questions — it pulls from Workiz by job creation date, not scheduled date, and will give wrong numbers.
-- get_jobs_list is only for browsing open Workiz jobs (e.g. "show me all pending jobs"). It is NOT a financial tool.
-"""
+ODOO FACTS:
+- After action_confirm() on a SO, always write date_order back — Odoo resets it internally
+- date_order = Workiz JobDateTime (start time, UTC). Never use end time.
+- Server action deploy requires BOTH: push to GitHub AND write code to live Odoo action via odoo_write on ir.actions.server. Key IDs: LAUNCH=563
+- No imports in server action code. No 'response' or 'result' variable names (reserved in Odoo 19).
+- Chatter: plain text with | separators. Unicode emoji works. HTML gets escaped.
+- Property partners: x_studio_x_studio_record_category = "Property"
+- Custom field on SO: x_studio_x_studio_workiz_uuid (Workiz UUID)
+
+WORKIZ FACTS:
+- Everything except Done/Canceled/In Progress/Submitted is SubStatus with Status=Pending. Filter on SubStatus.
+- Job GET response: data is a list — job = data[0]
+- Deleted job = HTTP 204. Custom field = type_of_service_2 (not type_of_service).
+- Defaults: type_of_service_2='On Request', frequency='Unknown', confirmation_method='Cell Phone', JobSource='Referral'
+
+TOOL GUIDANCE:
+- get_sales / get_sales_week for revenue — never get_jobs_list for financial questions
+- For fixing bugs: read the file with github_read_file, fix it, push with github_push_file, then also write to the live Odoo server action with odoo_write if it's a server action
+- odoo_query for any data lookup not covered by specific tools
+- odoo_write for any Odoo change: field updates, server action code, running actions, anything
+
+Pacific Time: UTC-7 (Mar–Nov), UTC-8 (Nov–Mar). Be concise — DJ is in the field."""
 
 
 # ---------------------------------------------------------------------------
 # Agent loop
 # ---------------------------------------------------------------------------
-
-def _openai_tools_to_anthropic(tools: list) -> list:
-    """Convert OpenAI-format tool definitions to Anthropic format.
-    OpenAI: {"type": "function", "function": {"name": ..., "description": ..., "parameters": {...}}}
-    Anthropic: {"name": ..., "description": ..., "input_schema": {...}}
-    """
-    result = []
-    for t in tools:
-        fn = t.get('function', t)
-        result.append({
-            'name': fn['name'],
-            'description': fn.get('description', ''),
-            'input_schema': fn.get('parameters', {'type': 'object', 'properties': {}})
-        })
-    return result
-
-ANTHROPIC_TOOLS = _openai_tools_to_anthropic(TOOLS)
 
 
 def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> dict:
@@ -1370,10 +1391,10 @@ def run_agent(user_input: str, mode: str = 'confirm', session_id: str = '') -> d
     for _ in range(12):
         resp = client.messages.create(
             model=CLAUDE_MODEL,
-            max_tokens=1024,
+            max_tokens=2048,
             system=system_prompt,
             messages=messages,
-            tools=ANTHROPIC_TOOLS
+            tools=TOOLS
         )
 
         if resp.stop_reason == 'end_turn':
