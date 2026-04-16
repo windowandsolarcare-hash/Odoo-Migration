@@ -956,13 +956,25 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         odoo_rpc('project.task', 'action_timer_stop', [[task_id]])
         return f"[ODOO] Timer stopped on task: {task_name or task_id}"
 
-    # --- Record check payment: create invoice → confirm → pay → Phase 6 fires ---
+    # --- Record payment: create invoice → confirm → pay → Phase 6 fires ---
     if tool_name == 'record_check_payment':
-        so_id        = args['so_id']
-        so_name      = args.get('so_name', '')
-        amount       = float(args['amount'])
-        check_number = str(args['check_number'])
-        today        = datetime.date.today().isoformat()
+        so_id   = args['so_id']
+        so_name = args.get('so_name', '')
+        amount  = float(args['amount'])
+        today   = datetime.date.today().isoformat()
+
+        # Map payment method to Odoo payment_method_line_id (all on Bank journal ID=6)
+        PAYMENT_METHOD_LINE = {
+            'check':  8,   # Check (Bank)
+            'cash':   6,   # Cash
+            'zelle':  6,   # Cash journal, memo = Zelle
+            'venmo':  6,   # Cash journal, memo = Venmo
+            'credit': 7,   # Credit
+        }
+        raw_method          = str(args.get('payment_method', 'check')).lower().strip()
+        payment_method_line = PAYMENT_METHOD_LINE.get(raw_method, 8)
+        memo                = str(args.get('memo', args.get('check_number', raw_method.title())))
+        check_number        = memo  # keep variable name for return message
 
         # Check for existing draft invoice on this SO first (avoid duplicates)
         so_data = odoo_rpc('sale.order', 'read', [[so_id]], {'fields': ['invoice_ids', 'name']})
@@ -1000,9 +1012,9 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         wizard_id  = odoo_rpc('account.payment.register', 'create', [{
             'payment_date':           today,
             'amount':                 amount,
-            'communication':          check_number,
+            'communication':          memo,
             'journal_id':             6,   # Bank
-            'payment_method_line_id': 8,   # Check (Bank)
+            'payment_method_line_id': payment_method_line,
         }], {'context': wizard_ctx})
         odoo_rpc('account.payment.register', 'action_create_payments', [[wizard_id]],
                  {'context': wizard_ctx})
@@ -1113,9 +1125,11 @@ def _describe_write(tool_name: str, args: dict) -> str:
         task_ref = args.get('task_name') or f"ID {args.get('task_id')}"
         return f"[ODOO] Stop timer on task: {task_ref}"
     if tool_name == 'record_check_payment':
-        return (f"[ODOO] Create invoice + register check payment\n"
+        method = str(args.get('payment_method','check')).title()
+        memo   = str(args.get('memo',''))
+        return (f"[ODOO] Create invoice + register payment\n"
                 f"  Customer: {pname} | SO: {args.get('so_name')}\n"
-                f"  Check #{args.get('check_number')} | ${float(args.get('amount',0)):.2f} | {datetime.date.today().isoformat()}\n"
+                f"  Method: {method} | Memo: {memo} | ${float(args.get('amount',0)):.2f} | {datetime.date.today().isoformat()}\n"
                 f"  Phase 6 will sync to Workiz automatically")
     if tool_name == 'update_shared_memory':
         return f"[GITHUB] Update SHARED_MEMORY.md: {args.get('summary','')}"
@@ -1455,24 +1469,28 @@ TOOLS = [
     {
         "name": "record_check_payment",
         "description": (
-            "Create an invoice from a Sales Order, confirm it, and register a check payment. "
-            "Use when DJ says 'received check [number] for $[amount] from [customer]'. "
-            "First call search_customers to get partner_id, then use odoo_query to find their confirmed SOs "
-            "(search sale.order where partner_id=X and state in [sale,done]). "
-            "If multiple open SOs exist, list them and ask DJ which one. "
-            "Phase 6 fires automatically after payment is posted — no Workiz action needed."
+            "Create an invoice from a Sales Order, confirm it, and register a payment. "
+            "Handles: check, cash, Zelle, Venmo, credit card. "
+            "Use when DJ says 'received check/cash/Zelle/Venmo/credit [amount] from [customer]'. "
+            "First call search_customers, then odoo_query for their confirmed SOs "
+            "(sale.order where partner_id=X and state in [sale,done]). "
+            "If multiple SOs, list them and ask DJ which one. "
+            "Phase 6 fires automatically — no Workiz action needed. "
+            "Payment method mapping: check→Check(Bank), cash→Cash, zelle→Cash+memo=Zelle, "
+            "venmo→Cash+memo=Venmo, credit→Credit."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
-                "partner_id":   {"type": "integer"},
-                "partner_name": {"type": "string"},
-                "so_id":        {"type": "integer", "description": "The SO to invoice"},
-                "so_name":      {"type": "string",  "description": "e.g. S04400"},
-                "amount":       {"type": "number",  "description": "Payment amount in dollars"},
-                "check_number": {"type": "string",  "description": "Check number — goes in memo field"}
+                "partner_id":      {"type": "integer"},
+                "partner_name":    {"type": "string"},
+                "so_id":           {"type": "integer", "description": "The SO to invoice"},
+                "so_name":         {"type": "string",  "description": "e.g. S04400"},
+                "amount":          {"type": "number",  "description": "Payment amount in dollars"},
+                "payment_method":  {"type": "string",  "description": "check | cash | zelle | venmo | credit"},
+                "memo":            {"type": "string",  "description": "Check number, 'Zelle', 'Venmo', 'Cash', etc. Goes in memo field."}
             },
-            "required": ["partner_id", "partner_name", "so_id", "so_name", "amount", "check_number"]
+            "required": ["partner_id", "partner_name", "so_id", "so_name", "amount", "payment_method", "memo"]
         }
     },
     {
