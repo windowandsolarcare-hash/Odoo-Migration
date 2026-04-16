@@ -78,7 +78,13 @@
 # For QB migration: same pattern but loop over historical payments, match SO by name/origin
 # payment_method_line_id values: 8=Check, 6=Cash, 7=Credit, 1=Manual(bank transfer)
 
+## RENDER ENV VARS (project-scoped — update to switch projects)
+- GITHUB_REPO: windowandsolarcare-hash/Odoo-Migration (default)
+- SHARED_MEMORY_PATH: 3_Documentation/SHARED_MEMORY.md (default)
+- To switch to a new project: update both env vars on Render dashboard, no code change needed
+
 ## RECENT DECISIONS / CONTEXT
+- 2026-04-16: GITHUB_REPO + SHARED_MEMORY_PATH now Render env vars (project-scoped memory). CLAUDE.md mandatory save rules: every 10 responses + DJ sign-off trigger. Session-start read rule for Claude Code.
 - 2026-04-16: Migrated Render app from OpenAI to Claude native (no wrapper), added power tools (odoo_query, odoo_write, github_read_file, github_push_file), added shared memory system
 - 2026-04-15: Migrated Render app from ChatGPT to Claude (Anthropic SDK)
 - 2026-04-12: Added orphaned task restore, SO smart button, staggered task times, Sunday tag (508 SOs), Calendly Cathedral City, app.py timer tools
