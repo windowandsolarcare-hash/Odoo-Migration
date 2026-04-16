@@ -240,6 +240,22 @@ Render Claude can also write to SHARED_MEMORY.md via its `update_shared_memory` 
 
 The file is already loaded as a system-reminder at session start (see top of this context), but always verify it's current. If you discover it has been updated since the session-reminder was generated, re-read it to get the latest version.
 
+### PROACTIVE SESSION SAVES — MANDATORY
+
+These are not suggestions. They are binding rules:
+
+1. **Every 10 responses:** Count your responses in the session. At response 10, 20, 30, etc. — stop and check: have we covered new technical ground (field names, API behaviors, bugs, decisions, business rules)? If yes, write it to SHARED_MEMORY.md and push to GitHub immediately. Do not ask. Do not remind. Just do it.
+
+2. **When DJ signs off:** Any message that signals end of session ("thanks", "good session", "talk later", "I'm done", "going to bed", "bye", "that's all for now", etc.) — write a session summary to SHARED_MEMORY.md before responding to the goodbye. Push to GitHub. Then respond.
+
+3. **When context is getting long:** If you notice this session has covered substantial ground and a compaction may be coming, proactively write what's been learned without being asked.
+
+### PROJECT-SCOPED SHARED MEMORY
+
+Each project has its own SHARED_MEMORY.md. This project's file is `3_Documentation/SHARED_MEMORY.md` in repo `windowandsolarcare-hash/Odoo-Migration`.
+
+When DJ starts a new project, Render Claude's `GITHUB_REPO` and `SHARED_MEMORY_PATH` env vars are updated to point to the new project's file — no code change needed. Never merge content from different projects into the same file.
+
 ---
 
 ## CODE MODIFICATION WORKFLOW
