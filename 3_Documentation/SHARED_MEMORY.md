@@ -43,7 +43,7 @@
 - HTML in chatter gets escaped — use plain text with | separators, unicode emoji OK
 - Workiz filter on SubStatus not Status
 - Deleted Workiz job returns HTTP 204 not 404
-- action_timer_stop on project.task returns a wizard (hr.timesheet.stop.timer.confirmation.wizard), NOT the stopped state — must create wizard record + call action_save_timesheet to actually stop. Fixed in app.py 2026-04-16.
+- action_timer_stop on project.task stops the timer AND commits the timesheet entry automatically. The wizard it returns is browser-only UI — do NOT call it via API. Calling the wizard with time_spent=0 overwrites the logged time with 0 hours and Odoo deletes the 0-hour entry. Just call action_timer_stop and done.
 
 ## WORKIZ API DEFAULTS (required to avoid validation errors)
 - type_of_service_2: 'On Request'
