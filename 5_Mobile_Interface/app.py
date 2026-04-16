@@ -830,7 +830,7 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         state_val   = str(args.get('state')   or addr_fallback.get('state')   or '')
         if address_val: payload['Address'] = address_val
         if city_val:    payload['City']    = city_val
-        if state_val:   payload['State']   = state_val
+        payload['State'] = state_val or 'CA'  # required by Workiz
         if postal:                payload['PostalCode'] = postal
         if args.get('service_area'): payload['ServiceArea'] = str(args['service_area'])
         if args.get('job_datetime'):
@@ -920,7 +920,7 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         }
         if job.get('Address'):    payload['Address']    = str(job['Address'])
         if job.get('City'):       payload['City']       = str(job['City'])
-        if job.get('State'):      payload['State']      = str(job['State'])
+        payload['State'] = str(job.get('State') or 'CA')  # required by Workiz
         if job.get('PostalCode'): payload['PostalCode'] = str(job['PostalCode'])
         if job.get('gate_code'):  payload['gate_code']  = str(job['gate_code'])
         if job.get('pricing'):    payload['pricing']    = str(job['pricing'])
@@ -1024,8 +1024,11 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
                 {'fields': ['id', 'name', 'amount_total'], 'limit': 1})
 
         if not draft_inv:
-            # Create invoice from SO
-            odoo_rpc('sale.order', 'action_create_invoices', [[so_id]])
+            # Create invoice from SO via wizard (action_create_invoices removed in Odoo 19)
+            inv_ctx = {'active_ids': [so_id], 'active_model': 'sale.order', 'active_id': so_id}
+            inv_wiz = odoo_rpc('sale.advance.payment.inv', 'create',
+                [{'advance_payment_method': 'delivered'}], {'context': inv_ctx})
+            odoo_rpc('sale.advance.payment.inv', 'create_invoices', [[inv_wiz]], {'context': inv_ctx})
             so_data2     = odoo_rpc('sale.order', 'read', [[so_id]], {'fields': ['invoice_ids']})
             new_inv_ids  = so_data2[0].get('invoice_ids', []) if so_data2 else []
             draft_inv    = odoo_rpc('account.move', 'search_read',
@@ -1621,6 +1624,14 @@ GENERAL TOOL GUIDANCE:
 - odoo_write for any Odoo change
 - For code fixes: github_read_file → fix → github_push_file → odoo_write if server action
 
+NEW JOB FOR EXISTING CUSTOMER (critical — follow this exactly):
+- Jobs sync ONE WAY: Workiz → Odoo. Never create an Odoo SO directly for a new job.
+- When DJ asks to create/schedule a new job for an existing customer:
+  1. Search Odoo SOs for open jobs (state in ['draft','sale']) — if found, offer to use it
+  2. If no open job: use duplicate_workiz_job with the customer's partner_id — it auto-finds their most recent UUID
+  3. NEVER use create_workiz_job for existing customers — duplicate_workiz_job copies all fields correctly
+  4. Zapier Phase 3 will sync the new Workiz job to Odoo automatically — tell DJ this
+
 Pacific Time: UTC-7 (Mar–Nov), UTC-8 (Nov–Mar). Be concise — DJ is in the field."""
 
 
@@ -1915,7 +1926,11 @@ def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str) 
             [[['id', 'in', existing], ['state', '=', 'draft'], ['move_type', '=', 'out_invoice']]],
             {'fields': ['id', 'name', 'amount_total'], 'limit': 1})
     if not draft_inv:
-        odoo_rpc('sale.order', 'action_create_invoices', [[so_id]])
+        # Create invoice from SO via wizard (action_create_invoices removed in Odoo 19)
+        inv_ctx2 = {'active_ids': [so_id], 'active_model': 'sale.order', 'active_id': so_id}
+        inv_wiz2 = odoo_rpc('sale.advance.payment.inv', 'create',
+            [{'advance_payment_method': 'delivered'}], {'context': inv_ctx2})
+        odoo_rpc('sale.advance.payment.inv', 'create_invoices', [[inv_wiz2]], {'context': inv_ctx2})
         so2      = odoo_rpc('sale.order', 'read', [[so_id]], {'fields': ['invoice_ids']})
         new_ids  = so2[0].get('invoice_ids', []) if so2 else []
         draft_inv = odoo_rpc('account.move', 'search_read',
