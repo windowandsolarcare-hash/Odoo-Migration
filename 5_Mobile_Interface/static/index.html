@@ -274,19 +274,26 @@
     .upcoming-amt  { font-size: 13px; color: var(--text-dim); }
 
     /* Voice */
-    #voice-textarea { width: 100%; min-height: 90px; padding: 12px; font-size: 16px; background: var(--bg-card); color: var(--text); border: 2px solid var(--border-input); border-radius: 12px; resize: none; outline: none; margin-bottom: 10px; }
+    #voice-textarea { width: 100%; min-height: 80px; padding: 12px; font-size: 16px; background: var(--bg-card); color: var(--text); border: 2px solid var(--border-input); border-radius: 12px; resize: none; outline: none; margin-bottom: 10px; }
     #voice-textarea:focus { border-color: #0284c7; }
     #voice-send-btn { width: 100%; padding: 13px; background: #0284c7; color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 12px; }
     #voice-send-btn:disabled { background: var(--border-input); color: var(--text-muted); cursor: default; }
-    #voice-resp { padding: 12px; border-radius: 12px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; display: none; }
-    #voice-resp.pending { background: #1c2f46; border: 2px solid #0284c7; color: #bae6fd; }
-    #voice-resp.ok      { background: #052e16; border: 2px solid #16a34a; color: #86efac; }
-    #voice-resp.err     { background: #2d0a0a; border: 2px solid #dc2626; color: #fca5a5; }
-    #voice-resp.info    { background: var(--bg-card); border: 2px solid var(--border-input); color: var(--text); }
-    #voice-confirm { display: none; gap: 10px; margin-top: 10px; }
+    #voice-status { padding: 12px; border-radius: 12px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; display: none; margin-bottom: 10px; }
+    #voice-status.pending { background: #1c2f46; border: 2px solid #0284c7; color: #bae6fd; }
+    #voice-confirm { display: none; gap: 10px; margin-bottom: 12px; }
     #voice-confirm button { flex: 1; padding: 13px; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; }
     #vc-yes { background: #15803d; color: white; }
     #vc-no  { background: #dc2626; color: white; }
+    /* Voice history */
+    #voice-history { margin-top: 4px; }
+    .vh-entry { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border-row); }
+    .vh-entry:last-child { border-bottom: none; }
+    .vh-question { font-size: 13px; color: var(--text-muted); margin-bottom: 7px; }
+    .vh-question::before { content: 'You: '; font-weight: 700; color: var(--text-dim); }
+    .vh-answer { font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; padding: 10px 12px; border-radius: 8px; border-left: 3px solid transparent; }
+    .vh-answer.ok   { background: #052e16; color: #86efac; border-left-color: #16a34a; }
+    .vh-answer.err  { background: #2d0a0a; color: #fca5a5; border-left-color: #dc2626; }
+    .vh-answer.info { background: var(--bg-card); color: var(--text); border-left-color: var(--border-input); }
 
     /* Customers */
     #cust-search { width: 100%; padding: 12px; font-size: 16px; background: var(--bg-card); color: var(--text); border: 2px solid var(--border-input); border-radius: 12px; outline: none; margin-bottom: 12px; }
@@ -400,11 +407,12 @@
       <div id="pane-voice"     class="tab-pane">
         <textarea id="voice-textarea" placeholder="Type a command…&#10;&#10;e.g. 'Update Michael gate code 1234'&#10;     'Status of Barbara Williams'"></textarea>
         <button id="voice-send-btn" onclick="voiceSend()">Send</button>
-        <div id="voice-resp"></div>
+        <div id="voice-status"></div>
         <div id="voice-confirm">
           <button id="vc-yes" onclick="voiceConfirm(true)">Yes, Do It</button>
           <button id="vc-no"  onclick="voiceConfirm(false)">Cancel</button>
         </div>
+        <div id="voice-history"></div>
       </div>
       <div id="pane-customers" class="tab-pane">
         <input type="text" id="cust-search" placeholder="Search by name…" oninput="custSearch(this.value)">
@@ -879,42 +887,55 @@ function custSearch(q) {
 }
 
 // ── VOICE (inner) ──
+let currentQ = '';
+
 async function voiceSend() {
   const input=document.getElementById('voice-textarea').value.trim();
   if(!input) return;
+  currentQ = input;
+  document.getElementById('voice-textarea').value = '';  // clear immediately
   const btn=document.getElementById('voice-send-btn');
   btn.disabled=true; btn.textContent='Thinking…';
-  setVR('pending','⏳ Thinking…');
+  setVS('pending','⏳ Thinking…');
   document.getElementById('voice-confirm').style.display='none';
   try {
     const d=await(await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({input,mode:'confirm',access_code:AC,session_id:sid()})})).json();
     handleVR(d);
-  } catch(e){setVR('err','Network error: '+e.message);}
+  } catch(e){addHistory(currentQ,'err','Network error: '+e.message);hideVS();}
   finally{btn.disabled=false;btn.textContent='Send';}
 }
 function handleVR(d) {
-  if(d.status==='error'){setVR('err',d.message||'Error');}
-  else if(d.status==='done'){setVR('ok',d.message||'Done.');document.getElementById('voice-textarea').value='';}
+  if(d.status==='error'){addHistory(currentQ,'err',d.message||'Error');hideVS();}
+  else if(d.status==='done'){addHistory(currentQ,'ok',d.message||'Done.');hideVS();}
   else if(d.status==='pending'){
     pendingVoice={write_action:d.write_action};
-    setVR('pending','Confirm:\n\n'+d.confirmation);
+    setVS('pending','Confirm:\n\n'+d.confirmation);
     document.getElementById('voice-confirm').style.display='flex';
-  } else {setVR('info',JSON.stringify(d,null,2));}
+  } else {addHistory(currentQ,'info',JSON.stringify(d,null,2));hideVS();}
 }
 async function voiceConfirm(yes) {
   document.getElementById('voice-confirm').style.display='none';
-  if(!yes){setVR('info','Canceled.');pendingVoice=null;return;}
-  setVR('pending','⏳ Executing…');
+  if(!yes){addHistory(currentQ,'info','Canceled.');hideVS();pendingVoice=null;return;}
+  setVS('pending','⏳ Executing…');
   try {
     const d=await(await fetch('/execute',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({...pendingVoice,access_code:AC,session_id:sid()})})).json();
-    setVR(d.status==='done'?'ok':'err',d.message||(d.status==='done'?'Done.':'Error.'));
-    if(d.status==='done') document.getElementById('voice-textarea').value='';
-  } catch(e){setVR('err','Network error: '+e.message);}
+    addHistory(currentQ, d.status==='done'?'ok':'err', d.message||(d.status==='done'?'Done.':'Error.'));
+    hideVS();
+  } catch(e){addHistory(currentQ,'err','Network error: '+e.message);hideVS();}
   pendingVoice=null;
 }
-function setVR(type,msg){const el=document.getElementById('voice-resp');el.className=type;el.textContent=msg;el.style.display='block';}
+function addHistory(question, type, msg) {
+  const hist=document.getElementById('voice-history');
+  const el=document.createElement('div');
+  el.className='vh-entry';
+  el.innerHTML=`<div class="vh-question">${esc(question)}</div><div class="vh-answer ${type}">${esc(msg)}</div>`;
+  hist.appendChild(el);
+  el.scrollIntoView({behavior:'smooth'});
+}
+function setVS(type,msg){const el=document.getElementById('voice-status');el.className=type;el.textContent=msg;el.style.display='block';}
+function hideVS(){document.getElementById('voice-status').style.display='none';}
 document.getElementById('voice-textarea').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();voiceSend();}});
 
 // ── VOICE MODAL ──
