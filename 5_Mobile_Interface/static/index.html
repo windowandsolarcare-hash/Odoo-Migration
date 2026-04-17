@@ -76,9 +76,10 @@
       #app { display: flex !important; flex-direction: row; }
       #field-panel { width: 336px; min-width: 280px; border-right: 1px solid var(--border); flex-shrink: 0; }
       #office-panel { display: flex; flex-direction: column; flex: 1; min-width: 0; background: var(--bg-card); }
-      /* Left panel: hide $/hr — only show on mobile full-screen */
+      /* Left panel: hide $/hr, show pills — opposite of mobile */
       #field-panel .job-rate,
       #field-panel .job-pipe { display: none; }
+      #field-panel .job-links { display: flex; }
     }
 
     /* ── FIELD HEADER ── */
@@ -123,7 +124,7 @@
     .job-amount { font-size: 14px; color: var(--text-dim); font-weight: 500; text-align: right; min-width: 50px; }
     .job-pipe   { font-size: 12px; color: var(--text-muted); margin: 0 5px; }
     .job-rate   { font-size: 12px; font-weight: 700; text-align: right; margin-left: 35px; }
-    .job-links  { display: flex; gap: 8px; margin-left: 8px; flex-shrink: 0; }
+    .job-links  { display: none; gap: 8px; margin-left: 8px; flex-shrink: 0; }
     .job-link   { font-size: 13px; font-weight: 600; color: var(--text-muted); text-decoration: none;
                   padding: 3px 10px; border: 1px solid var(--border-row); border-radius: 5px; line-height: 1.4; }
     .job-link:hover { color: var(--accent); border-color: var(--accent); }
