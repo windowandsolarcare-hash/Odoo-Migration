@@ -579,22 +579,18 @@ function renderSchedule() {
                 : (j.status||'').toLowerCase().includes('progress') ? 'dot-inprogress' : 'dot-pending';
       const sel = (activeJob && activeJob.so_id===j.so_id) ? ' selected' : '';
 
-      // $/hr: sum effective_hours across all tasks + elapsed for any running timer
-      let totalHrs = 0;
-      for (const t of (j.tasks||[])) {
-        totalHrs += (t.effective_hours||0);
-        if (t.timer_running && t.timer_start) {
-          try {
-            const startMs = new Date(t.timer_start.replace(' ','T')+'Z').getTime();
-            totalHrs += (Date.now() - startMs) / 3600000;
-          } catch {}
-        }
-      }
+      // $/hr: only show when job is Done (green dot) — mid-job hours are misleading
       let rateBadge = '';
-      if (totalHrs > 0 && (j.amount||0) > 0) {
-        const rate = Math.round((j.amount||0) / totalHrs);
-        const cls = rate >= 190 ? 'rate-green' : rate >= 160 ? 'rate-yellow' : 'rate-red';
-        rateBadge = `<span class="job-rate ${cls}">$${rate}/hr</span>`;
+      if (dot === 'dot-done' && (j.amount||0) > 0) {
+        let totalHrs = 0;
+        for (const t of (j.tasks||[])) {
+          totalHrs += (t.effective_hours||0);
+        }
+        if (totalHrs > 0) {
+          const rate = Math.round((j.amount||0) / totalHrs);
+          const cls = rate >= 190 ? 'rate-green' : rate >= 160 ? 'rate-yellow' : 'rate-red';
+          rateBadge = `<span class="job-rate ${cls}">$${rate}/hr</span>`;
+        }
       }
 
       return `<div class="job-row${sel}" onclick="openJob(jobs[${i}])">
