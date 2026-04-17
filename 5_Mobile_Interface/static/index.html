@@ -117,6 +117,10 @@
     .job-time   { font-size: 13px; color: var(--text-muted); min-width: 52px; flex-shrink: 0; }
     .job-name   { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); }
     .job-amount { font-size: 14px; color: var(--text-dim); flex-shrink: 0; font-weight: 500; }
+    .job-rate   { font-size: 11px; font-weight: 700; padding: 2px 5px; border-radius: 5px; flex-shrink: 0; margin-left: 4px; }
+    .rate-green  { background: #14532d; color: #4ade80; }
+    .rate-yellow { background: #713f12; color: #fbbf24; }
+    .rate-red    { background: #450a0a; color: #f87171; }
     .no-jobs    { padding: 40px 16px; text-align: center; color: var(--text-muted); font-size: 14px; }
 
     /* Day separator header between today and tomorrow */
@@ -574,11 +578,31 @@ function renderSchedule() {
                 : (j.status||'').toLowerCase().includes('done') ? 'dot-done'
                 : (j.status||'').toLowerCase().includes('progress') ? 'dot-inprogress' : 'dot-pending';
       const sel = (activeJob && activeJob.so_id===j.so_id) ? ' selected' : '';
+
+      // $/hr: sum effective_hours across all tasks + elapsed for any running timer
+      let totalHrs = 0;
+      for (const t of (j.tasks||[])) {
+        totalHrs += (t.effective_hours||0);
+        if (t.timer_running && t.timer_start) {
+          try {
+            const startMs = new Date(t.timer_start.replace(' ','T')+'Z').getTime();
+            totalHrs += (Date.now() - startMs) / 3600000;
+          } catch {}
+        }
+      }
+      let rateBadge = '';
+      if (totalHrs > 0 && (j.amount||0) > 0) {
+        const rate = Math.round((j.amount||0) / totalHrs);
+        const cls = rate >= 190 ? 'rate-green' : rate >= 160 ? 'rate-yellow' : 'rate-red';
+        rateBadge = `<span class="job-rate ${cls}">$${rate}/hr</span>`;
+      }
+
       return `<div class="job-row${sel}" onclick="openJob(jobs[${i}])">
         <span class="status-dot ${dot}"></span>
         <span class="job-time">${toPT(j.time_utc)}</span>
         <span class="job-name">${esc(j.customer)}</span>
         <span class="job-amount">$${Math.round(j.amount||0)}</span>
+        ${rateBadge}
       </div>`;
     }).join('');
   }
@@ -841,15 +865,15 @@ function renderStats(data) {
   // Month forecast block
   let forecastHtml = '';
   if (md.forecast) {
-    const mtd   = (md.total||0).toLocaleString();
+    const mtd   = (md.mtd||0).toLocaleString();
     const fcst  = (md.forecast||0).toLocaleString();
     const label = md.month_label || 'This Month';
-    const prog  = md.days_elapsed && md.days_total ? `${md.days_elapsed} of ${md.days_total} business days` : '';
+    const sub   = md.forecast_count ? `${md.forecast_count} jobs scheduled` : '';
     forecastHtml = `<div class="forecast-section">
-      <div class="week-heading">${label} Forecast</div>
-      <div class="forecast-row"><span class="forecast-label">Month to Date</span><span class="forecast-mtd">$${mtd}</span></div>
-      <div class="forecast-row"><span class="forecast-label">Projected Total</span><span class="forecast-amt">$${fcst}</span></div>
-      ${prog ? `<div class="forecast-row"><span class="forecast-label" style="font-size:11px">${prog}</span><span></span></div>` : ''}
+      <div class="week-heading">${label}</div>
+      <div class="forecast-row"><span class="forecast-label">Done (M–F)</span><span class="forecast-mtd">$${mtd}</span></div>
+      <div class="forecast-row"><span class="forecast-label">Total Scheduled</span><span class="forecast-amt">$${fcst}</span></div>
+      ${sub ? `<div class="forecast-row"><span class="forecast-label" style="font-size:11px">${sub}</span><span></span></div>` : ''}
     </div>`;
   }
 
