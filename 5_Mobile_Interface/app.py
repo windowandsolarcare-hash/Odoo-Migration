@@ -605,10 +605,11 @@ def tool_get_sales_month() -> dict:
           ['state', 'in', ['sale', 'done']]]],
         {'fields': ['amount_total', 'date_order', 'x_studio_x_studio_workiz_status']})
 
-    mtd_total = 0.0   # done jobs (Workiz status=Done) up to today
+    mtd_total = 0.0
     mtd_count = 0
-    forecast_total = 0.0  # all scheduled Mon-Fri jobs for the month
+    forecast_total = 0.0
     forecast_count = 0
+    days = {}  # {iso_date: {'amount': float, 'count': int}}
 
     for so in sos:
         raw_dt_str = so.get('date_order') or ''
@@ -626,12 +627,21 @@ def tool_get_sales_month() -> dict:
         amt = float(so.get('amount_total') or 0)
         status = (so.get('x_studio_x_studio_workiz_status') or '').lower()
         if status == 'canceled':
-            continue  # exclude canceled from forecast
+            continue
+        iso = d.isoformat()
+        if iso not in days:
+            days[iso] = {'amount': 0.0, 'count': 0}
+        days[iso]['amount'] += amt
+        days[iso]['count']  += 1
         forecast_total += amt
         forecast_count += 1
         if d <= today and status == 'done':
             mtd_total += amt
             mtd_count += 1
+
+    # Round amounts in days dict
+    for v in days.values():
+        v['amount'] = round(v['amount'])
 
     return {
         'mtd': round(mtd_total),
@@ -639,6 +649,7 @@ def tool_get_sales_month() -> dict:
         'forecast': round(forecast_total),
         'forecast_count': forecast_count,
         'month_label': today.strftime('%B %Y'),
+        'days': days,
     }
 
 
