@@ -116,10 +116,10 @@
 
     .job-time   { font-size: 13px; color: var(--text-muted); min-width: 52px; flex-shrink: 0; }
     .job-name   { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); }
-    .job-right  { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
-    .job-amount { font-size: 14px; color: var(--text-dim); font-weight: 500; text-align: right; min-width: 46px; }
+    .job-right  { display: flex; align-items: center; flex-shrink: 0; }
+    .job-amount { font-size: 14px; color: var(--text-dim); font-weight: 500; text-align: right; min-width: 50px; }
     .job-pipe   { font-size: 12px; color: var(--text-muted); margin: 0 5px; }
-    .job-rate   { font-size: 12px; font-weight: 700; text-align: right; min-width: 52px; }
+    .job-rate   { font-size: 12px; font-weight: 700; text-align: right; }
     .rate-green  { color: #4ade80; }
     .rate-yellow { color: #fbbf24; }
     .rate-red    { color: #f87171; }
@@ -589,7 +589,7 @@ function renderSchedule() {
         if (totalHrs > 0) {
           const rate = Math.round((j.amount||0) / totalHrs);
           const cls = rate >= 190 ? 'rate-green' : rate >= 160 ? 'rate-yellow' : 'rate-red';
-          rateHtml = `<span class="job-pipe">|</span><span class="job-rate ${cls}">$${rate}/hr</span>`;
+          rateHtml = `<span class="job-rate ${cls}">$${rate}/hr</span><span class="job-pipe">|</span>`;
         }
       }
 
@@ -612,7 +612,7 @@ function renderSchedule() {
       <span class="status-dot dot-pending"></span>
       <span class="job-time">${toPT(j.time_utc)}</span>
       <span class="job-name">${esc(j.customer)}</span>
-      <span class="job-amount">$${Math.round(j.amount||0)}</span>
+      <span class="job-right"><span class="job-amount">$${Math.round(j.amount||0)}</span></span>
     </div>`).join('');
   }
 
