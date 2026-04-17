@@ -626,8 +626,8 @@ def tool_get_sales_month() -> dict:
             continue
         amt = float(so.get('amount_total') or 0)
         status = (so.get('x_studio_x_studio_workiz_status') or '').lower()
-        if status == 'canceled':
-            continue
+        # Count ALL Mon-Fri confirmed SOs — no Workiz status filter (Done, Scheduled, etc. all count)
+        # Only exclusion: weekend (handled above) and Odoo-cancelled (handled by query state filter)
         iso = d.isoformat()
         if iso not in days:
             days[iso] = {'amount': 0.0, 'count': 0}
@@ -1778,6 +1778,11 @@ NEW JOB FOR EXISTING CUSTOMER (critical — follow this exactly):
   2. If no open job: use duplicate_workiz_job with the customer's partner_id — it auto-finds their most recent UUID
   3. NEVER use create_workiz_job for existing customers — duplicate_workiz_job copies all fields correctly
   4. Zapier Phase 3 will sync the new Workiz job to Odoo automatically — tell DJ this
+
+MONTHLY JOB LISTS (stats screen grand total, email lists, etc.):
+- Source: Odoo sale.order ONLY — never use Workiz API for monthly job counts/lists (Workiz only_open=True excludes Done jobs).
+- Criteria: state in ['sale','done'], date_order in the month, Mon–Fri only (skip weekday() >= 5 after UTC→PT conversion), ALL Workiz statuses count (Done, Submitted, Scheduled, Pending — everything except Odoo-cancelled SOs).
+- The stats screen grand total uses this exact logic. When DJ asks you to list the jobs behind that number, query Odoo SOs with the same filter.
 
 Pacific Time: UTC-7 (Mar–Nov), UTC-8 (Nov–Mar). Be concise — DJ is in the field."""
 
