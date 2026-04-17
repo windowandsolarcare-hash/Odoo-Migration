@@ -123,6 +123,10 @@
     .job-amount { font-size: 14px; color: var(--text-dim); font-weight: 500; text-align: right; min-width: 50px; }
     .job-pipe   { font-size: 12px; color: var(--text-muted); margin: 0 5px; }
     .job-rate   { font-size: 12px; font-weight: 700; text-align: right; margin-left: 35px; }
+    .job-links  { display: flex; gap: 3px; margin-left: 5px; flex-shrink: 0; }
+    .job-link   { font-size: 10px; font-weight: 600; color: var(--text-muted); text-decoration: none;
+                  padding: 1px 4px; border: 1px solid var(--border-row); border-radius: 3px; line-height: 1.4; }
+    .job-link:hover { color: var(--accent); border-color: var(--accent); }
     .rate-green  { color: #4ade80; }
     .rate-yellow { color: #fbbf24; }
     .rate-red    { color: #f87171; }
@@ -596,10 +600,16 @@ function renderSchedule() {
         }
       }
 
+      const odooUrl = `https://window-solar-care.odoo.com/odoo/sales/${j.so_id}`;
+      const linksHtml = `<span class="job-links">
+        ${j.workiz_link ? `<a class="job-link" href="${j.workiz_link}" target="_blank" onclick="event.stopPropagation()">WZ</a>` : ''}
+        <a class="job-link" href="${odooUrl}" target="_blank" onclick="event.stopPropagation()">SO</a>
+      </span>`;
       return `<div class="job-row${sel}" onclick="openJob(jobs[${i}])">
         <span class="status-dot ${dot}"></span>
         <span class="job-time">${toPT(j.time_utc)}</span>
         <span class="job-name">${esc(j.customer)}</span>
+        ${linksHtml}
         <span class="job-right">${rateHtml}<span class="job-amount">$${Math.round(j.amount||0)}</span></span>
       </div>`;
     }).join('');
