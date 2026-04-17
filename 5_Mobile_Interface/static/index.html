@@ -268,11 +268,19 @@
     .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     .stat-value { font-size: 26px; font-weight: 700; color: var(--text); }
     .stat-sub   { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-    .week-section { background: var(--bg-card); border-radius: 12px; padding: 14px; }
-    .week-heading { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-    .week-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border-row); font-size: 15px; color: var(--text); }
-    .week-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .week-amt { font-weight: 700; color: var(--accent); font-size: 16px; }
+    .week-section { background: var(--bg-card); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+    .week-heading { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .week-row { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; font-size: 14px; color: var(--text); }
+    .week-day-label { color: var(--text-dim); font-size: 13px; min-width: 30px; margin-right: 6px; }
+    .week-date-num  { color: var(--text); font-weight: 500; }
+    .week-amt { font-weight: 700; color: var(--accent); font-size: 14px; }
+    .week-total-row { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 0 2px; border-top: 1px solid var(--border-sep); margin-top: 4px; font-size: 14px; font-weight: 600; color: var(--text); }
+    .week-total-amt { font-weight: 700; color: var(--accent); font-size: 16px; }
+    .forecast-section { background: var(--bg-card); border-radius: 12px; padding: 12px 14px; }
+    .forecast-row { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; font-size: 14px; color: var(--text); }
+    .forecast-label { color: var(--text-dim); font-size: 13px; }
+    .forecast-amt { font-weight: 700; color: #a78bfa; font-size: 15px; }
+    .forecast-mtd  { font-weight: 600; color: var(--text); font-size: 15px; }
 
     /* Upcoming */
     .day-group { margin-bottom: 18px; }
@@ -787,12 +795,11 @@ function renderStats(data) {
   const s=data.schedule||{}, j=s.jobs||[];
   const done=j.filter(x=>(x.status||'').toLowerCase().includes('done')).length;
   const ws=data.week_sales||'';
-  const wAmt=(ws.match(/\$([\d,]+\.?\d*)/)||[])[1];
-  const wCnt=(ws.match(/across\s+(\d+)\s+job/i)||[])[1];
+  const md=data.month_data||{};
   const avg=s.count?Math.round((s.total||0)/s.count):0;
 
   // Parse week range label: "Week of 2026-04-13 – 2026-04-18"
-  let weekLabel = 'This Week';
+  let weekLabel = 'This Week (Mon–Fri)';
   const wRange = ws.match(/Week of (\d{4}-\d{2}-\d{2})[^0-9]+(\d{4}-\d{2}-\d{2})/);
   if (wRange) {
     try {
@@ -801,19 +808,49 @@ function renderStats(data) {
     } catch {}
   }
 
-  // Parse by-day lines: "2026-04-14: $120, 2026-04-15: $200"
+  // Parse by-day: "2026-04-14: $120, 2026-04-15: $200" — Mon–Fri only, amount inline
   let dayRows = '';
+  let weekTotal = 0;
+  let weekCount = 0;
   const byDayMatch = ws.match(/By day:\s*(.+)$/);
   if (byDayMatch) {
-    dayRows = byDayMatch[1].split(', ').map(e => {
+    const DAYS = ['Mon','Tue','Wed','Thu','Fri'];
+    const entries = byDayMatch[1].split(', ');
+    dayRows = entries.map(e => {
       const m = e.match(/(\d{4}-\d{2}-\d{2}):\s*\$?([\d,.]+)/);
       if (!m) return '';
       try {
-        const label = new Date(m[1]+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-        const amt = Math.round(parseFloat(m[2].replace(/,/g,''))).toLocaleString();
-        return `<div class="week-row"><span>${label}</span><span class="week-amt">$${amt}</span></div>`;
+        const dt = new Date(m[1]+'T12:00:00');
+        const dow = dt.getDay(); // 0=Sun,6=Sat
+        if (dow === 0 || dow === 6) return '';
+        const dayName = DAYS[dow-1];
+        const dateNum = dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+        const amt = Math.round(parseFloat(m[2].replace(/,/g,'')));
+        weekTotal += amt;
+        weekCount++;
+        return `<div class="week-row"><span><span class="week-day-label">${dayName}</span><span class="week-date-num">${dateNum}</span></span><span class="week-amt">$${amt.toLocaleString()}</span></div>`;
       } catch { return ''; }
     }).filter(Boolean).join('');
+  }
+
+  // Week total row
+  const weekTotalRow = weekTotal > 0
+    ? `<div class="week-total-row"><span>Week Total</span><span class="week-total-amt">$${weekTotal.toLocaleString()}</span></div>`
+    : '';
+
+  // Month forecast block
+  let forecastHtml = '';
+  if (md.forecast) {
+    const mtd   = (md.total||0).toLocaleString();
+    const fcst  = (md.forecast||0).toLocaleString();
+    const label = md.month_label || 'This Month';
+    const prog  = md.days_elapsed && md.days_total ? `${md.days_elapsed} of ${md.days_total} business days` : '';
+    forecastHtml = `<div class="forecast-section">
+      <div class="week-heading">${label} Forecast</div>
+      <div class="forecast-row"><span class="forecast-label">Month to Date</span><span class="forecast-mtd">$${mtd}</span></div>
+      <div class="forecast-row"><span class="forecast-label">Projected Total</span><span class="forecast-amt">$${fcst}</span></div>
+      ${prog ? `<div class="forecast-row"><span class="forecast-label" style="font-size:11px">${prog}</span><span></span></div>` : ''}
+    </div>`;
   }
 
   pane.innerHTML=`
@@ -821,9 +858,6 @@ function renderStats(data) {
       <div class="stat-card"><div class="stat-label">Today</div>
         <div class="stat-value">$${Math.round(s.total||0).toLocaleString()}</div>
         <div class="stat-sub">${s.count||0} job${s.count===1?'':'s'}</div></div>
-      <div class="stat-card"><div class="stat-label">This Week</div>
-        <div class="stat-value">${wAmt?'$'+wAmt:'—'}</div>
-        <div class="stat-sub">${wCnt?wCnt+' jobs':''}</div></div>
       <div class="stat-card"><div class="stat-label">Done Today</div>
         <div class="stat-value">${done}</div>
         <div class="stat-sub">${j.length-done} remaining</div></div>
@@ -834,7 +868,9 @@ function renderStats(data) {
     ${dayRows ? `<div class="week-section">
       <div class="week-heading">${weekLabel}</div>
       ${dayRows}
-    </div>` : ''}`;
+      ${weekTotalRow}
+    </div>` : ''}
+    ${forecastHtml}`;
 }
 
 async function loadUpcoming() {
