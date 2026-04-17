@@ -76,6 +76,9 @@
       #app { display: flex !important; flex-direction: row; }
       #field-panel { width: 300px; min-width: 260px; border-right: 1px solid var(--border); flex-shrink: 0; }
       #office-panel { display: flex; flex-direction: column; flex: 1; min-width: 0; background: var(--bg-card); }
+      /* Left panel: hide $/hr — only show on mobile full-screen */
+      #field-panel .job-rate,
+      #field-panel .job-pipe { display: none; }
     }
 
     /* ── FIELD HEADER ── */
