@@ -5,6 +5,12 @@
 # ==============================================================================
 
 import os, json, re, datetime, urllib.parse, base64, threading
+from zoneinfo import ZoneInfo
+_PT = ZoneInfo('America/Los_Angeles')
+
+def today_pt() -> datetime.date:
+    """Today's date in Pacific Time — avoids jobs disappearing at 5 PM UTC."""
+    return datetime.datetime.now(tz=_PT).date()
 import httpx
 import anthropic
 from fastapi import FastAPI, Request, HTTPException
@@ -181,7 +187,7 @@ def workiz_post(endpoint, data):
 # Date resolver
 # ---------------------------------------------------------------------------
 def resolve_date(date_str: str):
-    today = datetime.date.today()
+    today = today_pt()
     ds = (date_str or 'today').lower().strip()
     if ds in ('today', ''):
         return today.isoformat(), 'Today'
@@ -493,7 +499,7 @@ def tool_get_schedule(date: str) -> dict:
 
 def tool_get_next_job() -> dict:
     now_str   = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-    today_iso = datetime.date.today().isoformat()
+    today_iso = today_pt().isoformat()
     sos = odoo_rpc('sale.order', 'search_read',
         [[['date_order', '>=', now_str],
           ['date_order', '<=', today_iso + ' 23:59:59'],
@@ -2198,7 +2204,7 @@ async def api_upcoming(access_code: str = ''):
     if access_code != ACCESS_CODE:
         return JSONResponse({'error': 'unauthorized'}, status_code=401)
     try:
-        today  = datetime.date.today()
+        today  = today_pt()
         end    = today + datetime.timedelta(days=7)
         sos    = odoo_rpc('sale.order', 'search_read',
             [[['date_order', '>=', today.isoformat() + ' 00:00:00'],
@@ -2276,7 +2282,7 @@ async def api_search(q: str = '', access_code: str = ''):
             return {'results': []}
 
         partner_ids = [p['id'] for p in partners]
-        today = datetime.date.today().isoformat()
+        today = today_pt().isoformat()
 
         # SOs are linked to Property children, not the Contact directly.
         # Find all Property children for these contacts in one call.
