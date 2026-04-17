@@ -597,7 +597,7 @@ function renderSchedule() {
         <span class="status-dot ${dot}"></span>
         <span class="job-time">${toPT(j.time_utc)}</span>
         <span class="job-name">${esc(j.customer)}</span>
-        <span class="job-right"><span class="job-amount">$${Math.round(j.amount||0)}</span>${rateHtml}</span>
+        <span class="job-right">${rateHtml}<span class="job-amount">$${Math.round(j.amount||0)}</span></span>
       </div>`;
     }).join('');
   }
