@@ -535,9 +535,9 @@ async function loadField() {
   document.getElementById('hdr-total').textContent = '$' + Math.round(total).toLocaleString();
   document.getElementById('hdr-count').textContent = count + (count===1?' job':' jobs') + ' today';
 
-  // Find next 2 work days (Mon–Fri) with jobs, skipping today
+  // Find next 3 work days (Mon–Fri) with jobs, skipping today
   futureDays = [];
-  const todayISO = now.toISOString().slice(0, 10);
+  const todayISO = [now.getFullYear(), String(now.getMonth()+1).padStart(2,'0'), String(now.getDate()).padStart(2,'0')].join('-');
   for (const day of (upcomingData.days || [])) {
     if (day.date === todayISO) continue;
     const dow = new Date(day.date + 'T12:00:00').getDay();
