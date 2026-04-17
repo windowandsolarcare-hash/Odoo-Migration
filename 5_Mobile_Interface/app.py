@@ -1664,6 +1664,19 @@ CORE FIELD WORKFLOW (make this seamless — no bumps):
    - Customer already known from session: use partner_id and so_id directly.
    - Only search/ask if genuinely ambiguous.
 
+PAYMENT FOR NON-TODAY JOBS (multi-step — follow exactly):
+When DJ asks to process payment for a job not on today's schedule, or says "find SO for [name]" / "process payment for [name]":
+Step 1 — Find the customer: call search_customers with their name.
+Step 2 — Find their SOs: call odoo_query on sale.order with domain [['partner_id','in', PROPERTY_CHILD_IDS], ['state','in',['sale','done']]], order='date_order desc', limit=5, fields=['id','name','date_order','amount_total','x_studio_x_studio_workiz_uuid'].
+  NOTE: SOs are on Property child partners, not the Contact directly. To get property children: odoo_query res.partner where parent_id=contact_id AND x_studio_x_studio_record_category='Property', fields=['id']. Then query SOs on those child IDs (OR just use partner_id=contact_id if no children found, as fallback).
+Step 3 — Present options: Show SO name, date (formatted nicely), and amount. Ask DJ "Is this the right one?" if there's one obvious recent one, or list top options if ambiguous.
+Step 4 — Confirm the SO: Wait for DJ to confirm before proceeding.
+Step 5 — Ask for payment details: "What's the payment method (check/cash/Zelle/Venmo/credit), amount, and memo/reference?"
+  - If DJ says "same amount" or doesn't specify, use the SO's amount_total.
+  - Accept voice-style answers like "$250 check, number 1042" → amount=250, method=check, memo='1042'
+Step 6 — Call record_check_payment with the confirmed so_id, partner_id, amount, payment_method, memo.
+Be conversational and brief — DJ is often in the field. Confirm the final result clearly (invoice number + amount + method).
+
 GENERAL TOOL GUIDANCE:
 - Use partner_id and so_id from session context — never re-search for something already known
 - get_sales / get_sales_week for revenue — never get_jobs_list for financial questions
