@@ -1027,6 +1027,7 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         so_name = args.get('so_name', '')
         amount  = float(args['amount'])
         today   = datetime.date.today().isoformat()
+        payment_date = str(args.get('payment_date') or today)
 
         # Map payment method to Odoo payment_method_line_id (all on Bank journal ID=6)
         PAYMENT_METHOD_LINE = {
@@ -1089,7 +1090,7 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
         # Register payment via wizard — handles reconciliation with invoice automatically
         wizard_ctx = {'active_model': 'account.move', 'active_ids': [invoice_id], 'active_id': invoice_id}
         wizard_id  = odoo_rpc('account.payment.register', 'create', [{
-            'payment_date':           today,
+            'payment_date':           payment_date,
             'amount':                 amount,
             'communication':          memo,
             'journal_id':             6,   # Bank
@@ -1100,14 +1101,14 @@ def execute_write_tool(tool_name: str, args: dict) -> str:
 
         # Chatter on invoice: audit trail for payment
         odoo_rpc('account.move', 'message_post', [[invoice_id]], {
-            'body': f'[Render] Payment recorded | Customer: {pname} | ${amount:.2f} | Method: {raw_method.title()} | Ref: {memo} | {today}'
+            'body': f'[Render] Payment recorded | Customer: {pname} | ${amount:.2f} | Method: {raw_method.title()} | Ref: {memo} | Date: {payment_date} | {today}'
         })
 
         partial_note = f' (partial — invoice total ${invoice_total:.2f})' if abs(amount - invoice_total) > 0.01 else ''
         ref_label = 'Check #' if raw_method == 'check' else f'{raw_method.title()} ref: ' if check_number.lower() != raw_method else ''
         return (f"[ODOO] ✅ Invoice {invoice_name} created & paid\n"
                 f"  Customer: {pname}\n"
-                f"  {ref_label}{check_number} | ${amount:.2f}{partial_note} | {today}\n"
+                f"  {ref_label}{check_number} | ${amount:.2f}{partial_note} | {payment_date}\n"
                 f"  Phase 6 will sync to Workiz automatically.")
 
     # --- Update SHARED_MEMORY.md on GitHub ---
@@ -1573,7 +1574,8 @@ TOOLS = [
                 "so_name":         {"type": "string",  "description": "e.g. S04400"},
                 "amount":          {"type": "number",  "description": "Payment amount in dollars"},
                 "payment_method":  {"type": "string",  "description": "check | cash | zelle | venmo | credit"},
-                "memo":            {"type": "string",  "description": "Check number, 'Zelle', 'Venmo', 'Cash', etc. Goes in memo field."}
+                "memo":            {"type": "string",  "description": "Check number, 'Zelle', 'Venmo', 'Cash', etc. Goes in memo field."},
+                "payment_date":    {"type": "string",  "description": "Date payment was received, YYYY-MM-DD. Defaults to today if not provided."}
             },
             "required": ["partner_id", "partner_name", "so_id", "so_name", "amount", "payment_method", "memo"]
         }
@@ -1671,10 +1673,11 @@ Step 2 — Find their SOs: call odoo_query on sale.order with domain [['partner_
   NOTE: SOs are on Property child partners, not the Contact directly. To get property children: odoo_query res.partner where parent_id=contact_id AND x_studio_x_studio_record_category='Property', fields=['id']. Then query SOs on those child IDs (OR just use partner_id=contact_id if no children found, as fallback).
 Step 3 — Present options: Show SO name, date (formatted nicely), and amount. Ask DJ "Is this the right one?" if there's one obvious recent one, or list top options if ambiguous.
 Step 4 — Confirm the SO: Wait for DJ to confirm before proceeding.
-Step 5 — Ask for payment details: "What's the payment method (check/cash/Zelle/Venmo/credit), amount, and memo/reference?"
+Step 5 — Ask for payment details: "What's the payment method (check/cash/Zelle/Venmo/credit), amount, date received, and memo/reference?"
   - If DJ says "same amount" or doesn't specify, use the SO's amount_total.
-  - Accept voice-style answers like "$250 check, number 1042" → amount=250, method=check, memo='1042'
-Step 6 — Call record_check_payment with the confirmed so_id, partner_id, amount, payment_method, memo.
+  - If DJ says "today" for date, use today's date. If they give a day like "last Tuesday" or "April 10th", convert to YYYY-MM-DD.
+  - Accept voice-style answers like "$250 check April 10th, number 1042" → amount=250, method=check, payment_date='2026-04-10', memo='1042'
+Step 6 — Call record_check_payment with the confirmed so_id, partner_id, amount, payment_method, memo, payment_date.
 Be conversational and brief — DJ is often in the field. Confirm the final result clearly (invoice number + amount + method).
 
 GENERAL TOOL GUIDANCE:
@@ -1683,6 +1686,16 @@ GENERAL TOOL GUIDANCE:
 - odoo_query for any data lookup not covered by specific tools
 - odoo_write for any Odoo change
 - For code fixes: github_read_file → fix → github_push_file → odoo_write if server action
+
+CUSTOMERS WITHOUT FUTURE JOBS (common reactivation query):
+When DJ asks for customers in a city/area that haven't been scheduled or don't have upcoming jobs:
+- Use odoo_query on res.partner with domain:
+  [['x_studio_x_studio_service_area','=','Hemet'], ['x_studio_next_job_date','=',False], ['x_studio_activelead','!=','Do Not Contact'], ['customer_rank','>',0]]
+  OR if they want last-serviced filter: add ['x_studio_last_visit_all_properties','>=','2024-01-01'] etc.
+- x_studio_next_job_date is set by Phase 3/5 when a future job is created, cleared by Phase 4 when job goes Done/Canceled.
+  A value of False means NO future job scheduled. This is the correct filter — do NOT try to query SOs and cross-reference.
+- Service area values match city names (e.g. 'Hemet', 'Palm Desert', 'Cathedral City', 'Palm Springs', etc.)
+- Fields to return: id, name, x_studio_x_type_of_service, x_studio_x_frequency, x_studio_last_visit_all_properties, x_studio_next_job_date, phone
 
 NEW JOB FOR EXISTING CUSTOMER (critical — follow this exactly):
 - Jobs sync ONE WAY: Workiz → Odoo. Never create an Odoo SO directly for a new job.
@@ -1962,7 +1975,7 @@ def _batch_addresses(jobs: list) -> dict:
         return {}
 
 
-def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str) -> dict:
+def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str, payment_date: str = '') -> dict:
     """Record payment on an SO. Returns {'ok': bool, 'message': str}."""
     PAYMENT_METHOD_LINE = {'check': 8, 'cash': 6, 'zelle': 6, 'venmo': 6, 'credit': 7}
     raw_method          = str(payment_method or 'check').lower().strip()
@@ -1973,6 +1986,7 @@ def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str) 
     if memo.lower() in ('zelle', 'venmo', 'cash', 'check', 'credit'):
         memo = memo.title()
     today = datetime.date.today().isoformat()
+    payment_date = payment_date or today
 
     so_data = odoo_rpc('sale.order', 'read', [[so_id]],
         {'fields': ['invoice_ids', 'name', 'partner_id']})
@@ -2018,18 +2032,18 @@ def _execute_payment(so_id: int, amount: float, payment_method: str, memo: str) 
     })
     ctx = {'active_model': 'account.move', 'active_ids': [inv_id], 'active_id': inv_id}
     wiz = odoo_rpc('account.payment.register', 'create', [{
-        'payment_date': today, 'amount': amount, 'communication': memo,
+        'payment_date': payment_date, 'amount': amount, 'communication': memo,
         'journal_id': 6, 'payment_method_line_id': pml,
     }], {'context': ctx})
     odoo_rpc('account.payment.register', 'action_create_payments', [[wiz]], {'context': ctx})
 
     # Chatter on invoice: audit trail for payment
     odoo_rpc('account.move', 'message_post', [[inv_id]], {
-        'body': f'[Render] Payment recorded | Customer: {customer} | ${amount:.2f} | Method: {raw_method.title()} | Ref: {memo} | {today}'
+        'body': f'[Render] Payment recorded | Customer: {customer} | ${amount:.2f} | Method: {raw_method.title()} | Ref: {memo} | Date: {payment_date} | {today}'
     })
 
     partial = f' (partial — inv ${inv_total:.2f})' if abs(amount - inv_total) > 0.01 else ''
-    return {'ok': True, 'message': f'{inv_name} | {customer} | {raw_method.title()} ${amount:.2f}{partial} | Phase 6 syncing'}
+    return {'ok': True, 'message': f'{inv_name} | {customer} | {raw_method.title()} ${amount:.2f}{partial} | {payment_date} | Phase 6 syncing'}
 
 
 @app.get('/api/dashboard')
@@ -2202,10 +2216,11 @@ async def api_payment(request: Request):
     amount         = float(body.get('amount', 0))
     payment_method = str(body.get('payment_method', 'check'))
     memo           = str(body.get('memo', '') or '')
+    payment_date   = str(body.get('payment_date', '') or '')
     if not so_id or amount <= 0:
         return JSONResponse({'status': 'error', 'message': 'so_id and amount required'})
     try:
-        result = _execute_payment(so_id, amount, payment_method, memo)
+        result = _execute_payment(so_id, amount, payment_method, memo, payment_date)
         status = 'ok' if result['ok'] else 'error'
         return {'status': status, 'message': result['message']}
     except Exception as e:
