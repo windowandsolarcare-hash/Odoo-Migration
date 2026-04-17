@@ -2324,6 +2324,18 @@ async def api_upcoming(access_code: str = ''):
             {'fields': ['id', 'name', 'date_order', 'partner_id', 'amount_total',
                         'x_studio_x_studio_workiz_status', 'x_studio_x_workiz_link'],
              'order': 'date_order asc'})
+        # Fetch tasks for all these SOs to get service type (Solar/Window)
+        all_so_ids = [so['id'] for so in sos]
+        tasks_by_so_up = {}
+        if all_so_ids:
+            up_tasks = odoo_rpc('project.task', 'search_read',
+                [[['sale_order_id', 'in', all_so_ids]]],
+                {'fields': ['id', 'name', 'sale_order_id'], 'order': 'id asc'})
+            for t in up_tasks:
+                sid = t['sale_order_id'][0] if t.get('sale_order_id') else None
+                if sid:
+                    tasks_by_so_up.setdefault(sid, []).append(t['name'])
+
         by_day = {}
         for so in sos:
             day = (so.get('date_order') or '')[:10]
@@ -2339,6 +2351,7 @@ async def api_upcoming(access_code: str = ''):
                 'time_utc':    so['date_order'][11:16] if so.get('date_order') else '?',
                 'amount':      amount,
                 'status':      so.get('x_studio_x_studio_workiz_status') or '',
+                'task_names':  tasks_by_so_up.get(so['id'], []),
             })
         days = []
         for d in sorted(by_day.keys()):
