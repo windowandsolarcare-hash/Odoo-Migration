@@ -230,15 +230,24 @@
     /* ── VOICE MODAL ── */
     #voice-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 200; align-items: flex-end; }
     #voice-modal.open { display: flex; }
-    .vm-sheet { background: var(--bg-card); width: 100%; padding: 20px; border-radius: 20px 20px 0 0; }
-    .vm-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .vm-sheet { background: var(--bg-card); width: 100%; padding: 20px; border-radius: 20px 20px 0 0; max-height: 85vh; display: flex; flex-direction: column; }
+    .vm-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-shrink: 0; }
     .vm-title  { font-size: 16px; font-weight: 700; color: var(--text); }
     .vm-close  { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
-    .vm-input  { width: 100%; min-height: 80px; padding: 12px; font-size: 16px; background: var(--bg-input); color: var(--text); border: 2px solid var(--border-input); border-radius: 12px; resize: none; outline: none; margin-bottom: 10px; }
+    .vm-input  { width: 100%; min-height: 70px; padding: 12px; font-size: 16px; background: var(--bg-input); color: var(--text); border: 2px solid var(--border-input); border-radius: 12px; resize: none; outline: none; margin-bottom: 10px; flex-shrink: 0; }
     .vm-input:focus { border-color: #0284c7; }
-    .vm-send   { width: 100%; padding: 14px; background: #0284c7; color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 10px; }
+    .vm-send   { width: 100%; padding: 14px; background: #0284c7; color: white; font-size: 16px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 10px; flex-shrink: 0; }
     .vm-send:active { background: #0369a1; }
-    .vm-response { font-size: 14px; padding: 10px; background: var(--bg-input); border-radius: 10px; white-space: pre-wrap; display: none; color: var(--text-dim); }
+    .vm-status { font-size: 14px; padding: 10px 12px; background: #1c2f46; border: 2px solid #0284c7; color: #bae6fd; border-radius: 10px; white-space: pre-wrap; display: none; margin-bottom: 10px; flex-shrink: 0; }
+    .vm-history { overflow-y: auto; flex: 1; }
+    .vmh-entry { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-row); }
+    .vmh-entry:last-child { border-bottom: none; }
+    .vmh-question { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+    .vmh-question::before { content: 'You: '; font-weight: 700; color: var(--text-dim); }
+    .vmh-answer { font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; padding: 9px 11px; border-radius: 8px; border-left: 3px solid transparent; }
+    .vmh-answer.ok  { background: #052e16; color: #86efac; border-left-color: #16a34a; }
+    .vmh-answer.err { background: #2d0a0a; color: #fca5a5; border-left-color: #dc2626; }
+    .vmh-answer.info { background: var(--bg-input); color: var(--text); border-left-color: var(--border-input); }
 
     /* ── OFFICE PANEL ── */
     #tab-bar { display: flex; background: var(--bg-page); border-bottom: 1px solid var(--border); flex-shrink: 0; }
@@ -434,7 +443,8 @@
     </div>
     <textarea class="vm-input" id="vm-input" placeholder="Type or speak…"></textarea>
     <button class="vm-send" onclick="vmSend()">Send</button>
-    <div class="vm-response" id="vm-response"></div>
+    <div class="vm-status" id="vm-status"></div>
+    <div class="vm-history" id="vm-history"></div>
   </div>
 </div>
 
@@ -942,20 +952,34 @@ document.getElementById('voice-textarea').addEventListener('keydown',e=>{if(e.ke
 function openVoiceModal(){document.getElementById('voice-modal').classList.add('open');document.getElementById('vm-input').focus();}
 function closeVoiceModal(){
   document.getElementById('voice-modal').classList.remove('open');
-  document.getElementById('vm-response').style.display='none';
+  document.getElementById('vm-status').style.display='none';
   document.getElementById('vm-input').value='';
+  // history intentionally kept so you can reopen and scroll back
 }
 async function vmSend() {
   const input=document.getElementById('vm-input').value.trim();
   if(!input) return;
-  const res=document.getElementById('vm-response');
-  res.style.display='block';res.textContent='⏳ Thinking…';res.style.color='#94a3b8';
+  const vmQ=input;
+  document.getElementById('vm-input').value='';  // clear immediately
+  const st=document.getElementById('vm-status');
+  st.textContent='⏳ Thinking…'; st.style.display='block';
   try {
     const d=await(await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({input,mode:'immediate',access_code:AC,session_id:sid()})})).json();
-    res.textContent=d.message||JSON.stringify(d);
-    res.style.color=d.status==='error'?'#fca5a5':'#86efac';
-  } catch(e){res.textContent='Error: '+e.message;res.style.color='#fca5a5';}
+      body:JSON.stringify({input:vmQ,mode:'immediate',access_code:AC,session_id:sid()})})).json();
+    st.style.display='none';
+    addVmHistory(vmQ, d.status==='error'?'err':'ok', d.message||JSON.stringify(d));
+  } catch(e){
+    st.style.display='none';
+    addVmHistory(vmQ,'err','Error: '+e.message);
+  }
+}
+function addVmHistory(question, type, msg) {
+  const hist=document.getElementById('vm-history');
+  const el=document.createElement('div');
+  el.className='vmh-entry';
+  el.innerHTML=`<div class="vmh-question">${esc(question)}</div><div class="vmh-answer ${type}">${esc(msg)}</div>`;
+  hist.appendChild(el);
+  el.scrollIntoView({behavior:'smooth'});
 }
 document.getElementById('vm-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();vmSend();}});
 
