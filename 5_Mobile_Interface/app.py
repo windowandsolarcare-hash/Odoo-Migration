@@ -558,28 +558,86 @@ def tool_get_sales(date: str) -> str:
 
 
 def tool_get_sales_week(date: str = '') -> str:
-    """Returns total sales for the work week (Mon–Sat) containing the given date. Sundays excluded."""
+    """Returns total sales for the work week (Mon–Fri) containing the given date. Weekends excluded."""
     date_iso, _ = resolve_date(date if date else 'today')
     try:
         d = datetime.date.fromisoformat(date_iso)
     except Exception:
         d = datetime.date.today()
     monday = d - datetime.timedelta(days=d.weekday())
-    saturday = monday + datetime.timedelta(days=5)
+    friday = monday + datetime.timedelta(days=4)
     sos = odoo_rpc('sale.order', 'search_read',
         [[['date_order', '>=', monday.isoformat() + ' 00:00:00'],
-          ['date_order', '<=', saturday.isoformat() + ' 23:59:59'],
+          ['date_order', '<=', friday.isoformat() + ' 23:59:59'],
           ['state', 'in', ['sale', 'done']]]],
         {'fields': ['amount_total', 'date_order', 'partner_id']})
     if not sos:
-        return f"No sales for week of {monday} – {saturday}."
+        return f"No sales for week of {monday} – {friday}."
     by_day = {}
     for so in sos:
         day = (so.get('date_order') or '')[:10]
+        dow = datetime.date.fromisoformat(day).weekday()
+        if dow >= 5:  # skip Saturday(5) / Sunday(6)
+            continue
         by_day[day] = by_day.get(day, 0) + float(so.get('amount_total') or 0)
     total = sum(by_day.values())
+    count = len([s for s in sos if datetime.date.fromisoformat((s.get('date_order') or '2000-01-01')[:10]).weekday() < 5])
     day_lines = ', '.join(f"{k}: ${v:.0f}" for k, v in sorted(by_day.items()) if v > 0)
-    return f"Week of {monday} – {saturday}: ${total:.2f} across {len(sos)} job(s). By day: {day_lines}"
+    return f"Week of {monday} – {friday}: ${total:.2f} across {count} job(s). By day: {day_lines}"
+
+
+def tool_get_sales_month() -> dict:
+    """Returns month-to-date sales (Mon–Fri only) plus a forecast for the full month."""
+    today = today_pt()
+    month_start = today.replace(day=1)
+
+    # All SOs this month
+    sos = odoo_rpc('sale.order', 'search_read',
+        [[['date_order', '>=', month_start.isoformat() + ' 00:00:00'],
+          ['date_order', '<=', today.isoformat() + ' 23:59:59'],
+          ['state', 'in', ['sale', 'done']]]],
+        {'fields': ['amount_total', 'date_order']})
+
+    # Filter to Mon–Fri only
+    total = 0.0
+    count = 0
+    for so in sos:
+        d = datetime.date.fromisoformat((so.get('date_order') or '2000-01-01')[:10])
+        if d.weekday() < 5:
+            total += float(so.get('amount_total') or 0)
+            count += 1
+
+    # Count business days elapsed (Mon–Fri, up to and including today)
+    elapsed = 0
+    d = month_start
+    while d <= today:
+        if d.weekday() < 5:
+            elapsed += 1
+        d += datetime.timedelta(days=1)
+
+    # Count total business days in month
+    import calendar
+    last_day = calendar.monthrange(today.year, today.month)[1]
+    month_end = today.replace(day=last_day)
+    total_bdays = 0
+    d = month_start
+    while d <= month_end:
+        if d.weekday() < 5:
+            total_bdays += 1
+        d += datetime.timedelta(days=1)
+
+    # Forecast: daily avg * remaining business days
+    daily_avg = total / elapsed if elapsed > 0 else 0
+    forecast = round(daily_avg * total_bdays)
+
+    return {
+        'total': round(total),
+        'count': count,
+        'forecast': forecast,
+        'days_elapsed': elapsed,
+        'days_total': total_bdays,
+        'month_label': today.strftime('%B %Y'),
+    }
 
 
 def tool_get_jobs_list(start_date: str = '', records: int = 50,
@@ -2077,7 +2135,11 @@ async def api_dashboard(access_code: str = ''):
         week_sales = tool_get_sales_week('')
     except Exception:
         week_sales = ''
-    return {'schedule': schedule, 'next_job': next_job, 'week_sales': week_sales}
+    try:
+        month_data = tool_get_sales_month()
+    except Exception:
+        month_data = {}
+    return {'schedule': schedule, 'next_job': next_job, 'week_sales': week_sales, 'month_data': month_data}
 
 
 ODOO_EMPLOYEE_ID = 1   # Dan Saunders — hr.employee ID for user 2
