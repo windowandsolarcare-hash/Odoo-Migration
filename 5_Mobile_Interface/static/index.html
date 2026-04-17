@@ -630,24 +630,26 @@ function openJob(job, scroll=true) {
   document.getElementById('ap-address').textContent = job.address || '';
 
   const tasks = job.tasks || [];
+  // For timer selector: exclude Done tasks (stage 19 / 'Done')
+  const activeTasks = tasks.filter(t => (t.stage||'').toLowerCase() !== 'done');
   const taskSel = document.getElementById('task-selector');
   const taskList = document.getElementById('task-list');
-  if (!tasks.length) {
+  if (!activeTasks.length) {
     taskSel.style.display = 'none'; renderTimerBtns('none');
-  } else if (tasks.length === 1) {
-    taskSel.style.display = 'none'; pickTask(tasks[0]);
+  } else if (activeTasks.length === 1) {
+    taskSel.style.display = 'none'; pickTask(activeTasks[0]);
   } else {
     taskSel.style.display = 'block';
-    taskList.innerHTML = tasks.map((t,i) =>
+    taskList.innerHTML = activeTasks.map((t,i) =>
       `<div class="task-row" onclick="pickTaskByIdx(${i},this)">
         <div><div class="task-name">${esc(t.task_name)}</div>
              <div class="task-stage">${esc(t.stage||'')}</div></div>
         ${t.timer_running?'<span class="task-timer-on">⏱ Running</span>':''}
       </div>`).join('');
-    const ri = tasks.findIndex(t=>t.timer_running);
+    const ri = activeTasks.findIndex(t=>t.timer_running);
     if (ri>=0) {
       taskList.querySelectorAll('.task-row')[ri].classList.add('selected');
-      pickTask(tasks[ri]);
+      pickTask(activeTasks[ri]);
     } else { renderTimerBtns('none'); }
   }
 
@@ -666,7 +668,9 @@ function closeActive() {
 function pickTaskByIdx(idx, el) {
   document.querySelectorAll('.task-row').forEach(r=>r.classList.remove('selected'));
   el.classList.add('selected');
-  pickTask(activeJob.tasks[idx]);
+  // idx is into activeTasks (non-Done only)
+  const activeTasks = (activeJob.tasks||[]).filter(t=>(t.stage||'').toLowerCase()!=='done');
+  pickTask(activeTasks[idx]);
 }
 
 function pickTask(task) {
