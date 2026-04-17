@@ -340,6 +340,18 @@
     .vh-answer.err  { background: #2d0a0a; color: #fca5a5; border-left-color: #dc2626; }
     .vh-answer.info { background: var(--bg-card); color: var(--text); border-left-color: var(--border-input); }
 
+    /* Saved request library */
+    #saved-qs { margin-top: 10px; margin-bottom: 4px; }
+    .sq-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .sq-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .sq-clear { font-size: 12px; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 0; }
+    .sq-item { display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: var(--bg-card); border-radius: 8px; margin-bottom: 5px; cursor: pointer; border-left: 3px solid transparent; }
+    .sq-item:active { background: var(--bg-row-sel); }
+    .sq-item.pinned { background: #0d1f0d; border-left-color: #4ade80; }
+    .sq-text { flex: 1; font-size: 13px; color: var(--text); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sq-star { font-size: 17px; flex-shrink: 0; background: none; border: none; cursor: pointer; padding: 0 2px; line-height: 1; color: var(--text-muted); }
+    .sq-item.pinned .sq-star { color: #facc15; }
+
     /* Customers */
     #cust-search { width: 100%; padding: 12px; font-size: 16px; background: var(--bg-card); color: var(--text); border: 2px solid var(--border-input); border-radius: 12px; outline: none; margin-bottom: 12px; }
     #cust-search:focus { border-color: #0284c7; }
@@ -452,6 +464,7 @@
       <div id="pane-voice"     class="tab-pane">
         <textarea id="voice-textarea" placeholder="Type a command…&#10;&#10;e.g. 'Update Michael gate code 1234'&#10;     'Status of Barbara Williams'"></textarea>
         <button id="voice-send-btn" onclick="voiceSend()">Send</button>
+        <div id="saved-qs" style="display:none"></div>
         <div id="voice-status"></div>
         <div id="voice-confirm">
           <button id="vc-yes" onclick="voiceConfirm(true)">Yes, Do It</button>
@@ -542,6 +555,7 @@ window.addEventListener('resize', () => {
 window.addEventListener('load', () => {
   const savedTheme = localStorage.getItem('wsc_theme') || 'dark';
   applyTheme(savedTheme);
+  sqRender();
   const saved = localStorage.getItem('wsc_ac');
   if (saved) { AC = saved; boot(); }
 });
@@ -1027,9 +1041,59 @@ function custSearch(q) {
 // ── VOICE (inner) ──
 let currentQ = '';
 
+// ── SAVED REQUEST LIBRARY ──
+const SQ_KEY = 'wsc_saved_qs';
+const SQ_MAX = 15;
+function sqLoad() { try{return JSON.parse(localStorage.getItem(SQ_KEY))||[];}catch(e){return[];} }
+function sqSave(arr) { localStorage.setItem(SQ_KEY,JSON.stringify(arr)); }
+function sqAdd(text) {
+  let arr = sqLoad();
+  arr = arr.filter(x => x.text !== text);          // deduplicate
+  arr.unshift({text, starred:false, ts:Date.now()});
+  const pinned  = arr.filter(x => x.starred);
+  let   recents = arr.filter(x => !x.starred);
+  if (recents.length > SQ_MAX) recents = recents.slice(0, SQ_MAX);
+  sqSave([...pinned, ...recents]);
+  sqRender();
+}
+function sqToggleStar(text) {
+  const arr = sqLoad();
+  const item = arr.find(x => x.text === text);
+  if (item) item.starred = !item.starred;
+  sqSave(arr);
+  sqRender();
+}
+function sqUse(text) {
+  document.getElementById('voice-textarea').value = text;
+  document.getElementById('voice-textarea').focus();
+}
+function sqClearRecents() {
+  sqSave(sqLoad().filter(x => x.starred));
+  sqRender();
+}
+function sqRender() {
+  const arr = sqLoad();
+  const el = document.getElementById('saved-qs');
+  if (!arr.length) { el.style.display='none'; return; }
+  el.style.display = 'block';
+  const sorted = [...arr.filter(x=>x.starred), ...arr.filter(x=>!x.starred)];
+  const hasRecents = arr.some(x => !x.starred);
+  el.innerHTML = `<div class="sq-hdr">
+    <span class="sq-label">Saved Requests</span>
+    ${hasRecents?'<button class="sq-clear" onclick="sqClearRecents()">Clear recents</button>':''}
+  </div>`
+  + sorted.map(item =>
+    `<div class="sq-item${item.starred?' pinned':''}" onclick="sqUse(${JSON.stringify(item.text)})">
+      <span class="sq-text">${esc(item.text)}</span>
+      <button class="sq-star" onclick="event.stopPropagation();sqToggleStar(${JSON.stringify(item.text)})" title="${item.starred?'Unpin':'Pin'}">${item.starred?'★':'☆'}</button>
+    </div>`
+  ).join('');
+}
+
 async function voiceSend() {
   const input=document.getElementById('voice-textarea').value.trim();
   if(!input) return;
+  sqAdd(input);
   currentQ = input;
   document.getElementById('voice-textarea').value = '';  // clear immediately
   const btn=document.getElementById('voice-send-btn');
@@ -1087,6 +1151,7 @@ function closeVoiceModal(){
 async function vmSend() {
   const input=document.getElementById('vm-input').value.trim();
   if(!input) return;
+  sqAdd(input);
   const vmQ=input;
   document.getElementById('vm-input').value='';  // clear immediately
   const st=document.getElementById('vm-status');
