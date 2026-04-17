@@ -611,12 +611,17 @@ def tool_get_sales_month() -> dict:
     forecast_count = 0
 
     for so in sos:
-        raw_date = (so.get('date_order') or '2000-01-01')[:10]
+        raw_dt_str = so.get('date_order') or ''
+        if not raw_dt_str:
+            continue
         try:
-            d = datetime.date.fromisoformat(raw_date)
+            # date_order is UTC — convert to Pacific to get the correct calendar day
+            dt_utc = datetime.datetime.strptime(raw_dt_str[:19], '%Y-%m-%d %H:%M:%S')
+            dt_pt  = dt_utc.replace(tzinfo=datetime.timezone.utc).astimezone(_PT)
+            d      = dt_pt.date()
         except Exception:
             continue
-        if d.weekday() >= 5:  # skip weekends
+        if d.weekday() >= 5:  # skip Saturday(5) and Sunday(6)
             continue
         amt = float(so.get('amount_total') or 0)
         status = (so.get('x_studio_x_studio_workiz_status') or '').lower()
