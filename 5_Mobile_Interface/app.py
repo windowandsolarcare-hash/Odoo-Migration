@@ -466,7 +466,7 @@ def tool_get_schedule(date: str) -> dict:
     so_ids = [j['so_id'] for j in jobs]
     if so_ids:
         all_tasks = odoo_rpc('project.task', 'search_read',
-            [[['sale_order_id', 'in', so_ids], ['stage_id', 'not in', [19]]]],
+            [[['sale_order_id', 'in', so_ids]]],
             {'fields': ['id', 'name', 'sale_order_id', 'stage_id', 'effective_hours'], 'order': 'id asc'})
         tasks_by_so = {}
         for t in all_tasks:
