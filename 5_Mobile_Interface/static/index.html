@@ -116,11 +116,13 @@
 
     .job-time   { font-size: 13px; color: var(--text-muted); min-width: 52px; flex-shrink: 0; }
     .job-name   { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); }
-    .job-amount { font-size: 14px; color: var(--text-dim); flex-shrink: 0; font-weight: 500; }
-    .job-rate   { font-size: 11px; font-weight: 700; padding: 2px 5px; border-radius: 5px; flex-shrink: 0; margin-left: 4px; }
-    .rate-green  { background: #14532d; color: #4ade80; }
-    .rate-yellow { background: #713f12; color: #fbbf24; }
-    .rate-red    { background: #450a0a; color: #f87171; }
+    .job-right  { display: flex; align-items: center; gap: 0; flex-shrink: 0; }
+    .job-amount { font-size: 14px; color: var(--text-dim); font-weight: 500; text-align: right; min-width: 46px; }
+    .job-pipe   { font-size: 12px; color: var(--text-muted); margin: 0 5px; }
+    .job-rate   { font-size: 12px; font-weight: 700; text-align: right; min-width: 52px; }
+    .rate-green  { color: #4ade80; }
+    .rate-yellow { color: #fbbf24; }
+    .rate-red    { color: #f87171; }
     .no-jobs    { padding: 40px 16px; text-align: center; color: var(--text-muted); font-size: 14px; }
 
     /* Day separator header between today and tomorrow */
@@ -580,16 +582,14 @@ function renderSchedule() {
       const sel = (activeJob && activeJob.so_id===j.so_id) ? ' selected' : '';
 
       // $/hr: only show when job is Done (green dot) — mid-job hours are misleading
-      let rateBadge = '';
+      let rateHtml = '';
       if (dot === 'dot-done' && (j.amount||0) > 0) {
         let totalHrs = 0;
-        for (const t of (j.tasks||[])) {
-          totalHrs += (t.effective_hours||0);
-        }
+        for (const t of (j.tasks||[])) totalHrs += (t.effective_hours||0);
         if (totalHrs > 0) {
           const rate = Math.round((j.amount||0) / totalHrs);
           const cls = rate >= 190 ? 'rate-green' : rate >= 160 ? 'rate-yellow' : 'rate-red';
-          rateBadge = `<span class="job-rate ${cls}">$${rate}/hr</span>`;
+          rateHtml = `<span class="job-pipe">|</span><span class="job-rate ${cls}">$${rate}/hr</span>`;
         }
       }
 
@@ -597,8 +597,7 @@ function renderSchedule() {
         <span class="status-dot ${dot}"></span>
         <span class="job-time">${toPT(j.time_utc)}</span>
         <span class="job-name">${esc(j.customer)}</span>
-        <span class="job-amount">$${Math.round(j.amount||0)}</span>
-        ${rateBadge}
+        <span class="job-right"><span class="job-amount">$${Math.round(j.amount||0)}</span>${rateHtml}</span>
       </div>`;
     }).join('');
   }
