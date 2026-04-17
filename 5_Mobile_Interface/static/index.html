@@ -74,7 +74,7 @@
 
     @media (min-width: 600px) {
       #app { display: flex !important; flex-direction: row; }
-      #field-panel { width: 300px; min-width: 260px; border-right: 1px solid var(--border); flex-shrink: 0; }
+      #field-panel { width: 336px; min-width: 280px; border-right: 1px solid var(--border); flex-shrink: 0; }
       #office-panel { display: flex; flex-direction: column; flex: 1; min-width: 0; background: var(--bg-card); }
       /* Left panel: hide $/hr — only show on mobile full-screen */
       #field-panel .job-rate,
@@ -123,9 +123,9 @@
     .job-amount { font-size: 14px; color: var(--text-dim); font-weight: 500; text-align: right; min-width: 50px; }
     .job-pipe   { font-size: 12px; color: var(--text-muted); margin: 0 5px; }
     .job-rate   { font-size: 12px; font-weight: 700; text-align: right; margin-left: 35px; }
-    .job-links  { display: flex; gap: 3px; margin-left: 5px; flex-shrink: 0; }
-    .job-link   { font-size: 10px; font-weight: 600; color: var(--text-muted); text-decoration: none;
-                  padding: 1px 4px; border: 1px solid var(--border-row); border-radius: 3px; line-height: 1.4; }
+    .job-links  { display: flex; gap: 8px; margin-left: 8px; flex-shrink: 0; }
+    .job-link   { font-size: 13px; font-weight: 600; color: var(--text-muted); text-decoration: none;
+                  padding: 3px 10px; border: 1px solid var(--border-row); border-radius: 5px; line-height: 1.4; }
     .job-link:hover { color: var(--accent); border-color: var(--accent); }
     .rate-green  { color: #4ade80; }
     .rate-yellow { color: #fbbf24; }
@@ -281,7 +281,8 @@
     .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
     .stat-value { font-size: 26px; font-weight: 700; color: var(--text); }
     .stat-sub   { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
-    .week-section { background: var(--bg-card); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+    .week-section { background: var(--bg-card); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+                    border-top: 2px solid var(--border-sep); border-bottom: 2px solid var(--border-sep); }
     .week-heading { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
     .week-row { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; font-size: 14px; color: var(--text); }
     .week-day-label { color: var(--text-dim); font-size: 13px; min-width: 30px; margin-right: 6px; }
@@ -292,7 +293,7 @@
     .forecast-section { background: var(--bg-card); border-radius: 12px; padding: 12px 14px; }
     .forecast-row { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; font-size: 14px; color: var(--text); }
     .forecast-label { color: var(--text-dim); font-size: 13px; }
-    .forecast-amt { font-weight: 700; color: #a78bfa; font-size: 15px; }
+    .forecast-amt { font-weight: 700; color: #4ade80; font-size: 15px; }
     .forecast-mtd  { font-weight: 600; color: var(--text); font-size: 15px; }
 
     /* Upcoming */
@@ -621,12 +622,20 @@ function renderSchedule() {
       <span>${esc(fd.label)}</span>
       <span class="day-meta"><span style="color:var(--accent)">$${Math.round(fd.total||0).toLocaleString()}</span> · ${fd.jobs.length} job${fd.jobs.length===1?'':'s'}</span>
     </div>`;
-    html += fd.jobs.map(j => `<div class="job-row tomorrow-row">
-      <span class="status-dot dot-pending"></span>
-      <span class="job-time">${toPT(j.time_utc)}</span>
-      <span class="job-name">${esc(j.customer)}</span>
-      <span class="job-right"><span class="job-amount">$${Math.round(j.amount||0)}</span></span>
-    </div>`).join('');
+    html += fd.jobs.map(j => {
+      const odooUrl2 = `https://window-solar-care.odoo.com/odoo/sales/${j.so_id}`;
+      const links2 = `<span class="job-links">
+        ${j.workiz_link ? `<a class="job-link" href="${j.workiz_link}" target="_blank" onclick="event.stopPropagation()">WZ</a>` : ''}
+        ${j.so_id ? `<a class="job-link" href="${odooUrl2}" target="_blank" onclick="event.stopPropagation()">SO</a>` : ''}
+      </span>`;
+      return `<div class="job-row tomorrow-row">
+        <span class="status-dot dot-pending"></span>
+        <span class="job-time">${toPT(j.time_utc)}</span>
+        <span class="job-name">${esc(j.customer)}</span>
+        ${links2}
+        <span class="job-right"><span class="job-amount">$${Math.round(j.amount||0)}</span></span>
+      </div>`;
+    }).join('');
   }
 
   sec.innerHTML = html;
@@ -840,7 +849,7 @@ function renderStats(data) {
   if (wRange) {
     try {
       const fmt = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
-      weekLabel = fmt(wRange[1]) + ' – ' + fmt(wRange[2]);
+      weekLabel = fmt(wRange[1]) + ' – ' + fmt(wRange[2]) + ' (This Week)';
     } catch {}
   }
 
@@ -885,7 +894,7 @@ function renderStats(data) {
       <div class="week-heading">${label}</div>
       <div class="forecast-row"><span class="forecast-label">Done (M–F)</span><span class="forecast-mtd">$${mtd}</span></div>
       <div class="forecast-row"><span class="forecast-label">Total Scheduled</span><span class="forecast-amt">$${fcst}</span></div>
-      ${sub ? `<div class="forecast-row"><span class="forecast-label" style="font-size:11px">${sub}</span><span></span></div>` : ''}
+      ${sub ? `<div class="forecast-row"><span class="forecast-label" style="font-size:13px">${sub}</span><span></span></div>` : ''}
     </div>`;
   }
 
