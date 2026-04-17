@@ -76,9 +76,10 @@
       #app { display: flex !important; flex-direction: row; }
       #field-panel { width: 336px; min-width: 280px; border-right: 1px solid var(--border); flex-shrink: 0; }
       #office-panel { display: flex; flex-direction: column; flex: 1; min-width: 0; background: var(--bg-card); }
-      /* Left panel: hide $/hr, show pills — opposite of mobile */
+      /* Left panel: hide $/hr + service type, show pills — opposite of mobile */
       #field-panel .job-rate,
-      #field-panel .job-pipe { display: none; }
+      #field-panel .job-pipe,
+      #field-panel .job-svc { display: none; }
       #field-panel .job-links { display: flex; }
     }
 
@@ -119,7 +120,9 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
     .job-time   { font-size: 13px; color: var(--text-muted); min-width: 52px; flex-shrink: 0; }
-    .job-name   { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); }
+    .job-name-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .job-name      { font-size: 15px; font-weight: 600; color: var(--text); }
+    .job-svc       { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
     .job-right  { display: flex; align-items: center; flex-shrink: 0; }
     .job-amount { font-size: 14px; color: var(--text-dim); font-weight: 500; text-align: right; min-width: 50px; }
     .job-pipe   { font-size: 12px; color: var(--text-muted); margin: 0 5px; }
@@ -612,6 +615,16 @@ function renderSchedule() {
         }
       }
 
+      // Service type from task names — shown as subtitle on mobile only
+      const svcParts = [];
+      const svcSeen = new Set();
+      for (const t of (j.tasks||[])) {
+        const n = (t.task_name||'').toLowerCase();
+        const lbl = n.includes('solar') ? 'Solar' : n.includes('window') ? 'Window' : (t.task_name||'').split(' ')[0];
+        if (lbl && !svcSeen.has(lbl)) { svcSeen.add(lbl); svcParts.push(lbl); }
+      }
+      const svcHtml = svcParts.length ? `<span class="job-svc">${svcParts.join(' · ')}</span>` : '';
+
       const odooUrl = `https://window-solar-care.odoo.com/odoo/sales/${j.so_id}`;
       const linksHtml = `<span class="job-links">
         ${j.workiz_link ? `<a class="job-link" href="${j.workiz_link}" target="_blank" onclick="event.stopPropagation()">WZ</a>` : ''}
@@ -620,7 +633,7 @@ function renderSchedule() {
       return `<div class="job-row${sel}" onclick="openJob(jobs[${i}])">
         <span class="status-dot ${dot}"></span>
         <span class="job-time">${toPT(j.time_utc)}</span>
-        <span class="job-name">${esc(j.customer)}</span>
+        <div class="job-name-wrap"><span class="job-name">${esc(j.customer)}</span>${svcHtml}</div>
         ${linksHtml}
         <span class="job-right">${rateHtml}<span class="job-amount">$${Math.round(j.amount||0)}</span></span>
       </div>`;
