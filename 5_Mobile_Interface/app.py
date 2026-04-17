@@ -440,7 +440,8 @@ def tool_get_schedule(date: str) -> dict:
           ['date_order', '<=', date_iso + ' 23:59:59'],
           ['state', 'in', ['sale', 'done']]]],
         {'fields': ['id', 'name', 'date_order', 'partner_id', 'amount_total',
-                    'x_studio_x_studio_workiz_status', 'x_studio_x_studio_workiz_uuid'],
+                    'x_studio_x_studio_workiz_status', 'x_studio_x_studio_workiz_uuid',
+                    'x_studio_x_workiz_link'],
          'order': 'date_order asc'})
     if not sos:
         return {'label': label, 'date': date_iso, 'count': 0, 'jobs': [], 'total': 0}
@@ -457,6 +458,7 @@ def tool_get_schedule(date: str) -> dict:
             'so_id': so['id'],
             'so_name': so['name'],
             'workiz_uuid': so.get('x_studio_x_studio_workiz_uuid') or '',
+            'workiz_link': so.get('x_studio_x_workiz_link') or '',
             'time_utc': so['date_order'][11:16] if so.get('date_order') else '?',
             'amount': amount,
             'status': so.get('x_studio_x_studio_workiz_status') or ''
