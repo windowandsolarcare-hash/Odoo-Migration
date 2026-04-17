@@ -1688,14 +1688,15 @@ GENERAL TOOL GUIDANCE:
 - For code fixes: github_read_file → fix → github_push_file → odoo_write if server action
 
 CUSTOMERS WITHOUT FUTURE JOBS (common reactivation query):
-When DJ asks for customers in a city/area that haven't been scheduled or don't have upcoming jobs:
-- Use odoo_query on res.partner with domain:
-  [['x_studio_x_studio_service_area','=','Hemet'], ['x_studio_next_job_date','=',False], ['x_studio_activelead','!=','Do Not Contact'], ['customer_rank','>',0]]
-  OR if they want last-serviced filter: add ['x_studio_last_visit_all_properties','>=','2024-01-01'] etc.
-- x_studio_next_job_date is set by Phase 3/5 when a future job is created, cleared by Phase 4 when job goes Done/Canceled.
-  A value of False means NO future job scheduled. This is the correct filter — do NOT try to query SOs and cross-reference.
-- Service area values match city names (e.g. 'Hemet', 'Palm Desert', 'Cathedral City', 'Palm Springs', etc.)
-- Fields to return: id, name, x_studio_x_type_of_service, x_studio_x_frequency, x_studio_last_visit_all_properties, x_studio_next_job_date, phone
+When DJ asks for customers in a city/area with no upcoming scheduled job, follow these steps exactly — do NOT use x_studio_next_job_date (it is unreliable for unscheduled jobs):
+Step 1 — Get contacts in area: odoo_query res.partner where [x_studio_x_studio_service_area='Hemet', customer_rank>0, x_studio_activelead!='Do Not Contact', parent_id=False]. Fields: id, name, x_studio_x_type_of_service, x_studio_x_frequency, x_studio_last_visit_all_properties, phone.
+Step 2 — Get their property children: odoo_query res.partner where [parent_id in [contact_ids], x_studio_x_studio_record_category='Property']. Fields: id, parent_id.
+Step 3 — Find properties with a future confirmed SO: odoo_query sale.order where [partner_id in [all_property_ids], state='sale', date_order>='YYYY-MM-DD']. Use today's date in UTC (YYYY-MM-DD). Fields: id, partner_id.
+Step 4 — Map those property partner_ids back to their contact parent_ids. Build the set of contact IDs that DO have future jobs.
+Step 5 — Return only the contacts NOT in that set. These have no future scheduled SO in Odoo.
+Display: name, last visit (x_studio_last_visit_all_properties), service type, frequency, phone.
+If DJ wants a date range filter (e.g. "serviced in 2024 or 2025"), add [x_studio_last_visit_all_properties>='2024-01-01'] to Step 1.
+Service area values: 'Hemet', 'Palm Desert', 'Cathedral City', 'Palm Springs', 'Indio', etc.
 
 NEW JOB FOR EXISTING CUSTOMER (critical — follow this exactly):
 - Jobs sync ONE WAY: Workiz → Odoo. Never create an Odoo SO directly for a new job.
