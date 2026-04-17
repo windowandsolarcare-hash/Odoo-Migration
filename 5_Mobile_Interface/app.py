@@ -467,7 +467,7 @@ def tool_get_schedule(date: str) -> dict:
     if so_ids:
         all_tasks = odoo_rpc('project.task', 'search_read',
             [[['sale_order_id', 'in', so_ids], ['stage_id', 'not in', [19]]]],
-            {'fields': ['id', 'name', 'sale_order_id', 'stage_id'], 'order': 'id asc'})
+            {'fields': ['id', 'name', 'sale_order_id', 'stage_id', 'effective_hours'], 'order': 'id asc'})
         tasks_by_so = {}
         for t in all_tasks:
             sid = t['sale_order_id'][0] if t.get('sale_order_id') else None
@@ -475,6 +475,7 @@ def tool_get_schedule(date: str) -> dict:
                 tasks_by_so.setdefault(sid, []).append({
                     'task_id': t['id'], 'task_name': t['name'],
                     'stage': t['stage_id'][1] if t.get('stage_id') else '',
+                    'effective_hours': float(t.get('effective_hours') or 0),
                     'timer_running': False, 'timer_start': ''
                 })
         # Check Render-owned timer (ir.config_parameter keys render.timer.{task_id})
@@ -587,55 +588,49 @@ def tool_get_sales_week(date: str = '') -> str:
 
 
 def tool_get_sales_month() -> dict:
-    """Returns month-to-date sales (Mon–Fri only) plus a forecast for the full month."""
+    """Returns month-to-date (Done jobs) and full-month forecast (all scheduled Mon-Fri SOs).
+    Forecast = done + future scheduled — no extrapolation."""
+    import calendar
     today = today_pt()
     month_start = today.replace(day=1)
-
-    # All SOs this month
-    sos = odoo_rpc('sale.order', 'search_read',
-        [[['date_order', '>=', month_start.isoformat() + ' 00:00:00'],
-          ['date_order', '<=', today.isoformat() + ' 23:59:59'],
-          ['state', 'in', ['sale', 'done']]]],
-        {'fields': ['amount_total', 'date_order']})
-
-    # Filter to Mon–Fri only
-    total = 0.0
-    count = 0
-    for so in sos:
-        d = datetime.date.fromisoformat((so.get('date_order') or '2000-01-01')[:10])
-        if d.weekday() < 5:
-            total += float(so.get('amount_total') or 0)
-            count += 1
-
-    # Count business days elapsed (Mon–Fri, up to and including today)
-    elapsed = 0
-    d = month_start
-    while d <= today:
-        if d.weekday() < 5:
-            elapsed += 1
-        d += datetime.timedelta(days=1)
-
-    # Count total business days in month
-    import calendar
     last_day = calendar.monthrange(today.year, today.month)[1]
     month_end = today.replace(day=last_day)
-    total_bdays = 0
-    d = month_start
-    while d <= month_end:
-        if d.weekday() < 5:
-            total_bdays += 1
-        d += datetime.timedelta(days=1)
 
-    # Forecast: daily avg * remaining business days
-    daily_avg = total / elapsed if elapsed > 0 else 0
-    forecast = round(daily_avg * total_bdays)
+    # All confirmed SOs for the entire month (Mon–Fri only)
+    sos = odoo_rpc('sale.order', 'search_read',
+        [[['date_order', '>=', month_start.isoformat() + ' 00:00:00'],
+          ['date_order', '<=', month_end.isoformat() + ' 23:59:59'],
+          ['state', 'in', ['sale', 'done']]]],
+        {'fields': ['amount_total', 'date_order', 'x_studio_x_studio_workiz_status']})
+
+    mtd_total = 0.0   # done jobs (Workiz status=Done) up to today
+    mtd_count = 0
+    forecast_total = 0.0  # all scheduled Mon-Fri jobs for the month
+    forecast_count = 0
+
+    for so in sos:
+        raw_date = (so.get('date_order') or '2000-01-01')[:10]
+        try:
+            d = datetime.date.fromisoformat(raw_date)
+        except Exception:
+            continue
+        if d.weekday() >= 5:  # skip weekends
+            continue
+        amt = float(so.get('amount_total') or 0)
+        status = (so.get('x_studio_x_studio_workiz_status') or '').lower()
+        if status == 'canceled':
+            continue  # exclude canceled from forecast
+        forecast_total += amt
+        forecast_count += 1
+        if d <= today and status == 'done':
+            mtd_total += amt
+            mtd_count += 1
 
     return {
-        'total': round(total),
-        'count': count,
-        'forecast': forecast,
-        'days_elapsed': elapsed,
-        'days_total': total_bdays,
+        'mtd': round(mtd_total),
+        'mtd_count': mtd_count,
+        'forecast': round(forecast_total),
+        'forecast_count': forecast_count,
         'month_label': today.strftime('%B %Y'),
     }
 
