@@ -1688,15 +1688,17 @@ GENERAL TOOL GUIDANCE:
 - For code fixes: github_read_file → fix → github_push_file → odoo_write if server action
 
 CUSTOMERS WITHOUT FUTURE JOBS (common reactivation query):
-When DJ asks for customers in a city/area with no upcoming scheduled job, follow these steps exactly — do NOT use x_studio_next_job_date (unreliable). Use the standard `city` field for location — x_studio_x_studio_service_area is empty for all contacts.
-Step 1 — Get contacts in city: odoo_query res.partner where [city ilike 'Hemet', customer_rank>0, x_studio_activelead!='Do Not Contact', parent_id=False]. Fields: id, name, x_studio_x_type_of_service, x_studio_x_frequency, x_studio_last_visit_all_properties, phone.
-  - If DJ says "serviced in 2024 or 2025", add: x_studio_last_visit_all_properties>='2024-01-01' AND x_studio_last_visit_all_properties<='2025-12-31'
-  - Use 'ilike' for city so it's case-insensitive.
-Step 2 — Get their property children: odoo_query res.partner where [parent_id in [contact_ids], x_studio_x_studio_record_category='Property']. Fields: id, parent_id.
-Step 3 — Find properties/contacts with a future confirmed SO: odoo_query sale.order where [partner_id in [property_ids + contact_ids], state='sale', date_order>='YYYY-MM-DD']. Use today's UTC date. Fields: id, partner_id.
-Step 4 — Map property partner_ids back to their contact parent_ids. Build the set of contact IDs that DO have future jobs.
-Step 5 — Return only contacts NOT in that set. These have no future scheduled SO.
-Display: name, last visit (x_studio_last_visit_all_properties), service type, frequency, phone.
+When DJ asks for customers in a city with no upcoming job (e.g. "Hemet customers serviced in 2024/2025 with no open job"), follow these exact steps.
+Use `city` field (ilike, case-insensitive) — x_studio_x_studio_service_area is empty for all contacts.
+Workiz status field on sale.order is: x_studio_x_studio_workiz_status (values: 'Done', 'Canceled', 'Submitted', 'Pending', 'In Progress').
+
+Step 1 — Get contacts: odoo_query res.partner where [city ilike 'Hemet', customer_rank>0, x_studio_activelead!='Do Not Contact', parent_id=False]. Fields: id, name, x_studio_x_type_of_service, x_studio_x_frequency, phone.
+Step 2 — Get property children: odoo_query res.partner where [parent_id in [contact_ids], x_studio_x_studio_record_category='Property']. Fields: id, parent_id.
+Step 3a — Done SOs in the requested year range: odoo_query sale.order where [partner_id in [all_ids], x_studio_x_studio_workiz_status='Done', date_order>='2024-01-01', date_order<='2025-12-31']. Fields: id, name, partner_id, date_order, amount_total.
+Step 3b — Open future SOs: odoo_query sale.order where [partner_id in [all_ids], state='sale', date_order>=TODAY, x_studio_x_studio_workiz_status not in ['Done','Canceled']]. Fields: id, partner_id, date_order.
+Step 4 — Map all partner_ids back to contact IDs via prop_to_contact. Group Done SOs and future SOs by contact.
+Step 5 — Return contacts that: (a) have at least one Done SO in the date range, AND (b) have NO open future SOs.
+Display: name, date of last Done job, SO name, amount, service type, frequency, phone. Sort by last Done date descending.
 
 NEW JOB FOR EXISTING CUSTOMER (critical — follow this exactly):
 - Jobs sync ONE WAY: Workiz → Odoo. Never create an Odoo SO directly for a new job.
