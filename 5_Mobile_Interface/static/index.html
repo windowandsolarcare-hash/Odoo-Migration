@@ -452,7 +452,7 @@
 let AC = '', jobs = [], activeJob = null, activeTask = null;
 let tickInterval = null, tickStart = null;
 let payMethod = 'check', pendingVoice = null, activeTab = 'stats';
-let tomorrowData = null;  // tomorrow's jobs for display in main panel
+let futureDays = [];  // next work days with jobs for display in main panel
 
 function sid() {
   let s = sessionStorage.getItem('wsc_s');
@@ -535,14 +535,17 @@ async function loadField() {
   document.getElementById('hdr-total').textContent = '$' + Math.round(total).toLocaleString();
   document.getElementById('hdr-count').textContent = count + (count===1?' job':' jobs') + ' today';
 
-  // Find tomorrow — skip if Sat(6) or Sun(0)
-  tomorrowData = null;
-  const tmr = new Date(now); tmr.setDate(tmr.getDate() + 1);
-  const dow = tmr.getDay();
-  if (dow !== 0 && dow !== 6) {
-    const tmrISO = tmr.toISOString().slice(0, 10);
-    const found = (upcomingData.days || []).find(d => d.date === tmrISO);
-    if (found && found.jobs && found.jobs.length) tomorrowData = found;
+  // Find next 2 work days (Mon–Fri) with jobs, skipping today
+  futureDays = [];
+  const todayISO = now.toISOString().slice(0, 10);
+  for (const day of (upcomingData.days || [])) {
+    if (day.date === todayISO) continue;
+    const dow = new Date(day.date + 'T12:00:00').getDay();
+    if (dow === 0 || dow === 6) continue;
+    if (day.jobs && day.jobs.length) {
+      futureDays.push(day);
+      if (futureDays.length >= 2) break;
+    }
   }
 
   renderSchedule();
@@ -572,14 +575,13 @@ function renderSchedule() {
     }).join('');
   }
 
-  // Tomorrow section (read-only)
-  if (tomorrowData) {
-    const td = tomorrowData;
+  // Future days (read-only, up to 2)
+  for (const fd of futureDays) {
     html += `<div class="day-header-row">
-      <span>${esc(td.label)}</span>
-      <span class="day-meta"><span style="color:var(--accent)">$${Math.round(td.total||0).toLocaleString()}</span> · ${td.jobs.length} job${td.jobs.length===1?'':'s'}</span>
+      <span>${esc(fd.label)}</span>
+      <span class="day-meta"><span style="color:var(--accent)">$${Math.round(fd.total||0).toLocaleString()}</span> · ${fd.jobs.length} job${fd.jobs.length===1?'':'s'}</span>
     </div>`;
-    html += td.jobs.map(j => `<div class="job-row tomorrow-row">
+    html += fd.jobs.map(j => `<div class="job-row tomorrow-row">
       <span class="status-dot dot-pending"></span>
       <span class="job-time">${toPT(j.time_utc)}</span>
       <span class="job-name">${esc(j.customer)}</span>
