@@ -122,7 +122,7 @@
     .job-time   { font-size: 13px; color: var(--text-muted); min-width: 52px; flex-shrink: 0; }
     .job-name-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
     .job-name      { font-size: 15px; font-weight: 600; color: var(--text); }
-    .job-svc       { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .job-svc       { font-size: 13px; color: var(--text-muted); margin-top: 1px; }
     .job-right  { display: flex; align-items: center; flex-shrink: 0; }
     .job-amount { font-size: 14px; color: var(--text-dim); font-weight: 500; text-align: right; min-width: 50px; }
     .job-pipe   { font-size: 12px; color: var(--text-muted); margin: 0 5px; }
@@ -652,10 +652,18 @@ function renderSchedule() {
         ${j.workiz_link ? `<a class="job-link" href="${j.workiz_link}" target="_blank" onclick="event.stopPropagation()">WZ</a>` : ''}
         ${j.so_id ? `<a class="job-link" href="${odooUrl2}" target="_blank" onclick="event.stopPropagation()">SO</a>` : ''}
       </span>`;
+      // Build service type label from task_names
+      const fSvcParts = [], fSvcSeen = new Set();
+      for (const tn of (j.task_names || [])) {
+        const n = (tn || '').toLowerCase();
+        const lbl = n.includes('solar') ? 'Solar' : n.includes('window') ? 'Window' : (tn || '').split(' ')[0];
+        if (lbl && !fSvcSeen.has(lbl)) { fSvcSeen.add(lbl); fSvcParts.push(lbl); }
+      }
+      const fSvcHtml = fSvcParts.length ? `<span class="job-svc">${fSvcParts.join(' · ')}</span>` : '';
       return `<div class="job-row tomorrow-row">
         <span class="status-dot dot-pending"></span>
         <span class="job-time">${toPT(j.time_utc)}</span>
-        <span class="job-name">${esc(j.customer)}</span>
+        <div class="job-name-wrap"><span class="job-name">${esc(j.customer)}</span>${fSvcHtml}</div>
         ${links2}
         <span class="job-right"><span class="job-amount">$${Math.round(j.amount||0)}</span></span>
       </div>`;
