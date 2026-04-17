@@ -2300,8 +2300,8 @@ async def api_upcoming(access_code: str = ''):
             [[['date_order', '>=', today.isoformat() + ' 00:00:00'],
               ['date_order', '<=', end.isoformat() + ' 23:59:59'],
               ['state', 'in', ['sale', 'done']]]],
-            {'fields': ['name', 'date_order', 'partner_id', 'amount_total',
-                        'x_studio_x_studio_workiz_status'],
+            {'fields': ['id', 'name', 'date_order', 'partner_id', 'amount_total',
+                        'x_studio_x_studio_workiz_status', 'x_studio_x_workiz_link'],
              'order': 'date_order asc'})
         by_day = {}
         for so in sos:
@@ -2312,10 +2312,12 @@ async def api_upcoming(access_code: str = ''):
             amount   = float(so.get('amount_total') or 0)
             by_day[day]['total'] += amount
             by_day[day]['jobs'].append({
-                'customer': customer,
-                'time_utc': so['date_order'][11:16] if so.get('date_order') else '?',
-                'amount':   amount,
-                'status':   so.get('x_studio_x_studio_workiz_status') or '',
+                'customer':    customer,
+                'so_id':       so['id'],
+                'workiz_link': so.get('x_studio_x_workiz_link') or '',
+                'time_utc':    so['date_order'][11:16] if so.get('date_order') else '?',
+                'amount':      amount,
+                'status':      so.get('x_studio_x_studio_workiz_status') or '',
             })
         days = []
         for d in sorted(by_day.keys()):
