@@ -79,7 +79,8 @@
       /* Left panel: hide $/hr + service type, show pills — opposite of mobile */
       #field-panel .job-rate,
       #field-panel .job-pipe,
-      #field-panel .job-svc { display: none; }
+      #field-panel .job-svc,
+      #field-panel .job-time-total { display: none; }
       #field-panel .job-links { display: flex; }
     }
 
@@ -125,8 +126,9 @@
     .job-svc       { font-size: 13px; color: var(--text-muted); margin-top: 1px; }
     .job-right  { display: flex; align-items: center; flex-shrink: 0; }
     .job-amount { font-size: 14px; color: var(--text-dim); font-weight: 500; text-align: right; min-width: 50px; }
-    .job-pipe   { font-size: 12px; color: var(--text-muted); margin: 0 5px; }
-    .job-rate   { font-size: 12px; font-weight: 700; text-align: right; margin-left: 35px; }
+    .job-pipe       { font-size: 12px; color: var(--text-muted); margin: 0 5px; }
+    .job-time-total { font-size: 12px; color: var(--text-dim); font-weight: 600; margin-left: 35px; }
+    .job-rate       { font-size: 12px; font-weight: 700; text-align: right; }
     .job-links  { display: none; gap: 8px; margin-left: 8px; flex-shrink: 0; }
     .job-link   { font-size: 13px; font-weight: 600; color: var(--text-muted); text-decoration: none;
                   padding: 3px 10px; border: 1px solid var(--border-row); border-radius: 5px; line-height: 1.4; }
@@ -404,8 +406,8 @@
         <div class="hdr-total" id="hdr-total">—</div>
         <div class="hdr-count" id="hdr-count"></div>
       </div>
+      <button id="mic-fab" onclick="openVoiceModal()">🎤</button>
       <div class="hdr-btns">
-        <button id="mic-fab" onclick="openVoiceModal()">🎤</button>
         <button id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark">☀️</button>
         <button id="refresh-btn" onclick="loadField()">↺</button>
       </div>
@@ -641,7 +643,12 @@ function renderSchedule() {
         if (totalHrs > 0) {
           const rate = Math.round((j.amount||0) / totalHrs);
           const cls = rate >= 190 ? 'rate-green' : rate >= 160 ? 'rate-yellow' : 'rate-red';
-          rateHtml = `<span class="job-rate ${cls}">$${rate}/hr</span><span class="job-pipe">|</span>`;
+          const timeLabel = totalHrs < 1
+            ? Math.round(totalHrs * 60) + 'm'
+            : ((Math.round(totalHrs*10)/10) % 1 === 0
+                ? Math.round(totalHrs) + 'h'
+                : (Math.round(totalHrs*10)/10).toFixed(1) + 'h');
+          rateHtml = `<span class="job-time-total">${timeLabel}</span><span class="job-pipe">|</span><span class="job-rate ${cls}">$${rate}/hr</span><span class="job-pipe">|</span>`;
         }
       }
 
