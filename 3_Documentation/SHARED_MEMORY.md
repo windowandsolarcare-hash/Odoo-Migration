@@ -112,6 +112,19 @@ Utility: save_memory, delete_memory
 - One Odoo Instance (existing subscription)
   - Company: Window & Solar Care (existing)
   - Company: Cheryl Real Estate (planned — multi-company)
+  - Company: Artwork / AI Prints (planned — multi-company)
+  - Company: Saunders Printing (planned — multi-company)
+- Odoo Website (included in full package)
+  - W&SC marketing site (planned)
+  - Cheryl real estate site (planned)
+  - Saunders Printing storefront (planned — primary eCommerce)
+
+### Businesses Summary
+- Window & Solar Care: LIVE — field assistant, full automation
+- Cheryl Real Estate: planning — need info from Cheryl
+- Artwork / AI Prints: green-lighted — Flux/DALL-E 3, Printify fulfillment, Etsy/Shopify APIs
+- Saunders Printing: green-lighted — web-to-print, Odoo Website + Stripe, DJ prints/ships
+- Payroll DJ+Danny: ready to build — no blockers
 
 ### Build Priority Order
 1. W&SC accounting migration (QB to Odoo) — waiting on DJ to gather files
@@ -119,8 +132,9 @@ Utility: save_memory, delete_memory
 3. Cheryl real estate Render screen — need MLS info + stage checklist from Cheryl
 4. Cheryl accounting setup — need her expense categories + bank info
 5. DJ + Danny payroll tracker — READY TO BUILD, no blockers
-6. Artwork eCommerce — future, after above complete
-7. W&SC + Cheryl websites in Odoo — future
+6. Artwork eCommerce — Flux/DALL-E 3 + Printify + Etsy/Shopify APIs
+7. Saunders Printing — Odoo Website storefront, Stripe, file prep automation
+8. W&SC + Cheryl websites in Odoo — future
 
 ## PAYROLL TRACKER — DJ + DANNY (ready to build)
 - Workers: DJ + Danny, both hourly
@@ -159,6 +173,19 @@ Utility: save_memory, delete_memory
 - Phase 1 (expense categorization) essentially DONE — almost no cleanup needed
 - Still need from DJ: QB Fixed Asset List, 6x Workiz Payment CSVs (one per year)
 
+## SAUNDERS PRINTING — COMMERCIAL WEB-TO-PRINT (green-lighted 2026-04-18)
+- Business: commercial print shop — business cards, flyers, postcards, banners, etc.
+- DJ has his own printer. He enters jobs, prints, ships under Saunders Printing brand.
+- Platform: Odoo Website (already included) + Stripe for payments
+- Three customer paths:
+  1. Upload own file → Claude checks (DPI, bleed, CMYK, safe zone) → auto-converts to print-ready PDF
+  2. Self-design (Canva embed SDK) — skip for v1, add later
+  3. Commission design → customer fills brief + pays fee → Claude drafts → DJ approves → print
+- File prep automation: Python checks resolution (300 DPI), adds bleed (0.125"), converts RGB→CMYK, outputs PDF
+- DJ only does: enter PDF in printer software, print, ship
+- Odoo: separate company "Saunders Printing," product catalog with quantity pricing tiers, Stripe native connector
+- Status: planning complete, nothing built. Build after artwork eCommerce.
+
 ## ARTWORK / eCOMMERCE (future, green-lighted 2026-04-18)
 - AI artwork: Midjourney (manual only — no API), or DALL-E 3 / Stable Diffusion (real APIs)
 - Sell on Etsy (has API) + Shopify (excellent API) or Odoo eCommerce
@@ -167,7 +194,8 @@ Utility: save_memory, delete_memory
 
 ## RECENT DECISIONS / CONTEXT
 - 2026-04-18: Major Render UI session — photos, mic move, saved requests, timer PT times, 10-day lookahead, task_names for service type, time label on done jobs. Full state in project_render_app_apr18.md memory.
-- 2026-04-18: Multi-business platform plan finalized — Cheryl real estate, DJ+Danny payroll, artwork eCommerce all green-lighted. Build priority set.
+- 2026-04-18: Saunders Printing added — commercial web-to-print, Odoo Website + Stripe, automated file prep, DJ prints/ships. Full plan in project_saunders_printing.md memory.
+- 2026-04-18: Multi-business platform plan finalized — Cheryl real estate, DJ+Danny payroll, artwork eCommerce, Saunders Printing all green-lighted. Build priority set.
 - 2026-04-18: QB accounting migration analysis — expenses nearly all categorized, Phase 1 essentially done. Waiting on asset list + Workiz payment CSVs.
 - 2026-04-16: Rebuilt Render timer to bypass Odoo entirely with GPS reverse-geocode. Migrated from OpenAI to Claude native. Added power tools and shared memory system.
 - 2026-04-15: Migrated Render app from ChatGPT to Claude (Anthropic SDK)
