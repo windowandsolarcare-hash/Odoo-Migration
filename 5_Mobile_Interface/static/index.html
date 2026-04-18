@@ -1048,7 +1048,8 @@ function renderStats(data) {
     <div class="stat-grid">
       <div class="stat-card"><div class="stat-label">Today</div>
         <div class="stat-value">$${Math.round(s.total||0).toLocaleString()}</div>
-        <div class="stat-sub">${s.count||0} job${s.count===1?'':'s'}</div></div>
+        <div class="stat-sub">${s.count||0} job${s.count===1?'':'s'}</div>
+        <div class="stat-sub">DS</div></div>
       <div class="stat-card"><div class="stat-label">Done Today</div>
         <div class="stat-value">${done}</div>
         <div class="stat-sub">${j.length-done} remaining</div></div>
