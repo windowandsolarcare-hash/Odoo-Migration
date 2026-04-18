@@ -243,16 +243,16 @@
     #field-status.err { background: #2d0a0a; color: #fca5a5; border: 1px solid #dc2626; }
     #field-status.inf { background: #1c2f46; color: #bae6fd; border: 1px solid #0284c7; }
 
-    /* ── MIC FAB ── */
+    /* ── MIC HEADER BTN ── */
     #mic-fab {
-      position: fixed; bottom: 24px; right: 20px;
-      width: 54px; height: 54px; border-radius: 50%;
-      background: #0284c7; color: white; font-size: 22px;
-      border: none; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,.5);
-      display: flex; align-items: center; justify-content: center; z-index: 50;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #0284c7; color: white; font-size: 19px;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(2,132,199,.4);
+      flex-shrink: 0;
     }
     #mic-fab:active { background: #0369a1; }
-    /* mic-fab always visible */
 
     /* ── VOICE MODAL ── */
     #voice-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 200; align-items: flex-end; }
@@ -405,6 +405,7 @@
         <div class="hdr-count" id="hdr-count"></div>
       </div>
       <div class="hdr-btns">
+        <button id="mic-fab" onclick="openVoiceModal()">🎤</button>
         <button id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark">☀️</button>
         <button id="refresh-btn" onclick="loadField()">↺</button>
       </div>
@@ -443,7 +444,7 @@
       <div id="photo-section">
         <div style="padding:10px 0 8px" class="section-label">Photos</div>
         <div class="photo-row" id="photo-row"></div>
-        <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="photoSelected(this)">
+        <input type="file" id="photo-input" accept="image/*" multiple style="display:none" onchange="photoSelected(this)">
         <button id="photo-add-btn" onclick="document.getElementById('photo-input').click()">+ Add Photo</button>
         <div id="photo-status"></div>
       </div>
@@ -499,8 +500,6 @@
   </div>
 
 </div>
-
-<button id="mic-fab" onclick="openVoiceModal()">🎤</button>
 
 <div id="voice-modal">
   <div class="vm-sheet">
