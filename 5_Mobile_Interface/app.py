@@ -2346,7 +2346,7 @@ async def api_upcoming(access_code: str = ''):
         return JSONResponse({'error': 'unauthorized'}, status_code=401)
     try:
         today  = today_pt()
-        end    = today + datetime.timedelta(days=10)
+        end    = today + datetime.timedelta(days=14)  # 14 calendar = ~10 work days
         sos    = odoo_rpc('sale.order', 'search_read',
             [[['date_order', '>=', today.isoformat() + ' 00:00:00'],
               ['date_order', '<=', end.isoformat() + ' 23:59:59'],
