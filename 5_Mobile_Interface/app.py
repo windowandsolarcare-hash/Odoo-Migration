@@ -2223,12 +2223,17 @@ def _render_timer_stop(task_id: int, lat=None, lon=None) -> dict:
         elapsed_hours = max(round((datetime.datetime.utcnow() - start_dt).total_seconds() / 3600, 4), 0.0001)
     except Exception as e:
         return {'ok': False, 'message': f'Could not parse timer start: {e}'}
+    # Build time label (Pacific)
+    start_pt = datetime.datetime.strptime(start_utc[:19], '%Y-%m-%d %H:%M:%S') \
+                   .replace(tzinfo=datetime.timezone.utc).astimezone(_PT)
+    end_pt   = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc).astimezone(_PT)
+    time_range = f"{start_pt.strftime('%-I:%M %p')} – {end_pt.strftime('%-I:%M %p')}"
     # Build timesheet description
     if lat is not None and lon is not None:
         address  = _reverse_geocode(lat, lon)
-        log_name = f'[Render Timer] {address}'
+        log_name = f'[Render Timer] {address} | {time_range}'
     else:
-        log_name = '[Render Timer]'
+        log_name = f'[Render Timer] | {time_range}'
     # Read task for project_id
     task_data = odoo_rpc('project.task', 'read', [[task_id]], {'fields': ['project_id', 'name']})
     proj_id   = ODOO_PROJECT_ID
@@ -2290,6 +2295,31 @@ async def api_timer_stop(request: Request):
         return JSONResponse({'status': 'error', 'message': str(e)})
 
 
+@app.post('/api/attachment')
+async def api_attachment(request: Request):
+    """Upload a photo and attach it to the active SO in Odoo."""
+    body = await request.json()
+    if body.get('access_code') != ACCESS_CODE:
+        return JSONResponse({'error': 'unauthorized'}, status_code=401)
+    so_id        = int(body.get('so_id', 0))
+    filename     = str(body.get('filename', 'photo.jpg'))
+    content_type = str(body.get('content_type', 'image/jpeg'))
+    data_b64     = str(body.get('data', ''))  # base64 encoded image
+    if not so_id or not data_b64:
+        return JSONResponse({'status': 'error', 'message': 'so_id and data required'})
+    try:
+        att_id = odoo_rpc('ir.attachment', 'create', [{
+            'name':      filename,
+            'res_model': 'sale.order',
+            'res_id':    so_id,
+            'datas':     data_b64,
+            'mimetype':  content_type,
+        }])
+        return {'status': 'ok', 'attachment_id': att_id, 'message': f'Photo saved: {filename}'}
+    except Exception as e:
+        return JSONResponse({'status': 'error', 'message': str(e)})
+
+
 @app.post('/api/payment')
 async def api_payment(request: Request):
     body = await request.json()
@@ -2316,7 +2346,7 @@ async def api_upcoming(access_code: str = ''):
         return JSONResponse({'error': 'unauthorized'}, status_code=401)
     try:
         today  = today_pt()
-        end    = today + datetime.timedelta(days=7)
+        end    = today + datetime.timedelta(days=10)
         sos    = odoo_rpc('sale.order', 'search_read',
             [[['date_order', '>=', today.isoformat() + ' 00:00:00'],
               ['date_order', '<=', end.isoformat() + ' 23:59:59'],
