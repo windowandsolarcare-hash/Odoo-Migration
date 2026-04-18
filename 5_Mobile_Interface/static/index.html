@@ -198,6 +198,16 @@
     .btn-stop:active  { background: #b91c1c; }
     .btn-muted { flex: 1; padding: 14px; background: var(--bg-input); color: var(--text-muted); font-size: 14px; border: none; border-radius: 12px; cursor: default; }
 
+    /* Photos */
+    #photo-section { padding: 0 16px 12px; border-top: 1px solid var(--border-input); margin-top: 4px; }
+    .photo-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; min-height: 0; }
+    .photo-thumb { position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; background: var(--bg-input); flex-shrink: 0; }
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-del { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,.6); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+    #photo-add-btn { padding: 9px 16px; background: var(--bg-input); color: var(--text-dim); font-size: 14px; font-weight: 600; border: 2px dashed var(--border-input); border-radius: 10px; cursor: pointer; }
+    #photo-add-btn:active { background: var(--bg-card); }
+    #photo-status { font-size: 13px; color: var(--text-muted); margin-top: 4px; min-height: 18px; }
+
     /* Payment */
     #payment-section { padding: 0 16px 16px; border-top: 1px solid var(--border-input); margin-top: 4px; }
     .amount-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
@@ -242,7 +252,7 @@
       display: flex; align-items: center; justify-content: center; z-index: 50;
     }
     #mic-fab:active { background: #0369a1; }
-    @media (min-width: 600px) { #mic-fab { display: none; } }
+    /* mic-fab always visible */
 
     /* ── VOICE MODAL ── */
     #voice-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 200; align-items: flex-end; }
@@ -430,6 +440,14 @@
         </div>
       </div>
 
+      <div id="photo-section">
+        <div style="padding:10px 0 8px" class="section-label">Photos</div>
+        <div class="photo-row" id="photo-row"></div>
+        <input type="file" id="photo-input" accept="image/*" capture="environment" style="display:none" onchange="photoSelected(this)">
+        <button id="photo-add-btn" onclick="document.getElementById('photo-input').click()">+ Add Photo</button>
+        <div id="photo-status"></div>
+      </div>
+
       <div id="payment-section">
         <div style="padding:10px 0 8px" class="section-label">Record Payment</div>
         <div class="amount-row">
@@ -594,7 +612,6 @@ async function loadField() {
     if (dow === 0 || dow === 6) continue;
     if (day.jobs && day.jobs.length) {
       futureDays.push(day);
-      if (futureDays.length >= 3) break;
     }
   }
 
@@ -721,6 +738,9 @@ function openJob(job, scroll=true) {
   }
 
   if (job.amount) document.getElementById('pay-amount').value = Math.round(job.amount);
+  // Reset photo section for new job
+  _pendingPhotos = []; renderPhotoRow();
+  document.getElementById('photo-status').textContent = '';
   hideStatus();
   document.getElementById('active-panel').classList.add('open');
   if (scroll) document.getElementById('active-panel').scrollIntoView({behavior:'smooth'});
@@ -793,7 +813,7 @@ function getGPS() {
     navigator.geolocation.getCurrentPosition(
       pos => resolve({lat: pos.coords.latitude, lon: pos.coords.longitude}),
       ()  => resolve({}),
-      {timeout: 5000, maximumAge: 30000}
+      {timeout: 2000, maximumAge: 30000}
     );
   });
 }
@@ -813,8 +833,13 @@ async function doStartTimer() {
   } catch { showStatus('err','Network error'); }
 }
 
+let _timerStopping = false;
 async function doStopTimer() {
-  if(!activeTask) return;
+  if(!activeTask || _timerStopping) return;
+  _timerStopping = true;
+  // Disable button immediately so double-tap can't fire twice
+  const stopBtn = document.querySelector('[onclick="doStopTimer()"]');
+  if(stopBtn){ stopBtn.disabled=true; stopBtn.textContent='Stopping…'; }
   showStatus('inf','Stopping timer…');
   try {
     const gps = await getGPS();
@@ -825,8 +850,59 @@ async function doStopTimer() {
       activeTask.timer_running=false; stopTick(); renderTimerBtns('idle');
       renderSchedule(); showStatus('ok',d.message||'⏹ Stopped — time logged');
       setTimeout(()=>document.getElementById('payment-section').scrollIntoView({behavior:'smooth'}),400);
-    } else { showStatus('err',d.message||'Failed'); }
-  } catch { showStatus('err','Network error'); }
+    } else { showStatus('err',d.message||'Failed'); if(stopBtn){stopBtn.disabled=false;stopBtn.textContent='Stop';} }
+  } catch { showStatus('err','Network error'); if(stopBtn){stopBtn.disabled=false;stopBtn.textContent='Stop';} }
+  finally { _timerStopping = false; }
+}
+
+// ── PHOTOS ──
+let _pendingPhotos = [];  // {filename, data_b64, content_type, objectUrl}
+
+function photoSelected(input) {
+  const files = Array.from(input.files);
+  input.value = '';  // reset so same file can be picked again
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const dataUrl = e.target.result;
+      const commaIdx = dataUrl.indexOf(',');
+      const b64 = dataUrl.slice(commaIdx + 1);
+      const entry = { filename: file.name || 'photo.jpg', data_b64: b64,
+                      content_type: file.type || 'image/jpeg', objectUrl: dataUrl };
+      _pendingPhotos.push(entry);
+      renderPhotoRow();
+      if (activeJob) uploadPhoto(entry);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPhotoRow() {
+  const row = document.getElementById('photo-row');
+  row.innerHTML = _pendingPhotos.map((p,i) =>
+    `<div class="photo-thumb">
+      <img src="${p.objectUrl}" alt="photo">
+      <button class="photo-del" onclick="removePhoto(${i})">✕</button>
+    </div>`
+  ).join('');
+}
+
+function removePhoto(idx) {
+  _pendingPhotos.splice(idx, 1);
+  renderPhotoRow();
+}
+
+async function uploadPhoto(entry) {
+  if (!activeJob) return;
+  const st = document.getElementById('photo-status');
+  st.textContent = 'Uploading…';
+  try {
+    const r = await fetch('/api/attachment', {method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({access_code:AC, so_id:activeJob.so_id,
+                            filename:entry.filename, content_type:entry.content_type, data:entry.data_b64})});
+    const d = await r.json();
+    st.textContent = d.status==='ok' ? '✅ Photo saved to Odoo' : '⚠️ '+d.message;
+  } catch(e) { st.textContent = '⚠️ Upload failed: '+e.message; }
 }
 
 // ── PAYMENT ──
