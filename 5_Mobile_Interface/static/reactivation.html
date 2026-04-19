@@ -307,6 +307,11 @@
         <span class="candidate-count" id="candidate-count">Loading...</span>
         <button class="refresh-btn" onclick="loadCandidates()">↻ Refresh</button>
       </div>
+      <div style="padding-bottom:8px;">
+        <input class="city-input" id="name-search" type="text"
+               placeholder="🔍 Search by customer name…"
+               oninput="onNameSearch()" style="width:100%; min-width:0;">
+      </div>
       <div class="filter-bar">
         <div class="pill-group">
           <button class="pill active" id="pill-all"    onclick="setService('all')">All</button>
@@ -395,6 +400,7 @@
     let previewActive = false;
     let activeService = 'all';
     let activeCity    = '';
+    let activeName    = '';
     let cityDebounce  = null;
 
     function setService(svc) {
@@ -403,6 +409,11 @@
         document.getElementById('pill-' + s).classList.toggle('active', s === svc);
       });
       loadCandidates();
+    }
+
+    function onNameSearch() {
+      activeName = document.getElementById('name-search').value.trim().toLowerCase();
+      renderCandidates();
     }
 
     function onCityInput() {
@@ -448,7 +459,10 @@
     }
 
     function renderCandidates() {
-      const ct = candidates.length;
+      const visible = activeName
+        ? candidates.filter(c => (c.name || '').toLowerCase().includes(activeName))
+        : candidates;
+      const ct = visible.length;
       document.getElementById('candidate-count').textContent =
         ct === 0 ? 'No candidates found' : ct + ' candidate' + (ct === 1 ? '' : 's');
 
@@ -458,8 +472,8 @@
         return;
       }
 
-      document.getElementById('candidates-scroll').innerHTML = candidates.map((c, i) => `
-        <div class="candidate-card" onclick="openCandidate(${i})">
+      document.getElementById('candidates-scroll').innerHTML = visible.map((c) => `
+        <div class="candidate-card" onclick="openCandidate(${c.partner_id})">
           <div class="cand-customer">${esc(c.name)}</div>
           <div class="cand-city">${esc(c.city || '')}</div>
           <div class="cand-meta">
@@ -472,8 +486,8 @@
     }
 
     // ── Open candidate → preview ───────────────────────────────────────────
-    async function openCandidate(idx) {
-      selectedCandidate = candidates[idx];
+    async function openCandidate(partnerId) {
+      selectedCandidate = candidates.find(c => c.partner_id === partnerId);
       const c = selectedCandidate;
 
       // Fill header — customer name big white, city small dim
