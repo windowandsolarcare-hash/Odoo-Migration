@@ -197,9 +197,15 @@
       <div class="login-screen">
         <div class="login-title">Enter Your Code</div>
         <div class="login-sub">DJ or Danny</div>
-        <input type="password" class="code-input" id="code-input"
-               placeholder="••••••"
-               onkeydown="if(event.key==='Enter') doLogin()">
+        <div style="position:relative">
+          <input type="password" class="code-input" id="code-input"
+                 placeholder="••••••"
+                 onkeydown="if(event.key==='Enter') doLogin()">
+          <button onclick="toggleShow()" id="show-btn"
+                  style="position:absolute;right:14px;top:50%;transform:translateY(-50%);
+                         background:none;border:none;font-size:20px;cursor:pointer;
+                         color:var(--text-dim);padding:4px;">👁</button>
+        </div>
         <button class="login-btn" onclick="doLogin()">Sign In</button>
         <div class="login-error" id="login-error">Incorrect code — try again</div>
       </div>
@@ -279,6 +285,11 @@
     function showScreen(name) {
       document.getElementById('login-screen').style.display = name === 'login' ? 'block' : 'none';
       document.getElementById('clock-panel').style.display  = name === 'clock' ? 'block' : 'none';
+    }
+
+    function toggleShow() {
+      const inp = document.getElementById('code-input');
+      inp.type = inp.type === 'password' ? 'text' : 'password';
     }
 
     async function doLogin() {
