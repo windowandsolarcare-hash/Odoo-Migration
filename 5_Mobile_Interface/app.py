@@ -2723,18 +2723,16 @@ async def api_payroll_week(employee_id: int = 0):
 async def api_reactivation_candidates():
     try:
         today = today_pt()
-        six_months_ago = (today - datetime.timedelta(days=183)).isoformat()
-        one_year_ago   = (today - datetime.timedelta(days=365)).isoformat()
+        one_year_ago = (today - datetime.timedelta(days=365)).isoformat()
+        today_utc    = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
-        # Match Odoo saved filter logic:
-        # x_studio_x_studio_last_property_visit >= 6 months ago (has visited recently enough to be warm)
-        # x_studio_last_reactivation_sent < 1 year ago OR never sent
-        # x_studio_activelead != "Do Not Contact"
-        # record category = Property
+        # Reactivation candidates:
+        # - Property record
+        # - Not Do Not Contact
+        # - No reactivation sent in past year (or never sent)
         candidates_raw = odoo_rpc('res.partner', 'search_read',
             [[
                 ['x_studio_x_studio_record_category', '=', 'Property'],
-                ['x_studio_x_studio_last_property_visit', '>=', six_months_ago],
                 ['x_studio_activelead', '!=', 'Do Not Contact'],
                 '|',
                 ['x_studio_last_reactivation_sent', '<', one_year_ago],
@@ -2747,14 +2745,26 @@ async def api_reactivation_candidates():
                 'x_studio_x_type_of_service',
                 'x_studio_x_pricing',
                 'x_studio_x_frequency',
-            ], 'limit': 200, 'order': 'x_studio_x_studio_last_property_visit asc'}
+            ], 'limit': 500, 'order': 'x_studio_x_studio_last_property_visit asc'}
         )
 
         if not candidates_raw:
             return {'candidates': []}
 
-        # Get last SO ID for each partner (needed to run preview SA)
         partner_ids = [p['id'] for p in candidates_raw]
+
+        # Exclude partners with a future confirmed job already scheduled
+        future_sos = odoo_rpc('sale.order', 'search_read',
+            [[['partner_shipping_id', 'in', partner_ids],
+              ['state', 'in', ['draft', 'sale']],
+              ['date_order', '>=', today_utc]]],
+            {'fields': ['partner_shipping_id'], 'limit': 1000})
+        has_future_job = set()
+        for so in (future_sos or []):
+            pid = so['partner_shipping_id'][0] if isinstance(so['partner_shipping_id'], list) else so['partner_shipping_id']
+            has_future_job.add(pid)
+
+        # Get last completed SO ID for each partner (needed to run preview SA)
         sos = odoo_rpc('sale.order', 'search_read',
             [[['partner_shipping_id', 'in', partner_ids],
               ['state', 'in', ['sale', 'done']]]],
@@ -2771,6 +2781,9 @@ async def api_reactivation_candidates():
         candidates = []
         for p in candidates_raw:
             pid = p['id']
+            # Skip if they already have a future job scheduled
+            if pid in has_future_job:
+                continue
             so_rec = best_so.get(pid)
             last_visit = p.get('x_studio_x_studio_last_property_visit') or ''
             # Format date nicely
