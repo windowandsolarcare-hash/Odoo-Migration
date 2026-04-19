@@ -2745,7 +2745,7 @@ async def api_reactivation_candidates():
                 'x_studio_x_type_of_service',
                 'x_studio_x_pricing',
                 'x_studio_x_frequency',
-            ], 'limit': 500, 'order': 'x_studio_x_studio_last_property_visit asc'}
+            ], 'limit': 500, 'order': 'x_studio_x_studio_last_property_visit desc'}
         )
 
         if not candidates_raw:
