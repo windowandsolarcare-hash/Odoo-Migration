@@ -2929,6 +2929,8 @@ async def api_reactivation_preview(request: Request):
                 {'fields': ['id', 'name', 'date_order', 'amount_total',
                             'x_studio_x_studio_x_studio_job_type',
                             'x_studio_x_studio_pricing_snapshot',
+                            'x_studio_x_workiz_link',
+                            'x_studio_x_studio_workiz_uuid',
                             'partner_shipping_id'],
                  'order': 'date_order desc', 'limit': 100})
 
@@ -2976,8 +2978,16 @@ async def api_reactivation_preview(request: Request):
                 if pid:
                     prop_name = pid[1] if isinstance(pid, list) else ''
 
+                wz_link = job.get('x_studio_x_workiz_link') or ''
+                if not wz_link:
+                    wz_uuid = job.get('x_studio_x_studio_workiz_uuid') or ''
+                    if wz_uuid:
+                        wz_link = f'https://app.workiz.com/job/{wz_uuid}/'
+
                 last_jobs.append({
                     'so_name':        job.get('name', ''),
+                    'so_id':          job.get('id'),
+                    'workiz_link':    wz_link,
                     'date':           job_date,
                     'property':       prop_name,
                     'job_type':       job.get('x_studio_x_studio_x_studio_job_type') or '',
