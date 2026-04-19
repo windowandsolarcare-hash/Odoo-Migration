@@ -2764,9 +2764,12 @@ async def api_reactivation_candidates():
             pid = so['partner_shipping_id'][0] if isinstance(so['partner_shipping_id'], list) else so['partner_shipping_id']
             has_future_job.add(pid)
 
-        # Only keep candidates with at least one Done job (exclude leads/never-served)
+        # Only keep candidates with at least one completed job
+        # Phase 4 uses action_confirm only (never action_lock), so completed jobs = state='sale' + date_order in the past
         done_sos = odoo_rpc('sale.order', 'search_read',
-            [[['partner_shipping_id', 'in', partner_ids], ['state', '=', 'done']]],
+            [[['partner_shipping_id', 'in', partner_ids],
+              ['state', '=', 'sale'],
+              ['date_order', '<', today_utc]]],
             {'fields': ['partner_shipping_id'], 'limit': 1000})
         has_done_job = set()
         for so in (done_sos or []):
