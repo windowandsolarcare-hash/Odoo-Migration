@@ -2764,6 +2764,15 @@ async def api_reactivation_candidates():
             pid = so['partner_shipping_id'][0] if isinstance(so['partner_shipping_id'], list) else so['partner_shipping_id']
             has_future_job.add(pid)
 
+        # Only keep candidates with at least one Done job (exclude leads/never-served)
+        done_sos = odoo_rpc('sale.order', 'search_read',
+            [[['partner_shipping_id', 'in', partner_ids], ['state', '=', 'done']]],
+            {'fields': ['partner_shipping_id'], 'limit': 1000})
+        has_done_job = set()
+        for so in (done_sos or []):
+            pid = so['partner_shipping_id'][0] if isinstance(so['partner_shipping_id'], list) else so['partner_shipping_id']
+            has_done_job.add(pid)
+
         # Get last completed SO ID for each partner (needed to run preview SA)
         sos = odoo_rpc('sale.order', 'search_read',
             [[['partner_shipping_id', 'in', partner_ids],
@@ -2781,6 +2790,9 @@ async def api_reactivation_candidates():
         candidates = []
         for p in candidates_raw:
             pid = p['id']
+            # Skip leads — must have at least one completed job
+            if pid not in has_done_job:
+                continue
             # Skip if they already have a future job scheduled
             if pid in has_future_job:
                 continue
