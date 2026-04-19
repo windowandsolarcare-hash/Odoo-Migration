@@ -152,7 +152,7 @@
       border: 1.5px solid var(--border);
     }
     .sms-box {
-      width: 100%; min-height: 140px; padding: 16px;
+      width: 100%; min-height: 280px; padding: 16px;
       font-size: 15px; line-height: 1.5;
       background: var(--bg-card); border: 2px solid var(--border);
       border-radius: 16px; color: var(--text); resize: vertical; outline: none;
@@ -484,7 +484,7 @@
         };
         document.getElementById('so-list-scroll').innerHTML = sos.map(so => `
           <a class="candidate-card" href="https://window-solar-care.odoo.com/odoo/sales/${so.id}"
-             target="_blank" style="text-decoration:none; display:block;">
+             style="text-decoration:none; display:block;">
             <div class="cand-customer">${esc(so.name)}</div>
             <div class="cand-city">${esc(so.property)}</div>
             <div class="cand-meta">
