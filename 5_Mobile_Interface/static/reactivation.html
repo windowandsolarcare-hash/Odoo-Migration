@@ -43,8 +43,8 @@
     }
     .back-btn {
       background: none; border: none; color: var(--accent);
-      font-size: 24px; cursor: pointer; padding: 4px 8px 4px 0;
-      text-decoration: none;
+      font-size: 32px; cursor: pointer; padding: 4px 10px 4px 0;
+      text-decoration: none; line-height: 1;
     }
     .rc-header-title { font-size: 18px; font-weight: 700; }
     .rc-header-sub   { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
@@ -439,7 +439,6 @@
     function goBack() {
       previewActive = false;
       selectedCandidate = null;
-      clearNameSearch();
       showView('view-list');
     }
 
