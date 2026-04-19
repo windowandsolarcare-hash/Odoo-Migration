@@ -2851,16 +2851,23 @@ async def api_reactivation_preview(request: Request):
             err_msg = sa_data['error'].get('data', {}).get('message', str(sa_data['error']))
             return JSONResponse({'ok': False, 'error': err_msg})
 
-        # Read the SMS text back from the SO
-        so_rec = odoo_rpc('sale.order', 'read', [[so_id]], {'fields': ['x_studio_manual_sms_override']})
+        # Read the SMS text and Workiz link back from the SO
+        so_rec = odoo_rpc('sale.order', 'read', [[so_id]],
+            {'fields': ['x_studio_manual_sms_override', 'x_studio_x_workiz_link', 'x_studio_x_studio_workiz_uuid']})
         sms_text = ''
+        workiz_link = ''
         if so_rec and so_rec[0]:
-            sms_text = so_rec[0].get('x_studio_manual_sms_override') or ''
+            sms_text    = so_rec[0].get('x_studio_manual_sms_override') or ''
+            workiz_link = so_rec[0].get('x_studio_x_workiz_link') or ''
+            if not workiz_link:
+                uuid = so_rec[0].get('x_studio_x_studio_workiz_uuid') or ''
+                if uuid:
+                    workiz_link = f'https://app.workiz.com/job/{uuid}/'
 
         if not sms_text:
             return JSONResponse({'ok': False, 'error': 'Preview ran but SMS field is empty'})
 
-        return {'ok': True, 'sms': sms_text}
+        return {'ok': True, 'sms': sms_text, 'workiz_link': workiz_link}
     except Exception as e:
         return JSONResponse({'ok': False, 'error': str(e)})
 
