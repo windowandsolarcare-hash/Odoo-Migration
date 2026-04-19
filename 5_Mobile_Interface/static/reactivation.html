@@ -346,16 +346,6 @@
         oninput="updateCharCount()"
         placeholder="SMS text will appear here..."></textarea>
       <div class="char-count" id="char-count"></div>
-      <div id="workiz-pill-wrap" style="display:none; display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="workiz-pill" id="prop-pill" href="#" target="_blank"
-           style="border-color:#34d399; color:#34d399;">
-          🏠 View Property
-        </a>
-        <a class="workiz-pill" id="contact-pill" href="#" target="_blank"
-           style="border-color:#fb923c; color:#fb923c;">
-          👤 View Contact
-        </a>
-      </div>
     </div>
 
     <div class="preview-actions">
@@ -507,7 +497,6 @@
       document.getElementById('sms-box').style.display = 'none';
       document.getElementById('char-count').textContent = '';
       document.getElementById('launch-btn').disabled = true;
-      document.getElementById('workiz-pill-wrap').style.display = 'none';
       document.getElementById('prop-details-wrap').innerHTML = '';
       document.getElementById('job-history-wrap').innerHTML = '';
 
@@ -530,18 +519,8 @@
           updateCharCount();
           document.getElementById('launch-btn').disabled = false;
           // Pill links
-          const pillWrap    = document.getElementById('workiz-pill-wrap');
-          const propPill    = document.getElementById('prop-pill');
-          const contactPill = document.getElementById('contact-pill');
-          if (data.prop_id) {
-            propPill.href = 'https://window-solar-care.odoo.com/odoo/contacts/' + data.prop_id;
-          }
-          if (c.partner_id) {
-            contactPill.href = 'https://window-solar-care.odoo.com/odoo/contacts/' + c.partner_id;
-          }
-          pillWrap.style.display = 'flex';
           // Property details card
-          renderPropDetails(data.prop_details || {});
+          renderPropDetails(data.prop_details || {}, data.prop_id, c.partner_id);
           // Job history panel
           renderJobHistory(data.job_count || 0, data.last_jobs || []);
         } else {
@@ -552,21 +531,26 @@
       }
     }
 
-    function renderPropDetails(d) {
+    function renderPropDetails(d, propId, partnerId) {
       const wrap = document.getElementById('prop-details-wrap');
       const rows = [
-        d.type_of_service     ? `<div class="prop-row"><span class="prop-label">Service Type</span><span class="prop-value">${esc(d.type_of_service)}</span></div>` : '',
-        d.last_property_visit ? `<div class="prop-row"><span class="prop-label">Last Property Visit</span><span class="prop-value">${esc(d.last_property_visit)}</span></div>` : '',
-        d.pricing_note        ? `<div class="prop-row"><span class="prop-label">Pricing Note</span><span class="prop-value highlight">${esc(d.pricing_note)}</span></div>` : '',
+        d.type_of_service        ? `<div class="prop-row"><span class="prop-label">Service Type</span><span class="prop-value">${esc(d.type_of_service)}</span></div>` : '',
+        d.last_property_visit    ? `<div class="prop-row"><span class="prop-label">Last Property Visit</span><span class="prop-value">${esc(d.last_property_visit)}</span></div>` : '',
+        d.pricing_note           ? `<div class="prop-row"><span class="prop-label">Pricing Note</span><span class="prop-value highlight">${esc(d.pricing_note)}</span></div>` : '',
         d.last_reactivation_sent ? `<div class="prop-row"><span class="prop-label">Last Reactivation</span><span class="prop-value">${esc(d.last_reactivation_sent)}</span></div>` : '',
-        d.prices_per_service  ? `<div class="prices-block">${esc(d.prices_per_service)}</div>` : '',
+        d.prices_per_service     ? `<div class="prices-block">${esc(d.prices_per_service)}</div>` : '',
       ].join('');
-      if (!rows) { wrap.innerHTML = ''; return; }
+      const pills = [
+        propId    ? `<a class="workiz-pill" href="https://window-solar-care.odoo.com/odoo/contacts/${propId}" target="_blank" style="margin-top:10px; border-color:#34d399; color:#34d399;">🏠 View Property</a>` : '',
+        partnerId ? `<a class="workiz-pill" href="https://window-solar-care.odoo.com/odoo/contacts/${partnerId}" target="_blank" style="margin-top:10px; border-color:#fb923c; color:#fb923c;">👤 View Contact</a>` : '',
+      ].join('');
+      if (!rows && !pills) { wrap.innerHTML = ''; return; }
       wrap.innerHTML = `
         <div class="section-label" style="margin-top:0">Property & Contact</div>
         <div class="prop-details-card">
           <div class="prop-details-title">Details</div>
           ${rows}
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">${pills}</div>
         </div>`;
     }
 
