@@ -598,7 +598,7 @@
             <span class="job-label">Pricing Note</span>
             <span class="job-value">${esc(j.pricing_note)}</span>
           </div>` : ''}
-          ${j.pricing_snap ? `<div class="pricing-snap">${esc(j.pricing_snap)}</div>` : ''}
+          ${j.pricing_snap ? `<div class="job-row" style="margin-top:6px;"><span class="job-label">Pricing Snapshot</span></div><div class="pricing-snap">${esc(j.pricing_snap)}</div>` : ''}
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
             ${j.workiz_link ? `<a class="workiz-pill" href="${j.workiz_link}" target="_blank" style="margin-top:0; padding:6px 12px; font-size:12px;">🔧 Workiz</a>` : ''}
             ${j.so_id ? `<a class="workiz-pill" href="https://window-solar-care.odoo.com/odoo/sales/${j.so_id}" target="_blank" style="margin-top:0; padding:6px 12px; font-size:12px; border-color:#a78bfa; color:#a78bfa;">🟣 Odoo SO</a>` : ''}
