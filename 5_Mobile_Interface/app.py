@@ -2863,6 +2863,52 @@ async def api_reactivation_candidates(service: str = 'all', city: str = ''):
         return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
 
 
+@app.get('/api/reactivation/so_list')
+async def api_reactivation_so_list(partner_id: int):
+    """Return all SOs for a contact (across all properties), newest first."""
+    try:
+        props = odoo_rpc('res.partner', 'search',
+            [[['parent_id', '=', partner_id],
+              ['x_studio_x_studio_record_category', '=', 'Property']]])
+        prop_ids = props or []
+        if not prop_ids:
+            return {'ok': True, 'sos': []}
+
+        raw = odoo_rpc('sale.order', 'search_read',
+            [[['partner_shipping_id', 'in', prop_ids]]],
+            {'fields': ['id', 'name', 'date_order', 'amount_total',
+                        'x_studio_x_studio_x_studio_job_type',
+                        'x_studio_x_studio_workiz_status',
+                        'partner_shipping_id'],
+             'order': 'date_order desc', 'limit': 300})
+
+        sos = []
+        for so in (raw or []):
+            dt_raw = so.get('date_order') or ''
+            date_str = ''
+            if dt_raw:
+                try:
+                    utc_dt = datetime.datetime.strptime(dt_raw[:19], '%Y-%m-%d %H:%M:%S')
+                    utc_dt = utc_dt.replace(tzinfo=datetime.timezone.utc)
+                    pt_dt  = utc_dt.astimezone(_PT)
+                    date_str = pt_dt.strftime('%b %d, %Y')
+                except Exception:
+                    date_str = dt_raw[:10]
+            prop = so.get('partner_shipping_id')
+            sos.append({
+                'id':       so['id'],
+                'name':     so.get('name', ''),
+                'date':     date_str,
+                'status':   so.get('x_studio_x_studio_workiz_status') or '',
+                'total':    so.get('amount_total') or 0,
+                'job_type': so.get('x_studio_x_studio_x_studio_job_type') or '',
+                'property': prop[1] if isinstance(prop, (list, tuple)) else '',
+            })
+        return {'ok': True, 'sos': sos}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
 @app.post('/api/reactivation/preview')
 async def api_reactivation_preview(request: Request):
     """Call SA 562 (Preview) on the candidate's last SO, return x_studio_manual_sms_override."""
