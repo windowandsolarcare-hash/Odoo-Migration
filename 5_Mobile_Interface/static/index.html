@@ -546,10 +546,25 @@ function toggleTheme() {
 }
 
 // ── ACCESS ──
-function checkAccess() {
+async function checkAccess() {
   const v = document.getElementById('access-input').value.trim();
   if (v.length < 4) { document.getElementById('access-error').style.display='block'; return; }
-  AC = v; localStorage.setItem('wsc_ac', v); boot();
+  try {
+    const resp = await fetch('/api/auth', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({code: v})
+    });
+    const data = await resp.json();
+    if (!data.ok) { document.getElementById('access-error').style.display='block'; return; }
+    AC = v;
+    localStorage.setItem('wsc_ac', v);
+    localStorage.setItem('wsc_user_type', data.user.type);
+    boot();
+  } catch (e) {
+    // Fallback: allow entry if server unreachable (maintains backward compat)
+    AC = v; localStorage.setItem('wsc_ac', v); boot();
+  }
 }
 document.getElementById('access-input').addEventListener('keydown', e => { if(e.key==='Enter') checkAccess(); });
 
@@ -559,8 +574,21 @@ function boot() {
   document.getElementById('access-screen').style.display = 'none';
   const app = document.getElementById('app');
   app.style.display = window.innerWidth >= 600 ? 'flex' : 'block';
+
+  // Danny mode: hide owner-only UI
+  const userType = localStorage.getItem('wsc_user_type') || 'dj';
+  if (userType === 'danny') {
+    const elHdrTotal = document.getElementById('hdr-total');
+    if (elHdrTotal) elHdrTotal.style.display = 'none';
+    // Hide desktop office tabs that Danny doesn't need
+    ['stats','upcoming','voice','customers','todos'].forEach(tabName => {
+      const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+      if (btn) btn.style.display = 'none';
+    });
+  }
+
   loadField();
-  if (window.innerWidth >= 600) loadTab('stats');
+  if (window.innerWidth >= 600 && userType !== 'danny') loadTab('stats');
   setInterval(loadField, 5*60*1000);
 }
 
@@ -576,7 +604,15 @@ window.addEventListener('load', () => {
   applyTheme(savedTheme);
   sqRender();
   const saved = localStorage.getItem('wsc_ac');
-  if (saved) { AC = saved; boot(); }
+  if (saved) { AC = saved; boot(); return; }
+  // Check if arriving from hub timeclock (Danny logged in there)
+  const tcUser = localStorage.getItem('tc_user');
+  if (tcUser) {
+    try {
+      const u = JSON.parse(tcUser);
+      if (u && u.type) localStorage.setItem('wsc_user_type', u.type);
+    } catch(e) {}
+  }
 });
 
 // ── FIELD DATA ──
