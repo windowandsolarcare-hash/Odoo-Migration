@@ -1,32 +1,34 @@
-# SHARED MEMORY — Window & Solar Care
+# SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
 # Last updated: 2026-04-18
-# Format: key facts only — both Claudes read this on every session
+# Format: key facts only - both Claudes read this on every session
 
 ## OWNER
-- Dan Saunders (goes by DJ) — owner and sole technician, Window & Solar Care, Southern California
+- Dan Saunders (goes by DJ) - owner and sole technician, Window & Solar Care, Southern California
 - Email: windowandsolarcare@gmail.com
 
 ## PLATFORMS
 - Odoo: https://window-solar-care.odoo.com (DB: window-solar-care, User ID: 2)
-- Workiz: job scheduling — IP-restricted, proxy through Odoo if calling from local machine
+- Workiz: job scheduling - IP-restricted, proxy through Odoo if calling from local machine
 - GitHub: windowandsolarcare-hash/Odoo-Migration (main branch only)
-- Render: mobile field assistant at https://[render-url] — always-on paid plan
-- Zapier: Phases 3-6 automation — fetches code from GitHub main on every trigger
+- Render: mobile field assistant at https://[render-url] - always-on paid plan
+- Zapier: Phases 3-6 automation - fetches code from GitHub main on every trigger
 
 ## AUTOMATION PHASES
-- Phase 3: New job creation (Workiz webhook → Zapier → Odoo)
+- Phase 3: New job creation (Workiz webhook  Zapier  Odoo)
 - Phase 4: Job status updates (Zapier polling every 5 min)
 - Phase 5: Auto job scheduling (triggered by Phase 6)
-- Phase 6: Payment sync (Odoo webhook → Zapier)
+- Phase 6: Payment sync (Odoo webhook  Zapier)
 - Phase 2: Reactivation engine (Odoo Server Action, manual run)
-- Phase 2B: STOP compliance (Workiz → Odoo webhook)
+- Phase 2B: STOP compliance (Workiz  Odoo webhook)
 
 ## KEY ODOO SERVER ACTION IDs
 - LAUNCH (reactivation): 563
 
 ## CRITICAL FIELD NAMES
 - Workiz UUID on SO: x_studio_x_studio_workiz_uuid
+- Workiz Status on SO: x_studio_x_studio_workiz_status (values: Done, Pending, Submitted, Canceled, etc.)
+- "Done jobs" ALWAYS means x_studio_x_studio_workiz_status = 'Done' — NEVER use invoice_status, state='done', or date filters as proxy
 - Workiz custom service field: type_of_service_2 (NOT type_of_service)
 - Property partners: x_studio_x_studio_record_category = "Property"
 - Contact type of service: x_studio_x_type_of_service
@@ -36,22 +38,22 @@
 - Workiz client ID on contact: ref field
 
 ## KNOWN BUGS / RULES
-- After action_confirm() on SO, write date_order back — Odoo resets it to now()
-- date_order = Workiz JobDateTime (start time, UTC) — never use end time
+- After action_confirm() on SO, write date_order back - Odoo resets it to now()
+- date_order = Workiz JobDateTime (start time, UTC) - never use end time
 - No imports in Odoo server action code
 - No "response" or "result" variable names in Odoo 19 server actions (reserved)
-- HTML in chatter gets escaped — use plain text with | separators, unicode emoji OK
+- HTML in chatter gets escaped - use plain text with | separators, unicode emoji OK
 - Workiz filter on SubStatus not Status
 - Deleted Workiz job returns HTTP 204 not 404
-- TIMER: Do NOT use action_timer_start/action_timer_stop — Odoo timer_start unreliable. Render uses ir.config_parameter key render.timer.{task_id}, creates account.analytic.line on stop.
+- TIMER: Do NOT use action_timer_start/action_timer_stop - Odoo timer_start unreliable. Render uses ir.config_parameter key render.timer.{task_id}, creates account.analytic.line on stop.
 - Render timer start: moves task to In Progress (stage 18), clears Odoo timer_start
-- Render timer stop (button): GPS via Nominatim → "[Render Timer] 1234 Main St, Palm Desert, CA 92211 | 8:15 AM – 10:32 AM"
-- Render timer stop (voice): "[Render Timer] | 8:15 AM – 10:32 AM"
+- Render timer stop (button): GPS via Nominatim  "[Render Timer] 1234 Main St, Palm Desert, CA 92211 | 8:15 AM - 10:32 AM"
+- Render timer stop (voice): "[Render Timer] | 8:15 AM - 10:32 AM"
 - Timer log includes PT start + end times in description (added 2026-04-18)
 - Task stage IDs: New=16, Planned=17, In Progress=18, Done=19
 - Phase 4 task sync moves New(16) to Planned(17); never regresses In Progress/Done
 - action_create_invoices does NOT exist in Odoo 19. Use sale.advance.payment.inv wizard.
-- Workiz job create/duplicate: State field is REQUIRED — always include, default "CA"
+- Workiz job create/duplicate: State field is REQUIRED - always include, default "CA"
 - Render payment recording writes chatter on SO + invoice for audit trail
 - New job for existing customer: use duplicate_workiz_job with partner_id
 
@@ -73,15 +75,15 @@
 - SHARED_MEMORY_PATH: 3_Documentation/SHARED_MEMORY.md
 - To switch to a new project: update both env vars on Render dashboard, no code change needed
 
-## RENDER APP STATE — 2026-04-18
+## RENDER APP STATE - 2026-04-18
 
 ### Endpoints
-- GET /api/dashboard — today's schedule + stats
-- GET /api/upcoming — 14 calendar day lookahead (~10 work days)
-- POST /api/timer/start — starts Render timer
-- POST /api/timer/stop — stops timer, creates timesheet, reverse-geocodes GPS
-- POST /api/payment — records payment, creates invoice, posts chatter
-- POST /api/attachment — uploads base64 image to Odoo SO as ir.attachment
+- GET /api/dashboard - today's schedule + stats
+- GET /api/upcoming - 14 calendar day lookahead (~10 work days)
+- POST /api/timer/start - starts Render timer
+- POST /api/timer/stop - stops timer, creates timesheet, reverse-geocodes GPS
+- POST /api/payment - records payment, creates invoice, posts chatter
+- POST /api/attachment - uploads base64 image to Odoo SO as ir.attachment
 
 ### Claude Tools (full list)
 Read: search_customers, get_customer_profile, get_job_details, get_schedule, get_next_job,
@@ -98,7 +100,7 @@ Utility: save_memory, delete_memory
 - Photo section: above payment, gallery picker (not camera-only), multiple files, uploads to Odoo ir.attachment, thumbnail previews.
 - Mic button: moved into header between date block and theme button. No longer fixed/floating overlay.
 - Tab renamed: 7-Day to 10-Day
-- Time label on done jobs: shows 2.5h or 45m LEFT of $/hr rate — visual check if timer logged correctly
+- Time label on done jobs: shows 2.5h or 45m LEFT of $/hr rate - visual check if timer logged correctly
 - Future day rows: job-name-wrap div (dollar right-justified), Solar/Window service subtitle from task_names
 - api_upcoming now fetches task_names for each SO to show service type on future rows
 
@@ -111,38 +113,38 @@ Utility: save_memory, delete_memory
   - Cheryl: Real estate assistant (planned)
 - One Odoo Instance (existing subscription)
   - Company: Window & Solar Care (existing)
-  - Company: Cheryl Real Estate (planned — multi-company)
-  - Company: Artwork / AI Prints (planned — multi-company)
-  - Company: Saunders Printing (planned — multi-company)
+  - Company: Cheryl Real Estate (planned - multi-company)
+  - Company: Artwork / AI Prints (planned - multi-company)
+  - Company: Saunders Printing (planned - multi-company)
 - Odoo Website (included in full package)
   - W&SC marketing site (planned)
   - Cheryl real estate site (planned)
-  - Saunders Printing storefront (planned — primary eCommerce)
+  - Saunders Printing storefront (planned - primary eCommerce)
 
 ### Businesses Summary
-- Window & Solar Care: LIVE — field assistant, full automation
-- Cheryl Real Estate: planning — need info from Cheryl
-- Artwork / AI Prints: green-lighted — Flux/DALL-E 3, Printify fulfillment, Etsy/Shopify APIs
-- Saunders Printing: green-lighted — web-to-print, Odoo Website + Stripe, DJ prints/ships
-- Payroll DJ+Danny: ready to build — no blockers
+- Window & Solar Care: LIVE - field assistant, full automation
+- Cheryl Real Estate: planning - need info from Cheryl
+- Artwork / AI Prints: green-lighted - Flux/DALL-E 3, Printify fulfillment, Etsy/Shopify APIs
+- Saunders Printing: green-lighted - web-to-print, Odoo Website + Stripe, DJ prints/ships
+- Payroll DJ+Danny: ready to build - no blockers
 
 ### Build Priority Order
-1. W&SC accounting migration (QB to Odoo) — waiting on DJ to gather files
-2. Cheryl Odoo company setup — need her business name
-3. Cheryl real estate Render screen — need MLS info + stage checklist from Cheryl
-4. Cheryl accounting setup — need her expense categories + bank info
-5. DJ + Danny payroll tracker — READY TO BUILD, no blockers
-6. Artwork eCommerce — Flux/DALL-E 3 + Printify + Etsy/Shopify APIs
-7. Saunders Printing — Odoo Website storefront, Stripe, file prep automation
-8. W&SC + Cheryl websites in Odoo — future
+1. W&SC accounting migration (QB to Odoo) - waiting on DJ to gather files
+2. Cheryl Odoo company setup - need her business name
+3. Cheryl real estate Render screen - need MLS info + stage checklist from Cheryl
+4. Cheryl accounting setup - need her expense categories + bank info
+5. DJ + Danny payroll tracker - READY TO BUILD, no blockers
+6. Artwork eCommerce - Flux/DALL-E 3 + Printify + Etsy/Shopify APIs
+7. Saunders Printing - Odoo Website storefront, Stripe, file prep automation
+8. W&SC + Cheryl websites in Odoo - future
 
-## PAYROLL TRACKER — DJ + DANNY (ready to build)
+## PAYROLL TRACKER - DJ + DANNY (ready to build)
 - Workers: DJ + Danny, both hourly
 - Clock in/out via Render app (their own screen/route)
 - Storage: Odoo account.analytic.line (same model as job timer)
 - Payroll processing: stay on Gusto for now. DJ manually enters weekly hours.
 - Danny sees only his own hours. DJ sees everything (both workers, daily, weekly totals, $ owed).
-- Rates: DANNY_RATE + DJ_RATE env vars on Render — never hardcoded
+- Rates: DANNY_RATE + DJ_RATE env vars on Render - never hardcoded
 - Odoo: create "Payroll" project for these entries. Separate from job timer entries (no task_id).
 - Routes: /danny (Danny clock in/out), /payroll-admin (DJ summary view)
 
@@ -151,7 +153,7 @@ Utility: save_memory, delete_memory
 - Odoo multi-company: "Cheryl Real Estate" as second company under DJ's instance
 - Phase 1: Render only, Cheryl uses her own access code, Odoo is invisible backend
 - Phase 2: Cheryl gets her own Odoo login under DJ's account
-- Phase 3: Her own Odoo account — Claude migrates all data
+- Phase 3: Her own Odoo account - Claude migrates all data
 
 ### Key Features
 1. Client stage tracker: Introduction, Needs Assessment, Property Search, Offer, Contract, Escrow, Pre-Close, Close, Post-Close, Follow-up
@@ -159,7 +161,7 @@ Utility: save_memory, delete_memory
 3. Property showing dossier: enter MLS# to auto-pull data. Add photos, voice notes, viable/not viable.
 4. Document + communication log: what was sent, when, searchable.
 5. Post-close resource library: pre-written guides for common post-close questions.
-6. Accounting: same as DJ — plain English to Claude, Claude executes in Odoo.
+6. Accounting: same as DJ - plain English to Claude, Claude executes in Odoo.
 
 ### Still needed from Cheryl before building
 - Her business name (to create Odoo company)
@@ -170,70 +172,70 @@ Utility: save_memory, delete_memory
 ## QB TO ODOO ACCOUNTING MIGRATION STATUS (2026-04-18)
 - File: C:\Users\dj\Downloads\Window & Solar Care_Transaction Detail by Account.csv
 - 6,318 expense rows. Only 62 blank-category rows (28 loan payments, 26 blank name, 7 owner draws, 1 USPS, 2 true uncategorized)
-- Phase 1 (expense categorization) essentially DONE — almost no cleanup needed
+- Phase 1 (expense categorization) essentially DONE - almost no cleanup needed
 - Still need from DJ: QB Fixed Asset List, 6x Workiz Payment CSVs (one per year)
 
-## SAUNDERS PRINTING — COMMERCIAL WEB-TO-PRINT (green-lighted 2026-04-18)
-- Business: commercial print shop — business cards, flyers, postcards, banners, etc.
+## SAUNDERS PRINTING - COMMERCIAL WEB-TO-PRINT (green-lighted 2026-04-18)
+- Business: commercial print shop - business cards, flyers, postcards, banners, etc.
 - DJ has his own printer. He enters jobs, prints, ships under Saunders Printing brand.
 - Platform: Odoo Website (already included) + Stripe for payments
 - Three customer paths:
-  1. Upload own file → Claude checks (DPI, bleed, CMYK, safe zone) → auto-converts to print-ready PDF
-  2. Self-design (Canva embed SDK) — skip for v1, add later
-  3. Commission design → customer fills brief + pays fee → Claude drafts → DJ approves → print
-- File prep automation: Python checks resolution (300 DPI), adds bleed (0.125"), converts RGB→CMYK, outputs PDF
+  1. Upload own file  Claude checks (DPI, bleed, CMYK, safe zone)  auto-converts to print-ready PDF
+  2. Self-design (Canva embed SDK) - skip for v1, add later
+  3. Commission design  customer fills brief + pays fee  Claude drafts  DJ approves  print
+- File prep automation: Python checks resolution (300 DPI), adds bleed (0.125"), converts RGBCMYK, outputs PDF
 - DJ only does: enter PDF in printer software, print, ship
 - Odoo: separate company "Saunders Printing," product catalog with quantity pricing tiers, Stripe native connector
 - Status: planning complete, nothing built. Build after artwork eCommerce.
 
 ## ARTWORK / eCOMMERCE (future, green-lighted 2026-04-18)
-- AI artwork: Midjourney (manual only — no API), or DALL-E 3 / Stable Diffusion (real APIs)
+- AI artwork: Midjourney (manual only - no API), or DALL-E 3 / Stable Diffusion (real APIs)
 - Sell on Etsy (has API) + Shopify (excellent API) or Odoo eCommerce
 - Claude role: resize/optimize, write listings, publish to both platforms, manage orders + inventory
 - Status: not started. Revisit after payroll + Cheryl are done.
 
 ## RECENT DECISIONS / CONTEXT
-- 2026-04-18: Major Render UI session — photos, mic move, saved requests, timer PT times, 10-day lookahead, task_names for service type, time label on done jobs. Full state in project_render_app_apr18.md memory.
-- 2026-04-18: Saunders Printing added — commercial web-to-print, Odoo Website + Stripe, automated file prep, DJ prints/ships. Full plan in project_saunders_printing.md memory.
-- 2026-04-18: Multi-business platform plan finalized — Cheryl real estate, DJ+Danny payroll, artwork eCommerce, Saunders Printing all green-lighted. Build priority set.
-- 2026-04-18: QB accounting migration analysis — expenses nearly all categorized, Phase 1 essentially done. Waiting on asset list + Workiz payment CSVs.
+- 2026-04-18: Major Render UI session - photos, mic move, saved requests, timer PT times, 10-day lookahead, task_names for service type, time label on done jobs. Full state in project_render_app_apr18.md memory.
+- 2026-04-18: Saunders Printing added - commercial web-to-print, Odoo Website + Stripe, automated file prep, DJ prints/ships. Full plan in project_saunders_printing.md memory.
+- 2026-04-18: Multi-business platform plan finalized - Cheryl real estate, DJ+Danny payroll, artwork eCommerce, Saunders Printing all green-lighted. Build priority set.
+- 2026-04-18: QB accounting migration analysis - expenses nearly all categorized, Phase 1 essentially done. Waiting on asset list + Workiz payment CSVs.
 - 2026-04-16: Rebuilt Render timer to bypass Odoo entirely with GPS reverse-geocode. Migrated from OpenAI to Claude native. Added power tools and shared memory system.
 - 2026-04-15: Migrated Render app from ChatGPT to Claude (Anthropic SDK)
 - 2026-04-12: Added orphaned task restore, SO smart button, staggered task times, Sunday tag (508 SOs), Calendly Cathedral City, app.py timer tools
 - 2026-04-02: Backfilled x_studio_next_job_date on 48 contacts
-- Credit card at-door: JobAmountDue=0 + Status!=Done = CC taken. Invoice using "Credit" method → Phase 6 skips Workiz payment POST
+- Credit card at-door: JobAmountDue=0 + Status!=Done = CC taken. Invoice using "Credit" method  Phase 6 skips Workiz payment POST
 
 ---
 
 ## HUB SCREEN ARCHITECTURE (Built 2026-04-18)
 
 ### Routes
--  → hub.html (landing screen, no auth)
--  → index.html (Field Assistant, existing)
--  → timeclock.html (clock in/out)
--  → reactivation.html (reactivation campaign)
+-   hub.html (landing screen, no auth)
+-   index.html (Field Assistant, existing)
+-   timeclock.html (clock in/out)
+-   reactivation.html (reactivation campaign)
 
 ### Auth ()
 - Body: 
 - Returns: 
 - DJ code = ACCESS_CODE env var (default: wsc2026)
-- Danny code = DANNY_CODE env var (default: danny951) — MUST add to Render env vars
+- Danny code = DANNY_CODE env var (default: danny951) - MUST add to Render env vars
 
 ### Payroll Endpoints
--  — body:  — stores UTC timestamp in ir.config_parameter key 
--  — body:  — calculates hours, creates account.analytic.line, clears param
--  — returns 
--  — Mon-Sat hours by day, total
+-  - body:  - stores UTC timestamp in ir.config_parameter key 
+-  - body:  - calculates hours, creates account.analytic.line, clears param
+-  - returns 
+-  - Mon-Sat hours by day, total
 
 ### Payroll Constants (env vars or defaults)
 -  = 1 (Odoo hr.employee)
--  = 2 (Danny Saunders — created in Odoo 2026-04-18)
+-  = 2 (Danny Saunders - created in Odoo 2026-04-18)
 -  = 3 (Odoo project for payroll timesheets)
 
 ### Reactivation Endpoints
--  — queries Odoo: Property records, last visit >= 6mo ago, last reactivation > 1yr or never, not Do Not Contact. Returns list with partner_id, name, city, service, frequency, last_visit, est_price, last_so_id
--  — body:  — calls SA 562 in Odoo, reads x_studio_manual_sms_override, returns 
--  — body:  — writes SMS back to SO field, calls SA 563
+-  - queries Odoo: Property records, last visit >= 6mo ago, last reactivation > 1yr or never, not Do Not Contact. Returns list with partner_id, name, city, service, frequency, last_visit, est_price, last_so_id
+-  - body:  - calls SA 562 in Odoo, reads x_studio_manual_sms_override, returns 
+-  - body:  - writes SMS back to SO field, calls SA 563
 
 ### Danny Mode (index.html)
 - Auth stores user type in localStorage 
