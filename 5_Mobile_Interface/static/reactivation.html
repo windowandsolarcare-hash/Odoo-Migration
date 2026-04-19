@@ -385,9 +385,9 @@
           <div class="cand-customer">${esc(c.name)}</div>
           <div class="cand-city">${esc(c.city || '')}</div>
           <div class="cand-meta">
-            ${c.service ? `<span class="cand-tag service">${esc(c.service)}</span>` : ''}
-            ${c.last_visit ? `<span class="cand-tag date">Last: ${esc(c.last_visit)}</span>` : ''}
-            ${c.est_price ? `<span class="cand-tag price">~$${c.est_price}</span>` : ''}
+            ${c.service ? `<span class="cand-tag service">Service: ${esc(c.service)}</span>` : ''}
+            ${c.last_visit ? `<span class="cand-tag date">Last Visit: ${esc(c.last_visit)}</span>` : ''}
+            ${c.est_price ? `<span class="cand-tag price">Est: $${c.est_price}</span>` : ''}
           </div>
         </div>
       `).join('');
@@ -403,10 +403,10 @@
       document.getElementById('prev-name').textContent = '';
       document.getElementById('prev-city').textContent = c.city || '';
       document.getElementById('prev-tags').innerHTML = [
-        c.service ? `<span class="cand-tag service">${esc(c.service)}</span>` : '',
-        c.last_visit ? `<span class="cand-tag date">Last: ${esc(c.last_visit)}</span>` : '',
-        c.est_price ? `<span class="cand-tag price">~$${c.est_price}</span>` : '',
-        c.frequency ? `<span class="cand-tag">${esc(c.frequency)}</span>` : '',
+        c.service ? `<span class="cand-tag service">Service: ${esc(c.service)}</span>` : '',
+        c.last_visit ? `<span class="cand-tag date">Last Visit: ${esc(c.last_visit)}</span>` : '',
+        c.est_price ? `<span class="cand-tag price">Est: $${c.est_price}</span>` : '',
+        c.frequency ? `<span class="cand-tag">Freq: ${esc(c.frequency)}</span>` : '',
       ].join('');
       document.getElementById('confirm-name').textContent = c.name + (c.city ? ` · ${c.city}` : '');
 
