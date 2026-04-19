@@ -201,7 +201,7 @@
           <input type="password" class="code-input" id="code-input"
                  placeholder="••••••"
                  onkeydown="if(event.key==='Enter') doLogin()">
-          <button onclick="toggleShow()" id="show-btn"
+          <button type="button" onclick="toggleShow()" id="show-btn"
                   style="position:absolute;right:14px;top:50%;transform:translateY(-50%);
                          background:none;border:none;font-size:20px;cursor:pointer;
                          color:var(--text-dim);padding:4px;">👁</button>
@@ -297,15 +297,22 @@
       document.getElementById('login-error').style.display = 'none';
       if (!code) return;
 
+      const errEl = document.getElementById('login-error');
       try {
         const resp = await fetch('/api/auth', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({code})
         });
+        if (!resp.ok) {
+          errEl.textContent = 'Server error ' + resp.status + ' — try again';
+          errEl.style.display = 'block';
+          return;
+        }
         const data = await resp.json();
         if (!data.ok) {
-          document.getElementById('login-error').style.display = 'block';
+          errEl.textContent = 'Incorrect code — try again';
+          errEl.style.display = 'block';
           return;
         }
         currentUser = data.user;
@@ -314,8 +321,8 @@
         showScreen('clock');
         loadClockStatus();
       } catch (e) {
-        document.getElementById('login-error').textContent = 'Server error — try again';
-        document.getElementById('login-error').style.display = 'block';
+        errEl.textContent = 'Cannot reach server: ' + e.message;
+        errEl.style.display = 'block';
       }
     }
 
