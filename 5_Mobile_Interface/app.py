@@ -28,6 +28,10 @@ WORKIZ_SECRET  = os.environ.get('WORKIZ_SECRET',    'sec_33408429585067833010547
 ANTHROPIC_KEY  = os.environ.get('ANTHROPIC_API_KEY','')
 CLAUDE_MODEL   = os.environ.get('CLAUDE_MODEL',     'claude-sonnet-4-6')
 ACCESS_CODE    = os.environ.get('ACCESS_CODE',      'wsc2026')
+DANNY_CODE     = os.environ.get('DANNY_CODE',       'danny951')
+DJ_EMPLOYEE_ID   = int(os.environ.get('DJ_EMPLOYEE_ID',    '1'))
+DANNY_EMPLOYEE_ID = int(os.environ.get('DANNY_EMPLOYEE_ID', '2'))
+PAYROLL_PROJECT_ID = int(os.environ.get('PAYROLL_PROJECT_ID', '3'))
 OWNER_EMAIL    = os.environ.get('OWNER_EMAIL',      '')
 GITHUB_TOKEN   = os.environ.get('GITHUB_TOKEN',    '')
 GITHUB_REPO    = os.environ.get('GITHUB_REPO',    'windowandsolarcare-hash/Odoo-Migration')
@@ -2546,7 +2550,347 @@ async def api_search(q: str = '', access_code: str = ''):
 
 
 @app.get('/', response_class=HTMLResponse)
-async def index():
+async def hub():
+    html_path = os.path.join(os.path.dirname(__file__), 'static', 'hub.html')
+    with open(html_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+@app.get('/field', response_class=HTMLResponse)
+async def field():
     html_path = os.path.join(os.path.dirname(__file__), 'static', 'index.html')
     with open(html_path, 'r', encoding='utf-8') as f:
         return f.read()
+
+@app.get('/timeclock', response_class=HTMLResponse)
+async def timeclock():
+    html_path = os.path.join(os.path.dirname(__file__), 'static', 'timeclock.html')
+    with open(html_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+@app.get('/reactivation', response_class=HTMLResponse)
+async def reactivation():
+    html_path = os.path.join(os.path.dirname(__file__), 'static', 'reactivation.html')
+    with open(html_path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+
+# ---------------------------------------------------------------------------
+# Auth endpoint — validates DJ or Danny code, returns user info
+# ---------------------------------------------------------------------------
+@app.post('/api/auth')
+async def api_auth(request: Request):
+    body = await request.json()
+    code = (body.get('code') or '').strip()
+    if code == ACCESS_CODE:
+        return {'ok': True, 'user': {'type': 'dj', 'name': 'DJ', 'employeeId': DJ_EMPLOYEE_ID}}
+    if code == DANNY_CODE:
+        return {'ok': True, 'user': {'type': 'danny', 'name': 'Danny', 'employeeId': DANNY_EMPLOYEE_ID}}
+    return {'ok': False}
+
+
+# ---------------------------------------------------------------------------
+# Payroll — clock in / out using ir.config_parameter + account.analytic.line
+# ---------------------------------------------------------------------------
+_CLOCKIN_KEY_PREFIX = 'payroll.clockin.'
+
+@app.post('/api/payroll/clockin')
+async def api_payroll_clockin(request: Request):
+    try:
+        body = await request.json()
+        emp_id = int(body.get('employee_id', 0))
+        if not emp_id:
+            return JSONResponse({'ok': False, 'error': 'employee_id required'})
+
+        key = _CLOCKIN_KEY_PREFIX + str(emp_id)
+        now_utc = datetime.datetime.utcnow().isoformat()
+
+        # Check if already clocked in
+        existing = odoo_rpc('ir.config_parameter', 'search_read',
+            [[['key', '=', key]]], {'fields': ['id', 'value'], 'limit': 1})
+        if existing and existing[0].get('value'):
+            return JSONResponse({'ok': False, 'error': 'Already clocked in'})
+
+        # Store clock-in time
+        if existing:
+            odoo_rpc('ir.config_parameter', 'write', [[existing[0]['id']], {'value': now_utc}])
+        else:
+            odoo_rpc('ir.config_parameter', 'create', [{'key': key, 'value': now_utc}])
+
+        return {'ok': True, 'clock_in_time': now_utc + 'Z'}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)})
+
+@app.post('/api/payroll/clockout')
+async def api_payroll_clockout(request: Request):
+    try:
+        body = await request.json()
+        emp_id = int(body.get('employee_id', 0))
+        if not emp_id:
+            return JSONResponse({'ok': False, 'error': 'employee_id required'})
+
+        key = _CLOCKIN_KEY_PREFIX + str(emp_id)
+        existing = odoo_rpc('ir.config_parameter', 'search_read',
+            [[['key', '=', key]]], {'fields': ['id', 'value'], 'limit': 1})
+
+        if not existing or not existing[0].get('value'):
+            return JSONResponse({'ok': False, 'error': 'Not clocked in'})
+
+        clock_in_str = existing[0]['value']
+        clock_in_dt  = datetime.datetime.fromisoformat(clock_in_str)
+        clock_out_dt = datetime.datetime.utcnow()
+        hours = round((clock_out_dt - clock_in_dt).total_seconds() / 3600, 4)
+
+        # Create timesheet entry in Odoo
+        today_str = clock_in_dt.strftime('%Y-%m-%d')
+        emp_records = odoo_rpc('hr.employee', 'search_read',
+            [[['id', '=', emp_id]]], {'fields': ['name'], 'limit': 1})
+        emp_name = emp_records[0]['name'] if emp_records else f'Employee {emp_id}'
+
+        odoo_rpc('account.analytic.line', 'create', [{
+            'name': f'Payroll — {emp_name}',
+            'employee_id': emp_id,
+            'project_id': PAYROLL_PROJECT_ID,
+            'unit_amount': hours,
+            'date': today_str,
+        }])
+
+        # Clear clock-in param
+        odoo_rpc('ir.config_parameter', 'write', [[existing[0]['id']], {'value': ''}])
+
+        # Hours today = all entries today for this employee
+        today_entries = odoo_rpc('account.analytic.line', 'search_read',
+            [[['employee_id', '=', emp_id], ['project_id', '=', PAYROLL_PROJECT_ID], ['date', '=', today_str]]],
+            {'fields': ['unit_amount']})
+        hours_today = round(sum(e['unit_amount'] for e in (today_entries or [])), 2)
+
+        return {'ok': True, 'hours': hours, 'hours_today': hours_today}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)})
+
+@app.get('/api/payroll/status')
+async def api_payroll_status(employee_id: int = 0):
+    try:
+        if not employee_id:
+            return JSONResponse({'ok': False, 'error': 'employee_id required'})
+        key = _CLOCKIN_KEY_PREFIX + str(employee_id)
+        existing = odoo_rpc('ir.config_parameter', 'search_read',
+            [[['key', '=', key]]], {'fields': ['value'], 'limit': 1})
+        clocked_in = False
+        clock_in_time = None
+        if existing and existing[0].get('value'):
+            clocked_in = True
+            clock_in_time = existing[0]['value'] + 'Z'
+        return {'clocked_in': clocked_in, 'clock_in_time': clock_in_time}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)})
+
+@app.get('/api/payroll/week')
+async def api_payroll_week(employee_id: int = 0):
+    try:
+        if not employee_id:
+            return JSONResponse({'ok': False, 'error': 'employee_id required'})
+
+        # Get Mon–Sat of current week (Pacific)
+        today = today_pt()
+        # weekday(): Mon=0, Sun=6
+        mon = today - datetime.timedelta(days=today.weekday())
+        sat = mon + datetime.timedelta(days=5)
+
+        entries = odoo_rpc('account.analytic.line', 'search_read',
+            [[['employee_id', '=', employee_id],
+              ['project_id', '=', PAYROLL_PROJECT_ID],
+              ['date', '>=', mon.isoformat()],
+              ['date', '<=', sat.isoformat()]]],
+            {'fields': ['date', 'unit_amount']})
+
+        # Bucket by date
+        by_date = {}
+        for e in (entries or []):
+            d = e['date']
+            by_date[d] = by_date.get(d, 0) + e['unit_amount']
+
+        day_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        days = []
+        total = 0.0
+        for i in range(6):
+            d = mon + datetime.timedelta(days=i)
+            hrs = round(by_date.get(d.isoformat(), 0), 2)
+            total += hrs
+            days.append({'label': day_labels[i] + ' ' + str(d.month) + '/' + str(d.day), 'hours': hrs})
+
+        return {'days': days, 'total_hours': round(total, 2)}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)})
+
+
+# ---------------------------------------------------------------------------
+# Reactivation — candidates, preview (SA 562), launch (SA 563)
+# ---------------------------------------------------------------------------
+@app.get('/api/reactivation/candidates')
+async def api_reactivation_candidates():
+    try:
+        today = today_pt()
+        six_months_ago = (today - datetime.timedelta(days=183)).isoformat()
+        one_year_ago   = (today - datetime.timedelta(days=365)).isoformat()
+
+        # Match Odoo saved filter logic:
+        # x_studio_x_studio_last_property_visit >= 6 months ago (has visited recently enough to be warm)
+        # x_studio_last_reactivation_sent < 1 year ago OR never sent
+        # x_studio_activelead != "Do Not Contact"
+        # record category = Property
+        candidates_raw = odoo_rpc('res.partner', 'search_read',
+            [[
+                ['x_studio_x_studio_record_category', '=', 'Property'],
+                ['x_studio_x_studio_last_property_visit', '>=', six_months_ago],
+                ['x_studio_activelead', '!=', 'Do Not Contact'],
+                '|',
+                ['x_studio_last_reactivation_sent', '<', one_year_ago],
+                ['x_studio_last_reactivation_sent', '=', False],
+            ]],
+            {'fields': [
+                'id', 'name', 'city',
+                'x_studio_x_studio_last_property_visit',
+                'x_studio_last_reactivation_sent',
+                'x_studio_x_type_of_service',
+                'x_studio_x_pricing',
+                'x_studio_x_frequency',
+            ], 'limit': 200, 'order': 'x_studio_x_studio_last_property_visit asc'}
+        )
+
+        if not candidates_raw:
+            return {'candidates': []}
+
+        # Get last SO ID for each partner (needed to run preview SA)
+        partner_ids = [p['id'] for p in candidates_raw]
+        sos = odoo_rpc('sale.order', 'search_read',
+            [[['partner_shipping_id', 'in', partner_ids],
+              ['state', 'in', ['sale', 'done']]]],
+            {'fields': ['id', 'partner_shipping_id', 'amount_total'],
+             'order': 'id desc', 'limit': 1000})
+
+        # Map partner_id → best SO id
+        best_so = {}
+        for so in (sos or []):
+            pid = so['partner_shipping_id'][0] if isinstance(so['partner_shipping_id'], list) else so['partner_shipping_id']
+            if pid not in best_so:
+                best_so[pid] = so
+
+        candidates = []
+        for p in candidates_raw:
+            pid = p['id']
+            so_rec = best_so.get(pid)
+            last_visit = p.get('x_studio_x_studio_last_property_visit') or ''
+            # Format date nicely
+            if last_visit and len(last_visit) >= 10:
+                try:
+                    dt = datetime.date.fromisoformat(last_visit[:10])
+                    last_visit = dt.strftime('%b %d, %Y')
+                except Exception:
+                    pass
+
+            pricing_raw = p.get('x_studio_x_pricing') or ''
+            est_price = ''
+            if pricing_raw:
+                # Try to extract first dollar amount
+                import re as _re
+                m = _re.search(r'\$?([\d,]+\.?\d*)', str(pricing_raw))
+                if m:
+                    est_price = m.group(1).replace(',', '')
+
+            candidates.append({
+                'partner_id': pid,
+                'name':       p.get('name', ''),
+                'city':       p.get('city', ''),
+                'service':    p.get('x_studio_x_type_of_service', ''),
+                'frequency':  p.get('x_studio_x_frequency', ''),
+                'last_visit': last_visit,
+                'est_price':  est_price,
+                'last_so_id': so_rec['id'] if so_rec else None,
+            })
+
+        return {'candidates': candidates}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
+
+
+@app.post('/api/reactivation/preview')
+async def api_reactivation_preview(request: Request):
+    """Call SA 562 (Preview) on the candidate's last SO, return x_studio_manual_sms_override."""
+    try:
+        body = await request.json()
+        so_id = body.get('so_id')
+        partner_id = body.get('partner_id')
+        if not so_id:
+            return JSONResponse({'ok': False, 'error': 'No sales order found for this candidate'})
+
+        # Run SA 562 (Preview) — writes SMS to x_studio_manual_sms_override on the SO
+        sa_payload = {
+            'jsonrpc': '2.0', 'method': 'call', 'id': 1,
+            'params': {
+                'service': 'object', 'method': 'execute_kw',
+                'args': [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                         'ir.actions.server', 'run', [[562]],
+                         {'context': {'active_id': so_id, 'active_ids': [so_id], 'active_model': 'sale.order'}}]
+            }
+        }
+        import httpx as _httpx
+        sa_resp = _httpx.post(f'{ODOO_URL}/jsonrpc', json=sa_payload, timeout=30)
+        sa_resp.raise_for_status()
+        sa_data = sa_resp.json()
+        if 'error' in sa_data:
+            err_msg = sa_data['error'].get('data', {}).get('message', str(sa_data['error']))
+            return JSONResponse({'ok': False, 'error': err_msg})
+
+        # Read the SMS text back from the SO
+        so_rec = odoo_rpc('sale.order', 'read', [[so_id]], {'fields': ['x_studio_manual_sms_override']})
+        sms_text = ''
+        if so_rec and so_rec[0]:
+            sms_text = so_rec[0].get('x_studio_manual_sms_override') or ''
+
+        if not sms_text:
+            return JSONResponse({'ok': False, 'error': 'Preview ran but SMS field is empty'})
+
+        return {'ok': True, 'sms': sms_text}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)})
+
+
+@app.post('/api/reactivation/launch')
+async def api_reactivation_launch(request: Request):
+    """Write edited SMS back to SO, then call SA 563 (Launch)."""
+    try:
+        body = await request.json()
+        so_id   = body.get('so_id')
+        sms_text = (body.get('sms_text') or '').strip()
+        if not so_id:
+            return JSONResponse({'ok': False, 'error': 'so_id required'})
+        if not sms_text:
+            return JSONResponse({'ok': False, 'error': 'sms_text required'})
+
+        # Write edited SMS back to SO field so SA 563 reads the user's version
+        odoo_rpc('sale.order', 'write', [[so_id], {'x_studio_manual_sms_override': sms_text}])
+
+        # Run SA 563 (Launch)
+        sa_payload = {
+            'jsonrpc': '2.0', 'method': 'call', 'id': 1,
+            'params': {
+                'service': 'object', 'method': 'execute_kw',
+                'args': [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                         'ir.actions.server', 'run', [[563]],
+                         {'context': {'active_id': so_id, 'active_ids': [so_id], 'active_model': 'sale.order'}}]
+            }
+        }
+        import httpx as _httpx
+        sa_resp = _httpx.post(f'{ODOO_URL}/jsonrpc', json=sa_payload, timeout=30)
+        sa_resp.raise_for_status()
+        sa_data = sa_resp.json()
+        if 'error' in sa_data:
+            err_msg = sa_data['error'].get('data', {}).get('message', str(sa_data['error']))
+            # SA 563 raises UserError on success sometimes — check if it looks like success
+            if 'sent' in err_msg.lower() or 'launched' in err_msg.lower() or 'graveyard' in err_msg.lower():
+                return {'ok': True}
+            return JSONResponse({'ok': False, 'error': err_msg})
+
+        return {'ok': True}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)})
