@@ -194,7 +194,48 @@ Utility: save_memory, delete_memory
 - Claude role: resize/optimize, write listings, publish to both platforms, manage orders + inventory
 - Status: not started. Revisit after payroll + Cheryl are done.
 
+## SAUNDERS RENDER APP — NEW ARCHITECTURE (2026-04-19)
+
+### New GitHub Repo
+- Repo: windowandsolarcare-hash/saunders-render-app (private)
+- Local: C:\Users\dj\Documents\Business\Saunders Render App\
+- Deploy: git push origin main (Render auto-deploys)
+- Render service: wsc-field-assistant (same service, repo changed)
+- URL: https://wsc-field-assistant.onrender.com
+
+### Router Structure
+- main.py — entry point only, mounts routers
+- routers/auth.py — login + role routing
+- routers/owner/dashboard.py — DJ's world
+- routers/tech/jobs.py — Danny + future techs
+- routers/cheryl/clients.py — Cheryl's world
+- shared/odoo.py — Odoo RPC helper used by all
+- static/login.html — login screen
+
+### Login System
+- URL: / → login screen (name + PIN)
+- POST /api/login → looks up res.partner by name + x_render_pin → routes by x_render_role
+- Fields on res.partner: x_render_pin (ID 19167), x_render_role (ID 19170), x_render_business (ID 19173)
+- Roles: owner→/owner/, tech→/tech/, cheryl→/cheryl/
+- No Odoo seats consumed — uses res.partner not res.users
+- DJ record: partner ID 3, PIN=8487, role=owner, business=wsc
+
+### OLD app.py
+- Still running separately at old Odoo-Migration repo path (5_Mobile_Interface/)
+- NOT yet migrated to new repo — W&SC tools still live there
+- New repo has placeholder dashboards only for now
+
+### Render MCP
+- Added: claude mcp add render --transport http https://mcp.render.com/sse
+- Needs: Render API key from Account Settings + Claude Code restart to activate
+
+---
+
 ## RECENT DECISIONS / CONTEXT
+- 2026-04-19: saunders-render-app repo created — new multi-business Render architecture with login, router separation, res.partner user system. LIVE.
+- 2026-04-19: Odoo email font changed from Verdana to Arial (layout template IDs 387 + 388). Use mail.mail JSON-RPC to send emails — not Gmail MCP (can only draft).
+- 2026-04-19: next_job_date stale bug — deleting a Workiz job without canceling first leaves stale date on contact, blocks reactivation list. Fix: cancel in Workiz before deleting. 11 contacts found with stale dates (sent email + created Odoo task ID 295).
+- 2026-04-19: Reactivation screen updates — SMS box doubled (280px), SO list links open in-app (no target=_blank), main screen WZ/SO links also fixed for mobile viewport.
 - 2026-04-18: Major Render UI session - photos, mic move, saved requests, timer PT times, 10-day lookahead, task_names for service type, time label on done jobs. Full state in project_render_app_apr18.md memory.
 - 2026-04-18: Saunders Printing added - commercial web-to-print, Odoo Website + Stripe, automated file prep, DJ prints/ships. Full plan in project_saunders_printing.md memory.
 - 2026-04-18: Multi-business platform plan finalized - Cheryl real estate, DJ+Danny payroll, artwork eCommerce, Saunders Printing all green-lighted. Build priority set.
