@@ -307,10 +307,14 @@
         <span class="candidate-count" id="candidate-count">Loading...</span>
         <button class="refresh-btn" onclick="loadCandidates()">↻ Refresh</button>
       </div>
-      <div style="padding-bottom:8px;">
+      <div style="padding-bottom:8px; position:relative;">
         <input class="city-input" id="name-search" type="text"
                placeholder="🔍 Search by customer name…"
-               oninput="onNameSearch()" style="width:100%; min-width:0;">
+               oninput="onNameSearch()" style="width:100%; min-width:0; padding-right:36px;">
+        <button id="name-clear-btn" onclick="clearNameSearch()"
+                style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                       background:none; border:none; color:var(--text-dim); font-size:18px;
+                       cursor:pointer; line-height:1; padding:0;">✕</button>
       </div>
       <div class="filter-bar">
         <div class="pill-group">
@@ -403,6 +407,14 @@
 
     function onNameSearch() {
       activeName = document.getElementById('name-search').value.trim().toLowerCase();
+      document.getElementById('name-clear-btn').style.display = activeName ? 'block' : 'none';
+      renderCandidates();
+    }
+
+    function clearNameSearch() {
+      activeName = '';
+      document.getElementById('name-search').value = '';
+      document.getElementById('name-clear-btn').style.display = 'none';
       renderCandidates();
     }
 
@@ -427,6 +439,7 @@
     function goBack() {
       previewActive = false;
       selectedCandidate = null;
+      clearNameSearch();
       showView('view-list');
     }
 
