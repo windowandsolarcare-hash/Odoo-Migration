@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>WSC · Reactivation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-page:  #0f172a;
+      --bg-card:  #1e293b;
+      --text:     #e2e8f0;
+      --text-dim: #94a3b8;
+      --accent:   #a78bfa;
+      --border:   #334155;
+      --success:  #22c55e;
+      --danger:   #ef4444;
+      --warning:  #f59e0b;
+    }
+    body.light {
+      --bg-page: #f1f5f9;
+      --bg-card: #ffffff;
+      --text:    #0f172a;
+      --text-dim:#475569;
+      --accent:  #7c3aed;
+      --border:  #e2e8f0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-page); color: var(--text);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+
+    /* HEADER */
+    .rc-header {
+      padding: 20px 20px 12px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border);
+      position: relative; flex-shrink: 0;
+    }
+    .back-btn {
+      background: none; border: none; color: var(--accent);
+      font-size: 24px; cursor: pointer; padding: 4px 8px 4px 0;
+      text-decoration: none;
+    }
+    .rc-header-title { font-size: 18px; font-weight: 700; }
+    .rc-header-sub   { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+    .theme-toggle {
+      position: absolute; right: 16px; top: 16px;
+      background: none; border: none; font-size: 20px;
+      cursor: pointer; color: var(--text-dim); padding: 4px;
+    }
+
+    /* VIEWS */
+    .view { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+    .view.active { display: flex; }
+
+    /* ── CANDIDATES LIST ── */
+    .list-toolbar {
+      padding: 12px 20px; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .candidate-count { font-size: 13px; color: var(--text-dim); }
+    .refresh-btn {
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 12px; font-size: 13px; color: var(--text-dim); cursor: pointer;
+    }
+    .refresh-btn:active { background: var(--border); }
+
+    .candidates-scroll { flex: 1; overflow-y: auto; padding: 12px 16px 40px; }
+
+    .candidate-card {
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-left: 4px solid var(--accent); border-radius: 16px;
+      padding: 16px; margin-bottom: 12px; cursor: pointer;
+      transition: border-color .1s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .candidate-card:active { transform: scale(0.99); border-color: var(--accent); }
+    .cand-name  { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .cand-city  { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
+    .cand-meta  { display: flex; gap: 8px; flex-wrap: wrap; }
+    .cand-tag {
+      font-size: 12px; padding: 3px 8px; border-radius: 20px;
+      background: var(--bg-page); color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .cand-tag.service { color: var(--accent); border-color: var(--accent); }
+    .cand-tag.price   { color: var(--success); border-color: var(--success); }
+    .cand-tag.date    { color: var(--warning); border-color: var(--warning); }
+
+    .list-empty {
+      text-align: center; padding: 60px 20px;
+      color: var(--text-dim); font-size: 15px;
+    }
+    .list-loading { padding: 60px 20px; text-align: center; color: var(--text-dim); }
+
+    /* ── PREVIEW VIEW ── */
+    .preview-scroll { flex: 1; overflow-y: auto; padding: 16px 20px 100px; }
+
+    .preview-header-card {
+      background: var(--bg-card); border-radius: 16px;
+      border: 1.5px solid var(--border); border-left: 4px solid var(--accent);
+      padding: 16px 20px; margin-bottom: 16px;
+    }
+    .preview-name  { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .preview-city  { font-size: 14px; color: var(--text-dim); }
+    .preview-detail-row {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+    }
+
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-dim);
+      margin-bottom: 8px; margin-top: 4px;
+    }
+
+    .sms-loading {
+      background: var(--bg-card); border-radius: 16px; padding: 24px;
+      text-align: center; color: var(--text-dim); font-size: 14px;
+      border: 1.5px solid var(--border);
+    }
+    .sms-box {
+      width: 100%; min-height: 140px; padding: 16px;
+      font-size: 15px; line-height: 1.5;
+      background: var(--bg-card); border: 2px solid var(--border);
+      border-radius: 16px; color: var(--text); resize: vertical; outline: none;
+      font-family: inherit;
+    }
+    .sms-box:focus { border-color: var(--accent); }
+    .char-count { font-size: 12px; color: var(--text-dim); text-align: right; margin-top: 4px; }
+
+    .preview-actions {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 12px 20px 28px;
+      background: var(--bg-page);
+      border-top: 1px solid var(--border);
+      display: flex; gap: 10px;
+    }
+    .prev-btn {
+      flex: 1; padding: 16px; font-size: 16px; font-weight: 700;
+      border-radius: 14px; cursor: pointer; border: none;
+      transition: opacity .15s;
+    }
+    .prev-btn:active { opacity: .85; }
+    .btn-back   { background: var(--bg-card); color: var(--text); border: 1.5px solid var(--border); }
+    .btn-launch { background: var(--accent); color: #fff; }
+    .btn-launch:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* CONFIRM DIALOG */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.6);
+      display: flex; align-items: flex-end;
+      z-index: 100; opacity: 0; pointer-events: none;
+      transition: opacity .2s;
+    }
+    .overlay.show { opacity: 1; pointer-events: auto; }
+    .confirm-sheet {
+      width: 100%; background: var(--bg-card);
+      border-radius: 24px 24px 0 0; padding: 24px 20px 40px;
+      transform: translateY(100%); transition: transform .3s;
+    }
+    .overlay.show .confirm-sheet { transform: translateY(0); }
+    .confirm-title { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+    .confirm-name  { font-size: 22px; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+    .confirm-sub   { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; }
+    .confirm-btns  { display: flex; gap: 10px; }
+    .confirm-btn   { flex: 1; padding: 16px; font-size: 16px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; }
+    .confirm-cancel { background: var(--border); color: var(--text); }
+    .confirm-go     { background: var(--accent); color: #fff; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+      background: #1e293b; border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 20px; font-size: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4); z-index: 200;
+      opacity: 0; transition: opacity .3s; pointer-events: none;
+      max-width: 340px; text-align: center;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="rc-header">
+    <a class="back-btn" href="/" id="back-link">‹</a>
+    <div>
+      <div class="rc-header-title">📋 Reactivation</div>
+      <div class="rc-header-sub" id="header-sub">Candidates</div>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️</button>
+  </div>
+
+  <!-- CANDIDATES VIEW -->
+  <div class="view active" id="view-list">
+    <div class="list-toolbar">
+      <span class="candidate-count" id="candidate-count">Loading...</span>
+      <button class="refresh-btn" onclick="loadCandidates()">↻ Refresh</button>
+    </div>
+    <div class="candidates-scroll" id="candidates-scroll">
+      <div class="list-loading">Loading candidates...</div>
+    </div>
+  </div>
+
+  <!-- PREVIEW VIEW -->
+  <div class="view" id="view-preview">
+    <div class="preview-scroll" id="preview-scroll">
+      <div class="preview-header-card">
+        <div class="preview-name" id="prev-name">—</div>
+        <div class="preview-city" id="prev-city">—</div>
+        <div class="preview-detail-row" id="prev-tags"></div>
+      </div>
+
+      <div class="section-label">SMS Message</div>
+      <div class="sms-loading" id="sms-loading">⏳ Generating SMS preview...</div>
+      <textarea class="sms-box" id="sms-box" style="display:none"
+        oninput="updateCharCount()"
+        placeholder="SMS text will appear here..."></textarea>
+      <div class="char-count" id="char-count"></div>
+    </div>
+
+    <div class="preview-actions">
+      <button class="prev-btn btn-back" onclick="goBack()">‹ Back</button>
+      <button class="prev-btn btn-launch" id="launch-btn"
+              onclick="showConfirm()" disabled>Launch ›</button>
+    </div>
+  </div>
+
+  <!-- CONFIRM SHEET -->
+  <div class="overlay" id="overlay" onclick="hideConfirm()">
+    <div class="confirm-sheet" onclick="event.stopPropagation()">
+      <div class="confirm-title">Send Reactivation?</div>
+      <div class="confirm-name" id="confirm-name">—</div>
+      <div class="confirm-sub">This will send an SMS and create a graveyard job in Workiz.</div>
+      <div class="confirm-btns">
+        <button class="confirm-btn confirm-cancel" onclick="hideConfirm()">Cancel</button>
+        <button class="confirm-btn confirm-go" id="confirm-go-btn" onclick="doLaunch()">Send It</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── Theme ──────────────────────────────────────────────────────────────
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light');
+      localStorage.setItem('wsc_theme', isLight ? 'light' : 'dark');
+      document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀️';
+    }
+    (function() {
+      if (localStorage.getItem('wsc_theme') === 'light') {
+        document.body.classList.add('light');
+        document.getElementById('theme-btn').textContent = '🌙';
+      }
+    })();
+
+    // ── State ──────────────────────────────────────────────────────────────
+    let candidates = [];
+    let selectedCandidate = null;
+    let previewActive = false;
+
+    // ── View switching ─────────────────────────────────────────────────────
+    function showView(id) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      const isPreview = id === 'view-preview';
+      document.getElementById('back-link').href = isPreview ? '#' : '/';
+      document.getElementById('back-link').onclick = isPreview ? (e => { e.preventDefault(); goBack(); }) : null;
+      document.getElementById('header-sub').textContent = isPreview ? 'Preview & Launch' : 'Candidates';
+    }
+
+    function goBack() {
+      previewActive = false;
+      selectedCandidate = null;
+      showView('view-list');
+    }
+
+    // ── Load candidates ────────────────────────────────────────────────────
+    async function loadCandidates() {
+      document.getElementById('candidates-scroll').innerHTML = '<div class="list-loading">Loading candidates...</div>';
+      document.getElementById('candidate-count').textContent = 'Loading...';
+      try {
+        const resp = await fetch('/api/reactivation/candidates');
+        const data = await resp.json();
+        candidates = data.candidates || [];
+        renderCandidates();
+      } catch (e) {
+        document.getElementById('candidates-scroll').innerHTML =
+          '<div class="list-empty">Could not load candidates.<br>Check connection and try again.</div>';
+        document.getElementById('candidate-count').textContent = 'Error';
+      }
+    }
+
+    function renderCandidates() {
+      const ct = candidates.length;
+      document.getElementById('candidate-count').textContent =
+        ct === 0 ? 'No candidates found' : ct + ' candidate' + (ct === 1 ? '' : 's');
+
+      if (ct === 0) {
+        document.getElementById('candidates-scroll').innerHTML =
+          '<div class="list-empty">🎉 No candidates right now.<br>Everyone has been contacted recently.</div>';
+        return;
+      }
+
+      document.getElementById('candidates-scroll').innerHTML = candidates.map((c, i) => `
+        <div class="candidate-card" onclick="openCandidate(${i})">
+          <div class="cand-name">${esc(c.name)}</div>
+          <div class="cand-city">${esc(c.city || 'Unknown city')}</div>
+          <div class="cand-meta">
+            ${c.service ? `<span class="cand-tag service">${esc(c.service)}</span>` : ''}
+            ${c.last_visit ? `<span class="cand-tag date">Last: ${esc(c.last_visit)}</span>` : ''}
+            ${c.est_price ? `<span class="cand-tag price">~$${c.est_price}</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ── Open candidate → preview ───────────────────────────────────────────
+    async function openCandidate(idx) {
+      selectedCandidate = candidates[idx];
+      const c = selectedCandidate;
+
+      // Fill header
+      document.getElementById('prev-name').textContent = c.name;
+      document.getElementById('prev-city').textContent = c.city || '';
+      document.getElementById('prev-tags').innerHTML = [
+        c.service ? `<span class="cand-tag service">${esc(c.service)}</span>` : '',
+        c.last_visit ? `<span class="cand-tag date">Last: ${esc(c.last_visit)}</span>` : '',
+        c.est_price ? `<span class="cand-tag price">~$${c.est_price}</span>` : '',
+        c.frequency ? `<span class="cand-tag">${esc(c.frequency)}</span>` : '',
+      ].join('');
+      document.getElementById('confirm-name').textContent = c.name;
+
+      // Reset SMS area
+      document.getElementById('sms-loading').style.display = 'block';
+      document.getElementById('sms-box').style.display = 'none';
+      document.getElementById('char-count').textContent = '';
+      document.getElementById('launch-btn').disabled = true;
+
+      showView('view-preview');
+      document.getElementById('preview-scroll').scrollTop = 0;
+      previewActive = true;
+
+      // Fetch preview from Odoo SA 562
+      try {
+        const resp = await fetch('/api/reactivation/preview', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({so_id: c.last_so_id, partner_id: c.partner_id})
+        });
+        const data = await resp.json();
+        if (data.sms) {
+          document.getElementById('sms-loading').style.display = 'none';
+          document.getElementById('sms-box').style.display = 'block';
+          document.getElementById('sms-box').value = data.sms;
+          updateCharCount();
+          document.getElementById('launch-btn').disabled = false;
+        } else {
+          document.getElementById('sms-loading').textContent = '⚠️ Could not generate preview: ' + (data.error || 'Unknown error');
+        }
+      } catch (e) {
+        document.getElementById('sms-loading').textContent = '⚠️ Server error loading preview';
+      }
+    }
+
+    function updateCharCount() {
+      const len = document.getElementById('sms-box').value.length;
+      document.getElementById('char-count').textContent = len + ' chars' + (len > 160 ? ' ⚠️ >160' : '');
+    }
+
+    // ── Confirm / Launch ───────────────────────────────────────────────────
+    function showConfirm() {
+      document.getElementById('overlay').classList.add('show');
+    }
+    function hideConfirm() {
+      document.getElementById('overlay').classList.remove('show');
+      document.getElementById('confirm-go-btn').disabled = false;
+      document.getElementById('confirm-go-btn').textContent = 'Send It';
+    }
+
+    async function doLaunch() {
+      const btn = document.getElementById('confirm-go-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      const smsText = document.getElementById('sms-box').value.trim();
+      if (!smsText) {
+        showToast('SMS is empty — edit it first');
+        hideConfirm(); return;
+      }
+
+      try {
+        const resp = await fetch('/api/reactivation/launch', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            so_id: selectedCandidate.last_so_id,
+            partner_id: selectedCandidate.partner_id,
+            sms_text: smsText
+          })
+        });
+        const data = await resp.json();
+        hideConfirm();
+        if (data.ok) {
+          showToast('✅ Launched for ' + selectedCandidate.name);
+          // Remove from list and go back
+          candidates = candidates.filter(c => c.partner_id !== selectedCandidate.partner_id);
+          goBack();
+          renderCandidates();
+        } else {
+          showToast('⚠️ ' + (data.error || 'Launch failed'));
+        }
+      } catch (e) {
+        hideConfirm();
+        showToast('Server error during launch');
+      }
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+    function esc(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────
+    loadCandidates();
+  </script>
+</body>
+</html>
