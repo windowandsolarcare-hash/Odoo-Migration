@@ -202,3 +202,44 @@ Utility: save_memory, delete_memory
 - 2026-04-12: Added orphaned task restore, SO smart button, staggered task times, Sunday tag (508 SOs), Calendly Cathedral City, app.py timer tools
 - 2026-04-02: Backfilled x_studio_next_job_date on 48 contacts
 - Credit card at-door: JobAmountDue=0 + Status!=Done = CC taken. Invoice using "Credit" method → Phase 6 skips Workiz payment POST
+
+---
+
+## HUB SCREEN ARCHITECTURE (Built 2026-04-18)
+
+### Routes
+-  → hub.html (landing screen, no auth)
+-  → index.html (Field Assistant, existing)
+-  → timeclock.html (clock in/out)
+-  → reactivation.html (reactivation campaign)
+
+### Auth ()
+- Body: 
+- Returns: 
+- DJ code = ACCESS_CODE env var (default: wsc2026)
+- Danny code = DANNY_CODE env var (default: danny951) — MUST add to Render env vars
+
+### Payroll Endpoints
+-  — body:  — stores UTC timestamp in ir.config_parameter key 
+-  — body:  — calculates hours, creates account.analytic.line, clears param
+-  — returns 
+-  — Mon-Sat hours by day, total
+
+### Payroll Constants (env vars or defaults)
+-  = 1 (Odoo hr.employee)
+-  = 2 (Danny Saunders — created in Odoo 2026-04-18)
+-  = 3 (Odoo project for payroll timesheets)
+
+### Reactivation Endpoints
+-  — queries Odoo: Property records, last visit >= 6mo ago, last reactivation > 1yr or never, not Do Not Contact. Returns list with partner_id, name, city, service, frequency, last_visit, est_price, last_so_id
+-  — body:  — calls SA 562 in Odoo, reads x_studio_manual_sms_override, returns 
+-  — body:  — writes SMS back to SO field, calls SA 563
+
+### Danny Mode (index.html)
+- Auth stores user type in localStorage 
+- If danny: hides hdr-total (dollar amount), hides Stats/10-Day/Voice/Customers/To-Dos tabs
+- Danny sees: field job list, timer, photos, payment
+
+### Changelog
+- 2026-04-18: Hub screen + timeclock + reactivation built and pushed to GitHub
+- 2026-04-18: Danny Saunders created in Odoo (employee ID 2, 951-388-8311, nolimetangeredanny@gmail.com)
