@@ -2893,9 +2893,10 @@ async def api_reactivation_preview(request: Request):
 
         # Read the SMS text and Workiz link back from the SO
         so_rec = odoo_rpc('sale.order', 'read', [[so_id]],
-            {'fields': ['x_studio_manual_sms_override', 'x_studio_x_workiz_link', 'x_studio_x_studio_workiz_uuid']})
+            {'fields': ['x_studio_manual_sms_override', 'x_studio_x_workiz_link', 'x_studio_x_studio_workiz_uuid', 'partner_shipping_id']})
         sms_text = ''
         workiz_link = ''
+        prop_id = None
         if so_rec and so_rec[0]:
             sms_text    = so_rec[0].get('x_studio_manual_sms_override') or ''
             workiz_link = so_rec[0].get('x_studio_x_workiz_link') or ''
@@ -2903,6 +2904,8 @@ async def api_reactivation_preview(request: Request):
                 uuid = so_rec[0].get('x_studio_x_studio_workiz_uuid') or ''
                 if uuid:
                     workiz_link = f'https://app.workiz.com/job/{uuid}/'
+            ps = so_rec[0].get('partner_shipping_id')
+            prop_id = ps[0] if isinstance(ps, (list, tuple)) else ps
 
         if not sms_text:
             return JSONResponse({'ok': False, 'error': 'Preview ran but SMS field is empty'})
@@ -2931,14 +2934,27 @@ async def api_reactivation_preview(request: Request):
 
             job_count = len(all_jobs or [])
 
-            # Also get frequency from contact
+            # Read property record fields
+            prop_details = {}
+            if prop_id:
+                prop_rec = odoo_rpc('res.partner', 'read', [[prop_id]],
+                    {'fields': ['x_studio_x_pricing', 'x_studio_prices_per_service',
+                                'x_studio_x_studio_last_property_visit', 'x_studio_x_type_of_service']})
+                if prop_rec and prop_rec[0]:
+                    prop_details['pricing_note']        = prop_rec[0].get('x_studio_x_pricing') or ''
+                    prop_details['prices_per_service']  = prop_rec[0].get('x_studio_prices_per_service') or ''
+                    prop_details['last_property_visit'] = prop_rec[0].get('x_studio_x_studio_last_property_visit') or ''
+                    prop_details['type_of_service']     = prop_rec[0].get('x_studio_x_type_of_service') or ''
+
+            # Read contact fields
             contact_rec = odoo_rpc('res.partner', 'read', [[partner_id]],
-                {'fields': ['x_studio_x_frequency', 'x_studio_x_pricing']})
+                {'fields': ['x_studio_x_frequency', 'x_studio_last_reactivation_sent']})
             frequency = ''
-            pricing_note = ''
+            last_reactivation_sent = ''
+            pricing_note = prop_details.get('pricing_note', '')
             if contact_rec and contact_rec[0]:
-                frequency    = contact_rec[0].get('x_studio_x_frequency') or ''
-                pricing_note = contact_rec[0].get('x_studio_x_pricing') or ''
+                frequency              = contact_rec[0].get('x_studio_x_frequency') or ''
+                last_reactivation_sent = contact_rec[0].get('x_studio_last_reactivation_sent') or ''
 
             # Build last 2 jobs
             for job in (all_jobs or [])[:2]:
@@ -2972,7 +2988,15 @@ async def api_reactivation_preview(request: Request):
                 })
 
         return {'ok': True, 'sms': sms_text, 'workiz_link': workiz_link,
-                'job_count': job_count, 'last_jobs': last_jobs}
+                'job_count': job_count, 'last_jobs': last_jobs,
+                'prop_id': prop_id,
+                'prop_details': {
+                    'pricing_note':        prop_details.get('pricing_note', '') if partner_id else '',
+                    'prices_per_service':  prop_details.get('prices_per_service', '') if partner_id else '',
+                    'last_property_visit': prop_details.get('last_property_visit', '') if partner_id else '',
+                    'type_of_service':     prop_details.get('type_of_service', '') if partner_id else '',
+                    'last_reactivation_sent': last_reactivation_sent if partner_id else '',
+                }}
     except Exception as e:
         return JSONResponse({'ok': False, 'error': str(e)})
 
