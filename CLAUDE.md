@@ -79,6 +79,9 @@
 | Historical UUID | crm.lead | `x_historical_workiz_uuid` | |
 | Historical Link | crm.lead | `x_studio_x_historical_workiz_link` | |
 | Odoo Contact ID | crm.lead | `x_odoo_contact_id` | Linked res.partner ID |
+| Workiz Status | sale.order | `x_studio_x_studio_workiz_status` | "Done" = job complete. Filter for Done jobs ONLY with this field |
+| Render Access Code | hr.employee | `x_render_access_code` | 4-digit PIN for Render app login |
+| Next Job Date | res.partner | `x_studio_next_job_date` | Next scheduled job date — written by Phase 3/5, cleared by Phase 4 on Done/Canceled |
 
 ---
 
