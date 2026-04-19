@@ -81,7 +81,8 @@
       -webkit-tap-highlight-color: transparent;
     }
     .candidate-card:active { transform: scale(0.99); border-color: var(--accent); }
-    .cand-name  { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .cand-name     { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+    .cand-customer { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
     .cand-city  { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
     .cand-meta  { display: flex; gap: 8px; flex-wrap: wrap; }
     .cand-tag {
@@ -107,7 +108,8 @@
       border: 1.5px solid var(--border); border-left: 4px solid var(--accent);
       padding: 16px 20px; margin-bottom: 16px;
     }
-    .preview-name  { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .preview-name     { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
+    .preview-customer { font-size: 14px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
     .preview-city  { font-size: 14px; color: var(--text-dim); }
     .preview-detail-row {
       display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
@@ -211,6 +213,7 @@
     <div class="preview-scroll" id="preview-scroll">
       <div class="preview-header-card">
         <div class="preview-name" id="prev-name">—</div>
+        <div class="preview-customer" id="prev-customer" style="display:none"></div>
         <div class="preview-city" id="prev-city">—</div>
         <div class="preview-detail-row" id="prev-tags"></div>
       </div>
@@ -310,6 +313,7 @@
       document.getElementById('candidates-scroll').innerHTML = candidates.map((c, i) => `
         <div class="candidate-card" onclick="openCandidate(${i})">
           <div class="cand-name">${esc(c.name)}</div>
+          ${c.customer_name ? `<div class="cand-customer">${esc(c.customer_name)}</div>` : ''}
           <div class="cand-city">${esc(c.city || 'Unknown city')}</div>
           <div class="cand-meta">
             ${c.service ? `<span class="cand-tag service">${esc(c.service)}</span>` : ''}
@@ -327,6 +331,13 @@
 
       // Fill header
       document.getElementById('prev-name').textContent = c.name;
+      const prevCust = document.getElementById('prev-customer');
+      if (c.customer_name) {
+        prevCust.textContent = c.customer_name;
+        prevCust.style.display = 'block';
+      } else {
+        prevCust.style.display = 'none';
+      }
       document.getElementById('prev-city').textContent = c.city || '';
       document.getElementById('prev-tags').innerHTML = [
         c.service ? `<span class="cand-tag service">${esc(c.service)}</span>` : '',
