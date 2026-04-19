@@ -247,14 +247,22 @@
 
     /* ── MIC HEADER BTN ── */
     #mic-fab {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: #0284c7; color: white; font-size: 19px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #0284c7; color: white; font-size: 15px;
       border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 2px 8px rgba(2,132,199,.4);
       flex-shrink: 0;
     }
     #mic-fab:active { background: #0369a1; }
+    #clock-link {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #f59e0b; color: #fff; font-size: 20px;
+      text-decoration: none; flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(245,158,11,.4);
+    }
+    #clock-link:active { background: #d97706; }
 
     /* ── VOICE MODAL ── */
     #voice-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 200; align-items: flex-end; }
@@ -406,12 +414,9 @@
         <div class="hdr-total" id="hdr-total">—</div>
         <div class="hdr-count" id="hdr-count"></div>
       </div>
+      <a href="/timeclock" id="clock-link" title="Time Clock">⏱</a>
       <button id="mic-fab" onclick="openVoiceModal()">🎤</button>
       <div class="hdr-btns">
-        <a href="/timeclock" id="clock-btn" title="Time Clock"
-           style="background:none;border:none;color:var(--text-muted);font-size:20px;
-                  cursor:pointer;padding:6px 8px;border-radius:8px;line-height:1;
-                  text-decoration:none;display:flex;align-items:center;">⏱</a>
         <button id="theme-btn" onclick="toggleTheme()" title="Toggle light/dark">☀️</button>
         <button id="refresh-btn" onclick="loadField()">↺</button>
       </div>
