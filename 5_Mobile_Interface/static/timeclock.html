@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>WSC · Time Clock</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-page:  #0f172a;
+      --bg-card:  #1e293b;
+      --text:     #e2e8f0;
+      --text-dim: #94a3b8;
+      --accent:   #f59e0b;
+      --border:   #334155;
+      --success:  #22c55e;
+      --danger:   #ef4444;
+    }
+    body.light {
+      --bg-page: #f1f5f9;
+      --bg-card: #ffffff;
+      --text:    #0f172a;
+      --text-dim:#475569;
+      --accent:  #d97706;
+      --border:  #e2e8f0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-page); color: var(--text);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+
+    /* HEADER */
+    .tc-header {
+      padding: 20px 20px 12px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+    .back-btn {
+      background: none; border: none; color: var(--accent);
+      font-size: 24px; cursor: pointer; padding: 4px 8px 4px 0;
+      text-decoration: none;
+    }
+    .tc-header-title { font-size: 18px; font-weight: 700; }
+    .tc-header-sub   { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+    .theme-toggle {
+      position: absolute; right: 16px; top: 16px;
+      background: none; border: none; font-size: 20px;
+      cursor: pointer; color: var(--text-dim); padding: 4px;
+    }
+
+    /* CONTENT */
+    .tc-body {
+      flex: 1; padding: 24px 20px 40px;
+      display: flex; flex-direction: column; gap: 20px;
+      max-width: 520px; margin: 0 auto; width: 100%;
+    }
+
+    /* LOGIN SCREEN */
+    .login-screen { display: flex; flex-direction: column; gap: 16px; }
+    .login-title { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 4px; }
+    .login-sub   { font-size: 14px; color: var(--text-dim); text-align: center; }
+    .code-input {
+      width: 100%; padding: 18px; font-size: 28px; letter-spacing: 8px;
+      text-align: center; border-radius: 16px;
+      background: var(--bg-card); border: 2px solid var(--border);
+      color: var(--text); outline: none;
+      -webkit-text-security: disc;
+    }
+    .code-input:focus { border-color: var(--accent); }
+    .login-btn {
+      width: 100%; padding: 18px; font-size: 18px; font-weight: 700;
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 16px; cursor: pointer; transition: opacity .15s;
+    }
+    .login-btn:active { opacity: .85; }
+    .login-error { color: var(--danger); font-size: 14px; text-align: center; display: none; }
+
+    /* CLOCK PANEL */
+    .clock-panel { display: flex; flex-direction: column; gap: 20px; }
+    .user-badge {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg-card); border-radius: 16px;
+      padding: 16px 20px; border: 1.5px solid var(--border);
+    }
+    .user-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--accent); display: flex; align-items: center;
+      justify-content: center; font-size: 22px; font-weight: 800; color: #fff;
+    }
+    .user-name   { font-size: 18px; font-weight: 700; }
+    .user-role   { font-size: 13px; color: var(--text-dim); }
+
+    .clock-status {
+      background: var(--bg-card); border-radius: 20px;
+      border: 1.5px solid var(--border);
+      padding: 32px 24px; text-align: center;
+    }
+    .status-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--text-dim); display: inline-block;
+      margin-bottom: 12px;
+    }
+    .status-dot.in  { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .status-dot.out { background: var(--danger); }
+    .status-label   { font-size: 14px; color: var(--text-dim); margin-bottom: 8px; }
+    .elapsed-time   { font-size: 52px; font-weight: 800; letter-spacing: 2px; font-variant-numeric: tabular-nums; }
+    .elapsed-time.in { color: var(--success); }
+    .clockin-since  { font-size: 13px; color: var(--text-dim); margin-top: 8px; }
+
+    .clock-btn {
+      width: 100%; padding: 22px; font-size: 20px; font-weight: 800;
+      border: none; border-radius: 20px; cursor: pointer;
+      transition: opacity .15s, transform .1s;
+      letter-spacing: 1px;
+    }
+    .clock-btn:active { opacity: .85; transform: scale(0.98); }
+    .clock-btn.clockin  { background: var(--success); color: #fff; }
+    .clock-btn.clockout { background: var(--danger);  color: #fff; }
+
+    /* TIMESHEET CARD */
+    .timesheet-card {
+      background: var(--bg-card); border-radius: 16px;
+      border: 1.5px solid var(--border); padding: 20px;
+    }
+    .timesheet-title {
+      font-size: 14px; font-weight: 700; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px;
+    }
+    .timesheet-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .timesheet-row:last-child { border-bottom: none; }
+    .timesheet-row .day  { color: var(--text-dim); }
+    .timesheet-row .hrs  { font-weight: 700; }
+    .timesheet-total {
+      display: flex; justify-content: space-between;
+      padding-top: 12px; margin-top: 8px;
+      border-top: 2px solid var(--accent);
+      font-size: 16px; font-weight: 800;
+    }
+
+    /* FIELD LINK */
+    .field-link-btn {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: var(--bg-card); border: 1.5px solid #38bdf8;
+      border-radius: 16px; padding: 18px; color: #38bdf8;
+      font-size: 16px; font-weight: 700; text-decoration: none;
+      transition: background .15s;
+    }
+    .field-link-btn:active { background: rgba(56,189,248,.1); }
+
+    /* LOGOUT */
+    .logout-btn {
+      background: none; border: none; color: var(--text-dim);
+      font-size: 14px; cursor: pointer; text-align: center;
+      padding: 8px; width: 100%;
+    }
+    .logout-btn:hover { color: var(--text); }
+
+    /* MESSAGES */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: #1e293b; border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 20px; font-size: 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4); z-index: 999;
+      opacity: 0; transition: opacity .3s; pointer-events: none;
+      max-width: 340px; text-align: center;
+    }
+    .toast.show { opacity: 1; }
+
+    /* States */
+    #login-screen  { display: none; }
+    #clock-panel   { display: none; }
+  </style>
+</head>
+<body>
+  <div class="tc-header">
+    <a class="back-btn" href="/">‹</a>
+    <div>
+      <div class="tc-header-title">⏱ Time Clock</div>
+      <div class="tc-header-sub" id="header-date"></div>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️</button>
+  </div>
+
+  <div class="tc-body">
+
+    <!-- LOGIN -->
+    <div id="login-screen">
+      <div class="login-screen">
+        <div class="login-title">Enter Your Code</div>
+        <div class="login-sub">DJ or Danny</div>
+        <input type="password" class="code-input" id="code-input"
+               placeholder="••••••"
+               onkeydown="if(event.key==='Enter') doLogin()">
+        <button class="login-btn" onclick="doLogin()">Sign In</button>
+        <div class="login-error" id="login-error">Incorrect code — try again</div>
+      </div>
+    </div>
+
+    <!-- CLOCK PANEL -->
+    <div id="clock-panel">
+      <div class="clock-panel">
+
+        <div class="user-badge">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <div>
+            <div class="user-name" id="user-name">Loading...</div>
+            <div class="user-role" id="user-role"></div>
+          </div>
+        </div>
+
+        <div class="clock-status" id="clock-status">
+          <div class="status-dot" id="status-dot"></div>
+          <div class="status-label" id="status-label">Checking...</div>
+          <div class="elapsed-time" id="elapsed-time">--:--:--</div>
+          <div class="clockin-since" id="clockin-since"></div>
+        </div>
+
+        <button class="clock-btn clockin" id="clock-btn" onclick="toggleClock()">CLOCK IN</button>
+
+        <div class="timesheet-card">
+          <div class="timesheet-title">This Week</div>
+          <div id="timesheet-rows"><div style="color:var(--text-dim);font-size:13px">Loading...</div></div>
+          <div class="timesheet-total">
+            <span>Total</span>
+            <span id="week-total">–</span>
+          </div>
+        </div>
+
+        <a class="field-link-btn" href="/field">
+          🏠 Go to Field Assistant
+        </a>
+
+        <button class="logout-btn" onclick="doLogout()">Sign out</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── Theme ──────────────────────────────────────────────────────────────
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light');
+      localStorage.setItem('wsc_theme', isLight ? 'light' : 'dark');
+      document.getElementById('theme-btn').textContent = isLight ? '🌙' : '☀️';
+    }
+    (function() {
+      if (localStorage.getItem('wsc_theme') === 'light') {
+        document.body.classList.add('light');
+        document.getElementById('theme-btn').textContent = '🌙';
+      }
+    })();
+
+    // ── Date header ────────────────────────────────────────────────────────
+    (function() {
+      const d = new Date();
+      const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      document.getElementById('header-date').textContent =
+        days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate();
+    })();
+
+    // ── Auth ───────────────────────────────────────────────────────────────
+    let currentUser = null;  // { type: 'dj'|'danny', name, employeeId }
+    let clockedIn = false;
+    let clockInTime = null;
+    let elapsedInterval = null;
+
+    function showScreen(name) {
+      document.getElementById('login-screen').style.display = name === 'login' ? 'block' : 'none';
+      document.getElementById('clock-panel').style.display  = name === 'clock' ? 'block' : 'none';
+    }
+
+    async function doLogin() {
+      const code = document.getElementById('code-input').value.trim();
+      document.getElementById('login-error').style.display = 'none';
+      if (!code) return;
+
+      try {
+        const resp = await fetch('/api/auth', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({code})
+        });
+        const data = await resp.json();
+        if (!data.ok) {
+          document.getElementById('login-error').style.display = 'block';
+          return;
+        }
+        currentUser = data.user;
+        localStorage.setItem('tc_user', JSON.stringify(currentUser));
+        renderUser();
+        showScreen('clock');
+        loadClockStatus();
+      } catch (e) {
+        document.getElementById('login-error').textContent = 'Server error — try again';
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+
+    function doLogout() {
+      currentUser = null;
+      localStorage.removeItem('tc_user');
+      stopElapsed();
+      showScreen('login');
+      document.getElementById('code-input').value = '';
+    }
+
+    function renderUser() {
+      const u = currentUser;
+      document.getElementById('user-avatar').textContent = u.name[0];
+      document.getElementById('user-name').textContent   = u.name;
+      document.getElementById('user-role').textContent   = u.type === 'dj' ? 'Owner' : 'Technician';
+    }
+
+    // ── Clock status ───────────────────────────────────────────────────────
+    async function loadClockStatus() {
+      try {
+        const resp = await fetch('/api/payroll/status?employee_id=' + currentUser.employeeId);
+        const data = await resp.json();
+        updateClockUI(data);
+        loadWeeklyHours();
+      } catch (e) {
+        showToast('Could not load clock status');
+      }
+    }
+
+    function updateClockUI(data) {
+      clockedIn = data.clocked_in;
+      clockInTime = data.clock_in_time ? new Date(data.clock_in_time) : null;
+
+      const dot    = document.getElementById('status-dot');
+      const label  = document.getElementById('status-label');
+      const elapsed = document.getElementById('elapsed-time');
+      const since  = document.getElementById('clockin-since');
+      const btn    = document.getElementById('clock-btn');
+
+      if (clockedIn) {
+        dot.className = 'status-dot in';
+        label.textContent = 'Clocked In';
+        elapsed.className = 'elapsed-time in';
+        since.textContent = 'Since ' + formatTime12(clockInTime);
+        btn.className = 'clock-btn clockout';
+        btn.textContent = 'CLOCK OUT';
+        startElapsed();
+      } else {
+        dot.className = 'status-dot out';
+        label.textContent = 'Clocked Out';
+        elapsed.className = 'elapsed-time';
+        elapsed.textContent = '--:--:--';
+        since.textContent = '';
+        btn.className = 'clock-btn clockin';
+        btn.textContent = 'CLOCK IN';
+        stopElapsed();
+      }
+    }
+
+    function startElapsed() {
+      stopElapsed();
+      elapsedInterval = setInterval(() => {
+        if (!clockInTime) return;
+        const secs = Math.floor((Date.now() - clockInTime.getTime()) / 1000);
+        const h = Math.floor(secs / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = secs % 60;
+        document.getElementById('elapsed-time').textContent =
+          String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+      }, 1000);
+    }
+
+    function stopElapsed() {
+      if (elapsedInterval) { clearInterval(elapsedInterval); elapsedInterval = null; }
+    }
+
+    // ── Toggle clock ───────────────────────────────────────────────────────
+    async function toggleClock() {
+      const btn = document.getElementById('clock-btn');
+      btn.disabled = true;
+      try {
+        const endpoint = clockedIn ? '/api/payroll/clockout' : '/api/payroll/clockin';
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({employee_id: currentUser.employeeId})
+        });
+        const data = await resp.json();
+        if (data.ok) {
+          showToast(clockedIn
+            ? '✅ Clocked out — ' + data.hours_today + ' hrs today'
+            : '✅ Clocked in');
+          await loadClockStatus();
+        } else {
+          showToast('Error: ' + (data.error || 'Unknown'));
+        }
+      } catch (e) {
+        showToast('Server error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ── Weekly hours ───────────────────────────────────────────────────────
+    async function loadWeeklyHours() {
+      try {
+        const resp = await fetch('/api/payroll/week?employee_id=' + currentUser.employeeId);
+        const data = await resp.json();
+        renderWeek(data.days, data.total_hours);
+      } catch (e) { /* silent */ }
+    }
+
+    function renderWeek(days, total) {
+      const container = document.getElementById('timesheet-rows');
+      if (!days || days.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-dim);font-size:13px">No hours this week</div>';
+        document.getElementById('week-total').textContent = '0 hrs';
+        return;
+      }
+      container.innerHTML = days.map(d =>
+        `<div class="timesheet-row">
+          <span class="day">${d.label}</span>
+          <span class="hrs">${d.hours > 0 ? d.hours.toFixed(2) + ' hrs' : '—'}</span>
+        </div>`
+      ).join('');
+      document.getElementById('week-total').textContent = (total || 0).toFixed(2) + ' hrs';
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+    function formatTime12(dt) {
+      if (!dt) return '';
+      let h = dt.getHours(), m = dt.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return h + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────────
+    (function() {
+      const saved = localStorage.getItem('tc_user');
+      if (saved) {
+        try {
+          currentUser = JSON.parse(saved);
+          renderUser();
+          showScreen('clock');
+          loadClockStatus();
+          return;
+        } catch (e) { /* fall through */ }
+      }
+      showScreen('login');
+    })();
+  </script>
+</body>
+</html>
