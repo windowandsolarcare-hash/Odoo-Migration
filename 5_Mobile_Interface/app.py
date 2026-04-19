@@ -2748,7 +2748,7 @@ async def api_reactivation_candidates():
                 ['x_studio_last_reactivation_sent', '=', False],
             ]],
             {'fields': [
-                'id', 'name', 'city',
+                'id', 'name', 'city', 'parent_id',
                 'x_studio_x_studio_last_property_visit',
                 'x_studio_last_reactivation_sent',
                 'x_studio_x_type_of_service',
@@ -2797,15 +2797,19 @@ async def api_reactivation_candidates():
                 if m:
                     est_price = m.group(1).replace(',', '')
 
+            parent = p.get('parent_id')
+            customer_name = parent[1] if isinstance(parent, list) and len(parent) > 1 else ''
+
             candidates.append({
-                'partner_id': pid,
-                'name':       p.get('name', ''),
-                'city':       p.get('city', ''),
-                'service':    p.get('x_studio_x_type_of_service', ''),
-                'frequency':  p.get('x_studio_x_frequency', ''),
-                'last_visit': last_visit,
-                'est_price':  est_price,
-                'last_so_id': so_rec['id'] if so_rec else None,
+                'partner_id':    pid,
+                'name':          p.get('name', ''),
+                'customer_name': customer_name,
+                'city':          p.get('city', ''),
+                'service':       p.get('x_studio_x_type_of_service', ''),
+                'frequency':     p.get('x_studio_x_frequency', ''),
+                'last_visit':    last_visit,
+                'est_price':     est_price,
+                'last_so_id':    so_rec['id'] if so_rec else None,
             })
 
         return {'candidates': candidates}
