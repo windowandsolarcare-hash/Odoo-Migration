@@ -313,9 +313,13 @@
         oninput="updateCharCount()"
         placeholder="SMS text will appear here..."></textarea>
       <div class="char-count" id="char-count"></div>
-      <div id="workiz-pill-wrap" style="display:none">
+      <div id="workiz-pill-wrap" style="display:none; display:flex; gap:10px; flex-wrap:wrap;">
         <a class="workiz-pill" id="workiz-pill" href="#" target="_blank">
           🔧 View Workiz Job
+        </a>
+        <a class="workiz-pill" id="odoo-pill" href="#" target="_blank"
+           style="border-color:#a78bfa; color:#a78bfa;">
+          🟣 View Odoo SO
         </a>
       </div>
     </div>
@@ -481,15 +485,15 @@
           document.getElementById('sms-box').value = data.sms;
           updateCharCount();
           document.getElementById('launch-btn').disabled = false;
-          // Workiz job link pill
+          // Pill links
           const pillWrap = document.getElementById('workiz-pill-wrap');
           const pill     = document.getElementById('workiz-pill');
-          if (data.workiz_link) {
-            pill.href = data.workiz_link;
-            pillWrap.style.display = 'block';
-          } else {
-            pillWrap.style.display = 'none';
+          const odooPill = document.getElementById('odoo-pill');
+          if (data.workiz_link) { pill.href = data.workiz_link; }
+          if (c.last_so_id) {
+            odooPill.href = 'https://window-solar-care.odoo.com/odoo/sales/' + c.last_so_id;
           }
+          pillWrap.style.display = 'flex';
           // Job history panel
           renderJobHistory(data.job_count || 0, data.last_jobs || []);
         } else {
