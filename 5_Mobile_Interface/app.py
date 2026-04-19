@@ -2897,7 +2897,73 @@ async def api_reactivation_preview(request: Request):
         if not sms_text:
             return JSONResponse({'ok': False, 'error': 'Preview ran but SMS field is empty'})
 
-        return {'ok': True, 'sms': sms_text, 'workiz_link': workiz_link}
+        # ── Job history for this contact ───────────────────────────────────
+        job_count = 0
+        last_jobs = []
+        if partner_id:
+            # Get child property IDs for this contact
+            props = odoo_rpc('res.partner', 'search',
+                [[['parent_id', '=', partner_id],
+                  ['x_studio_x_studio_record_category', '=', 'Property']]])
+            prop_ids = props or []
+
+            now_utc = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+            # All past confirmed jobs across all their properties
+            all_jobs = odoo_rpc('sale.order', 'search_read',
+                [[['partner_shipping_id', 'in', prop_ids],
+                  ['state', 'in', ['sale', 'done']],
+                  ['date_order', '<', now_utc]]],
+                {'fields': ['id', 'name', 'date_order', 'amount_total',
+                            'x_studio_x_studio_x_studio_job_type',
+                            'x_studio_x_studio_pricing_snapshot',
+                            'partner_shipping_id'],
+                 'order': 'date_order desc', 'limit': 100})
+
+            job_count = len(all_jobs or [])
+
+            # Also get frequency from contact
+            contact_rec = odoo_rpc('res.partner', 'read', [[partner_id]],
+                {'fields': ['x_studio_x_frequency', 'x_studio_x_pricing']})
+            frequency = ''
+            pricing_note = ''
+            if contact_rec and contact_rec[0]:
+                frequency    = contact_rec[0].get('x_studio_x_frequency') or ''
+                pricing_note = contact_rec[0].get('x_studio_x_pricing') or ''
+
+            # Build last 2 jobs
+            for job in (all_jobs or [])[:2]:
+                dt_raw = job.get('date_order') or ''
+                # Convert UTC to Pacific for display
+                job_date = ''
+                if dt_raw:
+                    try:
+                        from zoneinfo import ZoneInfo as _ZI
+                        utc_dt = datetime.datetime.strptime(dt_raw[:19], '%Y-%m-%d %H:%M:%S')
+                        utc_dt = utc_dt.replace(tzinfo=datetime.timezone.utc)
+                        pt_dt  = utc_dt.astimezone(_ZI('America/Los_Angeles'))
+                        job_date = pt_dt.strftime('%b %d, %Y')
+                    except Exception:
+                        job_date = dt_raw[:10]
+
+                prop_name = ''
+                pid = job.get('partner_shipping_id')
+                if pid:
+                    prop_name = pid[1] if isinstance(pid, list) else ''
+
+                last_jobs.append({
+                    'so_name':        job.get('name', ''),
+                    'date':           job_date,
+                    'property':       prop_name,
+                    'job_type':       job.get('x_studio_x_studio_x_studio_job_type') or '',
+                    'pricing_snap':   job.get('x_studio_x_studio_pricing_snapshot') or '',
+                    'total':          job.get('amount_total') or 0,
+                    'frequency':      frequency,
+                    'pricing_note':   pricing_note,
+                })
+
+        return {'ok': True, 'sms': sms_text, 'workiz_link': workiz_link,
+                'job_count': job_count, 'last_jobs': last_jobs}
     except Exception as e:
         return JSONResponse({'ok': False, 'error': str(e)})
 
