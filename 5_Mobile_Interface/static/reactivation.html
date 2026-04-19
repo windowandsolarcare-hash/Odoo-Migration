@@ -169,6 +169,33 @@
     }
     .workiz-pill:active { background: rgba(56,189,248,.1); }
 
+    /* ── PROPERTY DETAILS CARD ── */
+    .prop-details-card {
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-left: 4px solid #a78bfa;
+      border-radius: 16px; padding: 16px 18px; margin-bottom: 12px;
+    }
+    .prop-details-title {
+      font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: #a78bfa; margin-bottom: 12px;
+    }
+    .prop-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 5px; gap: 8px;
+    }
+    .prop-label {
+      font-size: 11px; color: var(--text-dim); flex-shrink: 0; width: 140px;
+    }
+    .prop-value {
+      font-size: 12px; font-weight: 600; color: var(--text); text-align: right; flex: 1;
+    }
+    .prop-value.highlight { color: var(--warning); }
+    .prices-block {
+      font-size: 11px; color: var(--text-dim); line-height: 1.6;
+      margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px;
+      white-space: pre-wrap; word-break: break-word;
+    }
+
     /* ── JOB HISTORY ── */
     .job-history-card {
       background: var(--bg-card); border: 1.5px solid var(--border);
@@ -305,6 +332,7 @@
         <div class="preview-detail-row" id="prev-tags"></div>
       </div>
 
+      <div id="prop-details-wrap"></div>
       <div id="job-history-wrap"></div>
 
       <div class="section-label">SMS Message</div>
@@ -320,6 +348,14 @@
         <a class="workiz-pill" id="odoo-pill" href="#" target="_blank"
            style="border-color:#a78bfa; color:#a78bfa;">
           🟣 View Odoo SO
+        </a>
+        <a class="workiz-pill" id="prop-pill" href="#" target="_blank"
+           style="border-color:#34d399; color:#34d399;">
+          🏠 View Property
+        </a>
+        <a class="workiz-pill" id="contact-pill" href="#" target="_blank"
+           style="border-color:#fb923c; color:#fb923c;">
+          👤 View Contact
         </a>
       </div>
     </div>
@@ -465,6 +501,7 @@
       document.getElementById('char-count').textContent = '';
       document.getElementById('launch-btn').disabled = true;
       document.getElementById('workiz-pill-wrap').style.display = 'none';
+      document.getElementById('prop-details-wrap').innerHTML = '';
       document.getElementById('job-history-wrap').innerHTML = '';
 
       showView('view-preview');
@@ -486,14 +523,24 @@
           updateCharCount();
           document.getElementById('launch-btn').disabled = false;
           // Pill links
-          const pillWrap = document.getElementById('workiz-pill-wrap');
-          const pill     = document.getElementById('workiz-pill');
-          const odooPill = document.getElementById('odoo-pill');
+          const pillWrap   = document.getElementById('workiz-pill-wrap');
+          const pill       = document.getElementById('workiz-pill');
+          const odooPill   = document.getElementById('odoo-pill');
+          const propPill   = document.getElementById('prop-pill');
+          const contactPill= document.getElementById('contact-pill');
           if (data.workiz_link) { pill.href = data.workiz_link; }
           if (c.last_so_id) {
             odooPill.href = 'https://window-solar-care.odoo.com/odoo/sales/' + c.last_so_id;
           }
+          if (data.prop_id) {
+            propPill.href = 'https://window-solar-care.odoo.com/odoo/contacts/' + data.prop_id;
+          }
+          if (c.partner_id) {
+            contactPill.href = 'https://window-solar-care.odoo.com/odoo/contacts/' + c.partner_id;
+          }
           pillWrap.style.display = 'flex';
+          // Property details card
+          renderPropDetails(data.prop_details || {});
           // Job history panel
           renderJobHistory(data.job_count || 0, data.last_jobs || []);
         } else {
@@ -502,6 +549,24 @@
       } catch (e) {
         document.getElementById('sms-loading').textContent = '⚠️ Server error loading preview';
       }
+    }
+
+    function renderPropDetails(d) {
+      const wrap = document.getElementById('prop-details-wrap');
+      const rows = [
+        d.type_of_service     ? `<div class="prop-row"><span class="prop-label">Service Type</span><span class="prop-value">${esc(d.type_of_service)}</span></div>` : '',
+        d.last_property_visit ? `<div class="prop-row"><span class="prop-label">Last Property Visit</span><span class="prop-value">${esc(d.last_property_visit)}</span></div>` : '',
+        d.pricing_note        ? `<div class="prop-row"><span class="prop-label">Pricing Note</span><span class="prop-value highlight">${esc(d.pricing_note)}</span></div>` : '',
+        d.last_reactivation_sent ? `<div class="prop-row"><span class="prop-label">Last Reactivation</span><span class="prop-value">${esc(d.last_reactivation_sent)}</span></div>` : '',
+        d.prices_per_service  ? `<div class="prices-block">${esc(d.prices_per_service)}</div>` : '',
+      ].join('');
+      if (!rows) { wrap.innerHTML = ''; return; }
+      wrap.innerHTML = `
+        <div class="section-label" style="margin-top:0">Property & Contact</div>
+        <div class="prop-details-card">
+          <div class="prop-details-title">Details</div>
+          ${rows}
+        </div>`;
     }
 
     function renderJobHistory(jobCount, lastJobs) {
