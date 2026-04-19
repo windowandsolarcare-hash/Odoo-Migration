@@ -28,9 +28,7 @@ WORKIZ_SECRET  = os.environ.get('WORKIZ_SECRET',    'sec_33408429585067833010547
 ANTHROPIC_KEY  = os.environ.get('ANTHROPIC_API_KEY','')
 CLAUDE_MODEL   = os.environ.get('CLAUDE_MODEL',     'claude-sonnet-4-6')
 ACCESS_CODE    = os.environ.get('ACCESS_CODE',      'wsc2026')
-DANNY_CODE     = os.environ.get('DANNY_CODE',       'danny951')
 DJ_EMPLOYEE_ID   = int(os.environ.get('DJ_EMPLOYEE_ID',    '1'))
-DANNY_EMPLOYEE_ID = int(os.environ.get('DANNY_EMPLOYEE_ID', '2'))
 PAYROLL_PROJECT_ID = int(os.environ.get('PAYROLL_PROJECT_ID', '3'))
 OWNER_EMAIL    = os.environ.get('OWNER_EMAIL',      '')
 GITHUB_TOKEN   = os.environ.get('GITHUB_TOKEN',    '')
@@ -2575,17 +2573,29 @@ async def reactivation():
 
 
 # ---------------------------------------------------------------------------
-# Auth endpoint — validates DJ or Danny code, returns user info
+# Auth endpoint — looks up PIN in Odoo hr.employee.x_render_access_code
 # ---------------------------------------------------------------------------
 @app.post('/api/auth')
 async def api_auth(request: Request):
     body = await request.json()
     code = (body.get('code') or '').strip()
-    if code == ACCESS_CODE:
-        return {'ok': True, 'user': {'type': 'dj', 'name': 'DJ', 'employeeId': DJ_EMPLOYEE_ID}}
-    if code == DANNY_CODE:
-        return {'ok': True, 'user': {'type': 'danny', 'name': 'Danny', 'employeeId': DANNY_EMPLOYEE_ID}}
-    return {'ok': False}
+    if not code:
+        return {'ok': False}
+    try:
+        employees = odoo_rpc('hr.employee', 'search_read',
+            [[['x_render_access_code', '=', code]]],
+            {'fields': ['id', 'name', 'x_render_access_code'], 'limit': 1})
+        if not employees:
+            return {'ok': False}
+        emp = employees[0]
+        user_type = 'dj' if emp['id'] == DJ_EMPLOYEE_ID else 'employee'
+        return {'ok': True, 'user': {
+            'type':       user_type,
+            'name':       emp['name'],
+            'employeeId': emp['id'],
+        }}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
 
 
 # ---------------------------------------------------------------------------
