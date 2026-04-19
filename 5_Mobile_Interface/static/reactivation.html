@@ -359,6 +359,13 @@
     </div>
   </div>
 
+  <!-- SO LIST VIEW -->
+  <div class="view" id="view-so-list">
+    <div class="candidates-scroll" id="so-list-scroll">
+      <div class="list-loading">Loading...</div>
+    </div>
+  </div>
+
   <!-- CONFIRM SHEET -->
   <div class="overlay" id="overlay" onclick="hideConfirm()">
     <div class="confirm-sheet" onclick="event.stopPropagation()">
@@ -430,10 +437,19 @@
     function showView(id) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById(id).classList.add('active');
-      const isPreview = id === 'view-preview';
-      document.getElementById('back-link').href = isPreview ? '#' : '/';
-      document.getElementById('back-link').onclick = isPreview ? (e => { e.preventDefault(); goBack(); }) : null;
-      document.getElementById('header-sub').textContent = isPreview ? 'Preview & Launch' : 'Candidates';
+      if (id === 'view-preview') {
+        document.getElementById('back-link').href = '#';
+        document.getElementById('back-link').onclick = e => { e.preventDefault(); goBack(); };
+        document.getElementById('header-sub').textContent = 'Preview & Launch';
+      } else if (id === 'view-so-list') {
+        document.getElementById('back-link').href = '#';
+        document.getElementById('back-link').onclick = e => { e.preventDefault(); goBackToPreview(); };
+        document.getElementById('header-sub').textContent = 'Sales Orders';
+      } else {
+        document.getElementById('back-link').href = '/';
+        document.getElementById('back-link').onclick = null;
+        document.getElementById('header-sub').textContent = 'Candidates';
+      }
     }
 
     function goBack() {
@@ -441,6 +457,48 @@
       selectedCandidate = null;
       clearNameSearch();
       showView('view-list');
+    }
+
+    function goBackToPreview() {
+      showView('view-preview');
+    }
+
+    async function showSoList(partnerId, customerName) {
+      document.getElementById('header-sub').textContent = 'Sales Orders';
+      document.getElementById('so-list-scroll').innerHTML = '<div class="list-loading">Loading...</div>';
+      showView('view-so-list');
+      try {
+        const resp = await fetch('/api/reactivation/so_list?partner_id=' + partnerId);
+        const data = await resp.json();
+        const sos  = data.sos || [];
+        if (!sos.length) {
+          document.getElementById('so-list-scroll').innerHTML =
+            '<div class="list-empty">No sales orders found.</div>';
+          return;
+        }
+        const statusColor = s => {
+          if (s === 'Done')        return '#22c55e';
+          if (s === 'Canceled')    return '#ef4444';
+          if (s === 'In Progress') return '#38bdf8';
+          return '#f59e0b';
+        };
+        document.getElementById('so-list-scroll').innerHTML = sos.map(so => `
+          <a class="candidate-card" href="https://window-solar-care.odoo.com/odoo/sales/${so.id}"
+             target="_blank" style="text-decoration:none; display:block;">
+            <div class="cand-customer">${esc(so.name)}</div>
+            <div class="cand-city">${esc(so.property)}</div>
+            <div class="cand-meta">
+              ${so.status ? `<span class="cand-tag" style="border-color:${statusColor(so.status)};color:${statusColor(so.status)}">${esc(so.status)}</span>` : ''}
+              ${so.date   ? `<span class="cand-tag date">${esc(so.date)}</span>` : ''}
+              ${so.job_type ? `<span class="cand-tag service">${esc(so.job_type)}</span>` : ''}
+              <span class="cand-tag price">$${Number(so.total).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</span>
+            </div>
+          </a>
+        `).join('');
+      } catch(e) {
+        document.getElementById('so-list-scroll').innerHTML =
+          '<div class="list-empty">⚠️ Error loading sales orders.</div>';
+      }
     }
 
     // ── Load candidates ────────────────────────────────────────────────────
@@ -556,6 +614,7 @@
       const pills = [
         propId    ? `<a class="workiz-pill" href="https://window-solar-care.odoo.com/odoo/contacts/${propId}" target="_blank" style="margin-top:10px; border-color:#34d399; color:#34d399;">🏠 View Property</a>` : '',
         partnerId ? `<a class="workiz-pill" href="https://window-solar-care.odoo.com/odoo/contacts/${partnerId}" target="_blank" style="margin-top:10px; border-color:#fb923c; color:#fb923c;">👤 View Contact</a>` : '',
+        partnerId ? `<button class="workiz-pill" onclick="showSoList(${partnerId})" style="margin-top:10px; border-color:#94a3b8; color:#94a3b8; cursor:pointer; background:none;">📋 All SOs</button>` : '',
       ].join('');
       if (!rows && !pills) { wrap.innerHTML = ''; return; }
       wrap.innerHTML = `
