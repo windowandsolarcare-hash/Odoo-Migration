@@ -60,9 +60,12 @@
 
     /* ── CANDIDATES LIST ── */
     .list-toolbar {
-      padding: 12px 20px; display: flex; align-items: center;
-      justify-content: space-between; border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
+      padding: 10px 16px 0; flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .toolbar-row1 {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 10px;
     }
     .candidate-count { font-size: 13px; color: var(--text-dim); }
     .refresh-btn {
@@ -70,6 +73,28 @@
       padding: 6px 12px; font-size: 13px; color: var(--text-dim); cursor: pointer;
     }
     .refresh-btn:active { background: var(--border); }
+
+    .filter-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding-bottom: 10px; flex-wrap: wrap;
+    }
+    .pill-group { display: flex; gap: 6px; flex-shrink: 0; }
+    .pill {
+      padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600;
+      border: 1.5px solid var(--border); background: none; color: var(--text-dim);
+      cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .pill.active {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+    }
+    .pill:active { opacity: .8; }
+    .city-input {
+      flex: 1; min-width: 80px; padding: 6px 12px; font-size: 13px;
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-radius: 20px; color: var(--text); outline: none; font-family: inherit;
+    }
+    .city-input:focus { border-color: var(--accent); }
+    .city-input::placeholder { color: var(--text-dim); }
 
     .candidates-scroll { flex: 1; overflow-y: auto; padding: 12px 16px 40px; }
 
@@ -208,8 +233,19 @@
   <!-- CANDIDATES VIEW -->
   <div class="view active" id="view-list">
     <div class="list-toolbar">
-      <span class="candidate-count" id="candidate-count">Loading...</span>
-      <button class="refresh-btn" onclick="loadCandidates()">↻ Refresh</button>
+      <div class="toolbar-row1">
+        <span class="candidate-count" id="candidate-count">Loading...</span>
+        <button class="refresh-btn" onclick="loadCandidates()">↻ Refresh</button>
+      </div>
+      <div class="filter-bar">
+        <div class="pill-group">
+          <button class="pill active" id="pill-all"    onclick="setService('all')">All</button>
+          <button class="pill"        id="pill-window" onclick="setService('window')">Window</button>
+          <button class="pill"        id="pill-solar"  onclick="setService('solar')">Solar</button>
+        </div>
+        <input class="city-input" id="city-input" type="text"
+               placeholder="City…" oninput="onCityInput()">
+      </div>
     </div>
     <div class="candidates-scroll" id="candidates-scroll">
       <div class="list-loading">Loading candidates...</div>
@@ -279,6 +315,25 @@
     let candidates = [];
     let selectedCandidate = null;
     let previewActive = false;
+    let activeService = 'all';
+    let activeCity    = '';
+    let cityDebounce  = null;
+
+    function setService(svc) {
+      activeService = svc;
+      ['all','window','solar'].forEach(s => {
+        document.getElementById('pill-' + s).classList.toggle('active', s === svc);
+      });
+      loadCandidates();
+    }
+
+    function onCityInput() {
+      clearTimeout(cityDebounce);
+      cityDebounce = setTimeout(() => {
+        activeCity = document.getElementById('city-input').value.trim();
+        loadCandidates();
+      }, 600);
+    }
 
     // ── View switching ─────────────────────────────────────────────────────
     function showView(id) {
@@ -301,7 +356,9 @@
       document.getElementById('candidates-scroll').innerHTML = '<div class="list-loading">Loading candidates...</div>';
       document.getElementById('candidate-count').textContent = 'Loading...';
       try {
-        const resp = await fetch('/api/reactivation/candidates');
+        const params = new URLSearchParams({service: activeService});
+        if (activeCity) params.set('city', activeCity);
+        const resp = await fetch('/api/reactivation/candidates?' + params.toString());
         const data = await resp.json();
         candidates = data.candidates || [];
         renderCandidates();
@@ -325,9 +382,8 @@
 
       document.getElementById('candidates-scroll').innerHTML = candidates.map((c, i) => `
         <div class="candidate-card" onclick="openCandidate(${i})">
-          ${c.customer_name ? `<div class="cand-customer">${esc(c.customer_name)}</div>` : `<div class="cand-customer">${esc(c.name)}</div>`}
-          <div class="cand-name">${esc(c.name)}</div>
-          <div class="cand-city">${esc(c.city || 'Unknown city')}</div>
+          <div class="cand-customer">${esc(c.name)}</div>
+          <div class="cand-city">${esc(c.city || '')}</div>
           <div class="cand-meta">
             ${c.service ? `<span class="cand-tag service">${esc(c.service)}</span>` : ''}
             ${c.last_visit ? `<span class="cand-tag date">Last: ${esc(c.last_visit)}</span>` : ''}
@@ -342,9 +398,9 @@
       selectedCandidate = candidates[idx];
       const c = selectedCandidate;
 
-      // Fill header — customer name big, property address small purple
-      document.getElementById('prev-customer').textContent = c.customer_name || c.name;
-      document.getElementById('prev-name').textContent = c.customer_name ? c.name : '';
+      // Fill header — customer name big white, city small dim
+      document.getElementById('prev-customer').textContent = c.name;
+      document.getElementById('prev-name').textContent = '';
       document.getElementById('prev-city').textContent = c.city || '';
       document.getElementById('prev-tags').innerHTML = [
         c.service ? `<span class="cand-tag service">${esc(c.service)}</span>` : '',
@@ -352,7 +408,7 @@
         c.est_price ? `<span class="cand-tag price">~$${c.est_price}</span>` : '',
         c.frequency ? `<span class="cand-tag">${esc(c.frequency)}</span>` : '',
       ].join('');
-      document.getElementById('confirm-name').textContent = c.name;
+      document.getElementById('confirm-name').textContent = c.name + (c.city ? ` · ${c.city}` : '');
 
       // Reset SMS area
       document.getElementById('sms-loading').style.display = 'block';
