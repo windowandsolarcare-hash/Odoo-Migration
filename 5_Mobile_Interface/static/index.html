@@ -709,8 +709,8 @@ function renderSchedule() {
 
       const odooUrl = `https://window-solar-care.odoo.com/odoo/sales/${j.so_id}`;
       const linksHtml = `<span class="job-links">
-        ${j.workiz_link ? `<a class="job-link" href="${j.workiz_link}" target="_blank" onclick="event.stopPropagation()">WZ</a>` : ''}
-        <a class="job-link" href="${odooUrl}" target="_blank" onclick="event.stopPropagation()">SO</a>
+        ${j.workiz_link ? `<a class="job-link" href="${j.workiz_link}" onclick="event.stopPropagation()">WZ</a>` : ''}
+        <a class="job-link" href="${odooUrl}" onclick="event.stopPropagation()">SO</a>
       </span>`;
       return `<div class="job-row${sel}" onclick="openJob(jobs[${i}])">
         <span class="status-dot ${dot}"></span>
@@ -731,8 +731,8 @@ function renderSchedule() {
     html += fd.jobs.map(j => {
       const odooUrl2 = `https://window-solar-care.odoo.com/odoo/sales/${j.so_id}`;
       const links2 = `<span class="job-links">
-        ${j.workiz_link ? `<a class="job-link" href="${j.workiz_link}" target="_blank" onclick="event.stopPropagation()">WZ</a>` : ''}
-        ${j.so_id ? `<a class="job-link" href="${odooUrl2}" target="_blank" onclick="event.stopPropagation()">SO</a>` : ''}
+        ${j.workiz_link ? `<a class="job-link" href="${j.workiz_link}" onclick="event.stopPropagation()">WZ</a>` : ''}
+        ${j.so_id ? `<a class="job-link" href="${odooUrl2}" onclick="event.stopPropagation()">SO</a>` : ''}
       </span>`;
       // Build service type label from task_names
       const fSvcParts = [], fSvcSeen = new Set();
