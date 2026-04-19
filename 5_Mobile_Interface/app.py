@@ -2919,11 +2919,11 @@ async def api_reactivation_preview(request: Request):
 
             now_utc = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
-            # All past confirmed jobs across all their properties
+            # Done jobs = SO has a posted invoice (Workiz status=Done triggers invoice in Phase 4/6)
             all_jobs = odoo_rpc('sale.order', 'search_read',
                 [[['partner_shipping_id', 'in', prop_ids],
-                  ['state', 'in', ['sale', 'done']],
-                  ['date_order', '<', now_utc]]],
+                  ['invoice_ids', '!=', False],
+                  ['invoice_status', '=', 'invoiced']]],
                 {'fields': ['id', 'name', 'date_order', 'amount_total',
                             'x_studio_x_studio_x_studio_job_type',
                             'x_studio_x_studio_pricing_snapshot',
