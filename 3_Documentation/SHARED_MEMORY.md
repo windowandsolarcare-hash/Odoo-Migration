@@ -245,3 +245,31 @@ Utility: save_memory, delete_memory
 ### Changelog
 - 2026-04-18: Hub screen + timeclock + reactivation built and pushed to GitHub
 - 2026-04-18: Danny Saunders created in Odoo (employee ID 2, 951-388-8311, nolimetangeredanny@gmail.com)
+- 2026-04-19: Auth switched from DANNY_CODE env var to Odoo hr.employee.x_render_access_code field — add employees in Odoo, no Render redeploy needed
+- 2026-04-19: Reactivation preview screen major expansion (see below)
+
+## REACTIVATION SCREEN STATE - 2026-04-19
+
+### 3 Views (single-page)
+1. **view-list** — candidate cards. Name search (local filter, X to clear, auto-clears on back). Service pills + city filter (server-side).
+2. **view-preview** — full detail screen:
+   - Property & Contact card (purple): Service Type, Last Property Visit, Pricing Note (amber), Last Reactivation Sent, Prices Per Service block. Pills: 🏠 Property, 👤 Contact, 📋 All SOs
+   - Job History card (blue): last 2 Done jobs. Per job: date, property, job type, total $, frequency, pricing note, pricing snapshot. Per job pills: 🔧 Workiz, 🟣 Odoo SO
+   - SMS textarea + char count
+   - Launch › → confirm bottom sheet ("Send Reactivation?" + "Send It" button)
+3. **view-so-list** — all SOs for contact, same card style as candidates. Status color-coded. Tap = opens Odoo SO. Back = returns to preview.
+
+### Done Jobs Rule (CRITICAL)
+Filter: x_studio_x_studio_workiz_status = 'Done' on sale.order
+NEVER use invoice_status, state='done', or date filters as proxy
+
+### Data Sources for Preview
+- Property fields (from SO's partner_shipping_id): x_studio_x_pricing, x_studio_prices_per_service, x_studio_x_studio_last_property_visit, x_studio_x_type_of_service
+- Contact fields (from partner_id): x_studio_x_frequency, x_studio_last_reactivation_sent
+- Per-job: x_studio_x_studio_workiz_status, x_studio_x_workiz_link, x_studio_x_studio_workiz_uuid, x_studio_x_studio_x_studio_job_type, x_studio_x_studio_pricing_snapshot
+
+### Endpoints
+- GET /api/reactivation/candidates?service=&city=
+- POST /api/reactivation/preview (body: {so_id, partner_id})
+- GET /api/reactivation/so_list?partner_id=
+- POST /api/reactivation/launch
