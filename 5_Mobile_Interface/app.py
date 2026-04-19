@@ -2720,88 +2720,97 @@ async def api_payroll_week(employee_id: int = 0):
 # Reactivation — candidates, preview (SA 562), launch (SA 563)
 # ---------------------------------------------------------------------------
 @app.get('/api/reactivation/candidates')
-async def api_reactivation_candidates():
+async def api_reactivation_candidates(service: str = 'all', city: str = ''):
     try:
-        today = today_pt()
+        import re as _re
+        today        = today_pt()
+        six_mo_ago   = (today - datetime.timedelta(days=183)).isoformat()
         one_year_ago = (today - datetime.timedelta(days=365)).isoformat()
-        today_utc    = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
-        # Reactivation candidates:
-        # - Property record
-        # - Not Do Not Contact
-        # - No reactivation sent in past year (or never sent)
-        candidates_raw = odoo_rpc('res.partner', 'search_read',
-            [[
-                ['x_studio_x_studio_record_category', '=', 'Property'],
-                ['x_studio_activelead', '!=', 'Do Not Contact'],
-                '|',
-                ['x_studio_last_reactivation_sent', '<', one_year_ago],
-                ['x_studio_last_reactivation_sent', '=', False],
-            ]],
+        # Base domain — mirrors your saved Odoo filter exactly
+        domain = [
+            ['x_studio_x_studio_record_category', '=', 'Contact'],
+            ['x_studio_activelead', '=', 'Active'],
+            ['x_studio_last_visit_all_properties', '<', six_mo_ago],
+            ['x_studio_next_job_date', '=', False],
+            ['name', 'not ilike', 'Dan Saunders'],
+            ['name', 'not ilike', 'Window & Solar Care'],
+            '|',
+            ['x_studio_last_reactivation_sent', '<', one_year_ago],
+            ['x_studio_last_reactivation_sent', '=', False],
+        ]
+
+        # Service filter
+        svc = service.lower()
+        if svc == 'window':
+            domain.append(['x_studio_has_window_service', '!=', False])
+        elif svc == 'solar':
+            domain.append(['x_studio_has_solar_service', '!=', False])
+        else:  # all — must have at least one
+            domain += ['|',
+                ['x_studio_has_window_service', '!=', False],
+                ['x_studio_has_solar_service', '!=', False]]
+
+        # City filter
+        if city.strip():
+            domain.append(['city', 'ilike', city.strip()])
+
+        contacts = odoo_rpc('res.partner', 'search_read',
+            [domain],
             {'fields': [
-                'id', 'name', 'city', 'parent_id',
-                'x_studio_x_studio_last_property_visit',
+                'id', 'name', 'city',
+                'x_studio_last_visit_all_properties',
                 'x_studio_last_reactivation_sent',
                 'x_studio_x_type_of_service',
                 'x_studio_x_pricing',
                 'x_studio_x_frequency',
-            ], 'limit': 500, 'order': 'x_studio_x_studio_last_property_visit desc'}
+                'x_studio_has_window_service',
+                'x_studio_has_solar_service',
+            ], 'limit': 500, 'order': 'x_studio_last_visit_all_properties desc'}
         )
 
-        if not candidates_raw:
+        if not contacts:
             return {'candidates': []}
 
-        partner_ids = [p['id'] for p in candidates_raw]
+        contact_ids = [c['id'] for c in contacts]
 
-        # Exclude partners with a future confirmed job already scheduled
-        future_sos = odoo_rpc('sale.order', 'search_read',
-            [[['partner_shipping_id', 'in', partner_ids],
-              ['state', 'in', ['draft', 'sale']],
-              ['date_order', '>=', today_utc]]],
-            {'fields': ['partner_shipping_id'], 'limit': 1000})
-        has_future_job = set()
-        for so in (future_sos or []):
-            pid = so['partner_shipping_id'][0] if isinstance(so['partner_shipping_id'], list) else so['partner_shipping_id']
-            has_future_job.add(pid)
+        # Find child properties for each contact (SOs link via partner_shipping_id → property)
+        props = odoo_rpc('res.partner', 'search_read',
+            [[['parent_id', 'in', contact_ids],
+              ['x_studio_x_studio_record_category', '=', 'Property']]],
+            {'fields': ['id', 'parent_id'], 'limit': 2000})
 
-        # Only keep candidates with at least one completed job
-        # Phase 4 uses action_confirm only (never action_lock), so completed jobs = state='sale' + date_order in the past
-        done_sos = odoo_rpc('sale.order', 'search_read',
-            [[['partner_shipping_id', 'in', partner_ids],
-              ['state', '=', 'sale'],
-              ['date_order', '<', today_utc]]],
-            {'fields': ['partner_shipping_id'], 'limit': 1000})
-        has_done_job = set()
-        for so in (done_sos or []):
-            pid = so['partner_shipping_id'][0] if isinstance(so['partner_shipping_id'], list) else so['partner_shipping_id']
-            has_done_job.add(pid)
+        # Map property_id → contact_id
+        prop_to_contact = {}
+        contact_to_props = {}
+        for p in (props or []):
+            cid = p['parent_id'][0] if isinstance(p['parent_id'], list) else p['parent_id']
+            prop_to_contact[p['id']] = cid
+            contact_to_props.setdefault(cid, []).append(p['id'])
 
-        # Get last completed SO ID for each partner (needed to run preview SA)
+        prop_ids = list(prop_to_contact.keys())
+
+        # Get last SO per property (for preview/launch SA — needs SO with correct partner_shipping_id)
         sos = odoo_rpc('sale.order', 'search_read',
-            [[['partner_shipping_id', 'in', partner_ids],
+            [[['partner_shipping_id', 'in', prop_ids],
               ['state', 'in', ['sale', 'done']]]],
-            {'fields': ['id', 'partner_shipping_id', 'amount_total'],
-             'order': 'id desc', 'limit': 1000})
+            {'fields': ['id', 'partner_shipping_id'],
+             'order': 'id desc', 'limit': 2000})
 
-        # Map partner_id → best SO id
+        # Map contact_id → best SO id (most recent across all their properties)
         best_so = {}
         for so in (sos or []):
             pid = so['partner_shipping_id'][0] if isinstance(so['partner_shipping_id'], list) else so['partner_shipping_id']
-            if pid not in best_so:
-                best_so[pid] = so
+            cid = prop_to_contact.get(pid)
+            if cid and cid not in best_so:
+                best_so[cid] = so['id']
 
         candidates = []
-        for p in candidates_raw:
-            pid = p['id']
-            # Skip leads — must have at least one completed job
-            if pid not in has_done_job:
-                continue
-            # Skip if they already have a future job scheduled
-            if pid in has_future_job:
-                continue
-            so_rec = best_so.get(pid)
-            last_visit = p.get('x_studio_x_studio_last_property_visit') or ''
-            # Format date nicely
+        for c in contacts:
+            cid = c['id']
+            so_id = best_so.get(cid)
+
+            last_visit = c.get('x_studio_last_visit_all_properties') or ''
             if last_visit and len(last_visit) >= 10:
                 try:
                     dt = datetime.date.fromisoformat(last_visit[:10])
@@ -2809,28 +2818,34 @@ async def api_reactivation_candidates():
                 except Exception:
                     pass
 
-            pricing_raw = p.get('x_studio_x_pricing') or ''
+            pricing_raw = c.get('x_studio_x_pricing') or ''
             est_price = ''
             if pricing_raw:
-                # Try to extract first dollar amount
-                import re as _re
                 m = _re.search(r'\$?([\d,]+\.?\d*)', str(pricing_raw))
                 if m:
                     est_price = m.group(1).replace(',', '')
 
-            parent = p.get('parent_id')
-            customer_name = parent[1] if isinstance(parent, list) and len(parent) > 1 else ''
+            # Derive service label
+            has_win = c.get('x_studio_has_window_service')
+            has_sol = c.get('x_studio_has_solar_service')
+            if has_win and has_sol:
+                svc_label = 'Window & Solar'
+            elif has_sol:
+                svc_label = 'Solar'
+            elif has_win:
+                svc_label = 'Window'
+            else:
+                svc_label = c.get('x_studio_x_type_of_service', '')
 
             candidates.append({
-                'partner_id':    pid,
-                'name':          p.get('name', ''),
-                'customer_name': customer_name,
-                'city':          p.get('city', ''),
-                'service':       p.get('x_studio_x_type_of_service', ''),
-                'frequency':     p.get('x_studio_x_frequency', ''),
-                'last_visit':    last_visit,
-                'est_price':     est_price,
-                'last_so_id':    so_rec['id'] if so_rec else None,
+                'partner_id':  cid,
+                'name':        c.get('name', ''),
+                'city':        c.get('city', ''),
+                'service':     svc_label,
+                'frequency':   c.get('x_studio_x_frequency', ''),
+                'last_visit':  last_visit,
+                'est_price':   est_price,
+                'last_so_id':  so_id,
             })
 
         return {'candidates': candidates}
