@@ -1,0 +1,507 @@
+SO_Number,Date,State,Customer,Workiz_UUID
+000025,2020-05-24,sale,"Tari  Harv Fischer, 8271 Maruyama D",XEK7RE
+001761,2021-02-07,sale,"Nita Staley, 238 Cog Hill Lane",CNMNGL
+000293,2021-02-07,sale,"Renee TenBruggencate, 242 Cog Hill",OX5T7D
+000299,2021-02-28,sale,"Maria Natenson, 9300 Stephenson Ln.",YZN90I
+000200,2021-02-28,sale,"John Baily, 495 Vardon Circle",D1P9CA
+000450,2021-03-21,sale,"Karen Perez, 80465 Cedar Crest",QMQ6N2
+000280,2021-03-28,sale,"Bertha and Richard Sanchez, 367 Cas",BUN6X9
+000243,2021-03-28,sale,"Bill & Karen Robertson, 553 Vardon",PBBT6M
+000205,2021-04-04,sale,"Jean Faenza, 5481 Corte del Mar",N5EFFZ
+000317,2021-04-04,sale,"Jean & Charles Farr, 7636 Whitworth",4DNO2X
+000369,2021-04-11,sale,"Mark Egge, 8715 Stephenson Lane",K1RETB
+000505,2021-04-18,sale,"Bill  Nancy Ward, 573 Pooley Drive",N2R6S9
+000595,2021-05-09,sale,"Tolfe Albert, 54825 Avenue Rubio",R9ARB7
+000535,2021-05-16,sale,"Grace Cusumano, 3614 Sydney",K39I0M
+000547,2021-05-23,sale,"Steven Peavy, 46055 Burroweed Lane",0MNR7D
+000615,2021-05-23,sale,"Wiley Blackmon, 78916 Amare Way",MU5TOK
+000603,2021-05-30,sale,"Jean Faenza, 5481 Corte del Mar",B6GB1D
+000264,2021-05-30,sale,"Dean & Linda Gordon, 5403 Corte Cer",C3J3YA
+000625,2021-05-30,sale,"Joel Pino, 75 V�a Minorca",YORCU1
+000700,2021-06-28,sale,"Maria Higgins, 3717 Seattle Street",1XLMI3
+000755,2021-08-22,sale,"Bill  Nancy Ward, 573 Pooley Drive",KSEN4E
+000463,2021-09-12,sale,"Laura Patton, 51405 Avenue Rubio",YK7Q76
+000571,2021-10-24,sale,"Tom Gruden, 333 Chi Chi Circle",5U0FEP
+000885,2021-10-31,sale,"John Stafford, 495 Casper Drive",NEJML2
+000377,2021-11-07,sale,"Cynthia & Orville Ellingworth, 8105",3MUYF0
+000944,2021-11-08,sale,"Leah Brown, 81620 Avenue 49",B6DSSG
+000374,2021-11-14,sale,"Renee TenBruggencate, 242 Cog Hill",7OHP17
+000920,2021-11-21,sale,"Carolyn & Chuck Talbot, 61205 Livin",18FN61
+000767,2021-11-21,sale,"Nancy & Bob McDonald, 194 Inkster W",LK8E5U
+000718,2021-12-05,sale,"Geri Richmond, 8298 Parry Drive",7CC4WT
+000397,2021-12-12,sale,"Sharon Weissmann, 465 Vardon Circle",7U9WCK
+000762,2022-01-02,sale,"Nancy Dakkak, 13393 Redwood Drive",FEHJR5
+000806,2022-01-30,sale,"Charles Ball, 164 Leonard Way",GYYGB3
+001058,2022-02-06,sale,"Nancy & Bob McDonald, 194 Inkster W",36ZBRR
+000846,2022-02-13,sale,"Joy Hodge, 48140 Calle Seranas",CBQA34
+000469,2022-02-27,sale,"Jackie Macmillan, 160 South Saturmi",4KHTYQ
+000056,2022-03-06,sale,"Zenaida De Jesus, 120 Mayfair Ln",F3AQP6
+001123,2022-03-06,sale,"Patty Moss, 78720 Cabrillo Way",422X75
+000534,2022-03-06,sale,"Lorretta Goble, 47687 Twin Pines Ro",HKOWC9
+000474,2022-03-20,sale,"Norbert & Bing Schreiber, 3155 Sand",YH58M7
+000819,2022-04-03,sale,"Jeff Jelineo, 3686 Serenity Trail",I2YWY2
+000835,2022-04-10,sale,"Tamera Infield, 72626 Bel Air Road",OXSE0P
+000855,2022-04-10,sale,"Sharon & Jeff Carow, 615 Parnevik D",78E38P
+000663,2022-04-10,sale,"Robyn Tagliareni, 30061 Crestview C",IEY79J
+000789,2022-04-11,sale,"Ed Paige, 35062 Hulihee Street",8P9QMD
+000504,2022-04-17,sale,"Nectar Sagarnaga, 2818 Eureka Road",UATWMB
+000743,2022-04-17,sale,"April Vidal, 24644 Lincoln Avenue",E8S52W
+001190,2022-04-24,sale,"Geri Richmond, 8298 Parry Drive",MKOLQD
+000874,2022-04-24,sale,"Carole Lovett, 39254 Calle Negrete",5CSWQ8
+001206,2022-04-25,sale,"Jeanni Stewart, 2056 Roanoke St",JYWX5R
+000935,2022-05-01,sale,"Ian Fitzgerald, 80735 Weiskopf",01U6RL
+000943,2022-05-01,sale,"Marie Bach, 8041 Hazeltine Lane",GWHEFP
+001195,2022-05-01,sale,"Nancy & Bob McDonald, 194 Inkster W",DCRERD
+000992,2022-05-08,sale,"Christopher Gourlay, 47 Juan Carlos",PWNC8O
+000933,2022-05-08,sale,"Julius Conner, 27891 Huron Court",AQ0FT1
+000635,2022-05-08,sale,"Joseph Gerwig, 73520 Adobe Springs",GGMRO6
+000649,2022-05-15,sale,"Denyse Cecchetto, 1489 Birdie Drive",8BNI1D
+000923,2022-05-15,sale,"John Thiers, 42275 Liolios Drive",TW26HA
+000768,2022-05-22,sale,"Betty Bullis, 176 Janzen Way",T8HOOM
+001004,2022-05-22,sale,"Steven Acuna, 31814 MAPSTON Court",FZ8B8U
+000745,2022-06-05,sale,"Stacey McPherson, 2730 Placentia St",WY821Z
+001255,2022-06-05,sale,"Sharon & Jeff Carow, 615 Parnevik D",G25H9F
+001273,2022-06-05,sale,"Linda Haynes, 8160 Pavin Lane",GT57P3
+000735,2022-06-05,sale,"Christine Miller, 43802 Mandarin Dr",5KXJ3M
+001286,2022-06-12,sale,"Joy Hodge, 48140 Calle Seranas",PZEWPW
+001088,2022-06-12,sale,"Mike & Pat Dooley, 8771 Mann Lane",ZXDNGP
+001301,2022-06-19,sale,"Charles Ball, 164 Leonard Way",10I1KS
+001303,2022-06-19,sale,"Joy Hodge, 42829 Cook Street",17R341
+001110,2022-06-26,sale,"Lisa Dernbach, 8324 Maruyama Drive",CH820J
+001324,2022-06-26,sale,"Nancy Dakkak, 13393 Redwood Drive",7QEGA9
+001378,2022-07-17,sale,"Nancy & Bob McDonald, 194 Inkster W",FH3HC6
+001337,2022-07-31,sale,"Marie Bach, 8041 Hazeltine Lane",4TF3ZY
+001157,2022-08-07,sale,"Jim Stubbs, 3711 Serenity Trail",IZO80U
+000769,2022-08-07,sale,"Ed Paige, 35062 Hulihee Street",OWKZEE
+001186,2022-08-14,sale,"Carole Levitzky, 319 Loch Lomond Ro",XNOB4R
+001409,2022-08-14,sale,"Candace Hawley, 8315 Parry Drive",CX06FP
+001417,2022-08-21,sale,"Harry Hart, 45900 Williams Road",JH0M3W
+001427,2022-08-28,sale,"Carole Lovett, 39254 Calle Negrete",U9E4NS
+001425,2022-08-28,sale,"Lisa Dernbach, 8324 Maruyama Drive",NRCT2P
+001115,2022-08-28,sale,"William Chavez, 1457 Poppy Court",XX8CNL
+001053,2022-09-04,sale,"Dwight Fichtner, 404 Tewell Drive",2ZI8YI
+001450,2022-09-11,sale,"Geri Richmond, 8298 Parry Drive",1D6PWQ
+001463,2022-09-18,sale,"Sharon & Jeff Carow, 615 Parnevik D",F3PNL2
+001211,2022-09-18,sale,"Hazel  Rick Farney, 8281 Carnoustie",CAR8MR
+001065,2022-09-18,sale,"Hazel  Rick Farney, 8281 Carnoustie",OEQOA5
+001474,2022-09-25,sale,"Marie Bach, 8041 Hazeltine Lane",8XDQ4M
+001505,2022-10-09,sale,"Nancy & Bob McDonald, 194 Inkster W",3ND32S
+000770,2022-10-16,sale,"Hazel  Rick Farney, 8281 Carnoustie",X8SKXE
+001531,2022-10-30,sale,"Joy Hodge, 48140 Calle Seranas",30TAIR
+001546,2022-11-06,sale,"Hazel  Rick Farney, 8281 Carnoustie",XEA4J3
+001547,2022-11-06,sale,"Charles Ball, 164 Leonard Way",FHRBRF
+001281,2022-11-13,sale,"Wendy Bolduc, 1536 Via Rojas",X33BWR
+001274,2022-11-27,sale,"Jean Taber, 5114 Corte Cercado",F4BE0Q
+001296,2022-11-27,sale,"Tony Taricco, 72294 Ginger Rogers R",0ZGMSL
+001618,2022-12-04,sale,"Tony Bosco, 3660 Serenity Trail",QJCCFA
+001322,2022-12-04,sale,"Cheri Delucca, 326 Villaggio South",DKXPWK
+001283,2022-12-04,sale,"Mike & Wendie Bowden, 8384 Maruyama",BE3U07
+001623,2022-12-04,sale,"Joy Hodge, 42829 Cook Street",O6TSSH
+001421,2022-12-11,sale,"Stacey McLeod, 3726 GETTY CT",F2M75C
+001385,2022-12-11,sale,"Pat Spurgeon, 7615 Whitworth Drive",538NE2
+001644,2022-12-18,sale,"Lisa Dernbach, 8324 Maruyama Drive",OMA3EY
+001647,2022-12-18,sale,"Nancy Dakkak, 13393 Redwood Drive",KK2M70
+001682,2023-01-08,sale,"Harry Hart, 45900 Williams Road",SEQHHR
+001711,2023-01-29,sale,"Geri Richmond, 8298 Parry Drive",MP9H07
+001716,2023-02-05,sale,"Julie Beech, 561 Vardon Circle",XYOXDP
+001715,2023-02-05,sale,"Hazel  Rick Farney, 8281 Carnoustie",OCFX4J
+001099,2023-02-05,sale,"Sally Davis, 8060 Bay Hill Avenue",SZXZG3
+000471,2023-02-05,sale,"Fran Kaufman, 45740 Camino Del Rey",GPM3AM
+001760,2023-02-05,sale,"Robert & Louise Mazochi, 7821 Littl",HLWH8N
+001795,2023-02-12,sale,"Carole Levitzky, 319 Loch Lomond Ro",2PRODK
+001796,2023-02-12,sale,"Mark Kushner, 223 W Overlook Rd",UT6TS6
+001791,2023-02-12,sale,"Eileen Ryan, 76142 Impatiens Circle",53R3DT
+001767,2023-02-12,sale,"Beverly Sparks, 5001 West Florida A",FPY5FK
+001440,2023-02-12,sale,"Candace Hawley, 8315 Parry Drive",QX3RRY
+001798,2023-02-12,sale,"Mary Tatomir, 39375 Camino Piscina",M0ZW63
+001797,2023-02-12,sale,"Larry Tyner, 68070 Durango Road",81CXXW
+001768,2023-02-12,sale,"Pat & Bob Radmacher, 1616 Paseo Dia",DRWRK8
+001784,2023-02-12,sale,"Lori King, 60930 Living Stone Drive",5KFI4J
+001762,2023-02-19,sale,"Carole Lovett, 39254 Calle Negrete",XOX4ZP
+001804,2023-02-26,sale,"Dwight Fichtner, 404 Tewell Drive",OUSKCL
+001815,2023-02-26,sale,"Joy Hodge, 42829 Cook Street",KEEATR
+001219,2023-03-05,sale,"Marilyn & Richard Short, 5587 Paseo",QY5HLS
+001839,2023-03-05,sale,"Eric Wildermuth, 546 N Farrell Dr",1MCE4X
+001133,2023-03-05,sale,"Maddie Rossi, 29373 Hidden Lake Dri",ID6P6O
+001826,2023-03-05,sale,"Valerie Smith, 75550 Cll Del Sur",IF1CB2
+001849,2023-03-05,sale,"Cyd Kidwiler, 81081 Barrel Cactus R",XBN0JP
+000523,2023-03-06,sale,"Robert Meyer, 2458 Savanna Way",IH0HTA
+001859,2023-03-12,sale,"Cheri Delucca, 326 Villaggio South",0JM81L
+001861,2023-03-12,sale,"Marie Bach, 8041 Hazeltine Lane",3XP4TE
+001863,2023-03-19,sale,"Joy Hodge, 48140 Calle Seranas",U9UY3K
+001243,2023-03-19,sale,"Marlene Pesqueira, 7675 Armour Driv",03WBLQ
+001837,2023-03-26,sale,"Ibrahim Shalhoub, 40290 Barington D",1S7O4A
+001893,2023-03-26,sale,"Charles Ball, 164 Leonard Way",G0N070
+001896,2023-03-26,sale,"Nancy & Bob McDonald, 194 Inkster W",92Z1IH
+001184,2023-04-02,sale,"Candy Gruber, 1372 Via Rivas",1ZDMXN
+001377,2023-04-03,sale,"John & Janet Swindell, 511 Garcia D",UD6J53
+001916,2023-04-09,sale,"Lisa Dernbach, 8324 Maruyama Drive",2JSH22
+000836,2023-04-16,sale,"Tamera Infield, 72626 Bel Air Road",JKE2DT
+001945,2023-04-16,sale,"Nectar Sagarnaga, 2818 Eureka Road",T2JNYG
+001319,2023-04-23,sale,"Mary Lyons, 29134 Granite Circle",97ZFLE
+001449,2023-05-07,sale,"Hunter Harvey, 6 University Cir",G4374H
+001995,2023-05-07,sale,"Sharon & Jeff Carow, 615 Parnevik D",KAFG41
+001999,2023-05-07,sale,"Hazel  Rick Farney, 8281 Carnoustie",33P2RO
+002039,2023-05-14,sale,"Larry And Teresa Ballinger, 618 Zah",JMN04M
+002038,2023-05-14,sale,"Sherry Dibble, 1551 Leland Street",5XDGTW
+001351,2023-05-14,sale,"Beverly Butler, 29800 Mimosa Ct",20PEME
+001342,2023-05-14,sale,"Cheryl Shelton, 2024 Whispering Bel",YFJI2B
+001978,2023-05-21,sale,"Charon Smith, 114 Don Miguel Cir",LZ3NYJ
+002063,2023-05-21,sale,"Linda Haynes, 8160 Pavin Lane",FTRYTB
+002090,2023-05-28,sale,"Harry Hart, 45900 Williams Road",LBHM1T
+002091,2023-05-28,sale,"Tony Bosco, 3660 Serenity Trail",N0TSCR
+001993,2023-06-04,sale,"Dawn Hay, 48365 Alan Cir",T34816
+001718,2023-06-04,sale,"Dean Greenberg, 4 Hamlet Ct",5E70U9
+001747,2023-06-11,sale,"RENEE ROY, 50505 Harps Canyon Dr",XEW1MU
+002149,2023-06-11,sale,"Nancy Dakkak, 13393 Redwood Drive",WK4MN3
+002166,2023-06-18,sale,"Geri Richmond, 8298 Parry Drive",320QSZ
+002170,2023-06-25,sale,"Nancy & Bob McDonald, 194 Inkster W",6Y3JUE
+002264,2023-08-06,sale,"Joy Hodge, 48140 Calle Seranas",P605EN
+002271,2023-08-13,sale,"Carole Lovett, 39254 Calle Negrete",8W14TL
+002275,2023-08-13,sale,"Charles Ball, 164 Leonard Way",3R26QA
+002306,2023-08-20,sale,"Dwight Fichtner, 404 Tewell Drive",1F4TNX
+001972,2023-08-20,sale,"Jim Sutton, 39317 Fernwood Glen Ct",4UKXH6
+002324,2023-08-27,sale,"Sharon & Jeff Carow, 615 Parnevik D",KT00ZD
+002326,2023-08-27,sale,"Marie Bach, 8041 Hazeltine Lane",88XHYL
+002350,2023-09-03,sale,"Cheri Delucca, 326 Villaggio South",02ODYA
+002057,2023-09-03,sale,"Stephen Margetic, 78403 Koslow Ct",7GYSN8
+001933,2023-09-03,sale,"Wayne Gerry, 35248 Bandana Rd",TBH545
+001961,2023-09-17,sale,"Edith Grossi, 49235 Vista Estrella",1OMK10
+002387,2023-09-24,sale,"Candace Hawley, 8315 Parry Drive",DK4AYY
+001521,2023-10-01,sale,"Alison King, 30381 Town Square Driv",SXZEB6
+001960,2023-10-08,sale,"Marvita Grimes, 29261 Nectarine St",ZZSL5Y
+002403,2023-10-08,sale,"Ibrahim Shalhoub, 40290 Barington D",R0J98U
+002107,2023-10-08,sale,"Riva & Hank Alberts, 8208 Parry Dr",89L9FQ
+002410,2023-10-15,sale,"Harry Hart, 45900 Williams Road",CEEQ74
+001599,2023-10-15,sale,"Sally & Scott Martin, 212 Gamez Way",EQT1WD
+002190,2023-10-22,sale,"Pat Rotisky, 230 Eagle Ln",P14GDM
+001977,2023-10-22,sale,"Charon Smith, 114 Don Miguel Cir",O43P0E
+002054,2023-10-29,sale,"Barbara Barry, 246 Loch Lomond Rd",MUSE2F
+002105,2023-11-05,sale,"Walter Bendick, 75 Cabernet",4DBELT
+002497,2023-11-05,sale,"Geri Richmond, 8298 Parry Drive",D8EN8N
+002123,2023-11-05,sale,"Richard Blee, 116 Cabernet",FPK5H9
+002117,2023-11-05,sale,"Gary & Patricia Gorczyca, 22 Barolo",A3JO5T
+001911,2023-11-12,sale,"Shirley Fialko, 557 Pooley Dr",R42GHC
+002517,2023-11-12,sale,"Linda Haynes, 8160 Pavin Lane",3MO44C
+002545,2023-11-19,sale,"Tony Bosco, 3660 Serenity Trail",D1BKMO
+001912,2023-11-19,sale,"Linda Haynes, 8160 Pavin Ln",I24XY9
+002548,2023-11-19,sale,"Marie Bach, 8041 Hazeltine Lane",DXYS2G
+002601,2023-12-03,sale,"Richard Blee, 116 Cabernet",MIZWWU
+001679,2023-12-10,sale,"Shirley Fialko, 2961 Live Oak St",FN9F6F
+002235,2023-12-10,sale,"Ted Lawe, 71558 Estellita Dr",YZS9BA
+002363,2023-12-10,sale,"Joy Hodge, 42829 Cook Street",UE58G1
+002248,2023-12-17,sale,"Carol Wine, 375 E. Bogert Trail",MTTJSC
+002262,2023-12-17,sale,"Robert Raider, 2 Cll Encinitas",81LPC9
+002183,2023-12-17,sale,"Kerri Harlan, 41183 Rawling Ct",98RFQ3
+002610,2023-12-17,sale,"Sharon & Jeff Carow, 615 Parnevik D",UJQJ8C
+002633,2023-12-31,sale,"Charles Ball, 164 Leonard Way",ZMXMF0
+001807,2024-01-07,sale,"Judy Capps, 8171 Carnoustie Ave",3XSI8P
+001708,2024-01-07,sale,"Judith Gordon, 42098 Diadomite Way",KYU4F8
+002649,2024-01-28,sale,"Lyn Rothmund, 29383 Hidden Lake Dr",KUURIO
+002655,2024-02-04,sale,"Carole Lovett, 39254 Calle Negrete",QRPPGL
+002311,2024-02-04,sale,"Whitney Lackey, 73101 Skyward Way",6XC1ZQ
+002576,2024-02-04,sale,"Sarah Zender, 69 Prosecco",KBPPYZ
+002566,2024-02-04,sale,"James Ashby, 44225 Kings Canyon Ln",HYEKDO
+002663,2024-02-11,sale,"Marie Bach, 8041 Hazeltine Lane",5WCB92
+002699,2024-02-25,sale,"Cheri Delucca, 326 Villaggio South",DQR1WT
+002704,2024-03-03,sale,"Harry Hart, 45900 Williams Road",EQFR86
+002707,2024-03-03,sale,"Cleta Calston, 590 Olazabal Drive",I32OWU
+002421,2024-03-03,sale,"Kimberly Knoller, 72797 Skyward Way",Q1KC48
+002031,2024-03-03,sale,"Tom McCutchen, 2200 Via Calderia UN",MR0AX5
+001940,2024-03-10,sale,"Donna Jean Williams, 2887 Andalucia",QFKIEU
+002361,2024-03-17,sale,"Sharon Weissmann, 465 Vardon Cir",LB7OEQ
+002721,2024-03-18,sale,"Jeanne Farris, 240 4 Seasons Blvd",EPDP54
+002733,2024-03-24,sale,"Geri Richmond, 8298 Parry Drive",G21GNA
+002588,2024-03-24,sale,"Cheryl Robinson, 7995 Bogey Ave",PASERU
+002732,2024-03-24,sale,"Alison King, 30381 Town Square Driv",RFQJ5H
+002438,2024-03-31,sale,"Allyn Miller, 560 West Sepulveda Ro",WC67QY
+002110,2024-04-07,sale,"Bill & Karen Robertson, 553 Vardon",580PAB
+002772,2024-04-07,sale,"Sharon & Jeff Carow, 615 Parnevik D",OUDQ64
+002299,2024-04-07,sale,"REMI KEAHEY, 28371 Northmoore Pl",37CYD6
+002760,2024-04-07,sale,"Ibrahim Shalhoub, 40290 Barington D",B02BAP
+002774,2024-04-07,sale,"Walter Keller, 197 Shepard Drive",58EW96
+002435,2024-04-07,sale,"Suzanne Sylvester, 81611 Rancho San",TCZ2UT
+002785,2024-04-14,sale,"Nectar Sagarnaga, 2818 Eureka Road",TG3X3K
+002143,2024-04-14,sale,"Adam Ruelas, 82378 Stradivari Rd",WTNDMW
+002491,2024-04-14,sale,"Fred Nelson, 64 V�a Las Flores",4ES2WR
+002144,2024-04-14,sale,"Hector Gil, 83155 Greenbrier Dr",6B0Z1Y
+002084,2024-04-14,sale,"Michelle Proffett, 110 Cabernet",R4KS1W
+002083,2024-04-15,sale,"Michelle Proffett, 110 Cabernet",HPDUDX
+002261,2024-04-28,sale,"Andre Williams, 68640 Durango Rd",OJ0GWI
+002368,2024-04-28,sale,"Linda Gaddie, 38239 Grand Oaks Aven",QL5063
+002128,2024-04-28,sale,"Jeanne Farris, 240 4 Seasons Blvd",2NM281
+001368,2024-05-05,sale,"Richard Blee, 116 Cabernet",1WG3OC
+002811,2024-05-05,sale,"Marie Bach, 8041 Hazeltine Lane",DCFOZU
+002819,2024-05-12,sale,"Tony Bosco, 3660 Serenity Trail",82WPGJ
+002817,2024-05-12,sale,"Sherry Dibble, 1551 Leland Street",W72Y7Q
+002079,2024-05-12,sale,"Sally Rush, 37291 Bosley St",XHJAPT
+002847,2024-05-19,sale,"Charles Ball, 164 Leonard Way",7GHBDG
+002482,2024-05-19,sale,"Cleta Calston, 590 Olazabal Dr",AP517W
+001477,2024-05-26,sale,"Steve Bluestein, 5 University Cir",W9ZIRN
+002792,2024-06-02,sale,"Linda Rawlings, 74431 Chicory Stree",9PAFG6
+002158,2024-06-02,sale,"George E Hartmeister, 603 Corona St",OLR5Z9
+002728,2024-06-09,sale,"Rui Ferreira, 30823 Sterling Rd",3CPA3I
+002571,2024-06-16,sale,"Tracy Rogers, 635 Cache Lane",XM9X18
+002891,2024-06-23,sale,"Richard Blee, 116 Cabernet",LBTSAG
+002561,2024-06-30,sale,"John Dotinga, 426 Bjorn Ct",PKF5C4
+002918,2024-07-14,sale,"Lyn Rothmund, 29383 Hidden Lake Dr",UBLETR
+002301,2024-07-14,sale,"Khan Mahmood, 369 Ashbury Ln",G0HBG0
+002945,2024-07-21,sale,"Harry Hart, 45900 Williams Road",L4UDAO
+002743,2024-07-21,sale,"Betty Young, 7858 Rawls Drive",YRJ7EA
+002946,2024-07-21,sale,"Cleta Calston, 590 Olazabal Drive",EFBJP8
+002798,2024-07-21,sale,"Elsa Sandvold, 48585 Capistrano Way",RCG34M
+002948,2024-07-28,sale,"Carole Lovett, 39254 Calle Negrete",EWLKLX
+002609,2024-07-28,sale,"Alice Bertaina, 49484 Gila River St",8C8PRX
+002953,2024-08-04,sale,"Dwight Fichtner, 404 Tewell Drive",4D0WXJ
+002786,2024-08-11,sale,"Bonnie Silverwood, 258 Lakewood Ln",YZMZ9G
+002994,2024-08-11,sale,"Geri Richmond, 8298 Parry Drive",W7T44U
+003050,2024-08-18,sale,"Cheri Delucca, 326 Villaggio South",8S3XQN
+003029,2024-08-18,sale,"Donna Maul, 4751 Jones Way",RT1ORH
+003064,2024-09-08,sale,"Kevin Odenbaugh, 73450 Country Club",2QPMO6
+002769,2024-09-08,sale,"Adria Molina, 76964 Kybar Rd",JN39SO
+002727,2024-09-15,sale,"Richard Rodner, 880 Deer Haven Cir",YX3JFF
+003104,2024-09-15,sale,"Ellen Stutz, 42812 Adalin Way",7H92UI
+002473,2024-09-15,sale,"Kay Legge, 10 Normandy Way",4ANYA3
+003120,2024-09-15,sale,"Laura Gregory, 88 Princeton Drive",8G3SI9
+002395,2024-09-15,sale,"Sharon Weissmann, 465 Vardon Circle",FO4QDR
+002469,2024-09-22,sale,"Paula Marzola, 4 Duke Dr",CUL2C5
+002017,2024-09-22,sale,"Mitch Colgan, 2129 George Dr",KS3LCP
+003137,2024-09-22,sale,"Cindy & Ben Carlow, 1344 Via La Pre",E7D7SB
+002626,2024-09-22,sale,"Philip Ham, 8170 Doral Ln",YEIT9C
+003161,2024-09-29,sale,"Ibrahim Shalhoub, 40290 Barington D",CGMK9Z
+003155,2024-09-29,sale,"Walter Keller, 197 Shepard Drive",ERF7RT
+002534,2024-10-06,sale,"Shelley Bayer, 1 Varsity Circle",71GDP6
+002842,2024-10-06,sale,"Stephen Hatch, 1154 Tiffany Cir N",6ZIO72
+002996,2024-10-06,sale,"Ann Stone-Johnson, 36781 Palm View",9PUBYY
+003172,2024-10-06,sale,"Charles Ball, 164 Leonard Way",O6IDRF
+003000,2024-10-06,sale,"Vaughn Spofford, 101 Celano Circle",37U8OA
+002488,2024-10-06,sale,"Mary Carolan, 70435 Sunny Ln",44FDID
+003006,2024-10-13,sale,"Darrell Mclaughlin, 24129 Esmeralda",8CBFFW
+002620,2024-10-13,sale,"Ray Johnson, 35308 Rush Ln",Y1223W
+002562,2024-10-20,sale,"Reggie Campbell, 5583 Corte Ruiz",WOL5UU
+003251,2024-10-27,sale,"Linda Haynes, 8160 Pavin Lane",JBALYX
+002450,2024-11-03,sale,"Susan Cornell, 69960 Pomegranate La",5Q3J6B
+003279,2024-11-03,sale,"Tony Bosco, 3660 Serenity Trail",57ULX9
+002539,2024-11-03,sale,"Diana Hawley, 3419 Via Leonardo",NRLX3M
+002939,2024-11-03,sale,"Tom Melody, 3624 Cliffrose Trail",ZN8QK7
+001000,2024-11-10,sale,"Mike Mok, 2223 Casitas Way",Y2XKUH
+002676,2024-11-10,sale,"Patti Lindquist, 8305 Carnoustie Av",XHJF8O
+002108,2024-11-10,sale,"Victoria Boehm, 489 Garcia Dr",LIMDMT
+002932,2024-11-17,sale,"Edward Mika, 73111 Somera Road",IRMP62
+003328,2024-11-17,sale,"Linda  Ron Officer, 1640 Paseo Diam",RRHRWQ
+003391,2024-12-08,sale,"Cleta Calston, 590 Olazabal Drive",DKBB05
+003263,2024-12-15,sale,"Jordan Hall, 636 Cache Ln",2LWXLQ
+003015,2024-12-15,sale,"Maggie Picker, 5532 Corte Portico",TD0KK7
+003455,2024-12-29,sale,"Gregg  Lisa Whitney, 45380 Mesa Cov",IW79XN
+003456,2024-12-29,sale,"Lyn Rothmund, 29383 Hidden Lake Dr",WXM11D
+002972,2025-01-05,sale,"Fernando Hernandez, 82173 Modena Rd",EOWDMK
+002710,2025-01-05,sale,"Donna Gagnon, 79989 Rancho La Quint",XUOI1J
+003459,2025-01-05,sale,"Jayne Reaburn, 80806 Via Puerta Azu",5IESF0
+003461,2025-01-12,sale,"Edie Becker, 82536 Grant Drive",EQ162E
+003241,2025-01-19,sale,"Rose Brine, 279 W Camino Alturas",RY2P9F
+003468,2025-01-19,sale,"Carole Lovett, 39254 Calle Negrete",M97FN7
+003370,2025-02-02,sale,"Pauline Bohm, 96 Princeton Drive",LPPWX3
+003152,2025-02-02,sale,"Dana Strickler, 771 Suncup Cir",QMKSKQ
+003216,2025-02-16,sale,"Diane Rabin, 606 Cache Ln",DT6EI8
+003484,2025-02-16,sale,"Cheri Delucca, 326 Villaggio South",QOPL09
+003524,2025-03-02,sale,"Nanette Smalley, 1457 E Amado Rd",HBHHTX
+002709,2025-03-02,sale,"Cam Gaudet, 48985 Taylor St",72ZY2T
+002692,2025-03-16,sale,"Judith Gordon, 42098 Diadomite Way",CST6J4
+003092,2025-03-23,sale,"Steven Hess, 30376 Avenida Alvera",HGBXSB
+003103,2025-03-23,sale,"Ellen Stutz, 42812 Adalin Way",2DP22K
+003540,2025-03-23,sale,"Walter Keller, 197 Shepard Drive",KOLTJH
+002957,2025-04-06,sale,"Helen  Tom Stewart, 8161 Carnoustie",3WQIQT
+003585,2025-04-06,sale,"Randy DeWeese, 26511 Ash Summit Cir",H0FBMO
+003060,2025-04-06,sale,"Kenneth Theriault, 2051 E Calle Fel",1X2K5J
+003564,2025-04-06,sale,"Ibrahim Shalhoub, 40290 Barington D",NJ8RM2
+002864,2025-04-06,sale,"Dwight Fichtner, 404 Tewell Drive",YZ8877
+003014,2025-04-06,sale,"Maggie Picker, 5532 Corte Portico",JQCRM3
+003311,2025-04-06,sale,"Allyn Miller, 1635 Candela Ct",U5OW80
+003314,2025-04-06,sale,"Nanette Smalley, 1457 E Amado Rd",Z2OZ20
+003213,2025-04-06,sale,"Todd White, 1821 S La Paloma",ZEHU6H
+003603,2025-04-13,sale,"Nectar Sagarnaga, 2818 Eureka Road",4XAGMW
+003231,2025-04-13,sale,"Annie Marsalone, 8855 Stephenson La",FZGY2D
+002930,2025-04-13,sale,"Brenda Napier, 620 Bahama Drive",13OFRM
+003447,2025-04-13,sale,"Mark Habeeb, 4 University Circle",RS2K7T
+003070,2025-04-13,sale,"Henry Salvidor, 7721 Armour Dr",9AR8IJ
+002866,2025-04-13,sale,"Jim Piercy, 8770 Duval Ln",OSQCPL
+003266,2025-04-20,sale,"Toney Lawson, 85378 Giorno Court",FBT11P
+003487,2025-04-20,sale,"Mike Sullivan, 82 Conejo Cir",B6H4MO
+003178,2025-04-20,sale,"Robert Weiner, 70400 Los Pueblos Wa",NN3RSD
+003143,2025-04-20,sale,"Russ Fleer, 609 Zaharias Cir",1K3O6I
+003154,2025-04-20,sale,"Dennis Gladu, 348 Casper Dr",SEC6IF
+002636,2025-04-20,sale,"Candace Hawley, 8315 Parry Drive",1CNYMY
+002875,2025-04-20,sale,"Bonnie Silverwood, 258 Lakewood Ln",JYEWW0
+002993,2025-04-20,sale,"Susan McKenna, 41865 Harrison Dr",6MMADF
+002513,2025-04-20,sale,"Lyn Rothmund, 29383 Hidden Lake Dr",JKPK15
+003167,2025-04-20,sale,"Minia Esparza, 7955 Bogey Ave",FG0UWR
+003608,2025-04-20,sale,"Linda Haynes, 8160 Pavin Lane",IB52PX
+003114,2025-04-27,sale,"Debbie Frazier, 625 Parnavik Drive",5FC2SC
+003072,2025-04-27,sale,"Dennis Gladu, 348 Casper Dr",Y5LLH3
+003636,2025-04-27,sale,"Tony Bosco, 3660 Serenity Trail",717KWZ
+003637,2025-04-27,sale,"Cleta Calston, 590 Olazabal Drive",MMZK6S
+003635,2025-04-27,sale,"Jayne Reaburn, 80806 Via Puerta Azu",3BW6DX
+003305,2025-04-27,sale,"Jessica Johnson, 38489 Nasturtium W",0P9YHP
+003147,2025-05-04,sale,"Janet Boyce, 1625 Via Borrego",TIHYEO
+003063,2025-05-04,sale,"Kevin Odenbaugh, 73450 Country Club",2K26DU
+003434,2025-05-04,sale,"Barbara Rago, 187 Hoch Way",XZTDXS
+003045,2025-05-04,sale,"Henry Salvidor, 7721 Armour Dr",3ZZOY2
+003170,2025-05-04,sale,"Don Knutzen, 2090 S Broadmoor Dr",MLJLOW
+003118,2025-05-04,sale,"Patty Moss, 37255 Pineknoll Ave",44F18F
+003360,2025-05-04,sale,"Ken Morris, 69469 Serenity Road",DPK8NM
+003446,2025-05-04,sale,"Tracy Harper, 70130 Sun Valley Driv",EWCCKZ
+003206,2025-05-04,sale,"Paty Flohr, 260 Glenview Lane",7ZCIXS
+003303,2025-05-04,sale,"Bob Hutton, 47152 El Menara Cir",ZWMN0E
+003324,2025-05-04,sale,"Linda  Fred Loetscher, 321 Loch Lom",SRJW5G
+003318,2025-05-04,sale,"Art Clifford, 3909 Blue Sky Way",7U2U2T
+003055,2025-05-04,sale,"Steve Kosta, 7877 Littler Dr",0X4I5M
+003220,2025-05-04,sale,"Michael Krauss, 12 University Cir",XGNNSP
+003260,2025-05-04,sale,"Rochelle Lozdon, 27550 Avenida Quin",EWTM75
+003051,2025-05-11,sale,"Stella Torres, 230 Cog Hill Ln",AFR4HG
+003380,2025-05-11,sale,"Robert & Sandy Weiner Sr., 36830 Pi",MEBL6H
+003017,2025-05-11,sale,"Iver/Glenn Nielsen, 36508 Calle Esp",INNTXB
+003490,2025-05-11,sale,"Walter Garrison, 240 Firestone Lane",9YU376
+003642,2025-05-11,sale,"Myra Lane, 8 Mission Palms Dr W",9QEZRW
+003671,2025-05-11,sale,"Sherry Dibble, 1551 Leland Street",JKFNRT
+003674,2025-05-11,sale,"Linda  Ron Officer, 1640 Paseo Diam",GB0IQ4
+003322,2025-05-11,sale,"Marilyn Wilson, 455 Vardon Cir",ATMRT2
+002812,2025-05-11,sale,"Linda Haynes, 8160 Pavin Lane",TFC28B
+003505,2025-05-18,sale,"Juanita Godwin, 85396 Giorno Ct",0AATBM
+003575,2025-05-18,sale,"Bill Mayhall, 8425 Singh Ct",K7AY5A
+003338,2025-05-18,sale,"Dana Strickler, 771 Suncup Cir",XGWXA1
+003555,2025-05-18,sale,"Mary OHagan, 24 Riesling",IZ1CE2
+003399,2025-05-18,sale,"Kelly Dower, 68697 Calle Tolosa",KL1GBE
+003127,2025-05-25,sale,"Danette Rodgers, 31268 Frans Hals D",RDTO90
+003321,2025-05-25,sale,"Al Garces, 247 Oak Valley Lane",OQOCGD
+003430,2025-06-01,sale,"Linda Rawlings, 74431 Chicory Stree",479P48
+003712,2025-06-08,sale,"Bonnie Silverwood, 258 Lakewood Ln",YQ2NEX
+003411,2025-06-08,sale,"Debbie Bygland, 247 Firestone Lane",52EFXZ
+003464,2025-06-15,sale,"Trudy Roony, 41860 Hogan Drive",IJ0TOS
+003746,2025-06-15,sale,"Lyn Rothmund, 29383 Hidden Lake Dr",HY0CDF
+003168,2025-06-22,sale,"John Stafford, 495 Casper Drive",KU3YJJ
+003664,2025-06-29,sale,"Stephanie Cooper, 81-594 Ronda",9BF6OJ
+003772,2025-07-13,sale,"Carole Lovett, 39254 Calle Negrete",GZBA7F
+003299,2025-08-03,sale,"Curtis Collins, 504 S Calle Encilia",53XJI9
+003519,2025-08-10,sale,"Katie Sullivan, 1250 North Kirby St",D9ZTA2
+003839,2025-09-07,sale,"Allyn Miller, 560 West Sepulveda Ro",CCP7AE
+003572,2025-09-07,sale,"Anne Sandberg, 902 Alejo Vista",PN2MYZ
+003273,2025-09-07,sale,"Don Jardine, 276 Araby Street",KZ8BTS
+003656,2025-09-14,sale,"LINDA COBARRUBIAS, 2943 E Los Posas",M281DF
+003853,2025-09-14,sale,"Walter Keller, 197 Shepard Drive",FBDHQA
+003587,2025-09-21,sale,"Steve Witters, 2231 North Leonard R",QY87X4
+003554,2025-09-21,sale,"Mary OHagan, 24 Riesling",QHMOBP
+003655,2025-09-21,sale,"Diane Billings, 370 Casper Drive",9PZ9AO
+003574,2025-09-21,sale,"Bill Mayhall, 8425 Singh Ct",XR3WYE
+003854,2025-09-21,sale,"Cleta Calston, 590 Olazabal Drive",RJU5LK
+003846,2025-09-21,sale,"Sharon Weissmann, 465 Vardon Circle",Q3FA2T
+003653,2025-09-28,sale,"Dorothy  Robert Farmer, 1450 Camino",6T4AAR
+003369,2025-10-05,sale,"Pauline Bohm, 96 Princeton Drive",MCWDFJ
+003230,2025-10-05,sale,"Joan Flickinger, 5531 Corte del Mar",QWXKQ6
+003357,2025-10-05,sale,"Dottie Gough, 345 Red River Rd",JWCPX6
+003699,2025-10-05,sale,"Bonnie  Sam Martin, 952 Alejo Vista",EK5ZN5
+003880,2025-10-05,sale,"Ibrahim Shalhoub, 40290 Barington D",OUN0AX
+003272,2025-10-05,sale,"Tony Taricco, 72294 Ginger Rogers R",WCHQL7
+003720,2025-10-05,sale,"Edie Becker, 82536 Grant Drive",9HB51L
+003267,2025-10-05,sale,"Rajeni Chajar, 48640 Gibraltar St",XGGH9N
+003227,2025-10-05,sale,"Rajeni Chajar, 82174 W Helio Ct",D4971L
+003325,2025-10-05,sale,"Kathy Malarkey, 226 Cog Hill Ln",CBAP7H
+003290,2025-10-05,sale,"Jayne Reaburn, 80806 Via Puerta Azu",00ITEJ
+003228,2025-10-05,sale,"Rajeni Chajar, 80174 Barcelona Aven",ZZMW36
+003530,2025-10-12,sale,"Sheela Havas, 47655 V�a Montigo",2FEQJL
+003567,2025-10-12,sale,"Steve Acree, 4466 Via del Pellegrin",CJXH9Q
+003515,2025-10-12,sale,"Donna  Keith Swanke, 5336 Via Bajam",SDN8FL
+003601,2025-10-12,sale,"Jeffery Jones, 141 Desert W Dr",4N21BD
+003728,2025-10-12,sale,"Lisa Johnson, 1476 Peters Canyon Pa",HCQ9W0
+003531,2025-10-12,sale,"Sharon Soper, 34750 Mission Hills D",QW6TWA
+003802,2025-10-19,sale,"Tom Kelly, 5462 Corte del Mar",KFYNP2
+003592,2025-10-19,sale,"Eliza Prall, 636 Hospitality Dr",LGLXQW
+003803,2025-10-19,sale,"Bruce Johnson, 5580 Corte Benisa",J3MXGK
+003682,2025-10-19,sale,"Dana Zusman, 899 Island Dr",OZDTN9
+003602,2025-10-19,sale,"Claudette Bidgood, 71605 Mirage Rd",L7UM0E
+003717,2025-10-26,sale,"Ross Snow, 58 Grenache",WCDJKO
+003906,2025-10-26,sale,"Myra Lane, 8 Mission Palms Dr W",P9BUWP
+003696,2025-10-26,sale,"Terence Maguire, 77308 Olympic Way",EGQ71O
+003789,2025-10-26,sale,"Steve Bluestein, 5 University Cir",5XDAU1
+003727,2025-11-02,sale,"Cheryl Moody, 28 V�a Valverde",C1OT2R
+003496,2025-11-02,sale,"Victoria Boehm, 489 Garcia Dr",9S2AEF
+003425,2025-11-02,sale,"Pam  Rick Ortega, 73811 Mondrian Pl",U9DDE2
+003400,2025-11-02,sale,"Leslie Bucari, 246 Carner Ln",KAMHZZ
+003806,2025-11-02,sale,"Barbara  John Bueler, 8919 Stephens",N8Y9GH
+003499,2025-11-02,sale,"Pat Sweeney, 550 Olazabal Dr",XSXTWP
+003921,2025-11-02,sale,"Linda  Ron Officer, 1640 Paseo Diam",HZXKXX
+003320,2025-11-02,sale,"Nita Staley, 238 Cog Hill Lane",L8O0UT
+003724,2025-11-02,sale,"Jim Hitt, 669 Weir Drive",EGAC6D
+003725,2025-11-02,sale,"Bonnie Silverwood, 258 Lakewood Ln",U3U8I4
+003850,2025-11-02,sale,"Marilyn Wilson, 455 Vardon Cir",14W78P
+003388,2025-11-02,sale,"Bill  Nancy Ward, 573 Pooley Drive",WG5LDC
+003494,2025-11-02,sale,"Ed Bakosh, 8151 Carnoustie",UPCM0T
+003350,2025-11-02,sale,"Bill Yost, 80931 Via Puerta Azul",LINBG9
+003493,2025-11-02,sale,"Helen  Tom Stewart, 8161 Carnoustie",UM7O5W
+002214,2025-11-03,sale,"Leslie Bucari, 246 Carner Ln",8IH4E6
+003787,2025-11-09,sale,"Debbie Church, 7615 Watson Circle",O5NO2L
+003723,2025-11-16,sale,"Pat Whitworth, 8905 Stephenson Ln",3ULY0W
+003333,2025-11-16,sale,"Kathy Anderson, 475 Vardon Circle",JZ95G4
+003700,2025-11-16,sale,"Patti Lindquist, 8305 Carnoustie Av",HE5F5O
+003963,2025-11-30,sale,"Bonnie Silverwood, 258 Lakewood Ln",HPRZH5
+003965,2025-11-30,sale,"Lyn Rothmund, 29383 Hidden Lake Dr",ABHJZU
+003805,2025-12-07,sale,"Larry Fraser, 156 Hilligoss Drive",QL9UCF
+003785,2025-12-07,sale,"Bibi Silvas, 550 W Sepulveda Rd",9OXQNG
+003804,2025-12-07,sale,"Yolanda Funes, 5484 Corte del Mar",TOF43W
+004009,2025-12-28,sale,"Wayne Snyder, 8421 Maruyama Drive",8MKFOI
+004007,2026-01-04,sale,"Terri Jones, 43631 Adria Drive",PEBCD1
+003529,2026-02-08,sale,"Bob Hutton, 74045 Mockingbird Trail",JGLRJH
+003973,2026-02-22,sale,"Sue Garcia, 801 W Panorama Rd",12XH14
+003959,2026-03-01,sale,"Carol Callaghan, 48871 Cassia Place",UOMOYQ
+003957,2026-03-22,sale,"Kevin Armintrout, 17 Stonecrest Cir",XTG0RK
+003833,2026-03-29,sale,"LD Fowler, 7693 Dutra Dr",JUX0CC
+003577,2026-03-29,sale,"Toni Hernandez, 26290 Amen St",D83ONM
+004006,2026-04-05,sale,"Jose Bugarin, 40448 Corte Placitas",A9PNSG
+003831,2026-04-05,sale,"Jerome King, 8060 Bay Hill Ave",LDGBPX
+003845,2026-04-05,sale,"Glenn Uhley, 409 Casper Dr",PO7S8U
+003821,2026-04-05,sale,"Lilian Togo, 7695 Gibson Circle",EK4NJ7
+003855,2026-04-05,sale,"Elsa Sandvold, 78770 Falsetto Drive",J9XQ4U
+003829,2026-04-05,sale,"Gene Hurtig, 85441 Giorno Court",IBQN9W
+003898,2026-04-05,sale,"Karen Raker, 3629 Savanna Way",53Z9A1
+003899,2026-04-05,sale,"Margo Faulkner, 19 Araby St",RKHHAN
+003500,2026-04-05,sale,"Mark Egge, 1597 Willow Leaf Drive",A9QMG8
+003823,2026-04-05,sale,"Janice Record, 192 Inkster Way",ZWDH13
+003938,2026-04-05,sale,"Amy Pearson, 2810 Calle Loreto",W45HB5
+003900,2026-04-05,sale,"Rosemary Villegas, 3611 Savannah Wa",4MPQLN
+003890,2026-04-12,sale,"Suzy Callahan, 70401 Sunny Lane",CS1CYS
+003936,2026-04-12,sale,"Kathy Anderson, 475 Vardon Circle",8XNYP5
+004368,2026-04-26,sale,"Andy Willinger, 310 V�a Don Benito",UFWL11
+003721,2026-04-26,sale,"Jackie Peterson, 650 Zaharia Circle",156TKO
+003944,2026-04-26,sale,"Diane Rabelo, 196 Inkster Way",5TE2KS
+003622,2026-04-26,sale,"Sue Watt, 8214 Maruyama Dr",216LUI
+003920,2026-04-26,sale,"Maxine Newlove, 425 Vardon Circle",DH3U1T
+003770,2026-05-03,sale,"Dwight Fichtner, 404 Tewell Drive",OCF78T
+003820,2026-05-03,sale,"Sydney Ann Leonard, 42585 Kansas St",EQ518J
+003869,2026-05-03,sale,"Sharon Odenbaugh, 73450 Country Clu",XI6XDF
+003989,2026-05-03,sale,"Bill Blane, 57 Grenache",ZTS1EM
+003971,2026-05-03,sale,"Christopher Brown, 67888 Valley Vis",D1O4CZ
+003870,2026-05-03,sale,"Jack Ginsberg, 3 University Circle",RKWEQ1
+003991,2026-05-03,sale,"Suzy  Fred Voelkel, 22 Taylor Avenu",GI2S8J
+003876,2026-05-03,sale,"LD Fowler, 7693 Dutra Dr",D8Y8M0
+003801,2026-05-03,sale,"Anny  Karl Hogquist, 7855 Gibson Ci",9ZHIMZ
+003946,2026-05-03,sale,"Jeanne Farris, 240 4 Seasons Blvd",8C3C6Z
+003888,2026-05-03,sale,"Nancy Mcintosh, 1452 Trinidad St",L2X0YH
+003969,2026-05-03,sale,"Ron Dilaura, 73450 Country Club Dr",OX01A9
+003860,2026-05-03,sale,"William Smith, 1939 Fan Palm Way",GSE0QU
+004140,2026-05-03,sale,"Donna Uchimura, 27315 Arabian Court",LRW4GI
+003999,2026-05-03,sale,"Barbara Garner, 239 Firestone Lane",EUORC7
+003791,2026-05-03,sale,"Barbara Cameron, 8170 Pavin Lane",JZTWG2
+003987,2026-05-03,sale,"Linda Willingham, 8292 Campbell Cou",8NYPG3
+003714,2026-05-03,sale,"Joan Greene, 8245 Faldo Ave",EQG1TO
+003954,2026-05-03,sale,"Camille Davidson, 78843 Fortuna Pl",4KW5EB
+003715,2026-05-03,sale,"Dot Gallahan, 295 Baugh Ln",UW30F5
+003955,2026-05-03,sale,"Rhonda Phillips, 78831 Fortuna Plac",KO4WI0
+003783,2026-05-10,sale,"Clark Argeris, 1 Via Santa Ramona",O101F9
+003749,2026-05-10,sale,"Bob Goldware, 572 N Plaza Amigo",B53LQF
+004128,2026-06-14,sale,"Trish Graham Moorhouse, 8305 Bogey",BX5XTJ
+004139,2026-09-27,sale,"Alexander Burck, 1835 North V�a Mir",TJMC1S
+001808,2026-09-27,sale,"Priscilla Hieber, 8115 Doral Ln",LZI230
+003996,2026-11-01,sale,"Sheila Boulton, 48553 Via Amistad",R1OA3W
+003952,2026-11-01,sale,"Phil  Fran Ciulla, 49915 V�a Katali",OQ0S9A
+003992,2026-11-15,sale,"Robin Blackstone, 1242 East Andreas",YHDBIB
+003994,2026-11-15,sale,"Robin Blackstone, 1244 E Andreas Rd",5EMPGR
+003889,2027-10-24,sale,"Kay Mitchell, 8159 Doral Lane",4X3QJ8
