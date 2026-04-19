@@ -169,6 +169,49 @@
     }
     .workiz-pill:active { background: rgba(56,189,248,.1); }
 
+    /* ── JOB HISTORY ── */
+    .job-history-card {
+      background: var(--bg-card); border: 1.5px solid var(--border);
+      border-left: 4px solid #38bdf8;
+      border-radius: 16px; padding: 16px 18px; margin-bottom: 12px;
+    }
+    .job-history-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .job-history-title {
+      font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: #38bdf8;
+    }
+    .job-count-badge {
+      font-size: 12px; font-weight: 700;
+      background: rgba(56,189,248,.15); color: #38bdf8;
+      border-radius: 20px; padding: 3px 10px;
+    }
+    .job-entry {
+      border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px;
+    }
+    .job-entry:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .job-entry-so {
+      font-size: 11px; color: var(--text-dim); margin-bottom: 6px; font-weight: 600;
+    }
+    .job-row {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 4px; gap: 8px;
+    }
+    .job-label {
+      font-size: 11px; color: var(--text-dim); flex-shrink: 0; width: 110px;
+    }
+    .job-value {
+      font-size: 12px; font-weight: 600; color: var(--text); text-align: right; flex: 1;
+    }
+    .job-value.money { color: var(--success); }
+    .pricing-snap {
+      font-size: 11px; color: var(--text-dim); line-height: 1.5;
+      margin-top: 6px; border-top: 1px solid var(--border); padding-top: 6px;
+      white-space: pre-wrap; word-break: break-word;
+    }
+
     .preview-actions {
       position: fixed; bottom: 0; left: 0; right: 0;
       padding: 12px 20px 28px;
@@ -261,6 +304,8 @@
         <div class="preview-city" id="prev-city">—</div>
         <div class="preview-detail-row" id="prev-tags"></div>
       </div>
+
+      <div id="job-history-wrap"></div>
 
       <div class="section-label">SMS Message</div>
       <div class="sms-loading" id="sms-loading">⏳ Generating SMS preview...</div>
@@ -410,12 +455,13 @@
       ].join('');
       document.getElementById('confirm-name').textContent = c.name + (c.city ? ` · ${c.city}` : '');
 
-      // Reset SMS area
+      // Reset SMS area and job history
       document.getElementById('sms-loading').style.display = 'block';
       document.getElementById('sms-box').style.display = 'none';
       document.getElementById('char-count').textContent = '';
       document.getElementById('launch-btn').disabled = true;
       document.getElementById('workiz-pill-wrap').style.display = 'none';
+      document.getElementById('job-history-wrap').innerHTML = '';
 
       showView('view-preview');
       document.getElementById('preview-scroll').scrollTop = 0;
@@ -444,12 +490,61 @@
           } else {
             pillWrap.style.display = 'none';
           }
+          // Job history panel
+          renderJobHistory(data.job_count || 0, data.last_jobs || []);
         } else {
           document.getElementById('sms-loading').textContent = '⚠️ Could not generate preview: ' + (data.error || 'Unknown error');
         }
       } catch (e) {
         document.getElementById('sms-loading').textContent = '⚠️ Server error loading preview';
       }
+    }
+
+    function renderJobHistory(jobCount, lastJobs) {
+      const wrap = document.getElementById('job-history-wrap');
+      if (!jobCount && !lastJobs.length) { wrap.innerHTML = ''; return; }
+
+      const jobsHtml = lastJobs.map((j, i) => `
+        <div class="job-entry">
+          <div class="job-entry-so">${i === 0 ? 'Most Recent' : '2nd Most Recent'} · ${esc(j.so_name)}</div>
+          <div class="job-row">
+            <span class="job-label">Date</span>
+            <span class="job-value">${esc(j.date)}</span>
+          </div>
+          ${j.property ? `<div class="job-row">
+            <span class="job-label">Property</span>
+            <span class="job-value">${esc(j.property)}</span>
+          </div>` : ''}
+          ${j.job_type ? `<div class="job-row">
+            <span class="job-label">Job Type</span>
+            <span class="job-value">${esc(j.job_type)}</span>
+          </div>` : ''}
+          <div class="job-row">
+            <span class="job-label">Total Value</span>
+            <span class="job-value money">$${Number(j.total).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0})}</span>
+          </div>
+          ${j.frequency ? `<div class="job-row">
+            <span class="job-label">Frequency</span>
+            <span class="job-value">${esc(j.frequency)}</span>
+          </div>` : ''}
+          ${j.pricing_note ? `<div class="job-row">
+            <span class="job-label">Pricing Note</span>
+            <span class="job-value">${esc(j.pricing_note)}</span>
+          </div>` : ''}
+          ${j.pricing_snap ? `<div class="pricing-snap">${esc(j.pricing_snap)}</div>` : ''}
+        </div>
+      `).join('');
+
+      wrap.innerHTML = `
+        <div class="section-label" style="margin-top:0">Job History</div>
+        <div class="job-history-card">
+          <div class="job-history-header">
+            <span class="job-history-title">Completed Jobs</span>
+            <span class="job-count-badge">${jobCount} total</span>
+          </div>
+          ${jobsHtml || '<div style="font-size:13px;color:var(--text-dim)">No completed jobs found</div>'}
+        </div>
+      `;
     }
 
     function updateCharCount() {
