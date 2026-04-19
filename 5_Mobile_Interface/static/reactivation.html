@@ -342,13 +342,6 @@
         placeholder="SMS text will appear here..."></textarea>
       <div class="char-count" id="char-count"></div>
       <div id="workiz-pill-wrap" style="display:none; display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="workiz-pill" id="workiz-pill" href="#" target="_blank">
-          🔧 View Workiz Job
-        </a>
-        <a class="workiz-pill" id="odoo-pill" href="#" target="_blank"
-           style="border-color:#a78bfa; color:#a78bfa;">
-          🟣 View Odoo SO
-        </a>
         <a class="workiz-pill" id="prop-pill" href="#" target="_blank"
            style="border-color:#34d399; color:#34d399;">
           🏠 View Property
@@ -523,15 +516,9 @@
           updateCharCount();
           document.getElementById('launch-btn').disabled = false;
           // Pill links
-          const pillWrap   = document.getElementById('workiz-pill-wrap');
-          const pill       = document.getElementById('workiz-pill');
-          const odooPill   = document.getElementById('odoo-pill');
-          const propPill   = document.getElementById('prop-pill');
-          const contactPill= document.getElementById('contact-pill');
-          if (data.workiz_link) { pill.href = data.workiz_link; }
-          if (c.last_so_id) {
-            odooPill.href = 'https://window-solar-care.odoo.com/odoo/sales/' + c.last_so_id;
-          }
+          const pillWrap    = document.getElementById('workiz-pill-wrap');
+          const propPill    = document.getElementById('prop-pill');
+          const contactPill = document.getElementById('contact-pill');
           if (data.prop_id) {
             propPill.href = 'https://window-solar-care.odoo.com/odoo/contacts/' + data.prop_id;
           }
@@ -601,6 +588,10 @@
             <span class="job-value">${esc(j.pricing_note)}</span>
           </div>` : ''}
           ${j.pricing_snap ? `<div class="pricing-snap">${esc(j.pricing_snap)}</div>` : ''}
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+            ${j.workiz_link ? `<a class="workiz-pill" href="${j.workiz_link}" target="_blank" style="margin-top:0; padding:6px 12px; font-size:12px;">🔧 Workiz</a>` : ''}
+            ${j.so_id ? `<a class="workiz-pill" href="https://window-solar-care.odoo.com/odoo/sales/${j.so_id}" target="_blank" style="margin-top:0; padding:6px 12px; font-size:12px; border-color:#a78bfa; color:#a78bfa;">🟣 Odoo SO</a>` : ''}
+          </div>
         </div>
       `).join('');
 
