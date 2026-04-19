@@ -2589,9 +2589,23 @@ async def api_auth(request: Request):
 
 
 # ---------------------------------------------------------------------------
-# Payroll — clock in / out using hr.attendance (Odoo native attendance model)
-# check_in / check_out stored as UTC datetimes on hr.attendance records
+# Payroll — clock in / out using ir.config_parameter only (no extra modules)
+# payroll.clockin.{id}  = ISO clock-in UTC timestamp (empty = clocked out)
+# payroll.shifts.{id}   = JSON list of {date, check_in, check_out, hours}
 # ---------------------------------------------------------------------------
+_CLOCKIN_KEY_PREFIX = 'payroll.clockin.'
+_SHIFTS_KEY_PREFIX  = 'payroll.shifts.'
+
+def _get_param(key):
+    rows = odoo_rpc('ir.config_parameter', 'search_read',
+        [[['key', '=', key]]], {'fields': ['id', 'value'], 'limit': 1})
+    return rows[0] if rows else None
+
+def _set_param(key, value, existing_id=None):
+    if existing_id:
+        odoo_rpc('ir.config_parameter', 'write', [[existing_id], {'value': value}])
+    else:
+        odoo_rpc('ir.config_parameter', 'create', [{'key': key, 'value': value}])
 
 @app.post('/api/payroll/clockin')
 async def api_payroll_clockin(request: Request):
@@ -2601,17 +2615,14 @@ async def api_payroll_clockin(request: Request):
         if not emp_id:
             return JSONResponse({'ok': False, 'error': 'employee_id required'})
 
-        # Check if already clocked in (open attendance = no check_out)
-        open_att = odoo_rpc('hr.attendance', 'search_read',
-            [[['employee_id', '=', emp_id], ['check_out', '=', False]]],
-            {'fields': ['id', 'check_in'], 'limit': 1})
-        if open_att:
+        ci_key = _CLOCKIN_KEY_PREFIX + str(emp_id)
+        ci_row = _get_param(ci_key)
+        if ci_row and ci_row.get('value'):
             return JSONResponse({'ok': False, 'error': 'Already clocked in'})
 
-        now_utc = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-        odoo_rpc('hr.attendance', 'create', [{'employee_id': emp_id, 'check_in': now_utc}])
-
-        return {'ok': True, 'clock_in_time': now_utc.replace(' ', 'T') + 'Z'}
+        now_utc = datetime.datetime.utcnow().isoformat()
+        _set_param(ci_key, now_utc, ci_row['id'] if ci_row else None)
+        return {'ok': True, 'clock_in_time': now_utc + 'Z'}
     except Exception as e:
         return JSONResponse({'ok': False, 'error': str(e)})
 
@@ -2623,35 +2634,40 @@ async def api_payroll_clockout(request: Request):
         if not emp_id:
             return JSONResponse({'ok': False, 'error': 'employee_id required'})
 
-        # Find open attendance record
-        open_att = odoo_rpc('hr.attendance', 'search_read',
-            [[['employee_id', '=', emp_id], ['check_out', '=', False]]],
-            {'fields': ['id', 'check_in'], 'limit': 1})
-        if not open_att:
+        ci_key = _CLOCKIN_KEY_PREFIX + str(emp_id)
+        ci_row = _get_param(ci_key)
+        if not ci_row or not ci_row.get('value'):
             return JSONResponse({'ok': False, 'error': 'Not clocked in'})
 
-        att_id = open_att[0]['id']
-        check_in_str = open_att[0]['check_in']
-        now_utc = datetime.datetime.utcnow()
-        now_str = now_utc.strftime('%Y-%m-%d %H:%M:%S')
+        clock_in_dt  = datetime.datetime.fromisoformat(ci_row['value'])
+        clock_out_dt = datetime.datetime.utcnow()
+        hours = round((clock_out_dt - clock_in_dt).total_seconds() / 3600, 4)
 
-        odoo_rpc('hr.attendance', 'write', [[att_id], {'check_out': now_str}])
+        # Convert clock-in UTC → Pacific date for the shift record
+        ci_pt   = clock_in_dt.replace(tzinfo=datetime.timezone.utc).astimezone(_PT)
+        date_pt = ci_pt.date().isoformat()
 
-        # Calculate hours for today's toast
-        check_in_dt = datetime.datetime.strptime(check_in_str, '%Y-%m-%d %H:%M:%S')
-        hours = round((now_utc - check_in_dt).total_seconds() / 3600, 2)
+        # Append to shifts log
+        sh_key = _SHIFTS_KEY_PREFIX + str(emp_id)
+        sh_row = _get_param(sh_key)
+        shifts = json.loads(sh_row['value']) if sh_row and sh_row.get('value') else []
+        shifts.append({
+            'date':      date_pt,
+            'check_in':  ci_row['value'],
+            'check_out': clock_out_dt.isoformat(),
+            'hours':     hours,
+        })
+        # Keep last 90 days only
+        cutoff = (datetime.date.today() - datetime.timedelta(days=90)).isoformat()
+        shifts = [s for s in shifts if s.get('date', '') >= cutoff]
+        _set_param(sh_key, json.dumps(shifts), sh_row['id'] if sh_row else None)
 
-        # Sum all today's attendance for this employee (Pacific date)
-        today_str = today_pt().isoformat()
-        today_att = odoo_rpc('hr.attendance', 'search_read',
-            [[['employee_id', '=', emp_id],
-              ['check_in', '>=', today_str + ' 00:00:00'],
-              ['check_in', '<=', today_str + ' 23:59:59'],
-              ['check_out', '!=', False]]],
-            {'fields': ['worked_hours']})
-        hours_today = round(sum(a.get('worked_hours', 0) for a in (today_att or [])), 2)
+        # Clear clock-in
+        _set_param(ci_key, '', ci_row['id'])
 
-        return {'ok': True, 'hours': hours, 'hours_today': hours_today}
+        # Today's total
+        hours_today = round(sum(s['hours'] for s in shifts if s.get('date') == date_pt), 2)
+        return {'ok': True, 'hours': round(hours, 2), 'hours_today': hours_today}
     except Exception as e:
         return JSONResponse({'ok': False, 'error': str(e)})
 
@@ -2660,12 +2676,9 @@ async def api_payroll_status(employee_id: int = 0):
     try:
         if not employee_id:
             return JSONResponse({'ok': False, 'error': 'employee_id required'})
-        open_att = odoo_rpc('hr.attendance', 'search_read',
-            [[['employee_id', '=', employee_id], ['check_out', '=', False]]],
-            {'fields': ['check_in'], 'limit': 1})
-        if open_att:
-            ci = open_att[0]['check_in']
-            return {'clocked_in': True, 'clock_in_time': ci.replace(' ', 'T') + 'Z'}
+        ci_row = _get_param(_CLOCKIN_KEY_PREFIX + str(employee_id))
+        if ci_row and ci_row.get('value'):
+            return {'clocked_in': True, 'clock_in_time': ci_row['value'] + 'Z'}
         return {'clocked_in': False, 'clock_in_time': None}
     except Exception as e:
         return JSONResponse({'ok': False, 'error': str(e)})
@@ -2680,26 +2693,14 @@ async def api_payroll_week(employee_id: int = 0):
         mon = today - datetime.timedelta(days=today.weekday())
         sat = mon + datetime.timedelta(days=5)
 
-        # Query hr.attendance for Mon–Sat, completed shifts only
-        att_records = odoo_rpc('hr.attendance', 'search_read',
-            [[['employee_id', '=', employee_id],
-              ['check_in', '>=', mon.isoformat() + ' 00:00:00'],
-              ['check_in', '<=', sat.isoformat() + ' 23:59:59'],
-              ['check_out', '!=', False]]],
-            {'fields': ['check_in', 'worked_hours']})
+        sh_row = _get_param(_SHIFTS_KEY_PREFIX + str(employee_id))
+        shifts = json.loads(sh_row['value']) if sh_row and sh_row.get('value') else []
 
-        # Bucket by Pacific date
         by_date = {}
-        for a in (att_records or []):
-            # check_in is UTC — convert to Pacific date
-            ci_str = a['check_in']
-            try:
-                ci_utc = datetime.datetime.strptime(ci_str, '%Y-%m-%d %H:%M:%S').replace(tzinfo=datetime.timezone.utc)
-                ci_pt  = ci_utc.astimezone(_PT)
-                d = ci_pt.date().isoformat()
-            except Exception:
-                d = ci_str[:10]
-            by_date[d] = by_date.get(d, 0) + (a.get('worked_hours') or 0)
+        for s in shifts:
+            d = s.get('date', '')
+            if mon.isoformat() <= d <= sat.isoformat():
+                by_date[d] = by_date.get(d, 0) + s.get('hours', 0)
 
         day_labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
         days = []
