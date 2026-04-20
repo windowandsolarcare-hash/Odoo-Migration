@@ -314,3 +314,16 @@ NEVER use invoice_status, state='done', or date filters as proxy
 - POST /api/reactivation/preview (body: {so_id, partner_id})
 - GET /api/reactivation/so_list?partner_id=
 - POST /api/reactivation/launch
+
+## CLAUDE CODE REMOTE CONTROL (set up 2026-04-20)
+- DJ controls Claude Code from Galaxy Z Fold 5 via Claude mobile app
+- Auto-starts at Windows login via scheduled task "ClaudeRemoteControl"
+- Startup script: C:\Users\dj\start-claude-remote.bat (30s delay, cd to Migration to Odoo, launch claude.exe remote-control)
+- Session name visible in Claude app: "WSC-Auto"
+- Claude CLI at C:\Users\dj\.local\bin\claude.exe (native Windows .exe, not bash script)
+- Push notifications: enable via /config → "Push when Claude decides" (Claude mobile app signed in with windowandsolarcare@gmail.com)
+- Requires OAuth login (claude auth login); ANTHROPIC_API_KEY env var MUST NOT be set (blocks remote control)
+- Requires Claude Code v2.1.110+
+- Machine must be awake — sleep pauses the session
+- Task registered via PowerShell Register-ScheduledTask (schtasks /create returned Access Denied even for user-scoped tasks)
+- Disable: `powershell -Command "Unregister-ScheduledTask -TaskName 'ClaudeRemoteControl' -Confirm:\$false"`
