@@ -148,26 +148,11 @@ Utility: save_memory, delete_memory
 - Odoo: create "Payroll" project for these entries. Separate from job timer entries (no task_id).
 - Routes: /danny (Danny clock in/out), /payroll-admin (DJ summary view)
 
-## CHERYL REAL ESTATE ASSISTANT (planning complete, nothing built)
-- Who: Cheryl, real estate agent, solo proprietor (possibly S-Corp later)
-- Odoo multi-company: "Cheryl Real Estate" as second company under DJ's instance
-- Phase 1: Render only, Cheryl uses her own access code, Odoo is invisible backend
-- Phase 2: Cheryl gets her own Odoo login under DJ's account
-- Phase 3: Her own Odoo account - Claude migrates all data
-
-### Key Features
-1. Client stage tracker: Introduction, Needs Assessment, Property Search, Offer, Contract, Escrow, Pre-Close, Close, Post-Close, Follow-up
-2. Stage checklists: per item = "I Did It" (Cheryl logs) | "Claude Did It" (Claude executes + logs) | "N/A" (logs skipped). Full audit trail.
-3. Property showing dossier: enter MLS# to auto-pull data. Add photos, voice notes, viable/not viable.
-4. Document + communication log: what was sent, when, searchable.
-5. Post-close resource library: pre-written guides for common post-close questions.
-6. Accounting: same as DJ - plain English to Claude, Claude executes in Odoo.
-
-### Still needed from Cheryl before building
-- Her business name (to create Odoo company)
-- Which MLS + API access type (likely CRMLS Spark API via broker)
-- Stage-by-stage checklist (5-10 things she does at each stage)
-- Accounting: expense categories, open invoices, bank account type, business name on tax return
+## CHERYL REAL ESTATE ASSISTANT
+**Project moved to its own repo on 2026-04-20.**
+- Repo: `windowandsolarcare-hash/cheryl-real-estate`
+- Local: `C:\Users\dj\Documents\Business\A Cheryl Real Estate`
+- All planning detail, status, and shared memory live there. Do not duplicate Cheryl content into this file.
 
 ## QB TO ODOO ACCOUNTING MIGRATION STATUS (2026-04-18)
 - File: C:\Users\dj\Downloads\Window & Solar Care_Transaction Detail by Account.csv
