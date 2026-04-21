@@ -8,9 +8,16 @@
 
 ## Flowchart
 
-![Phase 6 flow diagram](phase6_flow.png)
+![Phase 6 flow diagram](phase6_flow.svg)
 
-_Pre-rendered image above (works everywhere including mobile GitHub). Live-editable Mermaid source below — if you edit it, re-render with `npx -p @mermaid-js/mermaid-cli mmdc -i phase6_flow.mmd -o phase6_flow.png -b white -w 1600` and commit the new PNG._
+_SVG above (scales cleanly at any zoom; tap/click to open for full pinch-zoom on mobile). High-res PNG is `phase6_flow.png` as fallback. Mermaid source below is live-editable._
+
+**To regenerate after editing the Mermaid source:**
+```
+cd 3_Documentation/phase_diagrams
+npx -p @mermaid-js/mermaid-cli mmdc -i phase6_flow.mmd -o phase6_flow.svg -b white
+npx -p @mermaid-js/mermaid-cli mmdc -i phase6_flow.mmd -o phase6_flow.png -b white -w 3200
+```
 
 ```mermaid
 flowchart TD
