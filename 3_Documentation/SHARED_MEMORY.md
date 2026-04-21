@@ -52,6 +52,8 @@
 - Timer log includes PT start + end times in description (added 2026-04-18)
 - Task stage IDs: New=16, Planned=17, In Progress=18, Done=19
 - Phase 4 task sync moves New(16) to Planned(17); never regresses In Progress/Done
+- Phase 4 / sync_action_955 task re-entry BUG: when Workiz substatus cycles Scheduled → "Next Appointment X - Text" → back to Scheduled, the Planned task is deleted on the outbound trip and NOT recreated on return. SO's cached tasks_count stays at 1 but project.task is empty — Field Assistant shows no timer. Balser SO 15916 hit this 2026-04-20 (fixed manually as task 297). SO 17066 (Wayne Geringer, Aug 20 2026) still orphaned. Permanent fix not yet built.
+- Render timer UI shows elapsed-since-resume instead of cumulative total on reopen — UI-only cosmetic bug, backend timesheet data is correct (verified 2026-04-20, 7 jobs, 7 single timesheet lines, zero duplicates).
 - action_create_invoices does NOT exist in Odoo 19. Use sale.advance.payment.inv wizard.
 - Workiz job create/duplicate: State field is REQUIRED - always include, default "CA"
 - Render payment recording writes chatter on SO + invoice for audit trail
@@ -217,6 +219,7 @@ Utility: save_memory, delete_memory
 ---
 
 ## RECENT DECISIONS / CONTEXT
+- 2026-04-20: Balser orphan task fixed (SO 15916, task 297 created). Root cause = Phase 4 sync re-entry bug. Jose Merelies tech-gate hit (SO 17113) — diagnosed, DJ handled manually. Timer UI confirmed cosmetic-only (backend data clean). Cheryl project shipped: dashboard + client list view + 314 contacts imported. See project_session_apr20_summary.md for full detail.
 - 2026-04-19: saunders-render-app repo created — new multi-business Render architecture with login, router separation, res.partner user system. LIVE.
 - 2026-04-19: Odoo email font changed from Verdana to Arial (layout template IDs 387 + 388). Use mail.mail JSON-RPC to send emails — not Gmail MCP (can only draft).
 - 2026-04-19: next_job_date stale bug — deleting a Workiz job without canceling first leaves stale date on contact, blocks reactivation list. Fix: cancel in Workiz before deleting. 11 contacts found with stale dates (sent email + created Odoo task ID 295).
