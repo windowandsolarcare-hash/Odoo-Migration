@@ -1,0 +1,81 @@
+%%{init: {"theme":"default","flowchart":{"useMaxWidth":false,"htmlLabels":true,"curve":"basis","nodeSpacing":60,"rankSpacing":50},"themeVariables":{"fontSize":"20px"}}}%%
+flowchart TD
+    Start(["Zapier webhook<br/>Workiz Job Status Changed"]) --> Extract["extract_job_from_input<br/>supports webhook + polling formats"]
+
+    Extract --> HasUuid{"job_uuid<br/>present?"}
+    HasUuid -->|no| ErrNoUuid["RETURN error:<br/>no job_uuid"]:::harderr
+    HasUuid -->|yes| HasJobData{"full job data<br/>in webhook?"}
+
+    HasJobData -->|yes| SkipFetch["Use webhook data<br/>no API call"]
+    HasJobData -->|no| Fetch["Fetch via get_job_details<br/>Workiz API"]
+    Fetch --> FetchOk{"Workiz<br/>returned data?"}
+    FetchOk -->|no| ErrFetch["RETURN error:<br/>Workiz fetch failed"]:::harderr
+    FetchOk -->|yes| ReadStatus
+
+    SkipFetch --> ReadStatus["Read Status + SubStatus<br/>+ JobType"]
+
+    ReadStatus --> SubmittedCheck{"Status ==<br/>Submitted?"}
+    SubmittedCheck -->|yes| SubCheckSO["Search SO by workiz_uuid"]
+    SubCheckSO --> SOExists1{"SO<br/>found?"}
+    SOExists1 -->|no| SkipSubmitted["RETURN skipped:<br/>let Phase 3 create via<br/>New Job trigger<br/>(race-avoidance)"]:::earlyreturn
+    SOExists1 -->|yes| GraveCheck
+    SubmittedCheck -->|no| GraveCheck
+
+    GraveCheck["Graveyard auto-close detection:<br/>JobType != Reactivation Lead<br/>AND is_scheduled"]
+
+    GraveCheck --> IsGrave{"graveyard<br/>pattern?"}
+    IsGrave -->|yes| FindOpp["find_opportunity_by_graveyard_uuid"]
+    IsGrave -->|no| SearchSO
+
+    FindOpp --> OppFound{"Opportunity<br/>found?"}
+    OppFound -->|yes| MarkWon["mark_opportunity_won<br/>+ post chatter"]
+    OppFound -->|no| LogNoOpp["LOG: no opportunity"]:::info
+    MarkWon --> SearchSO
+    LogNoOpp --> SearchSO
+
+    SearchSO["Search sale.order by workiz_uuid"]
+
+    SearchSO --> HaveSO{"SO<br/>found?"}
+    HaveSO -->|yes| UpdateSO["update_existing_sales_order:<br/>fields, dates, line items,<br/>chatter"]
+    HaveSO -->|no| RecheckSO["Re-search<br/>(race safety)"]
+
+    RecheckSO --> SoNow{"SO now<br/>found?"}
+    SoNow -->|yes| UpdateSO
+    SoNow -->|no| DelegateP3["POST Phase 3 webhook<br/>for SO creation"]
+
+    DelegateP3 --> P3Ok{"Phase 3<br/>webhook 200?"}
+    P3Ok -->|yes| RetDelegated["RETURN delegated_to_phase3"]:::earlyreturn
+    P3Ok -->|no| ErrP3["RETURN error:<br/>Phase 3 webhook failed"]:::harderr
+
+    UpdateSO --> BackToSubmitted{"New status is<br/>Submitted?"}
+    BackToSubmitted -->|yes| RemoveTasks["project.task.unlink<br/>tasks on stages 16 or 17<br/>job back off schedule"]
+    BackToSubmitted -->|no| DraftCheck
+    RemoveTasks --> DraftCheck
+
+    DraftCheck{"SO was draft<br/>AND is_task_trigger_status?"}
+    DraftCheck -->|yes| ConfirmSO["confirm_sales_order<br/>+ sync_tasks_from_so_and_job<br/>(assignee, planned date,<br/>start/end, phone)"]
+    DraftCheck -->|no| PropUpdate
+    ConfirmSO --> PropUpdate
+
+    PropUpdate["update_property_from_job:<br/>gate code, pricing,<br/>last_visit_date,<br/>service flags"]
+
+    PropUpdate --> DoneCancel{"Status is<br/>Done or Canceled?"}
+    DoneCancel -->|yes| GetParent["res.partner.read<br/>parent_id from property"]
+    DoneCancel -->|no| RetSuccess
+
+    GetParent --> HaveParent{"Parent<br/>contact found?"}
+    HaveParent -->|no| SkipClear["LOG warning,<br/>next_job_date NOT cleared"]:::silentgate
+    HaveParent -->|yes| ClearNext["clear_next_job_date_on_contact<br/>res.partner.write<br/>x_studio_next_job_date = False"]
+    ClearNext --> ClearOk{"Odoo<br/>write ok?"}
+    ClearOk -->|no| WarnClear["LOG warning,<br/>no retry"]:::silentgate
+    ClearOk -->|yes| RetSuccess
+    SkipClear --> RetSuccess
+    WarnClear --> RetSuccess
+
+    RetSuccess(["RETURN success<br/>(Phase 4 does NOT trigger Phase 5;<br/>Phase 6 handles that to avoid dupes)"]):::success
+
+    classDef harderr fill:#ffcccc,stroke:#cc0000,stroke-width:2px,color:#000
+    classDef earlyreturn fill:#fff3cd,stroke:#cc8800,stroke-width:1.5px,color:#000
+    classDef silentgate fill:#ffe4b5,stroke:#cc6600,stroke-width:2px,color:#000
+    classDef info fill:#d1ecf1,stroke:#0c5460,color:#000
+    classDef success fill:#d4edda,stroke:#155724,color:#000
