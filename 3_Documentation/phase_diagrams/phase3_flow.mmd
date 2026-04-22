@@ -1,0 +1,74 @@
+%%{init: {"theme":"default","flowchart":{"useMaxWidth":false,"htmlLabels":true,"curve":"basis","nodeSpacing":60,"rankSpacing":50},"themeVariables":{"fontSize":"20px"}}}%%
+flowchart TD
+    Start(["Zapier webhook<br/>Workiz New Job"]) --> Parse["Parse webhook payload:<br/>job_uuid, ClientId,<br/>customer_name, service_address,<br/>JobType, Status, SubStatus"]
+
+    Parse --> GraveCheck{"JobType == Reactivation Lead<br/>AND unscheduled?"}
+    GraveCheck -->|yes| SkipGrave["RETURN skipped:<br/>graveyard job for SMS only,<br/>no SO created"]:::earlyreturn
+    GraveCheck -->|no| HasClient{"ClientId<br/>present?"}
+
+    HasClient -->|no| ErrNoClient["RETURN error:<br/>missing ClientId"]:::harderr
+    HasClient -->|yes| HasAddr{"service_address<br/>present?"}
+
+    HasAddr -->|no| ErrNoAddr["RETURN error:<br/>missing service address"]:::harderr
+    HasAddr -->|yes| ExistSO["Idempotency: search<br/>sale.order by workiz_uuid"]
+
+    ExistSO --> SOFound{"SO already<br/>exists?"}
+    SOFound -->|yes| RetExisting["RETURN existing SO<br/>path A, already_existed"]:::earlyreturn
+    SOFound -->|no| SearchContact["Search res.partner<br/>by ref = ClientId"]
+
+    SearchContact --> ContactFound{"Contact<br/>found?"}
+    ContactFound -->|no| PathC["PATH C:<br/>Neither Contact nor Property"]:::pathnode
+    ContactFound -->|yes| SearchProp["Search child properties<br/>of contact matching<br/>service_address"]
+
+    SearchProp --> PropFound{"Matching<br/>property found?"}
+    PropFound -->|yes| PathA["PATH A:<br/>Both exist"]:::pathnode
+    PropFound -->|no| PathB["PATH B:<br/>Contact exists, Property new"]:::pathnode
+
+    PathA --> CreateSO_A["create_sales_order<br/>contact + existing property"]
+    PathB --> CreateProp_B["create_property under contact"]
+    CreateProp_B --> CreateSO_B["create_sales_order<br/>contact + new property"]
+    PathC --> CreateContact_C["create_contact with ref = ClientId"]
+    CreateContact_C --> CreateProp_C["create_property under new contact"]
+    CreateProp_C --> CreateSO_C["create_sales_order<br/>new contact + new property"]
+
+    CreateSO_A --> WriteNext_A["write_next_job_date_to_contact"]
+    CreateSO_B --> WriteNext_B["write_next_job_date_to_contact"]
+    CreateSO_C --> WriteNext_C["write_next_job_date_to_contact"]
+
+    WriteNext_A --> GateA{"contact_id AND<br/>job_datetime set?"}
+    WriteNext_B --> GateB{"contact_id AND<br/>job_datetime set?"}
+    WriteNext_C --> GateC{"contact_id AND<br/>job_datetime set?"}
+
+    GateA -->|no| SkipA["LOG warning,<br/>silent return"]:::silentgate
+    GateA -->|yes| OdooWriteA["res.partner.write<br/>x_studio_next_job_date"]
+    GateB -->|no| SkipB["LOG warning,<br/>silent return"]:::silentgate
+    GateB -->|yes| OdooWriteB["res.partner.write<br/>x_studio_next_job_date"]
+    GateC -->|no| SkipC["LOG warning,<br/>silent return"]:::silentgate
+    GateC -->|yes| OdooWriteC["res.partner.write<br/>x_studio_next_job_date"]
+
+    OdooWriteA --> WriteOk_A{"Odoo<br/>write ok?"}
+    OdooWriteB --> WriteOk_B{"Odoo<br/>write ok?"}
+    OdooWriteC --> WriteOk_C{"Odoo<br/>write ok?"}
+
+    WriteOk_A -->|no| WarnA["LOG warning,<br/>no retry"]:::silentgate
+    WriteOk_A -->|yes| SuccessA["Path A complete"]:::success
+    WriteOk_B -->|no| WarnB["LOG warning,<br/>no retry"]:::silentgate
+    WriteOk_B -->|yes| SuccessB["Path B complete"]:::success
+    WriteOk_C -->|no| WarnC["LOG warning,<br/>no retry"]:::silentgate
+    WriteOk_C -->|yes| SuccessC["Path C complete"]:::success
+
+    SkipA --> End(["RETURN success"])
+    SkipB --> End
+    SkipC --> End
+    WarnA --> End
+    WarnB --> End
+    WarnC --> End
+    SuccessA --> End
+    SuccessB --> End
+    SuccessC --> End
+
+    classDef harderr fill:#ffcccc,stroke:#cc0000,stroke-width:2px,color:#000
+    classDef earlyreturn fill:#fff3cd,stroke:#cc8800,stroke-width:1.5px,color:#000
+    classDef silentgate fill:#ffe4b5,stroke:#cc6600,stroke-width:2px,color:#000
+    classDef pathnode fill:#e7d4f7,stroke:#6f42c1,stroke-width:2px,color:#000
+    classDef success fill:#d4edda,stroke:#155724,color:#000
