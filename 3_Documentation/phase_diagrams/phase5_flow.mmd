@@ -1,0 +1,69 @@
+%%{init: {"theme":"default","flowchart":{"useMaxWidth":false,"htmlLabels":true,"curve":"basis","nodeSpacing":60,"rankSpacing":50},"themeVariables":{"fontSize":"20px"}}}%%
+flowchart TD
+    Start(["Phase 5 webhook (fired by Phase 6)<br/>payload: job_uuid, property_id,<br/>contact_id, customer_city,<br/>invoice_id"]) --> Extract["Parse input_data"]
+
+    Extract --> CoercePid["int-coerce property_id"]
+    CoercePid --> CoerceCid["int-coerce contact_id<br/>None on ValueError"]
+
+    CoerceCid --> HasUuid{"job_uuid<br/>present?"}
+    HasUuid -->|no| ErrNoUuid["RETURN error:<br/>Missing job_uuid"]:::harderr
+    HasUuid -->|yes| Fetch["get_job_details via Workiz API"]
+
+    Fetch --> FetchOk{"Workiz<br/>returned data?"}
+    FetchOk -->|no| ErrFetch["RETURN error:<br/>Failed to fetch Workiz job"]:::harderr
+    FetchOk -->|yes| ReadType["Read type_of_service<br/>(type_of_service_2 first,<br/>fallback type_of_service)"]
+
+    ReadType --> Route{"Route on<br/>type_of_service"}
+
+    Route -->|maintenance| Path5A["PATH 5A:<br/>MAINTENANCE"]:::pathnode
+    Route -->|on demand or on-demand| Path5B["PATH 5B:<br/>ON DEMAND"]:::pathnode
+    Route -->|on request or unknown or empty| Path5C["PATH 5B (same handler):<br/>ON REQUEST / UNKNOWN"]:::pathnode
+    Route -->|unrecognized| Path5AFallback["PATH 5A fallback"]:::pathnode
+
+    Path5A --> A_Pre{"property_id AND<br/>customer_city set?"}
+    A_Pre -->|no| ErrA["RETURN error:<br/>Missing property_id<br/>or customer_city"]:::harderr
+    A_Pre -->|yes| A_Schedule["schedule_next_maintenance_job"]
+
+    Path5AFallback --> A_Pre
+
+    A_Schedule --> A_CalcDate["calculate_next_service_date<br/>(frequency, city, base_date)"]
+    A_CalcDate --> A_JobType["get_next_job_type<br/>(alternating window/solar)"]
+    A_JobType --> A_LineItems["get_line_items_for_next_job"]
+    A_LineItems --> A_Create["create_next_maintenance_job<br/>Workiz API POST /job/create"]
+
+    A_Create --> A_CreateOk{"Workiz job<br/>created?"}
+    A_CreateOk -->|no| A_Fail["LOG error, return result.success=False"]:::harderr
+    A_CreateOk -->|yes| A_CidGate{"contact_id<br/>truthy?"}
+
+    A_CidGate -->|no| A_SkipWrite["LOG warning,<br/>next_job_date NOT written<br/>(contact_id was None or 0)"]:::silentgate
+    A_CidGate -->|yes| A_Write["write_next_job_date_to_contact"]
+
+    A_Write --> A_WriteGate{"contact_id AND<br/>scheduled_datetime set?"}
+    A_WriteGate -->|no| A_SkipWrite2["LOG warning,<br/>silent return"]:::silentgate
+    A_WriteGate -->|yes| A_OdooWrite["res.partner.write<br/>x_studio_next_job_date = date"]
+
+    A_OdooWrite --> A_WriteOk{"Odoo<br/>write ok?"}
+    A_WriteOk -->|no| A_WarnWrite["LOG warning,<br/>no retry"]:::silentgate
+    A_WriteOk -->|yes| A_UpdateInv
+
+    A_UpdateInv["update_invoice_with_workiz_link<br/>(post link in invoice chatter)"]
+    A_SkipWrite --> A_UpdateInv
+    A_SkipWrite2 --> A_UpdateInv
+    A_WarnWrite --> A_UpdateInv
+    A_UpdateInv --> RetA["RETURN success<br/>path: 5A_maintenance"]:::success
+
+    Path5B --> B_Pre{"contact_id<br/>present AND != 0?"}
+    Path5C --> B_Pre
+    B_Pre -->|no| ErrB["RETURN error:<br/>Missing or invalid contact_id<br/>(required for Odoo activity)"]:::harderr
+    B_Pre -->|yes| B_Freq["Read frequency<br/>frequency_to_activity_days<br/>(default 180 if unknown)"]
+
+    B_Freq --> B_Create["create_ondemand_followup<br/>+ create_followup_activity"]
+    B_Create --> B_ActOk{"Activity<br/>created?"}
+    B_ActOk -->|no| B_Fail["LOG error, return result.success=False"]:::harderr
+    B_ActOk -->|yes| B_Note["NOTE: Phase 5B does NOT<br/>write x_studio_next_job_date<br/>(architectural gap)"]:::silentgate
+    B_Note --> RetB["RETURN success<br/>path: 5B_ondemand or<br/>5B_on_request_unknown"]:::success
+
+    classDef harderr fill:#ffcccc,stroke:#cc0000,stroke-width:2px,color:#000
+    classDef silentgate fill:#ffe4b5,stroke:#cc6600,stroke-width:2px,color:#000
+    classDef pathnode fill:#e7d4f7,stroke:#6f42c1,stroke-width:2px,color:#000
+    classDef success fill:#d4edda,stroke:#155724,color:#000
