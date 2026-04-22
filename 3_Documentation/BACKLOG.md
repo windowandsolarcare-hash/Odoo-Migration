@@ -16,13 +16,13 @@
 | 1 | **Reactivation filter false positives** — 18 of 70 contacts with future Workiz-linked SOs have empty `x_studio_next_job_date`, so they're incorrectly showing up on the reactivation list. Trigger case: Beth Shelton (id 23023, ref 1393) with job scheduled today. All confirmed to be maintenance customers (post-payment reschedules via Phase 6 → Phase 5). | high | 2026-04-21 | 2026-04-21 | See [§1 below](#1-reactivation-filter-false-positives) |
 | 2 | **Stale `Annual Reactivation Pipeline` filter** (`ir.filters` id 20) doesn't check `next_job_date` — if anyone still uses it, scheduled-job customers wrongly appear on the reactivation list. | med | 2026-04-21 | 2026-04-21 | One-line fix: `ir.filters.unlink([20])`. Verify first no saved actions reference it. |
 | 3 | **Known stale-date bug** — jobs deleted in Workiz without being canceled first leave stale `next_job_date` on the contact, causing false exclusions. 11 contacts affected on 2026-04-19. | med | 2026-04-19 | 2026-04-21 | Root fix: Phase 4 needs a periodic reconciliation against Workiz open-jobs list. Quick fix: policy of cancel-before-delete in Workiz. |
-| 4 | **Phase 3 / 4 / 5 flowcharts — in progress** | low | 2026-04-22 | 2026-04-22 | DJ approved Phase 6 diagram style (SVG + PNG + MMD + narrative). **Phase 3 Mermaid source committed** at `3_Documentation/phase_diagrams/phase3_flow.mmd` but NOT yet rendered or given a narrative `.md`. Phase 4 + Phase 5 not yet started. Resume by: (a) writing Phase 4 and Phase 5 `.mmd` sources, (b) rendering all three with `npx -p @mermaid-js/mermaid-cli mmdc -i <file>.mmd -o <file>.svg -b white` (and PNG at `-w 3200`), (c) writing narrative `.md` files matching `phase6_flow.md` structure, (d) pushing everything to `3_Documentation/phase_diagrams/`. |
-
 ---
 
 ## Resolved
 
-_(none yet)_
+| # | Item | Resolved | Notes |
+|---|---|---|---|
+| 4 | **Phase 3 / 4 / 5 flowcharts** | 2026-04-22 | All four phase diagrams (3, 4, 5, 6) now complete with MMD + SVG + PNG + narrative MD at `3_Documentation/phase_diagrams/`. Same silent-fail-gate color coding across all four. Phase 5A identified as the load-bearing path for the `next_job_date` write, Phase 5B flagged with an architectural gap (no write at all). |
 
 ---
 
