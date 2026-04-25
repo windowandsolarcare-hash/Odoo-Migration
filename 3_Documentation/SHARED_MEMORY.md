@@ -1,6 +1,6 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-04-18
+# Last updated: 2026-04-24
 # Format: key facts only - both Claudes read this on every session
 
 ## OWNER
@@ -315,3 +315,86 @@ NEVER use invoice_status, state='done', or date filters as proxy
 - Machine must be awake — sleep pauses the session
 - Task registered via PowerShell Register-ScheduledTask (schtasks /create returned Access Denied even for user-scoped tasks)
 - Disable: `powershell -Command "Unregister-ScheduledTask -TaskName 'ClaudeRemoteControl' -Confirm:\$false"`
+
+---
+
+## SESSION 2026-04-24 UPDATE — PAYROLL RETROFIT + PHASE DIAGRAMS + GUSTO INTEGRATION
+
+### Major Deliverables
+
+**1. PAYROLL SYSTEM RETROFIT: JSON → hr.attendance (COMPLETE)**
+- Replaced ir.config_parameter JSON blobs (90-day rolloff) with Odoo native hr.attendance model
+- Quarter-hour rounding (FLSA-compliant, 7-min neutral rule): applies at display/export only
+- California 4-hour reporting-time pay minimum (manual toggle per shift)
+- Resource calendar "W&SC Field Work" (24/7, no lunch deduction) assigned to DJ + Danny
+- Migration executed: 3 shifts for DJ (4/20: 4.83h, 4/21: 5.83h, 4/22: 3.10h)
+- New Render endpoints: /shifts, /shift/update, /shift/create, /shift/delete, /gusto_export
+- **Manage Shifts UI**: light blue (#60a5fa) button opens modal with employee select (owner), date range, shift list, add/edit/delete, reporting-time toggle
+- All hrs computed as `(check_out - check_in)` raw, rounding applied only at Gusto export time
+- **Gusto CSV export**: columns `Employee Name, Date, Hours` (rounded + RTP minimum applied)
+- Playwright automation skeleton created (110 lines, selectors are TODOs)
+- **Documentation**: timeclock_usage_for_danny.md (Danny training), timeclock_rollout_punch_list.md (DJ tasks)
+- **Odoo activities**: #52 (Danny training, due 2026-04-25), #53 (rollout tasks, due 2026-04-30)
+
+**2. PHASE 3/4/5 FLOWCHARTS (COMPLETE)**
+- Created SVG + PNG flowcharts (3200px wide, mobile-readable) for all three phases
+- Flowchart files: .md (narrative), .mmd (Mermaid source), .svg (infinite scale), .png (3200px)
+- Location: `3_Documentation/phase_diagrams/` in GitHub
+- **Phase 3 Key Detail**: date_order on SO = Workiz JobDateTime (start time), never end time
+- **Phase 4 Task Re-Entry BUG**: task deleted on substatus exit from Scheduled, NOT recreated on return (SO 17066 Wayne Geringer still orphaned, Balser SO 15916 fixed manually)
+- **Phase 5A Load-Bearing Path**: writes x_studio_next_job_date on property partner after new job creation
+- **Phase 5B**: populates last_date_cleaned on new maintenance jobs (service history)
+- **Graveyard Rule**: always create new graveyard job, never overwrite existing future job
+
+**3. CHERYL REAL ESTATE INTERVIEW INFRASTRUCTURE (COMPLETE)**
+- 20-question behavioral interview template (deal walkthrough: pre-close → during → post-close → system stack)
+- 60-minute interview day guide with setup, pacing, redirection, debrief checklist
+- Whisper v20250625 transcription pipeline (Windows, local, no cloud)
+- **Setup**: ffmpeg + ffprobe at C:\Users\dj\bin\, whisper via pip, models cached locally (~2GB)
+- **Env var**: PYTHONIOENCODING=utf-8 (fixes Windows 3.14 Unicode error)
+- **Folder per interview**: debrief.md (7-point checklist), hypothesis_before/after, audio_notes, screenshots/, documents/, VTT transcript
+- **End-to-end tested**: 3-min test video → Whisper transcription (30s on GPU, accurate)
+- **Status**: Waiting on Cheryl scheduling
+
+**4. GUSTO INTEGRATION STATUS (PARTIAL)**
+- ✅ CSV export endpoint created (Employee Name, Date, Hours)
+- ✅ Download CSV button placed in Manage Shifts UI
+- ✅ Playwright skeleton created (TODOs for selectors)
+- ❌ BLOCKER: Gusto CSV format not confirmed (exact columns/headers unknown)
+- ❌ BLOCKER: Download button scope wrong (exports 1 employee, should be all)
+- ❌ BLOCKER: Playwright selectors not calibrated (user must run playwright codegen)
+
+### Known Issues & Upcoming Fixes
+
+**Payroll:**
+- Today's shifts (4/23) still open — need DJ end time to close both Dan + Danny's shifts
+- Gusto format mismatch will cause import failure if columns don't match Gusto's expected schema
+- Button behavior needs fix: remove employee_id param from gusto_export call, query all active employees
+
+**Phase 4:**
+- Task re-entry bug (SO 17066 Wayne Geringer) — permanent fix not built; workaround = manual task creation
+
+**Integration:**
+- Playwright selectors are account-specific; user must calibrate via codegen before first use
+
+### Implementation Order (Next Session)
+
+1. Get Gusto CSV template from DJ (exact columns)
+2. Close today's shifts (DJ provides end time)
+3. Fix Download CSV button (omit employee_id, export all)
+4. Update CSV export endpoint if columns don't match
+5. Push all changes to main
+6. DJ calibrates Playwright selectors (runs codegen, provides selectors)
+7. Claude adds selectors to gusto_upload.py, push to main
+8. At next pay period: DJ runs `python scripts/gusto_upload.py "path.csv"`, approves 2FA
+
+### Memory Files Created
+- project_payroll_hr_attendance_retrofit.md — full details of retrofit, rounding, endpoints, UI, Playwright, documentation
+- project_phase_flowcharts.md — Phase 3/4/5 routing, date field rules, task lifecycle, next_job_date writes, task re-entry bug
+- project_cheryl_interview_infrastructure.md — 20-question template, interview guide, Whisper setup, folder structure, end-to-end test results
+- project_gusto_integration_status.md — CSV format blocker, button scope fix, Playwright calibration steps, checklist
+
+### Code Changes (Already Pushed to GitHub)
+- saunders-render-app: dashboard.py (payroll endpoints), timeclock.html (Manage Shifts UI), gusto_upload.py (Playwright skeleton)
+- All payroll code deployed to Render; timeclock UI live at https://wsc-field-assistant.onrender.com
+- Phase diagrams pushed to windowandsolarcare-hash/Odoo-Migration at 3_Documentation/phase_diagrams/
