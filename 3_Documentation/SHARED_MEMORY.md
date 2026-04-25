@@ -1,6 +1,6 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-04-24
+# Last updated: 2026-04-25
 # Format: key facts only - both Claudes read this on every session
 
 ## OWNER
@@ -398,3 +398,26 @@ NEVER use invoice_status, state='done', or date filters as proxy
 - saunders-render-app: dashboard.py (payroll endpoints), timeclock.html (Manage Shifts UI), gusto_upload.py (Playwright skeleton)
 - All payroll code deployed to Render; timeclock UI live at https://wsc-field-assistant.onrender.com
 - Phase diagrams pushed to windowandsolarcare-hash/Odoo-Migration at 3_Documentation/phase_diagrams/
+
+---
+
+## SESSION 2026-04-25 UPDATE — CLEANUP + DATA SYNC
+
+### Completed
+- ✅ Summarized huge pasted chat into 4 focused memory files (stored locally + indexed)
+- ✅ Updated + pushed SHARED_MEMORY.md to GitHub (session 2026-04-24 summary added)
+- ✅ Cleaned up test clock-in data: deleted 4 test records from 4/6-4/18 range (20.25h total, all Dan)
+- ✅ Verified Cheryl project Odoo company exists: "Cheryl Johnson, REALTOR®" (ID 2)
+- ✅ Synced Dan ↔ Danny payroll records for 4/20-4/24:
+  - 4/20-4/22: Updated Danny's times to match Dan's
+  - 4/23-4/24: Deleted Dan's test entry, closed Danny's open 4/24 shift, added Danny's late shift
+  - Both now have identical records: 4/20 (6.63h), 4/21 (7.83h), 4/22 (3.10h), 4/23 (3.63h), 4/24 (5.09h total)
+
+### Data Integrity Notes
+- **90-day limit clarification:** Old JSON system had rolling 90-day deletion (flaw). New hr.attendance has infinite history (correct). Odoo has no expiration.
+- **Payroll data is now clean:** test entries removed, real shifts synced between employees, source-of-truth (Dan) propagated to Danny
+
+### Next Steps (Not Session Scope)
+- Gusto CSV format confirmation + button scope fix
+- Playwright selector calibration (user runbook ready)
+- Schedule Cheryl interview (infrastructure ready, waiting on her availability)
