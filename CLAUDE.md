@@ -251,6 +251,8 @@ rm /tmp/gh_payload.json
 
 **Whenever you discover something new about this project — a field name, an API quirk, a bug root cause, a Workiz/Odoo behavior, a business decision — write a memory file IMMEDIATELY before continuing. Do not wait until end of session or rely on compaction to capture it.**
 
+**EFFICIENCY RULE (2026-04-26):** When you encounter trial-and-error patterns, repetitive errors, or inefficient processes, YOU OWN the responsibility to recognize, solve, document, and save them immediately without waiting for DJ's request. If you do something inefficiently 5 times, that's a signal to document the right way for the next session. Token waste + time waste = your responsibility to prevent. No asking. No waiting. Just save it.
+
 Memory directory: `C:\Users\dj\.claude\projects\C--Users-dj-Documents-Business-A-Window-and-Solar-Care-Migration-to-Odoo\memory\`
 
 Use type `project` for technical facts about how the system behaves. Include **Why:** and **How to apply:** lines.
