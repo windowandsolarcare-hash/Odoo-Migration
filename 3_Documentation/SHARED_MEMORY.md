@@ -37,6 +37,17 @@
 - Pricing (contact): x_studio_x_pricing
 - Workiz client ID on contact: ref field
 
+
+## GITHUB DEPLOYMENT (2026-04-26)
+**RULE: Use bash + base64 + temp file approach. NEVER use PowerShell ConvertTo-Json.**
+- PowerShell ConvertTo-Json causes "Problems parsing JSON" HTTP 400 errors (4-5 retries typical, 50-100 wasted tokens per error)
+- Root cause: [System.Convert]::ToBase64String() adds MIME line breaks; PowerShell escapes JSON in ways that break API validation
+- Solution: bash + base64 + temp file = 99%+ first-try success rate
+- Deploy script: `deploy_to_github.sh` (in both repos) handles Windows file paths, base64 encoding, temp JSON, gh API push
+- Usage: `./deploy_to_github.sh <repo> <file_path> <local_file> <commit_message>`
+- Example: `./deploy_to_github.sh windowandsolarcare-hash/Odoo-Migration 1_Production_Code/phase3.py "/path/phase3.py" "2026-04-26 | phase3.py | fixed bug"`
+- CLAUDE.md updated 2026-04-26 with full documentation + fallback bash command
+
 ## KNOWN BUGS / RULES
 - After action_confirm() on SO, write date_order back - Odoo resets it to now()
 - date_order = Workiz JobDateTime (start time, UTC) - never use end time
