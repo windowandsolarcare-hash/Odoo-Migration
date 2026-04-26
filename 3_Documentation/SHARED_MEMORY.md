@@ -83,6 +83,16 @@
 - SHARED_MEMORY_PATH: 3_Documentation/SHARED_MEMORY.md
 - To switch to a new project: update both env vars on Render dashboard, no code change needed
 
+
+## CHERYL REAL ESTATE PROJECT — WORKFLOW (2026-04-26)
+**Three-phase approach for Cheryl's system:**
+1. **Interview** (2026-04-26 or later) — Gather her current workflow, pain points, metrics, aspirations. NOT selling best practice. Just listening.
+2. **Plan** (post-interview, ~1–2 days) — Claude builds proposal showing: (a) her current state (from interview), (b) best-practice benchmarks (industry standards), (c) gap analysis, (d) proposed system. PDF/doc ready for review.
+3. **Approval** — DJ + Cheryl review and approve plan BEFORE any build. Plan locks scope and approach.
+
+**Key principle:** Build to best practice, not to her current workflow. She approves the approach upfront.
+**Cheryl repo:** windowandsolarcare-hash/cheryl-real-estate
+
 ## RENDER APP STATE - 2026-04-18
 
 ### Endpoints
