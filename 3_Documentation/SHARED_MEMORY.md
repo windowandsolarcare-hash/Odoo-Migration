@@ -60,6 +60,7 @@
 - New job for existing customer: use duplicate_workiz_job with partner_id
 - duplicate_workiz_job (fixed 2026-04-26, commit a6ae157): now copies ServiceArea + sets last_date_cleaned = source JobDateTime[:10]. Previously these two fields were dropped — the tool description said "Copies all fields" but the implementation lied. If you see new duplicate jobs missing ServiceArea or last_date_cleaned, it means Render hasn't picked up the deploy yet — wait or trigger a manual deploy.
 - Workiz API quirk: job/update/{UUID}/ requires "UUID" in body, job/delete/{UUID}/ requires "ID" in body. URL path alone returns 400 "UUID: Field is Required". Fixed 2026-04-26 (commit 7cbd848) by auto-injection in workiz_post() — affects update_workiz_field, mark_job_done, and any future call site using these endpoints.
+- Workiz API quirk: setting SubStatus requires parent Status="Pending" in same body. 400 "Could not update sub status with no parent status provided" otherwise. Fixed 2026-04-26 (commit 405a31d) by auto-injection in workiz_post(). All our SubStatuses (Scheduled, Send Confirmation - Text, STOP, Lead, Next Appointment...) live under Pending.
 
 ## WORKIZ API DEFAULTS (required to avoid validation errors)
 - type_of_service_2: "On Request"
