@@ -62,6 +62,8 @@
 - Workiz API quirk: job/update/{UUID}/ requires "UUID" in body, job/delete/{UUID}/ requires "ID" in body. URL path alone returns 400 "UUID: Field is Required". Fixed 2026-04-26 (commit 7cbd848) by auto-injection in workiz_post() — affects update_workiz_field, mark_job_done, and any future call site using these endpoints.
 - Workiz API quirk: setting SubStatus requires parent Status="Pending" in same body. 400 "Could not update sub status with no parent status provided" otherwise. Fixed 2026-04-26 (commit 405a31d) by auto-injection in workiz_post(). All our SubStatuses (Scheduled, Send Confirmation - Text, STOP, Lead, Next Appointment...) live under Pending.
 - WORKIZ STATUS MODEL (clarified by DJ 2026-04-26): Only Submitted and Done are true top-level Status values we use. Everything else — Scheduled, STOP, Lead, Send Confirmation - Text, Next Appointment - Text, Next Appointment 2 - Text, In Progress, Canceled, all of them — lives under Status="Pending" as a SubStatus. Always filter and report on SubStatus.
+- Render Claude session history is now persisted to Odoo (key=render.session.{session_id}) — fixed 2026-04-26 commit 455754d. Conversation memory survives Render redeploys and free-tier sleep. This means context (active customer, UUID, partner_id) carries across turns even after code pushes.
+- Render Claude system prompt rules (effective 2026-04-26): pronouns default to most recently discussed customer; once a UUID/partner_id is known KEEP it; never re-search active customer; no trial-and-error API calls — use existing tools as documented; if a tool errors, fix input rather than retry; if no tool exists, plan with DJ first.
 
 ## WORKIZ API DEFAULTS (required to avoid validation errors)
 - type_of_service_2: "On Request"
