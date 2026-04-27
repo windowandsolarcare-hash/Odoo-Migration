@@ -1557,21 +1557,24 @@ def main(input_data):
         print(f"[*] Address: {service_address}")
         print(f"[*] JobType: {job_type}")
         
-        # FILTER: Skip "Reactivation Lead" graveyard jobs ONLY when unscheduled (Submitted status).
-        # Once the customer books and the job is scheduled (status changes away from Submitted),
-        # it's a real job and needs an SO — Phase 4 will have delegated here to create it.
+        # FILTER: Skip SMS-trigger graveyard jobs ONLY when unscheduled. These jobs exist in
+        # Workiz purely to fire an SMS via a SubStatus automation; they are not real jobs and
+        # should not flow into Odoo as SOs.
+        # Once the customer books and the job is rescheduled (real scheduling SubStatus or
+        # JobType changes), Phase 4 delegates back here and we create the SO normally.
+        _trigger_job_types = ("Reactivation Lead", "Follow Up Lead")
         _react_status = (workiz_job.get('Status') or '').strip().lower()
         _react_substatus = (workiz_job.get('SubStatus') or '').strip().lower()
         _react_is_scheduled = _react_substatus in ('scheduled', 'next appointment - text', 'next appointment 2 - text', 'send confirmation - text') or _react_status == 'scheduled'
-        if job_type == "Reactivation Lead" and not _react_is_scheduled:
-            print(f"\n[SKIP] Reactivation Lead (unscheduled/Submitted) - graveyard job for SMS only, no SO needed")
+        if job_type in _trigger_job_types and not _react_is_scheduled:
+            print(f"\n[SKIP] {job_type} (unscheduled/trigger SubStatus={_react_substatus!r}) - SMS-only graveyard job, no SO needed")
             return {
                 'success': True,
-                'message': 'Skipped: Reactivation graveyard job (no SO created)',
+                'message': f'Skipped: {job_type} graveyard job (no SO created)',
                 'path': 'SKIP'
             }
-        if job_type == "Reactivation Lead" and _react_is_scheduled:
-            print(f"[*] Reactivation Lead is now scheduled (substatus={_react_substatus}) - creating SO as real job")
+        if job_type in _trigger_job_types and _react_is_scheduled:
+            print(f"[*] {job_type} is now scheduled (substatus={_react_substatus}) - creating SO as real job")
         
         if not client_id:
             return {'success': False, 'error': 'Missing ClientId from Workiz job'}
