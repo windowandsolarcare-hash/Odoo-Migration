@@ -8,12 +8,6 @@
 - Email: windowandsolarcare@gmail.com
 
 ## PLATFORMS
-
-## EFFICIENCY PRINCIPLE (2026-04-26)
-**All chats:** Recognize inefficient patterns and document solutions immediately. If you do something 5 times differently before finding the right way, save that right way WITHOUT waiting for DJ to ask. Token waste is your responsibility to prevent. See CLAUDE.md EFFICIENCY RULE for details.
-- Example: GitHub deployment — discovered bash approach works 99% first-try vs. PowerShell 20%. Saved immediately: script in repos, docs in CLAUDE.md, rules in memory. Next session doesn't retry.
-- Principle: If a future chat would benefit from what you just learned, document it now.
-
 - Odoo: https://window-solar-care.odoo.com (DB: window-solar-care, User ID: 2)
 - Workiz: job scheduling - IP-restricted, proxy through Odoo if calling from local machine
 - GitHub: windowandsolarcare-hash/Odoo-Migration (main branch only)
@@ -64,6 +58,7 @@
 - Workiz job create/duplicate: State field is REQUIRED - always include, default "CA"
 - Render payment recording writes chatter on SO + invoice for audit trail
 - New job for existing customer: use duplicate_workiz_job with partner_id
+- duplicate_workiz_job (fixed 2026-04-26, commit a6ae157): now copies ServiceArea + sets last_date_cleaned = source JobDateTime[:10]. Previously these two fields were dropped — the tool description said "Copies all fields" but the implementation lied. If you see new duplicate jobs missing ServiceArea or last_date_cleaned, it means Render hasn't picked up the deploy yet — wait or trigger a manual deploy.
 
 ## WORKIZ API DEFAULTS (required to avoid validation errors)
 - type_of_service_2: "On Request"
@@ -82,16 +77,6 @@
 - GITHUB_REPO: windowandsolarcare-hash/Odoo-Migration
 - SHARED_MEMORY_PATH: 3_Documentation/SHARED_MEMORY.md
 - To switch to a new project: update both env vars on Render dashboard, no code change needed
-
-
-## CHERYL REAL ESTATE PROJECT — WORKFLOW (2026-04-26)
-**Three-phase approach for Cheryl's system:**
-1. **Interview** (2026-04-26 or later) — Gather her current workflow, pain points, metrics, aspirations. NOT selling best practice. Just listening.
-2. **Plan** (post-interview, ~1–2 days) — Claude builds proposal showing: (a) her current state (from interview), (b) best-practice benchmarks (industry standards), (c) gap analysis, (d) proposed system. PDF/doc ready for review.
-3. **Approval** — DJ + Cheryl review and approve plan BEFORE any build. Plan locks scope and approach.
-
-**Key principle:** Build to best practice, not to her current workflow. She approves the approach upfront.
-**Cheryl repo:** windowandsolarcare-hash/cheryl-real-estate
 
 ## RENDER APP STATE - 2026-04-18
 
