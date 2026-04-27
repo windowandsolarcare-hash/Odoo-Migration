@@ -132,9 +132,9 @@ These defaults prevent Workiz API validation errors. Always use when field might
 ```
 
 **Workiz Status vs SubStatus — FUNDAMENTAL:**
-Workiz has only 5 Status values: Submitted, Pending, In Progress, Canceled, Done.
-ALL other statuses (Scheduled, STOP, Lead, etc.) are SubStatus with Status = "Pending".
+Only **Submitted** and **Done** are true top-level Status values that we use. **Everything else lives under Status="Pending" as a SubStatus** — Scheduled, STOP, Lead, Send Confirmation - Text, Next Appointment - Text, Next Appointment 2 - Text, In Progress, Canceled, all of them.
 ALWAYS filter on SubStatus, not Status.
+When updating SubStatus via the API, the body MUST include the parent Status="Pending" too — otherwise Workiz returns 400 "Could not update sub status with no parent status provided". `workiz_post` in the Render app auto-injects this; if you write Workiz API code in Zapier or Odoo server actions, replicate the rule.
 
 **Workiz API quirks:**
 - ClientId: use numeric (e.g. 1040) not "CL-xxx"
