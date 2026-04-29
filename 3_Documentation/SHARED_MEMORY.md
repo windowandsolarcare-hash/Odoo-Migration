@@ -427,3 +427,47 @@ NEVER use invoice_status, state='done', or date filters as proxy
 - Gusto CSV format confirmation + button scope fix
 - Playwright selector calibration (user runbook ready)
 - Schedule Cheryl interview (infrastructure ready, waiting on her availability)
+
+---
+
+## SESSION 2026-04-28/29 UPDATE — FIELD ASSISTANT POLISH + ACTIVITIES MODULE PHASE 2
+
+### What Render Claude needs to know (runtime-relevant only)
+
+**`/api/schedule` response now carries extra fields per job — use them, don't re-derive:**
+- `tags`: list of crm.tag names attached to the SO (e.g. ["OK"], ["CF"]) — drives the pill on the right side of the card
+- `job_type`: raw `x_studio_x_studio_x_studio_job_type` from the SO
+- `service_label`: classifier for the subtitle ("Window" / "Solar" / "Combo" / "Gutter" / etc.) — derived from JobType, NOT auto-corrected
+- `service_label_mismatch`: True when an order-line analysis disagrees with JobType. Frontend renders an orange `⚠` next to the subtitle. **DJ explicitly chose this design** — surfacing the data hygiene issue is intentional. Don't "fix" it by switching to lines-based labels.
+- `service_label_lines`: what the order-line analysis says (used in the warning tooltip)
+- `last_payment_method`: one of 'check'/'cash'/'zelle'/'venmo'/'credit'/'' — the customer's most-recent payment method. Frontend uses this to preselect the Pay button.
+- `paid`: True when the SO has any posted invoice with `payment_state in ('paid','in_payment')`. Frontend greys the Pay button to `✓ Already Paid` when true; re-activates if DJ deletes the payment in Odoo.
+
+**Critical Odoo schema notes (will save you a debug cycle):**
+- `account.payment` has NO `ref` field in this Odoo 19. Use `memo` only. Caused a "No jobs today" outage on 2026-04-28 when introduced.
+- `sale.order.line` rows with `product_uom_qty == 0 AND price_subtotal == 0` are SOFT-DELETED. Odoo blocks hard-delete on confirmed SOs, so DJ zeroes them out. Any code analyzing order lines must skip these.
+
+**`/api/job/append_note` (new endpoint, 2026-04-28):**
+- POST `{uuid, note}` → prepends `[YYYY-MM-DD HH:MM] [Render] <note>` to the Workiz JobNotes field.
+- Powers the three-dots menu's "Add Workiz Note" button. Was previously a frontend stub returning 404.
+
+**`/api/todos` performance:**
+- Now batches partner reads (was 30+ sequential calls, now 2-3 batched).
+- Module-level `TODOS_USE_LEGACY = True` flag rolls back to pre-optimization behavior — one-line revert path.
+- `TODOS_DEADLINE_WINDOW_DAYS = 0` — date filter is currently disabled; DJ has lots of activities far in the future.
+
+**Activities page — Calendly to-dos open a different modal:**
+- When `summary` or `type` contains "calendly," tap → detail modal (full activity contents, no SMS path)
+- Other to-dos → existing follow-up modal
+- HTML notes stripped to plain text on backend (`_strip_activity_html`); anchor URLs preserved as text and made clickable by frontend `linkify()`.
+
+### Today's manual to-dos still pending (DJ action)
+
+- Bud Piraino (SO 003935) and Gary Marsalone (SO 003917): both have `Combination of Services` in their order lines (Solar + Window) but JobType is still `Outside Windows and Screens` → the orange `⚠` will surface for both. DJ skipped Solar today and promised both a 2-month follow-up. JobType corrections + scheduled SMS are NOT YET sent.
+
+### Memory files added today (local — referenced in MEMORY.md index)
+
+- `session_apr28_29_summary.md` — full recap
+- `project_account_payment_no_ref_field.md` — the `ref` field gotcha + try/except wrapper rule
+- `project_so_lines_zero_means_deleted.md` — soft-delete convention for SO lines
+- `project_activities_module.md` — extended with all today's changes + voice-activities design
