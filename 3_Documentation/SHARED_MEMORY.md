@@ -471,3 +471,106 @@ NEVER use invoice_status, state='done', or date filters as proxy
 - `project_account_payment_no_ref_field.md` — the `ref` field gotcha + try/except wrapper rule
 - `project_so_lines_zero_means_deleted.md` — soft-delete convention for SO lines
 - `project_activities_module.md` — extended with all today's changes + voice-activities design
+
+---
+
+## SESSION 2026-04-29 UPDATE — WINDOW QUOTE TOOL + ACTIVITIES UNIFIED FLOW
+
+### What Render Claude needs to know (runtime-relevant only)
+
+**New `/owner/quote` and `/tech/quote` routes — Window Quote Tool replaces the old AppSheets pricing app.**
+
+- Single HTML file at `static/owner/quote.html`, mirrored route at `/tech/quote`
+- Mobile counter UI with 6 line items (Regular Panes $7 to Triple Sliders $35), mode toggle (In&Out vs Outside Only with auto divide-by-2 and times 1.10), difficulty pills (Standard / Hard +15% / Very Hard +30%)
+- Address autocomplete via Google Places API (New) — key embedded in HTML, restricted to wsc-field-assistant.onrender.com
+- "Pick from scheduled jobs" button calls `/api/upcoming` and lets DJ tap a Workiz-linked SO to pre-fill name/address/phone
+- "Saved Quotes" panel below — tappable items load back into the form for editing
+
+**Quote SOs are marked by 3 watermarks (any one identifies a quote):**
+
+- `client_order_ref` set to the QUOTE ONLY watermark string (orange diamond + text)
+- `x_studio_x_studio_x_studio_job_type` set to `Quote` (a valid existing selection value, NOT a custom one)
+- "QUOTE ONLY" tag attached via `tag_ids` (auto-created on first quote save, color 2 / orange)
+
+**Endpoints (all under `/owner/api/`):**
+
+- `POST /api/quote/save` — body: name, address, phone, mode, difficulty, counts, plus optional so_id or partner_id. If so_id present (picked from schedule), updates that existing Workiz-linked SO. Otherwise auto-creates a new res.partner for walk-up prospects + fresh SO. Returns ok, so_id, so_name, partner_id, total, updated_existing.
+- `GET /api/quote/get?so_id=N` — full re-load of a saved quote into the form (counts, mode, difficulty, name/address/phone, partner_id).
+- `POST /api/quote/update` — patches existing quote SO line + partner contact details. Used by the edit flow. Works on any state (draft or sale).
+- `GET /api/quote/list?role=tech|owner&uid=N` — filtered by job_type=Quote. Owner: no limit. Tech: limit=1 + create_uid filter (note: tech filter does not actually partition because every Render-driven RPC runs as ODOO_USER_ID=2).
+
+**Quote line description format (round-trip preserved via JSON tag):**
+
+The description starts with the Render Quote Tool marker, then a human-readable breakdown line, then mode + difficulty lines, then a trailing JSON blob prefixed with `__QUOTE_JSON__:`. Backend `_parse_quote_json_from_line()` extracts the blob; legacy fallback parses human-readable text for older quotes.
+
+**Quote SO products (do not change without updating dashboard.py constants):**
+
+- QUOTE_PRODUCT_IN_OUT  = 141 ("Windows In & Out - Full Service")
+- QUOTE_PRODUCT_OUTSIDE = 103 ("Outside Windows And Screens")
+
+**Soft-delete pattern for line replacement on confirmed SOs:**
+
+- Per project_so_lines_zero_means_deleted.md, can not unlink lines on state=sale SOs.
+- `_replace_quote_line(so_id, line_create_tuple)` zeroes existing lines (qty=0, price=0) then adds the new line. Use this whenever replacing lines on any SO, not just quotes.
+
+**`/api/upcoming` now returns `address` and `phone` per job:**
+
+- address is split from the partner display_name ("Customer, Address" yields "Address")
+- phone walks Property to parent Contact if the SO partner is a Property record (no direct phone on the property itself). Wrapped in try/except — phone is a nice-to-have.
+
+**Two new endpoints for the field-assistant active panel:**
+
+- `GET /api/customer/payment_history?partner_id=N` — returns all account.payment records for the customer (walks Property to Contact). Powers the Payment History modal on the open job screen.
+- `GET /api/sales/day?date=YYYY-MM-DD` — returns jobs for one day. Powers the daily drill-down when DJ taps a row in the Stats tab.
+
+### Activities module — UX pivot
+
+**Unified routing (NEW): all activities open the detail modal first, regardless of type.**
+
+- Detail modal shows every populated mail.activity field (Summary, Type, Due, Linked-to record, res_model, res_id, Activity ID, full note).
+- Specialized actions surface as buttons INSIDE the detail modal, hidden by default.
+- "Open Follow-Up Editor" button (orange) appears only when isFollowupTodo(t) returns true (partner_id set + summary/type contains follow up, follow-up, followup, reactivation, or reach out). Tapping bridges into the existing follow-up modal.
+- Do not add new top-level routing branches for new automation types — add a predicate + a hidden button in the detail modal instead.
+
+**5-second undo grace on Mark Done (both detail and follow-up modals):**
+
+- Tap Mark Done — button morphs to a countdown that reads "Undo (5)" — tap again or close modal cancels.
+- After 5s, the API call fires. If user closes modal during countdown, it is treated as undo.
+- Same pattern for "Mark Done (no send)" in the follow-up modal — Send button is locked during the grace period.
+
+**Activity notes — link rules:**
+
+- All activity notes are written as HTML. Anchor tags survive the strip.
+- `_strip_activity_html()` now emits markdown-style `[text](url)` for anchors with distinct inner text. Frontend linkify() handles BOTH markdown and bare URLs.
+- 30 existing follow-up activities had their plain-text Workiz UUIDs converted to clickable anchor tags pointing at `https://app.workiz.com/root/job/{UUID}/`.
+- Pattern for future activity notes: embed runbook content directly (memory files are not URL-addressable from the phone), but for any real public URL (Workiz, Odoo, Calendly, GitHub) ALWAYS use a real anchor tag — never paste a raw URL as text.
+
+### Field Assistant — small fixes
+
+- Three-dots menu on non-today rows now shows all 4 items (Workiz, Odoo SO, Property, Add Note). /api/upcoming returns partner_id + workiz_uuid so the menu can build the same links.
+- "Combination" subtitle abbreviated to "Combo" for screen real estate.
+- Pay button now shows the already-paid grey state when the SO has a posted invoice with payment_state in (paid, in_payment).
+- Pay button preselect: highlights the customer's last-used payment method based on `_last_payment_method_by_partner()`. Coverage is sparse today (most customers have no account.payment records yet — accounting migration will fix). Falls through to Check by default.
+
+### Watermark auto-clear (PENDING — Phase 4 work)
+
+- Modify zapier_phase4_FLATTENED_FINAL.py: when a quote SO's Workiz substatus changes AWAY from "Quote", clear:
+  - client_order_ref (set to empty)
+  - QUOTE ONLY tag (remove from tag_ids via the (3, tag_id) command)
+  - x_studio_x_studio_x_studio_job_type (set based on quote line product: 141 yields "Windows Inside & Outside Plus Screens", 103 yields "Outside Windows and Screens")
+- After auto-clear lands, accepted quotes will automatically drop off the Saved Quotes list (which filters by job_type=Quote).
+- Status: not built. DJ-blocked: confirm whether to build now or defer.
+
+### Architectural decisions logged
+
+1. Quote save = update existing Workiz-linked SO when picked from schedule; auto-create partner + new SO for walk-ups. DJ pivoted mid-session from always-create-new to leverage existing Phase 3/4 infrastructure.
+2. No new custom Odoo fields — uses built-in client_order_ref, existing Quote job_type selection, and crm.tag (auto-creates QUOTE ONLY tag).
+3. Soft-delete (zero qty + price) is the standard for replacing lines on any SO going forward.
+4. Activities route to detail modal first; specialized automations are buttons inside.
+5. URLs in activity notes are always real anchor tags. Memory files (Claude-local) are referenced by name only.
+
+### DJ-blocked items waiting on action
+
+- Activity #67 (Phase 4 auto-clear): DJ to decide build now or defer
+- Activity #68 (Workiz "Quote" substatus + webhook): DJ to create substatus + automation in Workiz
+- Activity #69 ("Push to Workiz" button): DJ to confirm target Workiz field (JobNotes vs custom field)
