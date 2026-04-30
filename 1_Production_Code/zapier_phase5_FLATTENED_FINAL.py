@@ -7,7 +7,7 @@ Triggered by: Phase 6 (after payment → job marked Done).
 
 Features:
 - MAINTENANCE: Creates next scheduled job in Workiz (POST job/create). Does NOT assign tech; you assign and set time/status in Workiz. On 200, API returns UUID/ClientId/link per docs; we use that and only fall back to job/all when 204.
-- ON DEMAND: Creates follow-up reminder in Odoo (mail.activity only; view in Activity/Calendar view for activities)
+- ON DEMAND: Creates follow-up project.task in Odoo (Odoo "To-do" app — view at /odoo/to-do; was incorrectly documented as mail.activity until 2026-04-30)
 - City-aware scheduling (route-based like Calendly)
 - Handles alternating service logic
 - Stores line items reference in custom Workiz field
