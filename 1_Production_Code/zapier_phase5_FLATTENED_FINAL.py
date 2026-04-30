@@ -7,7 +7,7 @@ Triggered by: Phase 6 (after payment → job marked Done).
 
 Features:
 - MAINTENANCE: Creates next scheduled job in Workiz (POST job/create). Does NOT assign tech; you assign and set time/status in Workiz. On 200, API returns UUID/ClientId/link per docs; we use that and only fall back to job/all when 204.
-- ON DEMAND: Creates follow-up project.task in Odoo (Odoo "To-do" app — view at /odoo/to-do; was incorrectly documented as mail.activity until 2026-04-30)
+- ON DEMAND: Creates re-engagement task in Odoo (project.task at /odoo/to-do; the term "Follow-up" was retired 2026-04-30 to avoid collision with personal voice todos)
 - City-aware scheduling (route-based like Calendly)
 - Handles alternating service logic
 - Stores line items reference in custom Workiz field
@@ -568,9 +568,10 @@ def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
     services = [item.get('Name', '') for item in line_items if 'tip' not in item.get('Name', '').lower()]
     services_text = ', '.join(services) if services else 'Service'
 
-    # To-Do title
+    # To-Do title \u2014 "Re-engagement" (not "Follow-up") so DJ's voice "follow up with my uncle"
+    # creates a clean personal todo without colliding with the customer cycle reminder flow.
     svc_short = services_text[:60] + '...' if len(services_text) > 60 else services_text
-    todo_name = f'Follow-up: {customer_name} \u2014 {svc_short}'
+    todo_name = f'Re-engagement: {customer_name} \u2014 {svc_short}'
 
     # HTML description with clickable Workiz link
     workiz_link = f'https://app.workiz.com/root/job/{uuid}/1' if uuid else ''
@@ -613,7 +614,7 @@ def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
                     y, m, d = due_date_str[:10].split('-')
                     due_fmt = f'{m}-{d}-{y}'
                     todo_url = f'https://window-solar-care.odoo.com/odoo/to-do/{todo_id}'
-                    chatter_body = f'Follow-up To-Do created | Customer: {customer_name} | Due: {due_fmt} | To-Do: {todo_url}'
+                    chatter_body = f'[Phase 5] Re-engagement Task created | Customer: {customer_name} | Due: {due_fmt} | Task: {todo_url}'
                     odoo_rpc('sale.order', 'message_post', [[so_id]], {
                         'body': chatter_body,
                         'message_type': 'comment',
@@ -813,7 +814,7 @@ def create_ondemand_followup(workiz_job, contact_id, days_until_followup=180, in
                 if due_date:
                     y, m, d = due_date.split('-')
                     due_fmt = f'{m}-{d}-{y}'
-                message_body = f'Follow-up To-Do created | Customer: {customer_name} | Due: {due_fmt} | To-Do: {todo_url}'
+                message_body = f'[Phase 5] Re-engagement Task created | Customer: {customer_name} | Due: {due_fmt} | Task: {todo_url}'
                 odoo_rpc("account.move", "message_post", [[invoice_id]], {
                     "body": message_body,
                     "message_type": "notification",
