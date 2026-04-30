@@ -574,3 +574,42 @@ The description starts with the Render Quote Tool marker, then a human-readable 
 - Activity #67 (Phase 4 auto-clear): DJ to decide build now or defer
 - Activity #68 (Workiz "Quote" substatus + webhook): DJ to create substatus + automation in Workiz
 - Activity #69 ("Push to Workiz" button): DJ to confirm target Workiz field (JobNotes vs custom field)
+
+---
+
+## SESSION 2026-04-29 EVENING UPDATE — ACTIVITIES ORG + QUOTE TOOL POLISH
+
+### Activities Open tab — new organization layer
+
+The Open sub-tab of `/owner/activities` is now grouped + filterable:
+
+- **Search bar** at top with an X clear button (case-insensitive, matches summary/customer/type/note)
+- **Type filter pills**: All / Follow-Ups / To-Dos
+- **Date-based collapsible sections**: Overdue / Today / This Week / Later. All sections start expanded; user toggles persist for the session.
+- **Snooze chips** inside the detail modal (above Close/Mark Done): +1 day / +3 days / +1 week / +1 month. Tap → POSTs to `/api/todos/snooze` → bumps `date_deadline` forward (clamps past dates to today + N).
+- Filter bar is hidden when on the Done sub-tab.
+
+### Quote tool — Saved Quotes list filter NARROWED
+
+Was filtering by `job_type='Quote'` — caught 18 historical Workiz Quote-type jobs DJ never created in the Render tool (going back to 2022). Narrowed to filter by `client_order_ref = '🔶 QUOTE ONLY'` (only set by Render tool, cleared on conversion). The list now shows only Render-tool quotes.
+
+**Lesson for future filters: use a watermark field that this tool explicitly sets, not a field that other systems also populate.**
+
+### Quote tool — post-save success card
+
+Replaced the auto-reset behavior with a deliberate confirmation card that shows:
+- Big total amount
+- "Saved/Updated as {SO name}"
+- "View in Odoo" link → `https://window-solar-care.odoo.com/odoo/sales/{so_id}`
+- "View in Workiz" link → from SO's `x_studio_x_workiz_link` (only shows if populated; walk-up SOs without a Workiz job won't show this)
+- "+ New Quote" button to clear and start over
+
+`/api/quote/save` and `/api/quote/update` both return `workiz_link` in the response now.
+
+### Field assistant — small fix
+
+10-Day tab removed from the right office panel (redundant with future days visible on the left field panel). Now the right tab bar is Stats / Customers / Voice. `/api/upcoming` endpoint kept — still used by Quote tool's "Pick from scheduled jobs".
+
+### Bug to watch for
+
+Walk-up quote save (Path B in `/api/quote/save`) may occasionally fail to apply watermarks, leaving `client_order_ref=False` and `job_type=False` even though the order line gets the marker. Caught on Flegel SO S00107 (2026-04-29). Possible cause: deploy timing race. If this recurs, dig into `_apply_quote_watermark` write or look for an Odoo automation stripping client_order_ref on draft SOs.
