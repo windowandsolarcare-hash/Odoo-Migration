@@ -613,3 +613,74 @@ Replaced the auto-reset behavior with a deliberate confirmation card that shows:
 ### Bug to watch for
 
 Walk-up quote save (Path B in `/api/quote/save`) may occasionally fail to apply watermarks, leaving `client_order_ref=False` and `job_type=False` even though the order line gets the marker. Caught on Flegel SO S00107 (2026-04-29). Possible cause: deploy timing race. If this recurs, dig into `_apply_quote_watermark` write or look for an Odoo automation stripping client_order_ref on draft SOs.
+
+---
+
+## SESSION 2026-04-30 LATE UPDATE — RENDER CLAUDE PO TOOLS + QUOTE WORKFLOW LOCKED + project.task FIX
+
+### Render Claude has 4 new write tools
+
+In `dashboard.py` WRITE_TOOLS — confirmation-required, preview-first:
+
+- **create_purchase_order** — vendor PO. Resolves vendor by name OR `x_aliases` ("Active", "AWP", "Active Window" all match Active Window Products). Resolves products by exact SKU, vendor's product_code, OR natural language ("5/16 almond" → AWP-1017AL). Returns [CLARIFY] if ambiguous.
+- **send_purchase_order** — emails the PO using `partner.x_default_po_template_id` if set (AWP gets template id 49 "AWP Order Request" with both Jaime + Valerie on TO via comma-separated email field). Falls back to standard "Purchase: Purchase Order" template otherwise.
+- **convert_quote_to_job** — clears QUOTE ONLY watermarks (client_order_ref + tag) and sets job_type from the quote line's product (141 → "Windows Inside & Outside Plus Screens", 103 → "Outside Windows and Screens"). Drops SO off Saved Quotes list.
+- **push_quote_to_workiz** — fires on "customer approved", "they accepted", "X is a go", "go ahead with X's quote". Prepends a [Render] block to Workiz JobNotes with priced line items + 4-step manual checklist (add lines, change JobType, set date, change status).
+
+### Vendor + product resolution helpers (reusable)
+
+- `_resolve_vendor_by_query(query)` — supplier_rank>0, matches name + x_aliases
+- `_resolve_product_for_vendor(vendor_id, part_query)` — 3-pass match: vendor product_code → our default_code → keyword name match restricted to vendor's catalog. Returns dict, list (ambiguous), or None.
+
+### AWP vendor in Odoo (id 26936)
+
+- **Customer ID 55145** in `ref` field
+- **Tax Exempt** via fiscal position id 5 "Resale - Tax Exempt" (auto-applied to POs)
+- **Email** = `j.gutierrez@activewindowproducts.com, v.campos@activewindowproducts.com` (comma-separated for both recipients)
+- **Two child contacts**: Jaime Gutierrez (Sales/Order, id 26937) + Valerie Campos (Customer Service Manager, id 26938)
+- **`x_aliases`** = "Active, AWP, Active Window, Active Window Products"
+- **`x_default_po_template_id`** = 49 (AWP Order Request)
+- **33 frame products imported** with vendor pricing — naming pattern AWP-{sku} (e.g. AWP-1017AL = 5/16 Almond Screen Frame). UOM = ft (id 20).
+- **PO sequence renumbered** — next PO = P00101.
+
+### Quote workflow architecture — LOCKED
+
+DJ confirmed: **don't touch Phase 3/4**. Quote-type SOs go through normal lifecycle. Watermarks (client_order_ref + tag + job_type='Quote') distinguish quotes from real jobs, NOT the SO state.
+
+Flow: Workiz Quote job → Phase 3 makes draft SO → DJ schedules in Workiz → Phase 4 confirms + creates regular task → DJ uses Render Quote Tool at customer site → enters line items → customer accepts → DJ taps "📲 Approve & Push to Workiz" (or voice "customer approved") → Workiz JobNotes gets the [Render] block → DJ does the 4 manual Workiz steps → Phase 4 syncs everything → optionally `convert_quote_to_job` to clear watermarks.
+
+**DJ owes himself one Workiz config:** disable customer auto-text rule when JobType=Quote so customers don't get "we'll arrive to clean..." on quote visits.
+
+### Critical bug fix — /api/todos missed project.task
+
+**Root cause:** `/api/todos` was reading only `mail.activity`. But `create_todo` tool writes to `project.task` (Odoo "To-do" app uses that model with project_id=False), and Phase 5's "On Demand" path also writes to `project.task` despite an old docstring claiming mail.activity. Result: 50+ project.task to-dos invisible in Render Activities tab (e.g. 3 Mark Sarah Fredricksen follow-ups).
+
+**Fix:** `/api/todos` now reads BOTH models, returns merged list with `source: 'activity'|'task'` field. `/api/todos/snooze` and `/api/followup/markdone` accept `source` param. Frontend caches source per todo and passes back. `isFollowupTodo()` returns false for source='task' (those records can't use SMS follow-up flow yet — separate feature).
+
+**Also:** /api/todos limit raised from 30 → 250 per source. Bud Piraino's 2027-04-25 follow-up (12-month frequency) was past position 50 in date-asc order → invisible until limit raise.
+
+### Phase 5 docstring fixed
+
+Was lying: "ON DEMAND: Creates follow-up reminder in Odoo (mail.activity only)" — actually creates `project.task`. Fixed in commit 85129602 in Odoo-Migration repo.
+
+The 30 historical "Follow-up: <Name>" mail.activity records remain — they keep their SMS Follow-Up flow access (which depends on `x_followup_workiz_uuid` field on mail.activity). When SMS flow is extended to project.task (task #25), we'll convert.
+
+### /api/upcoming surfaces drafts
+
+`/api/upcoming` previously filtered `state in ['sale', 'done']`. Now `state in ['draft', 'sale', 'done']`. Each job carries a `state` field. This makes Workiz-linked draft Quote SOs appear in the Quote Tool's "Pick from scheduled jobs" picker.
+
+### Custom Studio fields added to res.partner
+
+- `x_default_po_template_id` (many2one to mail.template)
+- `x_aliases` (char) — comma-separated alternate names
+- `x_aliases` is reusable for any vendor — just populate the field
+
+### Quote Tool success card has new button
+
+After save, if SO has a Workiz UUID, an orange "📲 Approve & Push to Workiz" button shows. Tap → confirmation → calls `/api/quote/push_to_workiz` → opens Workiz job in new tab. Success state: "✅ Pushed — open Workiz and complete the steps".
+
+### DJ-blocked items still waiting
+
+1. Workiz "Quote" SubStatus + automation webhook (task #17 — DJ creates substatus + automation, then ping)
+2. Workiz auto-text rule for JobType=Quote (DJ filters his existing customer-confirmation auto-text)
+3. Production use of new PO flow (verify Bud's frame color before sending P00102)
