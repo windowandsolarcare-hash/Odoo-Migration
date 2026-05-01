@@ -65,6 +65,24 @@
 - Render Claude session history is now persisted to Odoo (key=render.session.{session_id}) — fixed 2026-04-26 commit 455754d. Conversation memory survives Render redeploys and free-tier sleep. This means context (active customer, UUID, partner_id) carries across turns even after code pushes.
 - Render Claude system prompt rules (effective 2026-04-26): pronouns default to most recently discussed customer; once a UUID/partner_id is known KEEP it; never re-search active customer; no trial-and-error API calls — use existing tools as documented; if a tool errors, fix input rather than retry; if no tool exists, plan with DJ first.
 
+## PHASE 4A: PRE-PAYMENT SYNC (2026-05-01)
+- Triggered before payment acceptance (manual via Render Claude tool or stale SO endpoint)
+- Syncs comprehensive field set: status, tech, gate code, pricing, notes, job type, lead source, date_order, tags, + line items
+- Line items compared as (name, qty, price) tuples - detects scope changes at customer door (e.g., Inside+Outside → Outside only)
+- If all fields match AND lines match exactly: returns early, no cancel/confirm cycle (early-exit optimization)
+- If mismatch found: cancel SO → draft → delete unmatched lines → write updates → re-confirm
+- Returns: {'ok': bool, 'synced': bool, 'message': str, 'fields_updated': int}
+- **Phase 4 vs 4A logic**: Field-sync logic is identical. Phase 4 (status changes) also handles task lifecycle; Phase 4A (pre-payment) is sync-only.
+
+## RENDER TOOLS ARCHITECTURE
+- **Location**: Saunders Render App, routers/owner/dashboard.py
+- **TOOLS list** (line ~1962): Array of tool definitions (name, description, input_schema)
+- **WRITE_TOOLS set** (line ~2496): Names of tools requiring confirmation
+- **Tool handlers** (line ~977+): `if tool_name == 'name':` blocks implementing each tool
+- **_describe_write function** (line ~1895+): Human-readable descriptions for confirmation prompts
+- **Adding a tool**: 5 steps: (1) add to TOOLS, (2) add to WRITE_TOOLS if write, (3) add handler, (4) add description, (5) push to GitHub main
+- **Natural language resolution**: Use `_find_so_by_identifier()` helper - tries ID, name, UUID, then customer name (resolves to most recent open invoiceable SO)
+
 ## WORKIZ API DEFAULTS (required to avoid validation errors)
 - type_of_service_2: "On Request"
 - frequency: "Unknown"
@@ -93,14 +111,21 @@
 - POST /api/payment - records payment, creates invoice, posts chatter
 - POST /api/attachment - uploads base64 image to Odoo SO as ir.attachment
 
-### Claude Tools (full list)
+### Claude Tools (full list) - 2026-05-01
 Read: search_customers, get_customer_profile, get_job_details, get_schedule, get_next_job,
       get_sales, get_sales_week (Mon-Sat), get_sales_month (Mon-Fri, returns days dict),
       get_jobs_list, navigate_to, odoo_query, github_read_file, github_list_dir, refresh_shared_memory
 Write (confirm required): update_workiz_field, update_odoo_contact, post_odoo_note, create_todo,
       mark_job_done, create_workiz_job, duplicate_workiz_job, start_task_timer, stop_task_timer,
-      record_check_payment, odoo_write, github_push_file, update_shared_memory
+      record_check_payment, odoo_write, github_push_file, update_shared_memory,
+      sync_so_verify, process_payment_with_sync (NEW 2026-05-01)
 Utility: save_memory, delete_memory
+
+### NEW: Payment + Sync Tools (2026-05-01)
+- **sync_so_verify**: Verify SO sync w/ Workiz. Input: so_identifier (SO ID, name, UUID, or customer name). Returns: detailed report of what changed.
+- **process_payment_with_sync**: Accept payment w/ auto-sync. Input: so_identifier, payment_method (check|cash|zelle|venmo|credit), amount, optional date + memo.
+  Both tools support natural language customer name resolution: "Fred Jones open job" → finds open SO → grabs UUID → syncs automatically
+  Commits: cd8a16a (endpoints), 73ed4ac (registration), ff7829c (natural language), 62061dc (payment method + memo)
 
 ### UI Features added 2026-04-18
 - Saved request library: localStorage wsc_saved_qs, max 15 recents + unlimited starred. Pin with star. Below Send button in Command tab.
@@ -427,309 +452,3 @@ NEVER use invoice_status, state='done', or date filters as proxy
 - Gusto CSV format confirmation + button scope fix
 - Playwright selector calibration (user runbook ready)
 - Schedule Cheryl interview (infrastructure ready, waiting on her availability)
-
----
-
-## SESSION 2026-04-28/29 UPDATE — FIELD ASSISTANT POLISH + ACTIVITIES MODULE PHASE 2
-
-### What Render Claude needs to know (runtime-relevant only)
-
-**`/api/schedule` response now carries extra fields per job — use them, don't re-derive:**
-- `tags`: list of crm.tag names attached to the SO (e.g. ["OK"], ["CF"]) — drives the pill on the right side of the card
-- `job_type`: raw `x_studio_x_studio_x_studio_job_type` from the SO
-- `service_label`: classifier for the subtitle ("Window" / "Solar" / "Combo" / "Gutter" / etc.) — derived from JobType, NOT auto-corrected
-- `service_label_mismatch`: True when an order-line analysis disagrees with JobType. Frontend renders an orange `⚠` next to the subtitle. **DJ explicitly chose this design** — surfacing the data hygiene issue is intentional. Don't "fix" it by switching to lines-based labels.
-- `service_label_lines`: what the order-line analysis says (used in the warning tooltip)
-- `last_payment_method`: one of 'check'/'cash'/'zelle'/'venmo'/'credit'/'' — the customer's most-recent payment method. Frontend uses this to preselect the Pay button.
-- `paid`: True when the SO has any posted invoice with `payment_state in ('paid','in_payment')`. Frontend greys the Pay button to `✓ Already Paid` when true; re-activates if DJ deletes the payment in Odoo.
-
-**Critical Odoo schema notes (will save you a debug cycle):**
-- `account.payment` has NO `ref` field in this Odoo 19. Use `memo` only. Caused a "No jobs today" outage on 2026-04-28 when introduced.
-- `sale.order.line` rows with `product_uom_qty == 0 AND price_subtotal == 0` are SOFT-DELETED. Odoo blocks hard-delete on confirmed SOs, so DJ zeroes them out. Any code analyzing order lines must skip these.
-
-**`/api/job/append_note` (new endpoint, 2026-04-28):**
-- POST `{uuid, note}` → prepends `[YYYY-MM-DD HH:MM] [Render] <note>` to the Workiz JobNotes field.
-- Powers the three-dots menu's "Add Workiz Note" button. Was previously a frontend stub returning 404.
-
-**`/api/todos` performance:**
-- Now batches partner reads (was 30+ sequential calls, now 2-3 batched).
-- Module-level `TODOS_USE_LEGACY = True` flag rolls back to pre-optimization behavior — one-line revert path.
-- `TODOS_DEADLINE_WINDOW_DAYS = 0` — date filter is currently disabled; DJ has lots of activities far in the future.
-
-**Activities page — Calendly to-dos open a different modal:**
-- When `summary` or `type` contains "calendly," tap → detail modal (full activity contents, no SMS path)
-- Other to-dos → existing follow-up modal
-- HTML notes stripped to plain text on backend (`_strip_activity_html`); anchor URLs preserved as text and made clickable by frontend `linkify()`.
-
-### Today's manual to-dos still pending (DJ action)
-
-- Bud Piraino (SO 003935) and Gary Marsalone (SO 003917): both have `Combination of Services` in their order lines (Solar + Window) but JobType is still `Outside Windows and Screens` → the orange `⚠` will surface for both. DJ skipped Solar today and promised both a 2-month follow-up. JobType corrections + scheduled SMS are NOT YET sent.
-
-### Memory files added today (local — referenced in MEMORY.md index)
-
-- `session_apr28_29_summary.md` — full recap
-- `project_account_payment_no_ref_field.md` — the `ref` field gotcha + try/except wrapper rule
-- `project_so_lines_zero_means_deleted.md` — soft-delete convention for SO lines
-- `project_activities_module.md` — extended with all today's changes + voice-activities design
-
----
-
-## SESSION 2026-04-29 UPDATE — WINDOW QUOTE TOOL + ACTIVITIES UNIFIED FLOW
-
-### What Render Claude needs to know (runtime-relevant only)
-
-**New `/owner/quote` and `/tech/quote` routes — Window Quote Tool replaces the old AppSheets pricing app.**
-
-- Single HTML file at `static/owner/quote.html`, mirrored route at `/tech/quote`
-- Mobile counter UI with 6 line items (Regular Panes $7 to Triple Sliders $35), mode toggle (In&Out vs Outside Only with auto divide-by-2 and times 1.10), difficulty pills (Standard / Hard +15% / Very Hard +30%)
-- Address autocomplete via Google Places API (New) — key embedded in HTML, restricted to wsc-field-assistant.onrender.com
-- "Pick from scheduled jobs" button calls `/api/upcoming` and lets DJ tap a Workiz-linked SO to pre-fill name/address/phone
-- "Saved Quotes" panel below — tappable items load back into the form for editing
-
-**Quote SOs are marked by 3 watermarks (any one identifies a quote):**
-
-- `client_order_ref` set to the QUOTE ONLY watermark string (orange diamond + text)
-- `x_studio_x_studio_x_studio_job_type` set to `Quote` (a valid existing selection value, NOT a custom one)
-- "QUOTE ONLY" tag attached via `tag_ids` (auto-created on first quote save, color 2 / orange)
-
-**Endpoints (all under `/owner/api/`):**
-
-- `POST /api/quote/save` — body: name, address, phone, mode, difficulty, counts, plus optional so_id or partner_id. If so_id present (picked from schedule), updates that existing Workiz-linked SO. Otherwise auto-creates a new res.partner for walk-up prospects + fresh SO. Returns ok, so_id, so_name, partner_id, total, updated_existing.
-- `GET /api/quote/get?so_id=N` — full re-load of a saved quote into the form (counts, mode, difficulty, name/address/phone, partner_id).
-- `POST /api/quote/update` — patches existing quote SO line + partner contact details. Used by the edit flow. Works on any state (draft or sale).
-- `GET /api/quote/list?role=tech|owner&uid=N` — filtered by job_type=Quote. Owner: no limit. Tech: limit=1 + create_uid filter (note: tech filter does not actually partition because every Render-driven RPC runs as ODOO_USER_ID=2).
-
-**Quote line description format (round-trip preserved via JSON tag):**
-
-The description starts with the Render Quote Tool marker, then a human-readable breakdown line, then mode + difficulty lines, then a trailing JSON blob prefixed with `__QUOTE_JSON__:`. Backend `_parse_quote_json_from_line()` extracts the blob; legacy fallback parses human-readable text for older quotes.
-
-**Quote SO products (do not change without updating dashboard.py constants):**
-
-- QUOTE_PRODUCT_IN_OUT  = 141 ("Windows In & Out - Full Service")
-- QUOTE_PRODUCT_OUTSIDE = 103 ("Outside Windows And Screens")
-
-**Soft-delete pattern for line replacement on confirmed SOs:**
-
-- Per project_so_lines_zero_means_deleted.md, can not unlink lines on state=sale SOs.
-- `_replace_quote_line(so_id, line_create_tuple)` zeroes existing lines (qty=0, price=0) then adds the new line. Use this whenever replacing lines on any SO, not just quotes.
-
-**`/api/upcoming` now returns `address` and `phone` per job:**
-
-- address is split from the partner display_name ("Customer, Address" yields "Address")
-- phone walks Property to parent Contact if the SO partner is a Property record (no direct phone on the property itself). Wrapped in try/except — phone is a nice-to-have.
-
-**Two new endpoints for the field-assistant active panel:**
-
-- `GET /api/customer/payment_history?partner_id=N` — returns all account.payment records for the customer (walks Property to Contact). Powers the Payment History modal on the open job screen.
-- `GET /api/sales/day?date=YYYY-MM-DD` — returns jobs for one day. Powers the daily drill-down when DJ taps a row in the Stats tab.
-
-### Activities module — UX pivot
-
-**Unified routing (NEW): all activities open the detail modal first, regardless of type.**
-
-- Detail modal shows every populated mail.activity field (Summary, Type, Due, Linked-to record, res_model, res_id, Activity ID, full note).
-- Specialized actions surface as buttons INSIDE the detail modal, hidden by default.
-- "Open Follow-Up Editor" button (orange) appears only when isFollowupTodo(t) returns true (partner_id set + summary/type contains follow up, follow-up, followup, reactivation, or reach out). Tapping bridges into the existing follow-up modal.
-- Do not add new top-level routing branches for new automation types — add a predicate + a hidden button in the detail modal instead.
-
-**5-second undo grace on Mark Done (both detail and follow-up modals):**
-
-- Tap Mark Done — button morphs to a countdown that reads "Undo (5)" — tap again or close modal cancels.
-- After 5s, the API call fires. If user closes modal during countdown, it is treated as undo.
-- Same pattern for "Mark Done (no send)" in the follow-up modal — Send button is locked during the grace period.
-
-**Activity notes — link rules:**
-
-- All activity notes are written as HTML. Anchor tags survive the strip.
-- `_strip_activity_html()` now emits markdown-style `[text](url)` for anchors with distinct inner text. Frontend linkify() handles BOTH markdown and bare URLs.
-- 30 existing follow-up activities had their plain-text Workiz UUIDs converted to clickable anchor tags pointing at `https://app.workiz.com/root/job/{UUID}/`.
-- Pattern for future activity notes: embed runbook content directly (memory files are not URL-addressable from the phone), but for any real public URL (Workiz, Odoo, Calendly, GitHub) ALWAYS use a real anchor tag — never paste a raw URL as text.
-
-### Field Assistant — small fixes
-
-- Three-dots menu on non-today rows now shows all 4 items (Workiz, Odoo SO, Property, Add Note). /api/upcoming returns partner_id + workiz_uuid so the menu can build the same links.
-- "Combination" subtitle abbreviated to "Combo" for screen real estate.
-- Pay button now shows the already-paid grey state when the SO has a posted invoice with payment_state in (paid, in_payment).
-- Pay button preselect: highlights the customer's last-used payment method based on `_last_payment_method_by_partner()`. Coverage is sparse today (most customers have no account.payment records yet — accounting migration will fix). Falls through to Check by default.
-
-### Watermark auto-clear (PENDING — Phase 4 work)
-
-- Modify zapier_phase4_FLATTENED_FINAL.py: when a quote SO's Workiz substatus changes AWAY from "Quote", clear:
-  - client_order_ref (set to empty)
-  - QUOTE ONLY tag (remove from tag_ids via the (3, tag_id) command)
-  - x_studio_x_studio_x_studio_job_type (set based on quote line product: 141 yields "Windows Inside & Outside Plus Screens", 103 yields "Outside Windows and Screens")
-- After auto-clear lands, accepted quotes will automatically drop off the Saved Quotes list (which filters by job_type=Quote).
-- Status: not built. DJ-blocked: confirm whether to build now or defer.
-
-### Architectural decisions logged
-
-1. Quote save = update existing Workiz-linked SO when picked from schedule; auto-create partner + new SO for walk-ups. DJ pivoted mid-session from always-create-new to leverage existing Phase 3/4 infrastructure.
-2. No new custom Odoo fields — uses built-in client_order_ref, existing Quote job_type selection, and crm.tag (auto-creates QUOTE ONLY tag).
-3. Soft-delete (zero qty + price) is the standard for replacing lines on any SO going forward.
-4. Activities route to detail modal first; specialized automations are buttons inside.
-5. URLs in activity notes are always real anchor tags. Memory files (Claude-local) are referenced by name only.
-
-### DJ-blocked items waiting on action
-
-- Activity #67 (Phase 4 auto-clear): DJ to decide build now or defer
-- Activity #68 (Workiz "Quote" substatus + webhook): DJ to create substatus + automation in Workiz
-- Activity #69 ("Push to Workiz" button): DJ to confirm target Workiz field (JobNotes vs custom field)
-
----
-
-## SESSION 2026-04-29 EVENING UPDATE — ACTIVITIES ORG + QUOTE TOOL POLISH
-
-### Activities Open tab — new organization layer
-
-The Open sub-tab of `/owner/activities` is now grouped + filterable:
-
-- **Search bar** at top with an X clear button (case-insensitive, matches summary/customer/type/note)
-- **Type filter pills**: All / Follow-Ups / To-Dos
-- **Date-based collapsible sections**: Overdue / Today / This Week / Later. All sections start expanded; user toggles persist for the session.
-- **Snooze chips** inside the detail modal (above Close/Mark Done): +1 day / +3 days / +1 week / +1 month. Tap → POSTs to `/api/todos/snooze` → bumps `date_deadline` forward (clamps past dates to today + N).
-- Filter bar is hidden when on the Done sub-tab.
-
-### Quote tool — Saved Quotes list filter NARROWED
-
-Was filtering by `job_type='Quote'` — caught 18 historical Workiz Quote-type jobs DJ never created in the Render tool (going back to 2022). Narrowed to filter by `client_order_ref = '🔶 QUOTE ONLY'` (only set by Render tool, cleared on conversion). The list now shows only Render-tool quotes.
-
-**Lesson for future filters: use a watermark field that this tool explicitly sets, not a field that other systems also populate.**
-
-### Quote tool — post-save success card
-
-Replaced the auto-reset behavior with a deliberate confirmation card that shows:
-- Big total amount
-- "Saved/Updated as {SO name}"
-- "View in Odoo" link → `https://window-solar-care.odoo.com/odoo/sales/{so_id}`
-- "View in Workiz" link → from SO's `x_studio_x_workiz_link` (only shows if populated; walk-up SOs without a Workiz job won't show this)
-- "+ New Quote" button to clear and start over
-
-`/api/quote/save` and `/api/quote/update` both return `workiz_link` in the response now.
-
-### Field assistant — small fix
-
-10-Day tab removed from the right office panel (redundant with future days visible on the left field panel). Now the right tab bar is Stats / Customers / Voice. `/api/upcoming` endpoint kept — still used by Quote tool's "Pick from scheduled jobs".
-
-### Bug to watch for
-
-Walk-up quote save (Path B in `/api/quote/save`) may occasionally fail to apply watermarks, leaving `client_order_ref=False` and `job_type=False` even though the order line gets the marker. Caught on Flegel SO S00107 (2026-04-29). Possible cause: deploy timing race. If this recurs, dig into `_apply_quote_watermark` write or look for an Odoo automation stripping client_order_ref on draft SOs.
-
----
-
-## SESSION 2026-04-30 LATE UPDATE — RENDER CLAUDE PO TOOLS + QUOTE WORKFLOW LOCKED + project.task FIX
-
-### Render Claude has 4 new write tools
-
-In `dashboard.py` WRITE_TOOLS — confirmation-required, preview-first:
-
-- **create_purchase_order** — vendor PO. Resolves vendor by name OR `x_aliases` ("Active", "AWP", "Active Window" all match Active Window Products). Resolves products by exact SKU, vendor's product_code, OR natural language ("5/16 almond" → AWP-1017AL). Returns [CLARIFY] if ambiguous.
-- **send_purchase_order** — emails the PO using `partner.x_default_po_template_id` if set (AWP gets template id 49 "AWP Order Request" with both Jaime + Valerie on TO via comma-separated email field). Falls back to standard "Purchase: Purchase Order" template otherwise.
-- **convert_quote_to_job** — clears QUOTE ONLY watermarks (client_order_ref + tag) and sets job_type from the quote line's product (141 → "Windows Inside & Outside Plus Screens", 103 → "Outside Windows and Screens"). Drops SO off Saved Quotes list.
-- **push_quote_to_workiz** — fires on "customer approved", "they accepted", "X is a go", "go ahead with X's quote". Prepends a [Render] block to Workiz JobNotes with priced line items + 4-step manual checklist (add lines, change JobType, set date, change status).
-
-### Vendor + product resolution helpers (reusable)
-
-- `_resolve_vendor_by_query(query)` — supplier_rank>0, matches name + x_aliases
-- `_resolve_product_for_vendor(vendor_id, part_query)` — 3-pass match: vendor product_code → our default_code → keyword name match restricted to vendor's catalog. Returns dict, list (ambiguous), or None.
-
-### AWP vendor in Odoo (id 26936)
-
-- **Customer ID 55145** in `ref` field
-- **Tax Exempt** via fiscal position id 5 "Resale - Tax Exempt" (auto-applied to POs)
-- **Email** = `j.gutierrez@activewindowproducts.com, v.campos@activewindowproducts.com` (comma-separated for both recipients)
-- **Two child contacts**: Jaime Gutierrez (Sales/Order, id 26937) + Valerie Campos (Customer Service Manager, id 26938)
-- **`x_aliases`** = "Active, AWP, Active Window, Active Window Products"
-- **`x_default_po_template_id`** = 49 (AWP Order Request)
-- **33 frame products imported** with vendor pricing — naming pattern AWP-{sku} (e.g. AWP-1017AL = 5/16 Almond Screen Frame). UOM = ft (id 20).
-- **PO sequence renumbered** — next PO = P00101.
-
-### Quote workflow architecture — LOCKED
-
-DJ confirmed: **don't touch Phase 3/4**. Quote-type SOs go through normal lifecycle. Watermarks (client_order_ref + tag + job_type='Quote') distinguish quotes from real jobs, NOT the SO state.
-
-Flow: Workiz Quote job → Phase 3 makes draft SO → DJ schedules in Workiz → Phase 4 confirms + creates regular task → DJ uses Render Quote Tool at customer site → enters line items → customer accepts → DJ taps "📲 Approve & Push to Workiz" (or voice "customer approved") → Workiz JobNotes gets the [Render] block → DJ does the 4 manual Workiz steps → Phase 4 syncs everything → optionally `convert_quote_to_job` to clear watermarks.
-
-**DJ owes himself one Workiz config:** disable customer auto-text rule when JobType=Quote so customers don't get "we'll arrive to clean..." on quote visits.
-
-### Critical bug fix — /api/todos missed project.task
-
-**Root cause:** `/api/todos` was reading only `mail.activity`. But `create_todo` tool writes to `project.task` (Odoo "To-do" app uses that model with project_id=False), and Phase 5's "On Demand" path also writes to `project.task` despite an old docstring claiming mail.activity. Result: 50+ project.task to-dos invisible in Render Activities tab (e.g. 3 Mark Sarah Fredricksen follow-ups).
-
-**Fix:** `/api/todos` now reads BOTH models, returns merged list with `source: 'activity'|'task'` field. `/api/todos/snooze` and `/api/followup/markdone` accept `source` param. Frontend caches source per todo and passes back. `isFollowupTodo()` returns false for source='task' (those records can't use SMS follow-up flow yet — separate feature).
-
-**Also:** /api/todos limit raised from 30 → 250 per source. Bud Piraino's 2027-04-25 follow-up (12-month frequency) was past position 50 in date-asc order → invisible until limit raise.
-
-### Phase 5 docstring fixed
-
-Was lying: "ON DEMAND: Creates follow-up reminder in Odoo (mail.activity only)" — actually creates `project.task`. Fixed in commit 85129602 in Odoo-Migration repo.
-
-The 30 historical "Follow-up: <Name>" mail.activity records remain — they keep their SMS Follow-Up flow access (which depends on `x_followup_workiz_uuid` field on mail.activity). When SMS flow is extended to project.task (task #25), we'll convert.
-
-### /api/upcoming surfaces drafts
-
-`/api/upcoming` previously filtered `state in ['sale', 'done']`. Now `state in ['draft', 'sale', 'done']`. Each job carries a `state` field. This makes Workiz-linked draft Quote SOs appear in the Quote Tool's "Pick from scheduled jobs" picker.
-
-### Custom Studio fields added to res.partner
-
-- `x_default_po_template_id` (many2one to mail.template)
-- `x_aliases` (char) — comma-separated alternate names
-- `x_aliases` is reusable for any vendor — just populate the field
-
-### Quote Tool success card has new button
-
-After save, if SO has a Workiz UUID, an orange "📲 Approve & Push to Workiz" button shows. Tap → confirmation → calls `/api/quote/push_to_workiz` → opens Workiz job in new tab. Success state: "✅ Pushed — open Workiz and complete the steps".
-
-### DJ-blocked items still waiting
-
-1. Workiz "Quote" SubStatus + automation webhook (task #17 — DJ creates substatus + automation, then ping)
-2. Workiz auto-text rule for JobType=Quote (DJ filters his existing customer-confirmation auto-text)
-3. Production use of new PO flow (verify Bud's frame color before sending P00102)
-
-
-## 2026-04-30 evening — runtime-relevant updates
-
-### Workiz terminology rename
-
-DJ renamed in Workiz UI: **SubStatus** "Follow Up Trigger" → "Re-engagement Trigger", **JobType** "Follow Up Lead" → "Re-engagement Lead". Render Claude constants (`FOLLOWUP_SUBSTATUS`, `FOLLOWUP_JOB_TYPE`) updated to match. Phase 5 customer cycle reminder titles changed from `"Follow-up: X — Y"` to `"Re-engagement: X — Y"`. `create_todo` voice tool dropped the `[Render] Follow-up:` prefix and accepts personal todos (no partner_id required). The word "follow up" in DJ's voice now ALWAYS routes to `create_todo`.
-
-### record_check_payment tool v2
-
-Voice payment now BLOCKS on amount mismatch unless `acknowledge_mismatch:true` (or `tip:true`). E.g. customer Zelles $200 on a $170 SO → tool returns:
-> ⚠ MISMATCH: SO 004003 total = $170.00 but payment = $200.00 (diff +$30.00). Likely a tip — Workiz needs the tip added manually. To proceed: re-call with `acknowledge_mismatch: true`.
-
-After confirmation, the success message includes a `⚠ TIP REMINDER: $30 extra collected. Add a tip line manually to Workiz.`
-
-Also: `so_id` is now optional. When omitted, the tool walks Contact↔Property partners to find all open invoiceable SOs. >1 → CLARIFY listing them. 0 → friendly error. Empty SO → clean message instead of opaque Odoo trace.
-
-### New Render Claude write tools
-
-- **`add_link_to_todo(todo_query, url, label?, source?)`** — append a clickable URL to an existing to-do. Searches both mail.activity and project.task. Use for: "link the AWP PO to the order screen to-do", "stick this URL on activity #X", etc.
-- **`delete_workiz_job(uuid, partner_name?)`** — PERMANENT delete: Workiz API + Odoo SO + tasks. **REFUSES if any invoice is linked** to the SO. Use for: "delete that job", "remove Workiz job X". Phase 4 doesn't auto-clean Workiz deletes — this is the only path.
-
-### github_push_file regression guard
-
-Refuses pushes that would drop >100 lines OR >25% of the file's bytes. Override with `acknowledge_regression: true` after reviewing the diff. Goal: prevent stale-baseline pushes from wiping work.
-
-### GPS Phase 1 active
-
-While clocked in, phone fires GPS pings (5 min OR 100m moved) to `/api/payroll/gps_ping`. Storage: new `x_gps_ping` model in Odoo. Watcher runs from BOTH timeclock.html AND field.html — keep either tab open. DJ + Danny each ping with their own employee_id; per-person timesheets coming in Phase 3.
-
-### Active job view: gate code
-
-Above the Navigate button on every active job: `🔑 Gate: <code>` (amber) when set, or `NO GATE CODE` (red caps) when empty. Sourced from `x_studio_x_gate_snapshot` on the SO.
-
-### Stale SOs cleanup page
-
-New `/owner/stale_sos` page accessible from the owner hub. 320 stale SOs / $56.7k aggregate. Filterable by year + status + customer search. Per-row WZ + Odoo pills.
-
-### Manage Shifts backend deployed
-
-The Manage Shifts UI now has its 5 backing endpoints (`/api/payroll/shifts`, `/shift/create`, `/shift/update`, `/shift/delete`, `/gusto_export`). Both DJ and Danny can edit, add, delete shifts. Stable shift_id format: `{employee_id}:{check_in_utc_iso}`.
-
-### Photo flow
-
-📸 Snap Photo on active job opens camera direct (capture=environment). Auto-uploads to Odoo SO. Auto-retries 3x on weak signal. Saves a copy to a user-picked folder via File System Access API — DJ can pick "WSC Jobs" once and Android Gallery auto-creates that album. Filenames are now `WSC_<customer>_<date>_<time>_<seq>.jpg` (was cryptic device timestamps).
-
-### Pull-to-refresh disabled
-
-Chrome Android's pull-down gesture no longer triggers a page reload on any of the 7 HTML pages. Saves DJ from accidental waits while scrolling.
