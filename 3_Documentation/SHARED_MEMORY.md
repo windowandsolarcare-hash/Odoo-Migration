@@ -684,3 +684,52 @@ After save, if SO has a Workiz UUID, an orange "📲 Approve & Push to Workiz" b
 1. Workiz "Quote" SubStatus + automation webhook (task #17 — DJ creates substatus + automation, then ping)
 2. Workiz auto-text rule for JobType=Quote (DJ filters his existing customer-confirmation auto-text)
 3. Production use of new PO flow (verify Bud's frame color before sending P00102)
+
+
+## 2026-04-30 evening — runtime-relevant updates
+
+### Workiz terminology rename
+
+DJ renamed in Workiz UI: **SubStatus** "Follow Up Trigger" → "Re-engagement Trigger", **JobType** "Follow Up Lead" → "Re-engagement Lead". Render Claude constants (`FOLLOWUP_SUBSTATUS`, `FOLLOWUP_JOB_TYPE`) updated to match. Phase 5 customer cycle reminder titles changed from `"Follow-up: X — Y"` to `"Re-engagement: X — Y"`. `create_todo` voice tool dropped the `[Render] Follow-up:` prefix and accepts personal todos (no partner_id required). The word "follow up" in DJ's voice now ALWAYS routes to `create_todo`.
+
+### record_check_payment tool v2
+
+Voice payment now BLOCKS on amount mismatch unless `acknowledge_mismatch:true` (or `tip:true`). E.g. customer Zelles $200 on a $170 SO → tool returns:
+> ⚠ MISMATCH: SO 004003 total = $170.00 but payment = $200.00 (diff +$30.00). Likely a tip — Workiz needs the tip added manually. To proceed: re-call with `acknowledge_mismatch: true`.
+
+After confirmation, the success message includes a `⚠ TIP REMINDER: $30 extra collected. Add a tip line manually to Workiz.`
+
+Also: `so_id` is now optional. When omitted, the tool walks Contact↔Property partners to find all open invoiceable SOs. >1 → CLARIFY listing them. 0 → friendly error. Empty SO → clean message instead of opaque Odoo trace.
+
+### New Render Claude write tools
+
+- **`add_link_to_todo(todo_query, url, label?, source?)`** — append a clickable URL to an existing to-do. Searches both mail.activity and project.task. Use for: "link the AWP PO to the order screen to-do", "stick this URL on activity #X", etc.
+- **`delete_workiz_job(uuid, partner_name?)`** — PERMANENT delete: Workiz API + Odoo SO + tasks. **REFUSES if any invoice is linked** to the SO. Use for: "delete that job", "remove Workiz job X". Phase 4 doesn't auto-clean Workiz deletes — this is the only path.
+
+### github_push_file regression guard
+
+Refuses pushes that would drop >100 lines OR >25% of the file's bytes. Override with `acknowledge_regression: true` after reviewing the diff. Goal: prevent stale-baseline pushes from wiping work.
+
+### GPS Phase 1 active
+
+While clocked in, phone fires GPS pings (5 min OR 100m moved) to `/api/payroll/gps_ping`. Storage: new `x_gps_ping` model in Odoo. Watcher runs from BOTH timeclock.html AND field.html — keep either tab open. DJ + Danny each ping with their own employee_id; per-person timesheets coming in Phase 3.
+
+### Active job view: gate code
+
+Above the Navigate button on every active job: `🔑 Gate: <code>` (amber) when set, or `NO GATE CODE` (red caps) when empty. Sourced from `x_studio_x_gate_snapshot` on the SO.
+
+### Stale SOs cleanup page
+
+New `/owner/stale_sos` page accessible from the owner hub. 320 stale SOs / $56.7k aggregate. Filterable by year + status + customer search. Per-row WZ + Odoo pills.
+
+### Manage Shifts backend deployed
+
+The Manage Shifts UI now has its 5 backing endpoints (`/api/payroll/shifts`, `/shift/create`, `/shift/update`, `/shift/delete`, `/gusto_export`). Both DJ and Danny can edit, add, delete shifts. Stable shift_id format: `{employee_id}:{check_in_utc_iso}`.
+
+### Photo flow
+
+📸 Snap Photo on active job opens camera direct (capture=environment). Auto-uploads to Odoo SO. Auto-retries 3x on weak signal. Saves a copy to a user-picked folder via File System Access API — DJ can pick "WSC Jobs" once and Android Gallery auto-creates that album. Filenames are now `WSC_<customer>_<date>_<time>_<seq>.jpg` (was cryptic device timestamps).
+
+### Pull-to-refresh disabled
+
+Chrome Android's pull-down gesture no longer triggers a page reload on any of the 7 HTML pages. Saves DJ from accidental waits while scrolling.
