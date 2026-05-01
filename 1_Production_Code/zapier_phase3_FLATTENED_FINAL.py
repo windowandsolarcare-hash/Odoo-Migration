@@ -1562,7 +1562,7 @@ def main(input_data):
         # should not flow into Odoo as SOs.
         # Once the customer books and the job is rescheduled (real scheduling SubStatus or
         # JobType changes), Phase 4 delegates back here and we create the SO normally.
-        _trigger_job_types = ("Reactivation Lead", "Follow Up Lead")
+        _trigger_job_types = ("Reactivation Lead", "Re-engagement Lead")
         _react_status = (workiz_job.get('Status') or '').strip().lower()
         _react_substatus = (workiz_job.get('SubStatus') or '').strip().lower()
         _react_is_scheduled = _react_substatus in ('scheduled', 'next appointment - text', 'next appointment 2 - text', 'send confirmation - text') or _react_status == 'scheduled'
