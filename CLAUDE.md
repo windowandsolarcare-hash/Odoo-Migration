@@ -165,6 +165,7 @@ When updating SubStatus via the API, the body MUST include the parent Status="Pe
 | `datetime.now()` in Odoo 19 Server Action | 'wrap_module' has no attribute 'now' | Use `datetime.datetime.now()` — datetime is the module in Odoo 19, not the class |
 | Server Action via `type="action"` button missing `action = False` | 'Response' object has no attribute 'setdefault' | Always end Server Action code with `action = False` — Odoo 19 tries to use return value as navigation action |
 | Using `response = requests.get(...)` in server action | 'Response' object has no attribute 'setdefault' | `response` is a reserved variable in Odoo 19 eval context — rename to `workiz_resp`, `api_resp`, etc. Same applies to `result`. |
+| `odoo_rpc('sale.order', 'write', [[id]], {vals})` — 4th kwarg form | `SaleOrder.write() got an unexpected keyword argument 'field_name'` | `write(vals)` is positional. Put vals INSIDE the args list: `odoo_rpc('sale.order', 'write', [[id], {vals}])`. Exception: `message_post` takes real kwargs so 4-arg form is OK there. |
 | HTML tags in `message_post` body (`<br/>`, `<p>`, `<strong>`) | Tags display as literal text in chatter | Use plain text with ` \| ` pipe separators — Odoo escapes HTML in both server actions (Odoo 17+) and external JSON-RPC calls. Format: `[YYYY-MM-DD HH:MM:SS] Label: Field: Value \| Field: Value` |
 | No green indicator in chatter | N/A — previously thought impossible | Unicode emoji works fine — only HTML is escaped. Use `✅` for success, `⚠️` for warnings, `❌` for failures. DJ prefers `✅` on all completion messages. |
 
@@ -172,7 +173,32 @@ When updating SubStatus via the API, the body MUST include the parent Status="Pe
 
 ## GITHUB DEPLOYMENT WORKFLOW
 
-**Use the reliable bash + base64 + temp file approach. Do NOT use PowerShell ConvertTo-Json (causes "Problems parsing JSON" errors).**
+**⚠ READ THIS BEFORE EVERY PUSH — 2026-04-30 incident:**
+
+A different Claude Code chat had a stale 3565-line copy of `dashboard.py` and pushed it over the live 5842-line version, wiping out Manage Shifts CRUD, GPS endpoints, Stale SOs, whoami, etc. — 2277 lines of work gone in one push. **This is the single biggest risk in this project.**
+
+**Mandatory before pushing any file > 1000 lines** (especially `dashboard.py`, `field.html`, or anything in `Saunders Render App/`):
+
+1. **Pull the current GitHub version FIRST** — never trust your local copy as up-to-date:
+   ```bash
+   gh api repos/windowandsolarcare-hash/saunders-render-app/contents/<path> --jq '.content' | base64 -d > /tmp/current.py
+   wc -l /tmp/current.py "<your local path>"
+   ```
+   If the deployed version is significantly larger than your local, **STOP** — your local is stale.
+
+2. **Use `safe_deploy.py`** (saved at `C:\Users\dj\safe_deploy.py`, lives outside the repo) for any push to dashboard.py / large files. It auto-fetches the deployed version and refuses to push if local is >25% smaller or >100 lines shorter:
+   ```bash
+   python C:/Users/dj/safe_deploy.py \
+     --repo windowandsolarcare-hash/saunders-render-app \
+     --path routers/owner/dashboard.py \
+     --local "C:\Users\dj\Documents\Business\Saunders Render App\routers\owner\dashboard.py" \
+     --msg  "2026-04-30 | dashboard.py | what changed"
+   ```
+   Add `--force` only after you've personally diffed and confirmed the deletions are intentional.
+
+3. **The Render Claude `github_push_file` tool also has the regression guard server-side** (commit `41351838`). Voice-driven pushes refuse if they'd drop >100 lines / >25% bytes unless `acknowledge_regression: true` is passed.
+
+**Use the reliable bash + base64 + temp file approach below. Do NOT use PowerShell ConvertTo-Json (causes "Problems parsing JSON" errors).**
 
 ### RECOMMENDED: Use the deploy_to_github.sh script
 
