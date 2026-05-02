@@ -901,8 +901,33 @@ def main(input_data):
     
     # Check service type (Workiz API field is 'type_of_service_2', fallback to 'type_of_service')
     type_of_service = (workiz_job.get('type_of_service_2') or workiz_job.get('type_of_service') or '').lower()
-    print(f"[*] Service Type: {type_of_service}")
-    
+    wiz_frequency = workiz_job.get('frequency', '') or ''
+    print(f"[*] Workiz Service Type: {type_of_service!r}, Frequency: {wiz_frequency!r}")
+
+    # Fallback to Odoo property partner when Workiz job is missing type or frequency.
+    # Property partner = most current version of customer's service settings (updated by Phase 3).
+    odoo_frequency = ''
+    if (not type_of_service or type_of_service == 'unknown') and property_id:
+        try:
+            prop_data = odoo_rpc('res.partner', 'read', [[int(property_id)]],
+                {'fields': ['x_studio_x_type_of_service', 'x_studio_x_frequency']})
+            if prop_data:
+                odoo_tos = (prop_data[0].get('x_studio_x_type_of_service') or '').lower()
+                odoo_frequency = prop_data[0].get('x_studio_x_frequency') or ''
+                if odoo_tos and odoo_tos not in ('unknown', ''):
+                    print(f"[*] Workiz type blank/unknown — using Odoo property type: {odoo_tos!r}")
+                    type_of_service = odoo_tos
+                if odoo_frequency and odoo_frequency.lower() not in ('unknown', ''):
+                    print(f"[*] Odoo property frequency: {odoo_frequency!r}")
+        except Exception as e:
+            print(f"[!] Odoo property fallback failed: {e}")
+
+    # Inject effective frequency into workiz_job so all downstream functions pick it up
+    effective_frequency = wiz_frequency or odoo_frequency or ''
+    if effective_frequency and not wiz_frequency:
+        workiz_job['frequency'] = effective_frequency
+    print(f"[*] Final — type: {type_of_service!r}, frequency: {effective_frequency!r}")
+
     # Route based on service type
     if 'maintenance' in type_of_service:
         # MAINTENANCE PATH
