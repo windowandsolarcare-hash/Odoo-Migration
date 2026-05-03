@@ -1,5 +1,5 @@
 # Claude Code - Project Instructions
-**Last Updated:** 2026-04-11
+**Last Updated:** 2026-05-03
 **Migration:** Cursor → Claude Code (permanent)
 
 ---
@@ -7,6 +7,26 @@
 ## START HERE
 
 **This file is the single source of truth for new sessions.** CLAUDE_CONTEXT.md and MASTER_PROJECT_CONTEXT.md are deep-reference only — do NOT require reading at session start. Everything critical is in this file.
+
+---
+
+## BEHAVIORAL RULES — READ BEFORE DOING ANYTHING
+
+These rules exist because they have been broken before. Each one caused a real problem.
+
+1. **Never guess at Odoo field names.** Before using any field, check the ODOO CUSTOM FIELD NAMES table below, then memory files, then query Odoo directly (`search_read` with the field). Never assume a standard Odoo field exists — this instance has heavy customization and some standard fields are absent (e.g. `account.payment` has no `ref` field in Odoo 19, `commercial_partner_id` does not exist on `sale.order`).
+
+2. **"Done jobs" = `x_studio_x_studio_workiz_status = 'Done'` only.** Never use `state`, `invoice_status`, date filters, or `invoice_ids` as a proxy for job completion.
+
+3. **Emails always via Odoo `mail.mail` JSON-RPC.** Gmail MCP can only create drafts — it cannot send. Pattern: create `mail.mail` record, call `send()`. Returns None = success.
+
+4. **Architecture hard limits — no exceptions:** No new Odoo seats (cost money), no custom models (SaaS blocks without support), one Odoo instance (window-solar-care.odoo.com), all features must scale across businesses.
+
+5. **Read relevant memory files BEFORE acting** — not after something breaks. Before any GitHub deployment: check `feedback_github_deployment_bash.md`. Before using an Odoo field not in the table below: check memory files. Before touching payment/invoice code: check `project_invoice_qty_delivered_gate.md` and `project_phase4a_sync.md`.
+
+6. **GitHub deployment: bash + base64 + temp file. Never PowerShell ConvertTo-Json.** Short version: use `safe_deploy.py` for `dashboard.py` and any file >1000 lines. Use `deploy_to_github.sh` for everything else. Full detail in GITHUB DEPLOYMENT WORKFLOW section below.
+
+7. **Confirmation policy:** Do not ask for confirmation on routine tasks — just do them. Only stop and confirm before irreversible or destructive actions (deleting files/branches, force push, dropping data, actions visible to others).
 
 ---
 
