@@ -498,3 +498,39 @@ NEVER use invoice_status, state='done', or date filters as proxy
   GET  /api/cron/daily_sync_log          read stored log
   GET  /api/cron/monitor_tick[?reset=1]  increment day counter + return log
   POST /api/cron/notify                  send alert email body:{subject,message}
+
+---
+
+## SESSION 2026-05-03 UPDATE — ACTIVITIES EDIT, SYNC FIXES, CRON RESCHEDULE
+
+### Activities Page — Full Edit Mode
+- New `/api/todos/update` endpoint (POST): updates summary/date_deadline/note on mail.activity or project.task
+  - mail.activity: fields summary, date_deadline, note
+  - project.task: fields name (not summary), date_deadline (appends " 12:00:00"), description (not note)
+  - Source field in request body: source=task uses project.task, else mail.activity
+- activities.html: Edit button in detail modal opens inline edit fields for Summary, Due Date, Notes
+
+### Stale SOs / _sync_so_with_workiz() Fixes
+- CRITICAL empty-Workiz-Items bug: Workiz returns no line items -> lines_match was False
+  -> cancel->draft->delete all Odoo lines->confirm -> SO had zero lines -> invoice failed
+  Fix: default lines_match=True; only compare when workiz_active is non-empty
+- date_order restore: action_confirm() resets date_order to now()
+  Fix: write date_order back from workiz_date AFTER action_confirm (not before)
+- SO name lookup: _find_so_by_identifier() tries SO name first; numeric ID only if no leading zero
+  Fixes "004318" being treated as internal ID 4318
+
+### Render Claude Tool Fixes
+- sync_so_verify + process_payment_with_sync used RENDER_BASE_URL (never defined -> NameError/500)
+  Fix: handlers now call internal functions directly (no HTTP self-call)
+- Sync confirmation now shows customer name + amount before asking for approval
+
+### Zelle CSV Name Matching
+- _fuzzy_name_match(): prefix check on first names (GREGORY.startswith(GREG) = True)
+  Fixes Greg/Gregory and similar nickname pairs in Zelle CSV matching
+
+### Cron + CRON_SECRET
+- CRON_SECRET constant was missing -> all /api/cron/* endpoints returned 500 NameError
+  Fix: added CRON_SECRET = os.environ.get("CRON_SECRET", "wsc-daily-sync-2026") to config block
+  Deployed commit fb77684d
+- Daily sync cron rescheduled 7:17am -> 4:17am (new CronCreate job f31a624d)
+  Self-renewal step in cron prompt now uses cron "17 4 * * *"
