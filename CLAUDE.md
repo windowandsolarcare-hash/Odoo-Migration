@@ -124,14 +124,15 @@ rpc('ir.actions.server','unlink',[[action_id]])
 msg = resp['error']['data']['message']  # your UserError string
 ```
 
-**Workiz API URL format** (auth_secret required — without it you get 403):
+**Workiz API URL format** — TOKEN in path is the only auth needed for GET. auth_secret is NOT a URL param for GET (API docs confirmed — adding it was wrong):
 ```
-https://api.workiz.com/api/v1/{TOKEN}/job/get/{UUID}/?auth_secret={AUTH_SECRET}
+https://api.workiz.com/api/v1/{TOKEN}/job/get/{UUID}/
 https://api.workiz.com/api/v1/{TOKEN}/job/update/{UUID}/
 https://api.workiz.com/api/v1/{TOKEN}/job/delete/{UUID}/
 ```
 - Token: `api_1hu6lroiy5zxomcpptuwsg8heju97iwg`
-- Auth Secret: `sec_334084295850678330105471548`
+- Auth Secret: `sec_334084295850678330105471548` — used in POST body for write operations only
+- GET returns HTTP 400 for invalid/deleted UUIDs (not 404) — treat any non-200 as "not found"
 - In Odoo server actions: use `requests.get(url)` — `requests` is available in Odoo eval context
 - **Rate limit:** ~30 calls before hitting HTTP 429 — sleep 15-30 seconds between batches
 
