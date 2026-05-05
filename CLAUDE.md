@@ -109,8 +109,6 @@ These rules exist because they have been broken before. Each one caused a real p
 
 **Workiz blocks direct API calls from local machines (403 Forbidden).** The API is IP-restricted to the Render server and Odoo server only.
 
-**Workiz is IP-restricted to the Render server ONLY. Odoo is NOT whitelisted** — every Workiz call from an Odoo server action returns 404 (connection blocked, not a real 404). Cannot test Workiz API via Odoo proxy.
-
 **To call Workiz from a local Python script or one-off tool, proxy through Odoo:**
 1. Create a temporary `ir.actions.server` with the Workiz fetch code
 2. Run it via JSON-RPC (Odoo's server can reach Workiz)
@@ -126,15 +124,14 @@ rpc('ir.actions.server','unlink',[[action_id]])
 msg = resp['error']['data']['message']  # your UserError string
 ```
 
-**Workiz API URL format** — TOKEN in path is the only auth needed for GET. auth_secret is NOT a URL param for GET (API docs confirmed — adding it was wrong):
+**Workiz API URL format** (auth_secret required — without it you get 403):
 ```
-https://api.workiz.com/api/v1/{TOKEN}/job/get/{UUID}/
+https://api.workiz.com/api/v1/{TOKEN}/job/get/{UUID}/?auth_secret={AUTH_SECRET}
 https://api.workiz.com/api/v1/{TOKEN}/job/update/{UUID}/
 https://api.workiz.com/api/v1/{TOKEN}/job/delete/{UUID}/
 ```
 - Token: `api_1hu6lroiy5zxomcpptuwsg8heju97iwg`
-- Auth Secret: `sec_334084295850678330105471548` — used in POST body for write operations only
-- GET returns HTTP 400 for invalid/deleted UUIDs (not 404) — treat any non-200 as "not found"
+- Auth Secret: `sec_334084295850678330105471548`
 - In Odoo server actions: use `requests.get(url)` — `requests` is available in Odoo eval context
 - **Rate limit:** ~30 calls before hitting HTTP 429 — sleep 15-30 seconds between batches
 
