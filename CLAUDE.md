@@ -109,6 +109,8 @@ These rules exist because they have been broken before. Each one caused a real p
 
 **Workiz blocks direct API calls from local machines (403 Forbidden).** The API is IP-restricted to the Render server and Odoo server only.
 
+**Workiz is IP-restricted to the Render server ONLY. Odoo is NOT whitelisted** — every Workiz call from an Odoo server action returns 404 (connection blocked, not a real 404). Cannot test Workiz API via Odoo proxy.
+
 **To call Workiz from a local Python script or one-off tool, proxy through Odoo:**
 1. Create a temporary `ir.actions.server` with the Workiz fetch code
 2. Run it via JSON-RPC (Odoo's server can reach Workiz)
