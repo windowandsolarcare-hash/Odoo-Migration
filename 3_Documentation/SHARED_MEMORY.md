@@ -534,3 +534,42 @@ NEVER use invoice_status, state='done', or date filters as proxy
   Deployed commit fb77684d
 - Daily sync cron rescheduled 7:17am -> 4:17am (new CronCreate job f31a624d)
   Self-renewal step in cron prompt now uses cron "17 4 * * *"
+
+---
+
+## SESSION 2026-05-04/05 — HEMET PAGE, DAILY SYNC FIXES, SUBMITTED JOBS PLAN
+
+### Hemet Candidates Page (/owner/hemet)
+- New page showing Hemet customers not seen 6+ months with no open SO
+- Filter: last Done job >= 182 days ago OR no history; excludes Do Not Contact; excludes booked (open SO)
+- Cards: name, "X mo ago" badge (red=1yr+, amber=6-12mo), address, tap-to-call phone, last job date/amount/type, pricing, frequency (gold pill), service (gray pill)
+- Pill-shaped "Open in Workiz → Text" CTA button (links to app.workiz.com/root/job/{UUID}/1)
+- DEDUP BUG FIX: group by parent customer, use most recent Done job across ALL property records
+  Jerry Smith had "8244 Parry Dr" + "8244 Parry Drive" — old record showed 1yr ago, new one recent
+  Fix: prop_by_parent groups by parent_id; most-recent-across-all-properties determines 6mo filter
+- Property record is always the brain: all service data (pricing, frequency, gate code) from property record; parent = name + phone only
+- API: GET /owner/api/hemet_candidates (no cache — runs live each time, ~2s)
+- Hub card added to /owner/index.html (green border, "Hemet Candidates")
+
+### Daily Sync — Timezone Fix + Cap Removal
+- 50/51 SOs had date_order shifted +7h: Workiz times in PDT stored raw (08:30) -> now correctly UTC (15:30)
+  _sync_so_with_workiz line ~6057: fromisoformat().replace(tzinfo=_PT).astimezone(UTC) is correct
+  Old values were wrong (08:30 UTC = 1:30am PDT); new values correct (15:30 UTC = 8:30am PDT)
+- Removed 30-entry cap on update_details in daily sync email (was hiding 20 of 50 changes)
+  Three places removed: collection guard, update_details[:30] save, update_details[:20] email render
+
+### Submitted Jobs — UUID Source Confirmed
+- UUID for next/submitted Workiz job lives on account.move.x_studio_workiz_job_link (the invoice)
+  Phase 5 writes it: update_invoice_with_workiz_link() at phase5 line ~518
+  URL format: https://app.workiz.com/root/job/{UUID}/1
+- NO Odoo SO exists for these jobs yet — they sit in Workiz as "Submitted"/unscheduled
+  Phase 3 creates SO later, after DJ manually schedules them in Workiz
+- Correct nightly scanner plan:
+  1. Query account.move where x_studio_workiz_job_link is set (last ~6 months)
+  2. Extract UUID from URL
+  3. Skip if sale.order with that UUID already exists (Phase 3 already processed)
+  4. Call Workiz job/get/{uuid}/ to verify Status=Submitted + future date
+  5. Cache to ir.config_parameter key submitted_jobs_cache
+- NOT YET BUILT — plan confirmed, build pending
+- Workiz rate limit: speed-based only (no daily cap), batch sleeps sufficient
+- Nightly cron: schedule at 5:00am after daily sync (4:17am) to avoid rate limit overlap
