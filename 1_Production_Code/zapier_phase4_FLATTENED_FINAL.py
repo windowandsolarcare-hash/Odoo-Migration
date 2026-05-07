@@ -867,6 +867,7 @@ def is_task_trigger_status(status_value, substatus_value):
     """Return True only for explicit scheduling states/substates that should create/sync tasks."""
     allowed_values = {
         "next appointment - text",
+        "next appointment 2 - text",
         "send confirmation - text",
         "scheduled",
     }
