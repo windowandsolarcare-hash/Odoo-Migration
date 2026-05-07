@@ -573,3 +573,85 @@ NEVER use invoice_status, state='done', or date filters as proxy
 - NOT YET BUILT — plan confirmed, build pending
 - Workiz rate limit: speed-based only (no daily cap), batch sleeps sufficient
 - Nightly cron: schedule at 5:00am after daily sync (4:17am) to avoid rate limit overlap
+
+
+---
+
+## SESSION 2026-05-07 — GPS SHIFT REVIEW PHASE 2 COMPLETE
+
+### shift_review.html — Full Feature Build
+File: static/owner/shift_review.html (723 lines, deployed e5cbe08)
+URL: /owner/shift_review
+
+**Controls:**
+- Day / Range mode toggle (top left)
+- Employee dropdown (loaded from /api/payroll/employees)
+- Day mode: date picker with prev/next buttons, defaults to yesterday
+- Range mode: From / To date pickers, defaults to last 7 days
+- Load button + Geocode button
+
+**Day view (stop timeline):**
+- Summary bar: Stops, On-site, Matched/Total, Shift $/hr (green) + total revenue
+- Drive bar (when drive > 0): Total drive, % of shift, Avg per leg, Total shift time
+- Stop cards: time range, customer name, address, $/hr badge (green), GPS distance badge, ping count
+- Ambiguous picker: multiple customers within range, tap to pick, saves permanently
+- Map anchor + Data button per stop (Data shows ping timeline with accuracy color coding)
+- Pinned badge on manually matched stops
+
+**Range view (table):**
+- Summary bar: Days, Total on-site, Total revenue, Avg $/hr
+- Drive bar: aggregate totals
+- Per-day table: Date, Stops, Revenue, On-site, Drive, $/hr
+- Totals row at bottom
+
+### New dashboard.py Endpoints (commit e7d753d3, then 1be3a31c, 3a739eef, a548cf03)
+All under /owner prefix:
+- GET  /api/payroll/employees          -- active hr.employees for dropdown
+- POST /api/payroll/stops/match        -- save manual GPS stop to partner match permanently
+- POST /api/payroll/geocode_properties -- batch geocode all un-geocoded Property records via Nominatim
+- GET  /api/payroll/geocode_status     -- check geocoder progress / last result
+- GET  /api/payroll/shift_range        -- per-day summary for date range (max 31 days)
+
+Manual matches stored in ir.config_parameter key: gps.match.{emp_id}.{date}.{stop_num} = partner_id
+Geocode status stored in ir.config_parameter key: gps.geocode.last_result (JSON or string "running")
+
+### $/hr Analysis Logic
+- Per-stop $/hr = SO amount_total / (duration_min / 60)
+  SO lookup: partner_shipping_id IN [property_partner_id, parent_partner_id], date = that PT day
+  State filter: not in cancel/draft
+- Shift $/hr = total_so_amount / (total_shift_min / 60) -- includes drive time in denominator
+- Per-stop $/hr uses on-site time only
+- Shift $/hr uses total shift time (on-site + drive) -- DJ explicit requirement
+
+### GPS Partner Matching -- Key Facts
+- Match ONLY against res.partner where x_studio_x_studio_record_category = Property
+- Fetch parent_id field on partners; display name = parent_id[1] (customer name)
+  NOT the property record name (which is just the street address e.g. "221 East Sonora Road")
+- Match radius: 150m from GPS centroid to property coordinates
+- Ambiguous: second candidate within 30m of best -- show picker to user
+- Manual match overrides auto-match; stored permanently in ir.config_parameter
+
+### Geocoder -- Batch Property Geocoding
+- Nominatim (OpenStreetMap), free, 1.1s throttle per request
+- User-Agent required: WSC-FieldApp/1.0 (windowandsolarcare@gmail.com)
+- Ran 2026-05-07: 166 of 878 properties were un-geocoded (712 already had coords)
+- Some addresses not found by Nominatim -- fix: write actual GPS coordinates to Odoo property record
+- _GEOCODE_IN_PROGRESS global flag prevents double-run; result stored in ir.config_parameter
+
+### Known Geocoding Problem: East Sonora Road, Palm Springs
+- Nominatim cannot find "221 East Sonora Road, Palm Springs" -- returns no results
+- Moody Nashawaty property (ID=26941) was geocoded to wrong coords (33.8246, -116.5403)
+- Actual GPS location confirmed by DJ: 33.8047028, -116.5445317 (1h37m stop on 2026-05-06)
+- Fixed 2026-05-07: wrote correct coords to ID=26940 (contact) and ID=26941 (property)
+- Rule: when Nominatim fails or gives wrong result, trust GPS -- write actual coords to property record
+
+### Deployment -- shift_review.html Must Use Python
+- NEVER use bash + PowerShell base64 for shift_review.html deploys
+- $TEMP in bash does not resolve in PowerShell subshell -- silent empty content -- broke page entirely
+- Always use Python subprocess + base64.b64encode pattern:
+  python3 -c "import base64,json,subprocess; [read file, encode, get sha, PUT via gh api]"
+- safe_deploy.py handles dashboard.py correctly (uses Python internally)
+
+### Employee IDs (hr.employee)
+- Dan Saunders (DJ): ID = 1
+- Danny Saunders: ID = 2
