@@ -2605,17 +2605,18 @@ def main(input_data):
     if substatus:
         print(f"[*] Job SubStatus: {substatus}")
     
-    # For Submitted status: only run if an SO already exists for this job UUID.
-    # If no SO exists, skip and let Phase 3 (New Job trigger) create it — avoids race condition where
-    # Phase 4 and Phase 3 both try to create an SO simultaneously for the same new job.
-    # If SO already exists, go ahead and update it (e.g. Phase 3 already ran, or job was imported).
+    # For Submitted status: create SO as draft (skip_confirm=True) if none exists yet.
+    # Phase 3 webhook may not fire reliably for Phase 5-created jobs, so Phase 4 fills the gap.
+    # Both phases have idempotency checks so no duplicate SOs are created.
     if (status or '').strip().lower() == 'submitted':
         existing_check = search_sales_order_by_uuid(job_uuid)
         if not existing_check:
-            print("[*] Skipping Phase 4 for status 'Submitted' with no existing SO (Phase 3 will create it via New Job trigger)")
+            print("[*] Status=Submitted, no SO exists — creating draft SO via phase3_create_so (skip_confirm via _skip_confirm)")
+            result = phase3_create_so({**input_data, '_skip_confirm': True})
+            print(f"[*] Draft SO created for Submitted job: {result}")
             print("="*70)
-            return {'success': True, 'skipped': True, 'reason': 'status_is_submitted_no_so'}
-        print("[*] Status is Submitted but SO already exists — continuing Phase 4 update")
+            return result
+        print("[*] Status is Submitted, SO already exists — continuing Phase 4 update")
     
     # -------------------------------------------------------------------------
     # GRAVEYARD JOB AUTO-CLOSE: Detect manually scheduled reactivation jobs
