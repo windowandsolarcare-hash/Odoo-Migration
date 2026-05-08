@@ -655,3 +655,51 @@ Geocode status stored in ir.config_parameter key: gps.geocode.last_result (JSON 
 ### Employee IDs (hr.employee)
 - Dan Saunders (DJ): ID = 1
 - Danny Saunders: ID = 2
+
+---
+
+## SESSION 2026-05-08 — FIELD.HTML UPGRADES + SHIFT REVIEW IMPROVEMENTS + CRON FIX
+
+### Render Cron — Duplicate Daily Sync Emails (FIXED)
+- BUG: Render cron with autoDeploy=yes fires an extra run on every commit push (not just on schedule)
+- Overnight session commits caused WSC Daily Sync to run twice → two identical emails
+- FIX: Disable autoDeploy via Render REST API:
+  curl -X PATCH https://api.render.com/v1/services/{serviceId} \
+    -H "Authorization: Bearer {RENDER_API_KEY}" -d '{"autoDeploy":"no"}'
+- RENDER_API_KEY: ~/.claude/mcp.json under render → headers → Authorization
+- WSC Daily Sync (crn-d7t3c4i8qa3s73f64fhg): autoDeploy disabled 2026-05-08
+- Rule: any NEW Render cron job → immediately disable autoDeploy via REST API
+
+### field.html — Stale-While-Revalidate Cache
+- loadField() split: _applyFieldData(data, upcomingData) renders; loadField() manages fetch lifecycle
+- Cache key: wsc_field_cache_{AC} in localStorage — per access code, instant render on open
+- _loadFieldInFlight guard prevents double-fetch
+- Refresh button: spins during fetch, flashes ✓ for 1.2s on completion
+
+### field.html — Weather Per Day
+- Day headers show high temp + UV index: "82° UV 8" in center of each day header
+- Today: navigator.geolocation → city fallback from first job address if denied
+- Future days: city parsed from first job address → Open-Meteo geocode → Google Weather forecast
+- Google Weather API: https://weather.googleapis.com/v1/forecast/days:lookup (IMPERIAL units)
+- Open-Meteo geocoding: https://geocoding-api.open-meteo.com/v1/search (free, no key)
+- Cache: _wxCache{} keyed by "lat,lng" — avoids duplicate geocode calls
+- GCP key: AIzaSyA2D5Sd7IPOi2h65G4pew7QuXAko3bOO60 — DJ must add "Weather API" in Cloud Console
+
+### field.html — 3-dot Menu on Active Job Panel
+- toggleActiveJobMenu(ev, btn) populates data attrs from activeJob then calls toggleJobMenu()
+- Button id="ap-menu-btn" — full color var(--text), font-size 22px (was muted/invisible)
+
+### shift_review.html — 3-dot Menu on Stop Cards (770 lines)
+- ⋯ button in .stop-actions row per stop card; toggleStopMenu() / closeStopMenu()
+- workiz_link added to /api/payroll/stops response (from x_studio_x_workiz_link on SO)
+
+### shift_review.html — Range View Revenue Fix
+- Revenue now: confirmed SOs by date_order (state not in ['cancel','draft']) — no GPS match gate
+- Fixes $0 revenue on days where GPS stops were unmatched to partners
+
+### CRITICAL: shift_review.html Source of Truth
+- Local repo copy (Saunders Render App/static/owner/shift_review.html) = OLD 290-line version
+- ALWAYS fetch from GitHub before editing:
+  gh api repos/windowandsolarcare-hash/saunders-render-app/contents/static/owner/shift_review.html \
+    --jq '.content' | base64 -d > /tmp/sr.html
+- Deploy method: Python base64 only (bash+PowerShell silently produces empty content)
