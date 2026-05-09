@@ -178,6 +178,8 @@ for source_order in records:
     
     if "Palm Springs" in city:
         city_slug = "pmsg"
+    elif "Cathedral City" in city:
+        city_slug = "cathedral-city-service"
     elif "Rancho Mirage" in city:
         city_slug = "rm"
     elif "Palm Desert" in city:
