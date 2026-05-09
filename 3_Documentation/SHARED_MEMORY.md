@@ -187,12 +187,19 @@ Utility: save_memory, delete_memory
 - Local: `C:\Users\dj\Documents\Business\A Cheryl Real Estate`
 - All planning detail, status, and shared memory live there. Do not duplicate Cheryl content into this file.
 
-## QB TO ODOO ACCOUNTING MIGRATION STATUS (2026-04-18)
-- File: C:\Users\dj\Downloads\Window & Solar Care_Transaction Detail by Account.csv
-- 6,318 expense rows. Only 62 blank-category rows (28 loan payments, 26 blank name, 7 owner draws, 1 USPS, 2 true uncategorized)
-- Phase 1 (expense categorization) essentially DONE - almost no cleanup needed
-- Still need from DJ: QB Fixed Asset List, 6x Workiz Payment CSVs (one per year)
+## QB TO ODOO ACCOUNTING MIGRATION STATUS (updated 2026-05-09)
+- **QB expenses: DONE** - 3,324 JEs imported (2019-2025), 0 failed. Journal 3, credit Chase acct 100.
+- **Revenue invoices: DONE** - 2,109 invoices, dates corrected, payments applied via direct JE + reconcile.
+- **2025 P&L:** Revenue 79062 | Expenses 46502 | Net 32560
+- **2026 YTD:** 28979 (Jan-May partial)
+- **7 missing 2025 invoices** (3284/3632 Brooke Coldren, 3478 Mike Mansi, 3647 Rik Ports, 3462 Claudia Duran, 2963 Jim Hitt, 3337 Robinson) - all have SOs, not invoiced.
+- **Still needed:** Opening balances, fixed assets, loan accounts, CC bank feeds
+- Cross-reference tip: Odoo origin zero-padded (003735) vs Workiz plain int (3735) - int() both sides.
 
+## CALENDLY CITY SLUG MAPPING (paired change required)
+- pmsg=Palm Springs, cathedral-city-service=Cathedral City, rm=Rancho Mirage
+- pd=Palm Desert, iw=Indian Wells, indlaq=Indio/La Quinta, ht=Hemet, gb=General Booking (Monday 8:30-12 only)
+- Adding new Calendly event type: MUST update reactivation code + Odoo SA 563 (see PAIRED CHANGES in CLAUDE.md)
 ## SAUNDERS PRINTING - COMMERCIAL WEB-TO-PRINT (green-lighted 2026-04-18)
 - Business: commercial print shop - business cards, flyers, postcards, banners, etc.
 - DJ has his own printer. He enters jobs, prints, ships under Saunders Printing brand.
