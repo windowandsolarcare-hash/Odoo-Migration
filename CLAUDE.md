@@ -380,6 +380,16 @@ Scripts: `2_Testing_Tools/test_create_workiz_job.py`, `test_cleanup_workiz_job.p
 
 ---
 
+## PAIRED CHANGES — DO BOTH OR NEITHER
+
+These are changes that always require updating TWO places. Missing one breaks something silently.
+
+| Trigger | File 1 | File 2 | Notes |
+|---|---|---|---|
+| Add a new Calendly event type at calendly.com/wasc | `ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py` — add city → slug in the `city_slug` block | Odoo server action 563 (Reactivation: 2. LAUNCH Campaign) — same change live | Slug list as of 2026-05-09: pmsg, cathedral-city-service, rm, pd, iw, indlaq, ht, gb |
+
+---
+
 ## KNOWN FIXES & BEHAVIORS (CHANGELOG)
 
 | Date | File | What | Why |
