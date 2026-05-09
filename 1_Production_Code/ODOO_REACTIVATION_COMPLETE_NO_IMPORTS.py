@@ -173,6 +173,11 @@ for source_order in records:
     estimate_word = "estimate" if len(service_lines) <= 1 else "estimates"
     
     # --- BOOKING LINK LOGIC ---
+    # PAIRED CHANGE: If you add a new Calendly event type at calendly.com/wasc,
+    # you MUST also add the city → slug mapping here AND update Odoo server action 563.
+    # Current slugs: pmsg (Palm Springs), cathedral-city-service (Cathedral City),
+    #   rm (Rancho Mirage), pd (Palm Desert), iw (Indian Wells),
+    #   indlaq (Indio/La Quinta), ht (Hemet), gb (General Booking fallback)
     city = contact_vals.get('city') or ''
     city_slug = "gb"
     
