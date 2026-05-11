@@ -62,25 +62,6 @@ if _job_dt_str and len(_job_dt_str) >= 16:
     except Exception as _e:
         log.append('Date parse skipped: ' + str(_e))
 
-# Pricing mismatch indicator
-_job_amount_due = job.get('JobAmountDue')
-try:
-    _job_amount_due = float(_job_amount_due) if _job_amount_due is not None else None
-except Exception:
-    _job_amount_due = None
-
-if _job_amount_due is not None and _job_amount_due == 0 and _status.lower() != 'done':
-    updates['x_studio_pricing_mismatch'] = '<span class="bg-warning text-dark"><b>Credit Card Payment Received</b></span>'
-else:
-    _wkz_total = float(job.get('JobTotalPrice') or job.get('TotalPrice') or 0)
-    _odoo_total = float(record.amount_untaxed or 0)
-    if _wkz_total > 0:
-        if abs(_wkz_total - _odoo_total) < 0.02:
-            updates['x_studio_pricing_mismatch'] = '<span class="text-success"><b>OK - Workiz: $' + '{:.2f}'.format(_wkz_total) + ' | Odoo: $' + '{:.2f}'.format(_odoo_total) + '</b></span>'
-        else:
-            updates['x_studio_pricing_mismatch'] = '<span class="text-danger"><b>MISMATCH - Workiz: $' + '{:.2f}'.format(_wkz_total) + ' | Odoo: $' + '{:.2f}'.format(_odoo_total) + '</b></span>'
-            log.append('Pricing MISMATCH: Workiz $' + '{:.2f}'.format(_wkz_total) + ' vs Odoo $' + '{:.2f}'.format(_odoo_total))
-
 # ── Line items (LineItems — not Items) ────────────────────────────────────────
 _line_items_raw = [i for i in (job.get('LineItems') or []) if float(i.get('Quantity', 0)) > 0]
 if _line_items_raw:
@@ -125,6 +106,25 @@ if _line_items_raw:
         log.append('Line items already match')
 else:
     log.append('No LineItems from Workiz — skipping line sync')
+
+# ── Pricing mismatch (computed after line sync so amount_untaxed is fresh) ──────
+_job_amount_due = job.get('JobAmountDue')
+try:
+    _job_amount_due = float(_job_amount_due) if _job_amount_due is not None else None
+except Exception:
+    _job_amount_due = None
+
+if _job_amount_due is not None and _job_amount_due == 0 and _status.lower() != 'done':
+    updates['x_studio_pricing_mismatch'] = '<span class="bg-warning text-dark"><b>Credit Card Payment Received</b></span>'
+else:
+    _wkz_total = float(job.get('JobTotalPrice') or job.get('TotalPrice') or 0)
+    _odoo_total = float(record.amount_untaxed or 0)
+    if _wkz_total > 0:
+        if abs(_wkz_total - _odoo_total) < 0.02:
+            updates['x_studio_pricing_mismatch'] = '<span class="text-success"><b>OK - Workiz: $' + '{:.2f}'.format(_wkz_total) + ' | Odoo: $' + '{:.2f}'.format(_odoo_total) + '</b></span>'
+        else:
+            updates['x_studio_pricing_mismatch'] = '<span class="text-danger"><b>MISMATCH - Workiz: $' + '{:.2f}'.format(_wkz_total) + ' | Odoo: $' + '{:.2f}'.format(_odoo_total) + '</b></span>'
+            log.append('Pricing MISMATCH: Workiz $' + '{:.2f}'.format(_wkz_total) + ' vs Odoo $' + '{:.2f}'.format(_odoo_total))
 
 # ── Write header updates ──────────────────────────────────────────────────────
 if updates:
