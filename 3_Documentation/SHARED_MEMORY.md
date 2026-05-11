@@ -747,3 +747,47 @@ https://wsc-field-assistant.onrender.com/printing/api/check-po
 - Step 5: Zoo shipping email watcher (similar to watcher.py)
 - Step 6: Invoice approval — email DJ PDF + Approve button → smtplib BCC → 8 AM queued send
 - Steps 2/3/4/7: Manual (no automation planned yet)
+
+---
+
+## SESSION 2026-05-11 — QL_PANEL UI FIXES + SCHEDULING UUID FIX
+
+### CF Tag Fix (ql_panel.js)
+- Partner category tags (e.g. "CF") live on the main contact, not the property child record
+- `_get_jobs_for_date` now fetches `parent_id` and merges parent partner categories into child entries
+- Without this fix, CF and other tags were invisible on property-address jobs
+
+### Customer Tab — Mobile Fix (ql_panel.js)
+- `#office-panel` is `display:none` on mobile (< 600px) — customers pane lives inside it
+- Fix: 👤 button sets `#office-panel` to `position:fixed; inset:0` overlay with "✕ Done" dismiss
+- From other pages: `localStorage.setItem('ql_open_tab','customers')` before navigating → field.html polling block auto-opens on load
+
+### Voice Modal Autocomplete — #vm-ac-panel (ql_panel.js)
+- When a voice command has ____ and field:'customer', selecting it opens a search panel
+- Customer: fetches /owner/api/search (350ms debounce); City: filters static CITIES array
+- Selecting a result replaces ____ in the textarea and closes the panel
+- Panel: top:132px; left:0; right:0; bottom:0 inside .vm-sheet
+- iOS autofill: type="search" + autocapitalize="off" suppresses autofill bar
+
+### Sticky Headers (ql_panel.js)
+- 6 page headers now position:sticky; top:0; z-index:200 — don't scroll away on any page
+
+### Scheduling — UUID Fix (dashboard.py)
+- _find_scheduling_openings now queries for the customer's open/Submitted SO and includes its UUID in the response
+- Output includes: Existing open job: S00123 (Submitted) — source_uuid='ABCD1234' pass this to schedule_job
+- Claude reads that UUID and passes it directly to schedule_job — was previously passing wrong value
+- _create_new() now falls back to Submitted jobs if no Done jobs exist (was: "No Done jobs found" error)
+
+### Other dashboard.py Changes
+- get_customer_jobs tool: fast single-call customer job lookup — replaces slow multi-step AI reasoning
+- LOOKAHEAD_DAYS extended: 14 to 45 days in _find_scheduling_openings
+- System prompt: CARRY CUSTOMER CONTEXT rule (remember named customer across turns); SUBMITTED JOB rule (treat Submitted as reschedulable)
+
+### Reactivation Scheduling Flow — TABLED (2 Tasks Pending)
+- Task 1: Check Bruce Johnson tomorrow — should have 3 SOs in Odoo after overnight sync. If only 2, Phase 4 is not picking up reactivation-created Submitted jobs.
+- Task 2 (future): When customer has 2 open SOs: ask DJ — reactivation call-in or regular? When 1 open SO from reactivation lead: auto-route: schedule + mark CRM lead won + clear graveyard UUID.
+- _update_uuid already clears x_workiz_graveyard_uuid and x_workiz_graveyard_link on the CRM lead. Missing: mark lead won + clarifying question logic.
+
+### Deployed Commits (saunders-render-app)
+- ql_panel.js: 914b07f1 (31,622 bytes)
+- dashboard.py: 8f0959cd (536,983 bytes)
