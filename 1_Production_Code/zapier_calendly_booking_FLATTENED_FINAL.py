@@ -71,7 +71,7 @@ def search_property_and_contact_by_address(street_address):
                 "res.partner",
                 "search_read",
                 [[
-                    ["street", "=", street_address],
+                    ["street", "ilike", street_address],
                     ["x_studio_x_studio_record_category", "=", "Property"]
                 ]],
                 {"fields": ["id", "name", "street", "city", "parent_id"], "limit": 1}
@@ -1015,10 +1015,17 @@ def main(input_data):
     }
     
     # Extract address from Question 1
+    # Strip unit designators that customers sometimes append without a comma
+    # e.g. "1250 North Kirby Street SPC 150" → "1250 North Kirby Street"
+    import re as _re
     service_address = input_data.get('service_address', '')
     address_parts = service_address.split(',')
-    street = address_parts[0].strip() if address_parts else ''
-    
+    street_raw = address_parts[0].strip() if address_parts else ''
+    street = _re.split(r'\s+(?:spc|apt|apartment|unit|suite|ste|#|bldg|building)\b',
+                       street_raw, flags=_re.IGNORECASE)[0].strip()
+    if not street:
+        street = street_raw  # fallback: use raw if regex stripped everything
+
     if not street:
         return {'success': False, 'message': 'No service address provided'}
     
