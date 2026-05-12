@@ -173,6 +173,8 @@ When updating SubStatus via the API, the body MUST include the parent Status="Pe
 | `odoo_rpc('sale.order', 'write', [[id]], {vals})` — 4th kwarg form | `SaleOrder.write() got an unexpected keyword argument 'field_name'` | `write(vals)` is positional. Put vals INSIDE the args list: `odoo_rpc('sale.order', 'write', [[id], {vals}])`. Exception: `message_post` takes real kwargs so 4-arg form is OK there. |
 | HTML tags in `message_post` body (`<br/>`, `<p>`, `<strong>`) | Tags display as literal text in chatter | Use plain text with ` \| ` pipe separators — Odoo escapes HTML in both server actions (Odoo 17+) and external JSON-RPC calls. Format: `[YYYY-MM-DD HH:MM:SS] Label: Field: Value \| Field: Value` |
 | No green indicator in chatter | N/A — previously thought impossible | Unicode emoji works fine — only HTML is escaped. Use `✅` for success, `⚠️` for warnings, `❌` for failures. DJ prefers `✅` on all completion messages. |
+| `job/update/` with `{"SubStatus": "Submitted"}` | Workiz 400 `Could not find matching value for SubStatus - Submitted` | `Submitted` (and `Done`, `Canceled`) are **top-level Status values**, not SubStatuses. Send `{"Status": "Submitted"}` with no SubStatus key. Only send SubStatus for Pending-based statuses (Scheduled, Send Confirmation - Text, etc.). |
+| Sending any Status/SubStatus on `job/create/` | Unnecessary — Workiz auto-assigns `Submitted` to all new jobs | **Never include Status or SubStatus in a job create payload.** If you want a different status after creation, do a separate `job/update/` call with the correct routing (see row above). |
 
 ---
 
