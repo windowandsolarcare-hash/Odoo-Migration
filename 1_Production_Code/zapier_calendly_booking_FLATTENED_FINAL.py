@@ -257,6 +257,60 @@ def mark_opportunity_won(opportunity_id):
         return {'success': False, 'message': str(e)}
 
 # ==============================================================================
+# FALLBACK: CREATE ODOO TO-DO WHEN AUTOMATION CANNOT COMPLETE
+# ==============================================================================
+
+def create_fallback_todo(booking_info, raw_service_address, failed_at, reason):
+    """
+    When the Calendly flow fails (bad address, no graveyard lead, etc.), create
+    a standalone Odoo To-Do so DJ can manually correct the address and process
+    the booking. Never silently drop a real customer booking.
+    """
+    try:
+        from datetime import date as _date
+        today = _date.today().strftime('%Y-%m-%d')
+
+        task_name = f"⚠️ Calendly booking needs manual attention — {booking_info.get('name', 'Unknown')}"
+        desc = (
+            f"A Calendly booking arrived but the automation could not complete it.\n\n"
+            f"Failed at: {failed_at}\n"
+            f"Reason: {reason}\n\n"
+            f"Booking details:\n"
+            f"  Name:     {booking_info.get('name', '')}\n"
+            f"  Email:    {booking_info.get('email', '')}\n"
+            f"  Address:  {raw_service_address}\n"
+            f"  Service:  {booking_info.get('service_type', '')}\n"
+            f"  Date/Time:{booking_info.get('booking_time', '')}\n"
+            f"  Notes:    {booking_info.get('additional_notes', '')}\n\n"
+            f"To fix:\n"
+            f"1. Find or create the customer in Odoo\n"
+            f"2. Correct the property address if needed\n"
+            f"3. Re-run the Calendly flow OR manually create the Workiz job and SO"
+        )
+
+        payload = {
+            "jsonrpc": "2.0", "method": "call",
+            "params": {
+                "service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
+                         "project.task", "create",
+                         [{"name": task_name,
+                           "description": desc,
+                           "project_id": False,
+                           "user_ids": [ODOO_USER_ID],
+                           "date_deadline": today}]]
+            }
+        }
+        resp = requests.post(ODOO_URL, json=payload, timeout=10).json()
+        if resp.get("result"):
+            print(f"[OK] Fallback To-Do created (ID {resp['result']}) — DJ will see it in Odoo To-Dos")
+        else:
+            print(f"[WARNING] Fallback To-Do create failed: {resp}")
+    except Exception as e:
+        print(f"[WARNING] create_fallback_todo exception: {e}")
+
+
+# ==============================================================================
 # PHASE 3D2: CREATE ODOO ACTIVITY ALERT FOR DJ
 # ==============================================================================
 
@@ -1034,9 +1088,11 @@ def main(input_data):
     # -------------------------------------------------------------------------
     
     lookup_result = search_property_and_contact_by_address(street)
-    
+
     if not lookup_result:
-        return {'success': False, 'failed_at': 'Phase 3A', 'message': f'Property/Contact not found for address: {street}'}
+        msg = f'Property/Contact not found for address: {street!r} (raw input: {street_raw!r})'
+        create_fallback_todo(booking_info, service_address, 'Phase 3A', msg)
+        return {'success': False, 'failed_at': 'Phase 3A', 'message': msg}
     
     property_id = lookup_result['property_id']
     contact_id = lookup_result['contact_id']
@@ -1048,7 +1104,9 @@ def main(input_data):
     opportunity_result = find_opportunity_with_workiz_uuid(contact_id)
     
     if not opportunity_result['success']:
-        return {'success': False, 'failed_at': 'Phase 3B', 'message': opportunity_result['message']}
+        msg = opportunity_result['message']
+        create_fallback_todo(booking_info, service_address, 'Phase 3B', msg)
+        return {'success': False, 'failed_at': 'Phase 3B', 'message': msg}
     
     opportunity = opportunity_result['opportunity']
     
