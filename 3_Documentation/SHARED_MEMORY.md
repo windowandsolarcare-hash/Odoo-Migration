@@ -791,3 +791,60 @@ https://wsc-field-assistant.onrender.com/printing/api/check-po
 ### Deployed Commits (saunders-render-app)
 - ql_panel.js: 914b07f1 (31,622 bytes)
 - dashboard.py: 8f0959cd (536,983 bytes)
+
+---
+
+## SESSION 2026-05-12 — OWNTRACKS ARCHITECTURE + CALENDLY FIX + TIMER LOG
+
+### OwnTracks GPS Architecture (MAJOR PIVOT)
+- Replaced browser watchPosition GPS with OwnTracks native app (HTTP mode)
+- Root cause: iOS Safari suspends background tabs after 30s of screen lock — auto clock-out was never going to work in browser
+- OwnTracks runs as a native background location service registered with the OS — works with phone locked
+- New endpoint: POST /owner/api/owntracks/webhook?token=<OWNTRACKS_SECRET>
+- Transition _type='transition': leave Home → auto clock-in; enter Home → auto clock-out
+- Location _type='location': stores ping in x_gps_ping while clocked in (Phase 2 analysis unchanged)
+- TID→employee mapping stored in Odoo ir.config_parameter keys owntracks.tid.<TID> = employee_id
+- Current mappings seeded: owntracks.tid.DJ=1, owntracks.tid.DS=1, owntracks.tid.DN=2
+- Adding new employee: Odoo → Settings → Technical → System Parameters → New (no code deploy needed)
+- OWNTRACKS_SECRET env var must be set on Render (prevents unauthorized pings)
+- field.html: removed WSC_GPS.start/stop/pause/resume, gps_tracker.js script tag, pollFieldClockStatus, gps-status div
+- gps_tracker.js: file still exists but no longer loaded — manual GPS still available via getGPS() for timer entries
+- DJ still needs to: install OwnTracks app, set server URL, set TID="DJ", create Home_Base geofence
+
+### Calendly Booking — Address Parsing Fix (zapier_calendly_booking_FLATTENED_FINAL.py)
+- Bug: Katie Sullivan typed "1250 North Kirby Street SPC 150" (no comma before unit) → Phase 3A extracted full string → no Odoo match → silent failure
+- Fix 1: Strip unit designators (SPC, Apt, Suite, Unit, #, Bldg, etc.) from street before lookup using regex
+- Fix 2: Changed Odoo property search from exact "=" to "ilike" for extra safety
+- Fix 3: Added fallback project.task To-Do when Phase 3A or 3B fails — never silently drops a booking
+  - Fallback To-Do contains: customer name, email, raw address typed, service, date/time, notes
+  - Appears in Odoo To-Dos list so DJ can manually correct address and process
+- Katie Sullivan manually processed: SO 17237, Workiz H5IBCC, May 26 2026 1:00 PM Pacific, "Outside Windows and Screens"
+
+### Timer Log — Server-Driven Persistence (field.html + dashboard.py)
+- Problem: timer log was in-memory JS only — voice-driven start/stop never updated the UI; log cleared on job open
+- Fix: new GET /api/timer/sessions?task_ids=X,Y endpoint returns today's timesheets + active config params
+- refreshTimerDisplay() fetches from server and rebuilds timerLog — called after voice responses mentioning "timer"
+- Multiple simultaneous timers all show in log with task name + time range
+- Timer log survives job re-open (loads from Odoo timesheets, not RAM)
+
+### Workiz Status/SubStatus Routing Fix (dashboard.py — schedule_job tool)
+- Bug: sending SubStatus=Submitted returned Workiz 400 error
+- Rule: Submitted/Done/Canceled/In Progress are top-level Status values — never SubStatus
+- _TOP_LEVEL_STATUSES set + _status_payload() + _status_label() helpers route correctly
+- job/create/ never sends Status or SubStatus — Workiz auto-assigns Submitted
+- After create: if target status is NOT submitted, do separate job/update/ with correct routing
+
+### Hemet → Reactivation Deep Link (field.html + hemet.html + dashboard.py)
+- New endpoint: GET /api/reactivation/open_by_partner?contact_id=X
+- hemet.html: "Reactivate" button is now a link to /owner/reactivation?contact_id=X
+- reactivation.html: detects contact_id URL param, loads single candidate, sets _deepLinkMode=true
+- Back button in _deepLinkMode returns to /owner/hemet (not empty candidates list)
+- 6-month hard exclude: contacts reactivated within 183 days excluded from Hemet list entirely
+
+### Reactivation Jobs on Schedule — Fixed (dashboard.py)
+- Graveyard jobs (JobType=Reactivation Lead) get Workiz date assigned → Phase 3/4 creates Odoo SOs → appeared in upcoming
+- Fix: /api/upcoming domain filter adds ['x_studio_x_studio_x_studio_job_type', 'not ilike', 'reactivation']
+
+### Auto-Select Single Open Job (dashboard.py — schedule_job tool)
+- When only 1 existing job option found (open SO, invoice job, or graveyard lead), auto-selects it
+- Eliminates the "1" reply fragmentation pattern
