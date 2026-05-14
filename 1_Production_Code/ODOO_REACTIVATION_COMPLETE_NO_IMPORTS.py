@@ -547,6 +547,20 @@ Primary Service: {primary_service_str}"""
             except Exception as e:
                 source_order.message_post(body=f"⚠️ Error archiving SMS: {e}")
 
+            # Auto-close re-engagement task for this contact
+            try:
+                reeng_tasks = env['project.task'].search([
+                    ('name', 'ilike', 'Re-engagement'),
+                    ('partner_id', '=', contact.id),
+                    ('project_id', '=', False),
+                    ('stage_id', '=', False),
+                ])
+                if reeng_tasks:
+                    reeng_tasks.write({'stage_id': 6})
+                    source_order.message_post(body=f'✅ {len(reeng_tasks)} re-engagement task(s) marked done for {full_name}')
+            except Exception as e:
+                source_order.message_post(body=f'[WARNING] Could not close re-engagement tasks: {e}')
+
         # ALWAYS clear SMS field (whether graveyard job succeeded or not)
         try:
             source_order.write({'x_studio_manual_sms_override': ''})
