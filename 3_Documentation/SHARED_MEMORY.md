@@ -101,6 +101,12 @@
 - SHARED_MEMORY_PATH: 3_Documentation/SHARED_MEMORY.md
 - To switch to a new project: update both env vars on Render dashboard, no code change needed
 
+### CRITICAL: Render Env Var API Rule
+- NEVER use PUT /env-vars to add a single key — PUT replaces the entire list and wipes unspecified vars
+- 2026-05-14 incident: PUT wiped STRIPE_SECRET_KEY, OWNTRACKS_SECRET, GCAL_1_URL
+- To add/update one var: POST /v1/services/{id}/env-vars with single {key, value}
+- To update multiple: fetch full list first, merge, then PUT the complete merged set
+
 ## RENDER APP STATE - 2026-04-18
 
 ### Endpoints
