@@ -101,6 +101,21 @@
 - SHARED_MEMORY_PATH: 3_Documentation/SHARED_MEMORY.md
 - To switch to a new project: update both env vars on Render dashboard, no code change needed
 
+
+### OwnTracks Ping-Based Home Detection (2026-05-15)
+- Geofence enter/leave events are unreliable on mobile — OS drops them when app is backgrounded
+- Location pings ARE reliable — server now checks home distance on every ping
+- Home coords in Odoo ir.config_parameter: owntracks.home.{emp_id}.lat/lng/radius
+- DJ (emp_id=1): 33.8110, -116.3822, 200m radius — Thousand Palms home
+- Logic: within radius + clocked in → <30min cancels attendance, >=30min clocks out
+- Commit 5ea5f589 in saunders-render-app
+
+### Render Env Vars — Missing as of 2026-05-15
+Three vars still need to be set by DJ:
+- GCAL_1_URL: Google Calendar ICS URL (Settings → Secret iCal address)
+- GITHUB_TOKEN: GitHub personal access token with repo scope
+- GMAIL_SCENIC_APP_PASSWORD: dan@scenicartprint.com app password (Google Account security)
+
 ### CRITICAL: Render Env Var API Rule
 - NEVER use PUT /env-vars to add a single key — PUT replaces the entire list and wipes unspecified vars
 - 2026-05-14 incident: PUT wiped STRIPE_SECRET_KEY, OWNTRACKS_SECRET, GCAL_1_URL
