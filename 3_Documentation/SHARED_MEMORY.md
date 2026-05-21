@@ -1,7 +1,16 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-04-25
+# Last updated: 2026-05-20
 # Format: key facts only - both Claudes read this on every session
+
+## ⚠ SYSTEM CONSTANTS — READ FIRST, NEVER GUESS THESE
+- **Odoo SO name format:** 6-digit zero-padded number, NO prefix. e.g. `003575`, `004659`. NEVER `S00123`.
+  Normalize any number DJ gives you: `str(n).zfill(6)`. Verified by API 2026-05-20.
+- **Workiz Job UUID:** Long UUID string (internal only). DJ never knows/provides this directly. Look it up from SO.
+- **Workiz Job Number:** Short sequential number shown in Workiz UI — DIFFERENT sequence from Odoo SO numbers.
+- **Odoo User ID:** `2`. Odoo DB: `window-solar-care`.
+- **Render app:** `https://wsc-field-assistant.onrender.com`
+- RULE: If a format is not listed here or in CLAUDE.md SYSTEM CONSTANTS table → make an API call to confirm. Do not guess.
 
 ## OWNER
 - Dan Saunders (goes by DJ) - owner and sole technician, Window & Solar Care, Southern California
@@ -11,7 +20,7 @@
 - Odoo: https://window-solar-care.odoo.com (DB: window-solar-care, User ID: 2)
 - Workiz: job scheduling - IP-restricted, proxy through Odoo if calling from local machine
 - GitHub: windowandsolarcare-hash/Odoo-Migration (main branch only)
-- Render: mobile field assistant at https://[render-url] - always-on paid plan
+- Render: mobile field assistant at https://wsc-field-assistant.onrender.com - always-on paid plan
 - Zapier: Phases 3-6 automation - fetches code from GitHub main on every trigger
 
 ## AUTOMATION PHASES
