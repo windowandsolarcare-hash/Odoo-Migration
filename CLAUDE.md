@@ -324,15 +324,15 @@ Render Claude can also write to SHARED_MEMORY.md via its `update_shared_memory` 
 
 The file is already loaded as a system-reminder at session start (see top of this context), but always verify it's current. If you discover it has been updated since the session-reminder was generated, re-read it to get the latest version.
 
-### PROACTIVE SESSION SAVES — MANDATORY
+### PROACTIVE SAVES — EVENT-TRIGGERED ONLY
 
-These are not suggestions. They are binding rules:
+Count-based rules ("every 10 responses") and session-end rules do not work reliably — LLMs have no persistent counter and meta-tasks get squeezed out under task load. These have been removed. Only event-triggered rules follow:
 
-1. **Every 10 responses:** Count your responses in the session. At response 10, 20, 30, etc. — stop and check: have we covered new technical ground (field names, API behaviors, bugs, decisions, business rules)? If yes, write it to SHARED_MEMORY.md and push to GitHub immediately. Do not ask. Do not remind. Just do it.
+1. **After any API call made to verify something unknown:** If you made an API call because you weren't certain of a format, field name, ID, or system constant — stop immediately after that call and write the result to CLAUDE.md SYSTEM CONSTANTS + SHARED_MEMORY.md before continuing. Do not finish the task first. Write it now.
 
-2. **When DJ signs off:** Any message that signals end of session ("thanks", "good session", "talk later", "I'm done", "going to bed", "bye", "that's all for now", etc.) — write a session summary to SHARED_MEMORY.md before responding to the goodbye. Push to GitHub. Then respond.
+2. **After discovering any field name, API behavior, or system quirk not already in CLAUDE.md:** Write it to memory and SHARED_MEMORY.md before the next tool call. The moment of discovery is the trigger — not the end of session.
 
-3. **When context is getting long:** If you notice this session has covered substantial ground and a compaction may be coming, proactively write what's been learned without being asked.
+3. **After any bug fix that reveals a non-obvious system behavior:** Write the root cause and fix pattern to memory immediately. "We got burned by X" entries in CLAUDE.md exist because they were written at the moment of discovery.
 
 ### PROJECT-SCOPED SHARED MEMORY
 
