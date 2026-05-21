@@ -14,7 +14,7 @@
 
 These rules exist because they have been broken before. Each one caused a real problem.
 
-1. **Never guess at Odoo field names.** Before using any field, check the ODOO CUSTOM FIELD NAMES table below, then memory files, then query Odoo directly (`search_read` with the field). Never assume a standard Odoo field exists — this instance has heavy customization and some standard fields are absent (e.g. `account.payment` has no `ref` field in Odoo 19, `commercial_partner_id` does not exist on `sale.order`).
+1. **Never guess at Odoo field names OR system formats.** Before using any field, ID format, or system constant: check the ODOO CUSTOM FIELD NAMES table and SYSTEM CONSTANTS table below, then memory files, then query Odoo directly. Never infer formats from training data or patterns — this system has specific formats that differ from Odoo defaults. Examples of past guessing failures: assumed SO names were `S00123` (they are `003575` — 6-digit zero-padded, no prefix); assumed `account.payment` had a `ref` field (it doesn't in Odoo 19); assumed `commercial_partner_id` exists on `sale.order` (it doesn't).
 
 2. **"Done jobs" = `x_studio_x_studio_workiz_status = 'Done'` only.** Never use `state`, `invoice_status`, date filters, or `invoice_ids` as a proxy for job completion.
 
@@ -105,6 +105,25 @@ These rules exist because they have been broken before. Each one caused a real p
 
 ---
 
+## SYSTEM CONSTANTS (VERIFIED — DO NOT GUESS THESE)
+
+These are facts confirmed by direct API query. Never infer these from patterns or training data.
+
+| Fact | Value | Verified | Notes |
+|---|---|---|---|
+| Odoo SO name format | 6-digit zero-padded number, NO prefix | 2026-05-20 | e.g. `003575`, `004659`. NOT `S00123`. Query: `sale.order` `name` field |
+| Odoo SO sequence | Sequential integers, currently ~4600+ | 2026-05-20 | `str(n).zfill(6)` to normalize any number DJ provides |
+| Workiz Job UUID | Long UUID string e.g. `abc-123-def-456` | — | Internal only — DJ never knows/provides this directly |
+| Workiz Job Number | Short sequential number shown in Workiz UI | — | Different from Odoo SO number — different sequences |
+| Odoo DB name | `window-solar-care` | — | Used in XML-RPC calls |
+| Odoo User ID | `2` | — | DJ's user ID for API auth |
+| Render app URL | `https://wsc-field-assistant.onrender.com` | — | |
+| OwnTracks token | `wsc-ot-2026` | — | OWNTRACKS_SECRET env var |
+
+**If you need a format not in this table: make an API call to confirm it. Do not guess.**
+
+---
+
 ## WORKIZ API ACCESS — HOW TO CALL FROM SCRIPTS
 
 **Workiz GET calls work directly from anywhere** — local machines, Render, Odoo server actions. No IP restriction. No proxy needed.
@@ -173,7 +192,7 @@ When updating SubStatus via the API, the body MUST include the parent Status="Pe
 | `odoo_rpc('sale.order', 'write', [[id]], {vals})` — 4th kwarg form | `SaleOrder.write() got an unexpected keyword argument 'field_name'` | `write(vals)` is positional. Put vals INSIDE the args list: `odoo_rpc('sale.order', 'write', [[id], {vals}])`. Exception: `message_post` takes real kwargs so 4-arg form is OK there. |
 | HTML tags in `message_post` body (`<br/>`, `<p>`, `<strong>`) | Tags display as literal text in chatter | Use plain text with ` \| ` pipe separators — Odoo escapes HTML in both server actions (Odoo 17+) and external JSON-RPC calls. Format: `[YYYY-MM-DD HH:MM:SS] Label: Field: Value \| Field: Value` |
 | No green indicator in chatter | N/A — previously thought impossible | Unicode emoji works fine — only HTML is escaped. Use `✅` for success, `⚠️` for warnings, `❌` for failures. DJ prefers `✅` on all completion messages. |
-| `PUT /v1/services/{id}/env-vars` to add one Render env var | Wipes ALL env vars not included in payload — 2026-05-14 wiped STRIPE_SECRET_KEY, OWNTRACKS_SECRET, GCAL_1_URL | Use `POST /v1/services/{id}/env-vars` with single `{"key":…,"value":…}` to add/update one var. To update multiple: fetch full list first, merge, then PUT the complete merged set. |
+| `PUT /v1/services/{id}/env-vars` with partial list | Wipes ALL env vars not included in payload — 2026-05-14 wiped STRIPE_SECRET_KEY, OWNTRACKS_SECRET, GCAL_1_URL | Always fetch full list first (`GET /env-vars`), merge new values in Python, then PUT the complete merged set. Render has no POST/PATCH for individual vars — PUT is the only write method. |
 
 ---
 
