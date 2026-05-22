@@ -111,6 +111,14 @@
 - To switch to a new project: update both env vars on Render dashboard, no code change needed
 
 
+### OwnTracks Monitoring Modes — CRITICAL (2026-05-21)
+- Move (2): frequent pings + geofence events fire. Use while working.
+- Significant (1): cell-tower only pings (low battery) + geofence events still fire. Use at home.
+- Quiet (-1): NO pings AND NO geofence events on Android. **NEVER USE** — kills leave/enter events that drive clock-in/out.
+- Bug 2026-05-21: server was sending monitoring:-1 on home arrival → geofence died → stuck forever.
+- Fix: server now sends monitoring:1 (Significant) on home arrival. Move(2) on leaving home.
+- If clock-in/out stops working: check OwnTracks monitoring mode isn't stuck on Quiet(-1).
+
 ### OwnTracks Ping-Based Home Detection (2026-05-15)
 - Geofence enter/leave events are unreliable on mobile — OS drops them when app is backgrounded
 - Location pings ARE reliable — server now checks home distance on every ping
