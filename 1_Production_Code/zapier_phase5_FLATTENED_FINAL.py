@@ -591,7 +591,7 @@ def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
     try:
         todo_id = odoo_rpc('project.task', 'create', [{
             'name': todo_name,
-            'description': description,
+            'description': description + '<br/><br/>📍 Source: zapier_phase5 → re-engagement',
             'project_id': False,
             'user_ids': [(4, ODOO_USER_ID)],
             'partner_id': res_id,
