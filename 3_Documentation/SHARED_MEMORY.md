@@ -886,3 +886,26 @@ https://wsc-field-assistant.onrender.com/printing/api/check-po
 ### Auto-Select Single Open Job (dashboard.py — schedule_job tool)
 - When only 1 existing job option found (open SO, invoice job, or graveyard lead), auto-selects it
 - Eliminates the "1" reply fragmentation pattern
+
+### Timer Architecture (field.html + timeclock.py) — 2026-05-23
+- Active timer: `localStorage['wsc_timer']` = `{so_id, start_ms, employee_id}` — instant Start, no network
+- Permanent records: `ir.config_parameter` key `timer.so.{so_id}` = JSON array of completed sessions
+- Crew snapshot: `ir.config_parameter` key `crew.today.YYYY-MM-DD` = `[{id, name}]` (set by clockin_crew)
+- Stop calls `POST /owner/api/timer/log` — reads crew, reads `hr.employee.hourly_wage` for each member, calculates per-person labor cost, writes record + SO chatter
+- `employee_id` is optional — DJ's `owner` access code has no employeeId; backend falls back to crew list
+- DO NOT use hr.attendance (payroll), account.analytic.line (billable), or project.task timers for labor tracking
+
+### Source Stamps on project.task Creates — 2026-05-23
+All programmatic project.task creates now stamp description with:
+- `📍 Source: field.py → create_todo` — voice To-Dos
+- `📍 Source: field.py → schedule_job` — Review before sending tasks
+- `📍 Source: zapier_calendly_booking → fallback_todo`
+- `📍 Source: zapier_phase4 → backfill_task`
+- `📍 Source: zapier_phase5 → re-engagement`
+No stamp = created natively in Odoo by DJ.
+
+### Follow-Up Context Rule — 2026-05-23
+`create_todo` tool now always asks "What do you want to follow up about?" before creating a To-Do if the user hasn't provided a specific note. Never create a vague To-Do with just a name.
+
+### Past Due Section in Calendar — 2026-05-23
+`#pastdue-section` at bottom of calendar.html — shows all activities where `t.date < today`. Red header, collapsible, ✓ done button on each item.
