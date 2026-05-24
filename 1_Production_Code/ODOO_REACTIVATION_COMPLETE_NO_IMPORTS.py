@@ -36,6 +36,11 @@ current_year = now_pst.year
 current_date_display = now_pst.strftime('%m/%d/%Y')
 current_date_iso = now_pst.strftime('%Y-%m-%d')
 
+# Year filter: set ir.config_parameter 'reactivation.year_filter' to a 4-digit year (e.g. '2023')
+# to target only customers last seen that year. Leave empty to run on all years.
+_yfp = env['ir.config_parameter'].sudo().get_param('reactivation.year_filter', '')
+year_filter = int(_yfp.strip()) if _yfp.strip().isdigit() else None
+
 # --- MAIN PROCESSING LOOP ---
 for source_order in records:
     source_order.message_post(body="[DEBUG] LAUNCH script started...")
@@ -104,7 +109,14 @@ for source_order in records:
                 except ValueError:
                     last_visit = None
         most_recent_visit_date = last_visit.strftime("%a %b %d, %Y") if last_visit else "recently"
-    
+
+    # Year filter check
+    if year_filter:
+        last_visit_year = last_visit.year if last_visit else None
+        if last_visit_year != year_filter:
+            source_order.message_post(body=f"[SKIP] Year filter {year_filter}: last visit was {last_visit_year}")
+            continue
+
     # Get all properties for this contact to analyze service history
     all_properties = env['res.partner'].search([('parent_id', '=', contact.id), ('x_studio_x_studio_record_category', '=', 'Property')])
     all_orders = env['sale.order'].search([('partner_shipping_id', 'in', all_properties.ids), ('state', 'in', ['sale', 'done'])], order='date_order desc')
