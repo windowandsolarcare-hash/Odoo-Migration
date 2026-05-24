@@ -295,9 +295,7 @@ def create_fallback_todo(booking_info, raw_service_address, failed_at, reason):
                 "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
                          "project.task", "create",
                          [{"name": task_name,
-                           "description": desc + "
-
-📍 Source: zapier_calendly_booking → fallback_todo",
+                           "description": desc + "\n\n📍 Source: zapier_calendly_booking → fallback_todo",
                            "project_id": False,
                            "user_ids": [ODOO_USER_ID],
                            "date_deadline": today}]]
