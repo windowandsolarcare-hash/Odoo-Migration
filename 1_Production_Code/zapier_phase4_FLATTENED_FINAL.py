@@ -469,9 +469,7 @@ def sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc):
                             if ODOO_TASK_PLANNED_DATE_FIELD:
                                 create_vals[ODOO_TASK_PLANNED_DATE_FIELD] = _end_utc
                         create_vals["allocated_hours"] = round(1.0 / _n_lines, 2)
-                create_vals["description"] = create_vals.get("description", "") + "
-
-📍 Source: zapier_phase4 → backfill_task"
+                create_vals["description"] = create_vals.get("description", "") + "\n\n📍 Source: zapier_phase4 → backfill_task"
                 # Create the task
                 create_payload = {
                     "jsonrpc": "2.0", "method": "call",
