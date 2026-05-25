@@ -1,7 +1,15 @@
+OK
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
 # Last updated: 2026-05-20
 # Format: key facts only - both Claudes read this on every session
+
+## MULTI-COMPANY DATABASE
+This Odoo instance has 3 companies. ONLY query Window & Solar Care data.
+- company_id = False (global) or 1 = WSC — these are yours
+- company_id = 2 = Cheryl Johnson, REALTOR® — NEVER count or include in any stats/reports
+- company_id = 3 = Saunders Printing — NEVER count or include
+For any res.partner analytics/counts: ALWAYS add ["company_id", "in", [False, 1]] to the domain.
 
 ## ⚠ SYSTEM CONSTANTS — READ FIRST, NEVER GUESS THESE
 - **Odoo SO name format:** 6-digit zero-padded number, NO prefix. e.g. `003575`, `004659`. NEVER `S00123`.
