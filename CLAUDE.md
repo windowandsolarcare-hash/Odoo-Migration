@@ -276,6 +276,44 @@ gh api "repos/$repo/contents/$filePath" --method PUT --input /tmp/gh_payload.jso
 rm /tmp/gh_payload.json
 ```
 
+### EDITING A DEPLOYED FILE (fetch → edit → push)
+
+**CRITICAL: `/tmp` does NOT persist between separate Bash tool calls.** Each Bash invocation gets a fresh shell. Saving to `/tmp` in call 1 and reading in call 2 always fails with `FileNotFoundError`.
+
+**Working pattern — two calls total:**
+
+**Call 1:** Download + edit + save to a persistent Windows path, all in one pipeline:
+```bash
+gh api repos/REPO/contents/PATH --jq '.content' | base64 -d | python3 -c "
+import sys
+content = sys.stdin.read()
+content = content.replace('old text', 'new text')
+sys.stdout.write(content)
+" > /c/Users/dj/edited_file.py && echo "saved \$(wc -l < /c/Users/dj/edited_file.py) lines"
+```
+
+**Call 2:** Push from the Windows path (standard push pattern):
+```bash
+sha=\$(gh api repos/REPO/contents/PATH --jq '.sha')
+base64_content=\$(powershell -Command "
+\\\$content = Get-Content 'C:/Users/dj/edited_file.py' -Raw -Encoding UTF8
+\\\$bytes = [System.Text.Encoding]::UTF8.GetBytes(\\\$content)
+[System.Convert]::ToBase64String(\\\$bytes)
+" 2>/dev/null)
+cat > /c/Users/dj/gh_payload.json << EOF
+{"message": "DATE | file | desc", "content": "\$base64_content", "sha": "\$sha", "branch": "main"}
+EOF
+gh api repos/REPO/contents/PATH --method PUT --input /c/Users/dj/gh_payload.json && echo "pushed"
+rm /c/Users/dj/gh_payload.json /c/Users/dj/edited_file.py
+```
+
+**Rules:**
+- Save intermediate files to `/c/Users/dj/` (Windows filesystem) — this persists between Bash calls
+- `/tmp` is fine within a single chained call (`&&`) but never across separate Bash tool invocations
+- JSON payload files created with `cat >` in the same call as `gh api --input` are fine
+
+---
+
 ### Why this approach (NOT PowerShell ConvertTo-Json)
 
 **Problem with PowerShell ConvertTo-Json:**
