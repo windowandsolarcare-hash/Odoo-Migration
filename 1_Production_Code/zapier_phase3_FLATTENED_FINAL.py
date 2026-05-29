@@ -197,7 +197,7 @@ def _create_submitted_job_activity(so_id, workiz_job):
         payload = {"jsonrpc": "2.0", "method": "call", "params": {
             "service": "object", "method": "execute_kw",
             "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "mail.activity", "create", [{
-                "res_model_id": 670, "res_id": so_id, "activity_type_id": 4,
+                "res_model_id": 670, "res_id": so_id, "activity_type_id": 15,  # Follow-up type
                 "summary": summary, "note": note, "date_deadline": deadline, "user_id": ODOO_USER_ID
             }]]
         }}
