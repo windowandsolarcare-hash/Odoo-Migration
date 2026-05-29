@@ -918,3 +918,20 @@ No stamp = created natively in Odoo by DJ.
 
 ### Past Due Section in Calendar — 2026-05-23
 `#pastdue-section` at bottom of calendar.html — shows all activities where `t.date < today`. Red header, collapsible, ✓ done button on each item.
+
+### Task Sync Disabled — 2026-05-28
+All project.task creation/sync/removal logic in Phase 3 and Phase 4 is **commented out**.
+- Kept: SO data sync, SO confirmation on scheduling trigger, partner/property updates
+- Removed: sync_tasks_from_so_and_job() calls, backfill task logic, task removal on Submitted
+- Field assistant gate is SO state in ['sale','done'] — tasks were never needed for visibility
+
+### Phase 5 Reminder Activity Flow — 2026-05-28
+When Phase 5 creates a Submitted Workiz job, Phase 3 creates a mail.activity on the new SO:
+- Type: "Follow-up" (activity_type_id=15, created 2026-05-28)
+- Summary: "Add tech + line items — [Customer] · [City] · [Date]"
+- Note: "WORKIZ_UUID:{uuid}
+{JobNotes}" — line items parseable by p5ParseItems()
+- Activities page shows special card with "📋 Copy Items & Open in Workiz → Items" button
+- Phase 4 auto-deletes the activity when SO is confirmed (job scheduled)
+- mail.activity.type IDs: Follow-up=15, To-Do=4
+- ir.model sale.order ID = 670 (needed for res_model_id in mail.activity)
