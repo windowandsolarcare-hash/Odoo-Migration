@@ -2730,7 +2730,22 @@ def main(input_data):
             confirm_sales_order(so_id, date_order_utc=job_datetime_utc)
             # Task sync disabled — tasks no longer used.
             # sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
-        
+            # Auto-close the Phase 5 "Add tech + line items" reminder activity now that the job is scheduled.
+            try:
+                act_recs = _odoo_search_read('mail.activity',
+                    [['res_model', '=', 'sale.order'], ['res_id', '=', so_id],
+                     ['summary', 'like', 'Add tech + line items']],
+                    ['id'], limit=5)
+                if act_recs:
+                    ids_to_del = [a['id'] for a in act_recs]
+                    requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                        "service": "object", "method": "execute_kw",
+                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "mail.activity", "unlink", [ids_to_del]]
+                    }}, timeout=10)
+                    print(f"[*] Auto-closed {len(ids_to_del)} reminder activity(ies) — job is now scheduled")
+            except Exception as _ae:
+                print(f"[!] Activity auto-close failed (non-fatal): {_ae}")
+
         property_id = existing_so.get('partner_shipping_id')
         if property_id:
             if isinstance(property_id, list):
@@ -2771,6 +2786,21 @@ def main(input_data):
                 # ts = sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
                 # if ts:
                 #     result.update(ts)
+                # Auto-close the Phase 5 "Add tech + line items" reminder activity.
+                try:
+                    act_recs = _odoo_search_read('mail.activity',
+                        [['res_model', '=', 'sale.order'], ['res_id', '=', so_id],
+                         ['summary', 'like', 'Add tech + line items']],
+                        ['id'], limit=5)
+                    if act_recs:
+                        ids_to_del = [a['id'] for a in act_recs]
+                        requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+                            "service": "object", "method": "execute_kw",
+                            "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "mail.activity", "unlink", [ids_to_del]]
+                        }}, timeout=10)
+                        print(f"[*] Auto-closed {len(ids_to_del)} reminder activity(ies) — job is now scheduled")
+                except Exception as _ae:
+                    print(f"[!] Activity auto-close failed (non-fatal): {_ae}")
             property_id = so_record.get('partner_shipping_id')
             if property_id is not None:
                 if isinstance(property_id, list):
