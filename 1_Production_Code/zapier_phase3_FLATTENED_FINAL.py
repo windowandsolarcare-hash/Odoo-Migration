@@ -178,6 +178,36 @@ def extract_job_from_input(input_data):
         return (None, None)
 
 
+def _create_submitted_job_activity(so_id, workiz_job):
+    """Create a To-Do activity on the SO when Phase 5 creates a Submitted job.
+    Reminds DJ to add tech + line items in Workiz so the job gets confirmed + appears on field assistant."""
+    try:
+        uuid = (workiz_job.get('UUID') or '').strip()
+        job_notes = (workiz_job.get('JobNotes') or '').strip()
+        first = (workiz_job.get('FirstName') or '').strip()
+        last = (workiz_job.get('LastName') or '').strip()
+        customer_name = (first + ' ' + last).strip()
+        city = (workiz_job.get('City') or '').strip()
+        job_dt = (workiz_job.get('JobDateTime') or '').strip()
+        date_str = job_dt[:10] if job_dt else ''
+        parts = [p for p in [customer_name, city, date_str] if p]
+        summary = 'Add tech + line items — ' + ' · '.join(parts) if parts else 'Add tech + line items'
+        note = ('WORKIZ_UUID:' + uuid + '\n' + job_notes).strip() if uuid else job_notes
+        deadline = date_str if date_str else (datetime.utcnow() + timedelta(days=14)).strftime('%Y-%m-%d')
+        payload = {"jsonrpc": "2.0", "method": "call", "params": {
+            "service": "object", "method": "execute_kw",
+            "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "mail.activity", "create", [{
+                "res_model_id": 670, "res_id": so_id, "activity_type_id": 4,
+                "summary": summary, "note": note, "date_deadline": deadline, "user_id": ODOO_USER_ID
+            }]]
+        }}
+        r = requests.post(ODOO_URL, json=payload, timeout=10)
+        act_id = r.json().get("result")
+        print(f"[OK] Created Submitted job activity id={act_id} on SO {so_id}: {summary}")
+    except Exception as e:
+        print(f"[!] Activity creation failed (non-fatal): {e}")
+
+
 def _odoo_search_read(model, domain, fields, limit=1):
     try:
         payload = {"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw", "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, model, "search_read", [domain], {"fields": fields, "limit": limit}]}}
@@ -1292,22 +1322,24 @@ def execute_path_a(contact_id, property_id, workiz_job, skip_confirm=False):
     # Step 4: Sync tasks only when SO was confirmed
     if not skip_confirm:
         sync_tasks_from_so_and_job(sales_order_id, workiz_job, booking_datetime)
-    
+    elif (workiz_job.get('Status') or '').strip().lower() == 'submitted':
+        _create_submitted_job_activity(sales_order_id, workiz_job)
+
     # Step 5: Update property fields (note: Workiz uses lowercase field names)
     gate_code = workiz_job.get('gate_code', '')  # Fixed: lowercase 'gate_code' not 'GateCode'
     pricing = workiz_job.get('pricing', '')  # Fixed: lowercase 'pricing' not 'Pricing'
-    
+
     # Extract notes and comments
     job_notes = workiz_job.get('JobNotes', '')
     comments = workiz_job.get('Comments', '')
-    
+
     # Extract service details
     frequency = workiz_job.get('frequency', '')
     alternating = workiz_job.get('alternating', '')
     type_of_service = workiz_job.get('type_of_service', '')
-    
+
     update_property_fields(property_id, gate_code, pricing, None, job_notes, comments, frequency, alternating, type_of_service)
-    
+
     print("="*70)
     print("[OK] PATH A COMPLETE")
     print("="*70)
@@ -1380,22 +1412,24 @@ def execute_path_b(contact_id, service_address, workiz_job, skip_confirm=False):
         print("[*] Quotation only (no confirm → no task).")
     if not skip_confirm:
         sync_tasks_from_so_and_job(sales_order_id, workiz_job, booking_datetime)
-    
+    elif (workiz_job.get('Status') or '').strip().lower() == 'submitted':
+        _create_submitted_job_activity(sales_order_id, workiz_job)
+
     # Step 8: Update property fields (note: Workiz uses lowercase field names)
     gate_code = workiz_job.get('gate_code', '')  # Fixed: lowercase 'gate_code' not 'GateCode'
     pricing = workiz_job.get('pricing', '')  # Fixed: lowercase 'pricing' not 'Pricing'
-    
+
     # Extract notes and comments
     job_notes = workiz_job.get('JobNotes', '')
     comments = workiz_job.get('Comments', '')
-    
+
     # Extract service details
     frequency = workiz_job.get('frequency', '')
     alternating = workiz_job.get('alternating', '')
     type_of_service = workiz_job.get('type_of_service', '')
-    
+
     update_property_fields(property_id, gate_code, pricing, None, job_notes, comments, frequency, alternating, type_of_service)
-    
+
     # Write job date to contact so reactivation filter excludes them
     if job_datetime:
         write_next_job_date_to_contact(contact_id, job_datetime)
@@ -1473,7 +1507,9 @@ def execute_path_c(customer_name, service_address, workiz_job, client_id, skip_c
         print("[*] Quotation only (no confirm → no task).")
     if not skip_confirm:
         sync_tasks_from_so_and_job(sales_order_id, workiz_job, booking_datetime)
-    
+    elif (workiz_job.get('Status') or '').strip().lower() == 'submitted':
+        _create_submitted_job_activity(sales_order_id, workiz_job)
+
     # Step 9: Update property fields (note: Workiz uses lowercase field names)
     gate_code = workiz_job.get('gate_code', '')  # Fixed: lowercase 'gate_code' not 'GateCode'
     pricing = workiz_job.get('pricing', '')  # Fixed: lowercase 'pricing' not 'Pricing'
