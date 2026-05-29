@@ -119,6 +119,9 @@ These are facts confirmed by direct API query. Never infer these from patterns o
 | Odoo User ID | `2` | — | DJ's user ID for API auth |
 | Render app URL | `https://wsc-field-assistant.onrender.com` | — | |
 | OwnTracks token | `wsc-ot-2026` | — | OWNTRACKS_SECRET env var |
+| mail.activity.type "Follow-up" | ID `15` | 2026-05-28 | Created via API for Phase 5 reminder activities |
+| mail.activity.type "To-Do" | ID `4` | — | Personal tasks |
+| ir.model sale.order ID | `670` | — | Used in mail.activity res_model_id |
 
 **If you need a format not in this table: make an API call to confirm it. Do not guess.**
 
@@ -452,6 +455,8 @@ These are changes that always require updating TWO places. Missing one breaks so
 
 | Date | File | What | Why |
 |---|---|---|---|
+| 2026-05-28 | phase3, phase4 | All task creation/sync/removal commented out | Tasks obsolete — field assistant gate is SO state in ['sale','done'], not tasks |
+| 2026-05-28 | phase3 | Creates Follow-up activity (type 15) on SO for Phase 5 Submitted jobs | Reminds DJ to add tech+items in Workiz; auto-closed by Phase 4 on SO confirm |
 | 2026-04-01 | phase4 | `confirm_sales_order()` writes date_order back after confirm | Odoo action_confirm() resets date_order to now() internally |
 | 2026-04-01 | phase4, phase5 | Read `type_of_service_2` not `type_of_service` | Workiz API returns custom field as type_of_service_2 |
 | 2026-04-01 | phase5 | New job payload uses `type_of_service_2` | Write path must match read path |
