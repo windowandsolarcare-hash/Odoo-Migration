@@ -2342,11 +2342,11 @@ def update_existing_sales_order(so_id, workiz_job, so_state=None):
         _odoo_write('sale.order', [so_id], {'x_studio_pricing_mismatch': pricing_flag})
         print(f"[*] Pricing check: Workiz ${workiz_total_check:.2f} vs Odoo ${odoo_total_check:.2f}")
 
-    # Sync tasks: every status/date/team change updates the existing task(s) — we never create a second task or ignore. Overwrites assignee, planned date, start/end, customer, contact number, tags with current Workiz data (e.g. moving date in Workiz moves the task).
+    # Task sync disabled — tasks no longer used. Data sync above still runs fully.
     order_date = job_datetime_utc or updates.get("date_order")
     task_sync_info = {"task_sync_tasks_found": 0, "task_sync_updated": False, "task_sync_error": "not_called"}
-    if so_state != 'draft' or order_date or workiz_job.get("Team") or workiz_job.get("team"):
-        task_sync_info = sync_tasks_from_so_and_job(so_id, workiz_job, order_date) or task_sync_info
+    # if so_state != 'draft' or order_date or workiz_job.get("Team") or workiz_job.get("team"):
+    #     task_sync_info = sync_tasks_from_so_and_job(so_id, workiz_job, order_date) or task_sync_info
     
     # Post to chatter
     last_status_update = workiz_job.get('LastStatusUpdate', '')
@@ -2700,35 +2700,36 @@ def main(input_data):
         
         result = update_existing_sales_order(so_id, workiz_job, so_state=so_state)
 
-        # When job goes back to Submitted (unscheduled), remove any tasks — job is off the schedule.
-        if (status or '').strip().lower() == 'submitted':
-            so_lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], ["id"], limit=500)
-            line_ids = [l["id"] for l in so_lines]
-            if line_ids:
-                try:
-                    task_ids_resp = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
-                        "service": "object", "method": "execute_kw",
-                        "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "search", [[["sale_line_id", "in", line_ids], ["stage_id", "in", [16, 17]]]]]
-                    }}, timeout=10)
-                    task_ids_to_del = task_ids_resp.json().get("result", [])
-                    if task_ids_to_del:
-                        requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
-                            "service": "object", "method": "execute_kw",
-                            "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "unlink", [task_ids_to_del]]
-                        }}, timeout=10)
-                        print(f"[*] Removed {len(task_ids_to_del)} task(s) — job back to Submitted (unscheduled)")
-                    else:
-                        print("[*] Status=Submitted: no tasks to remove")
-                except Exception as _e:
-                    print(f"[!] Task removal on Submitted failed: {_e}")
+        # Task removal on Submitted disabled — tasks no longer used.
+        # if (status or '').strip().lower() == 'submitted':
+        #     so_lines = _odoo_search_read("sale.order.line", [["order_id", "=", so_id]], ["id"], limit=500)
+        #     line_ids = [l["id"] for l in so_lines]
+        #     if line_ids:
+        #         try:
+        #             task_ids_resp = requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+        #                 "service": "object", "method": "execute_kw",
+        #                 "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "search", [[["sale_line_id", "in", line_ids], ["stage_id", "in", [16, 17]]]]]
+        #             }}, timeout=10)
+        #             task_ids_to_del = task_ids_resp.json().get("result", [])
+        #             if task_ids_to_del:
+        #                 requests.post(ODOO_URL, json={"jsonrpc": "2.0", "method": "call", "params": {
+        #                     "service": "object", "method": "execute_kw",
+        #                     "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "unlink", [task_ids_to_del]]
+        #                 }}, timeout=10)
+        #                 print(f"[*] Removed {len(task_ids_to_del)} task(s) — job back to Submitted (unscheduled)")
+        #             else:
+        #                 print("[*] Status=Submitted: no tasks to remove")
+        #         except Exception as _e:
+        #             print(f"[!] Task removal on Submitted failed: {_e}")
 
-        # When SO was quotation (draft) and job is now scheduled, confirm SO so tasks are created, then sync task fields.
+        # When SO was quotation (draft) and job is now scheduled, confirm SO (makes it visible on field assistant).
         if so_state == 'draft' and should_trigger_tasks:
-            print("[*] Quotation → scheduling: confirming SO and syncing tasks (assignee, planned date, start/end, phone).")
+            print("[*] Quotation → scheduling: confirming SO.")
             job_datetime_str = workiz_job.get('JobDateTime', '')
             job_datetime_utc = convert_pacific_to_utc(job_datetime_str) if job_datetime_str else None
             confirm_sales_order(so_id, date_order_utc=job_datetime_utc)
-            sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
+            # Task sync disabled — tasks no longer used.
+            # sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
         
         property_id = existing_so.get('partner_shipping_id')
         if property_id:
@@ -2760,15 +2761,16 @@ def main(input_data):
             result = update_existing_sales_order(so_id, workiz_job, so_state=so_state)
             if not result.get('success'):
                 return result
-            # When SO was draft and job is now scheduled, confirm and sync tasks.
+            # When SO was draft and job is now scheduled, confirm SO (makes it visible on field assistant).
             if so_state == 'draft' and should_trigger_tasks:
-                print("[*] Quotation → scheduling: confirming SO and syncing tasks.")
+                print("[*] Quotation → scheduling: confirming SO.")
                 job_datetime_str = workiz_job.get('JobDateTime', '')
                 job_datetime_utc = convert_pacific_to_utc(job_datetime_str) if job_datetime_str else None
                 confirm_sales_order(so_id, date_order_utc=job_datetime_utc)
-                ts = sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
-                if ts:
-                    result.update(ts)
+                # Task sync disabled — tasks no longer used.
+                # ts = sync_tasks_from_so_and_job(so_id, workiz_job, job_datetime_utc)
+                # if ts:
+                #     result.update(ts)
             property_id = so_record.get('partner_shipping_id')
             if property_id is not None:
                 if isinstance(property_id, list):
