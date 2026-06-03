@@ -935,3 +935,36 @@ When Phase 5 creates a Submitted Workiz job, Phase 3 creates a mail.activity on 
 - Phase 4 auto-deletes the activity when SO is confirmed (job scheduled)
 - mail.activity.type IDs: Follow-up=15, To-Do=4
 - ir.model sale.order ID = 670 (needed for res_model_id in mail.activity)
+
+### Customer Notes System — 2026-06-03
+Three note types on the field assistant job detail screen:
+
+**1. To-Do Notes** (`project.task`, `project_id=False`, `partner_id` set):
+- Created via "📝 Note" button on detail screen. Has due date, add/edit/delete.
+- Shows in Render Activities tab, Odoo To-do app, and job detail Notes card.
+- Endpoint: `POST /api/todos/create`, `GET /api/todos/for_partner?partner_id=X`
+- Notes are tied to the **property partner** (not contact) — appear on every future job for that property automatically.
+
+**2. Permanent Property Note** (`x_studio_x_field_note` on `res.partner`):
+- Field ID: 20866. Type: text. Store: True. On `res.partner` (model ID 90).
+- Always visible on job detail as teal "📌 Property Note" card. Shows "NONE" if empty.
+- Endpoint: `POST /api/partner/field_note`
+- Fetched in `tool_get_schedule` partner batch read — returned as `field_note` on each job.
+
+### Historical Job View — 2026-06-03
+Tapping a past job row in Job History / Customer tab / Calendar opens a read-only view:
+- Services (line items + total), Payment (date/amount/method), Photos (3-col thumbnail grid, tap for lightbox)
+- Endpoints: `GET /api/so_history?so_id=X`, `GET /api/attachment_image?att_id=X`
+- Odoo photos (ir.attachment) are NOT publicly accessible — must proxy through Render.
+- `Cache-Control: max-age=86400` on image proxy to avoid re-fetching.
+- Future jobs open the full live active panel (not read-only).
+
+### Calendar Tap-to-Open — 2026-06-03
+Calendar job rows now navigate to `/owner/field?open_so=X&date_raw=YYYY-MM-DD`.
+`openJobById(soId, dateRaw)` in field.html detects URL param, opens correct view:
+- Today's job in schedule → full live panel (exact object)
+- Future date → live panel (fetches from /api/so_history)
+- Past date → historical read-only view
+
+### KEY VOCABULARY (added to CLAUDE.md)
+"The schedule" = Render field assistant daily job list. Gate: `state in ['sale','done']` AND `date_order` = that day. Submitted jobs are NOT on the schedule (draft quotations). A job lands on the schedule when Workiz status is Scheduled / Send Confirmation - Text / Next Appointment - Text / Next Appointment 2 - Text.
