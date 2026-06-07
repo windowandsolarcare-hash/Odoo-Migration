@@ -248,9 +248,12 @@ def main(input_data):
     # print(f"[DEBUG] payment_type_raw='{payment_type_raw}', payment_type_lower='{payment_type_lower}'")
     # print(f"[DEBUG] payment_ref='{payment_ref}', workiz_reference='{workiz_reference}'")
 
-    # 4) Workiz: add THIS payment — SKIP for Credit Card payments (already recorded in Workiz at door)
-    if workiz_type == "credit":
-        print("[*] Credit Card payment detected — skipping Workiz addPayment (already recorded at door)")
+    # 4) Workiz: add THIS payment
+    # SKIP credit if it did NOT come from Stripe (means it originated in Workiz, already recorded there)
+    # WRITE credit if it came from Stripe (originated in Odoo — Workiz doesn't have it yet)
+    is_stripe_payment = 'stripe' in (payment_ref or '').lower()
+    if workiz_type == "credit" and not is_stripe_payment:
+        print("[*] Credit Card payment detected (Workiz origin) — skipping Workiz addPayment")
     else:
         add_pay_url = f"{WORKIZ_BASE_URL.rstrip('/')}/job/addPayment/{job_uuid}/"
         add_pay_body = {
