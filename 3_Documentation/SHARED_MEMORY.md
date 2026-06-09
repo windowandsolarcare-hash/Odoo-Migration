@@ -136,6 +136,13 @@ This rule is permanent — do not change even if new companies are added.
 - Logic: within radius + clocked in → <30min cancels attendance, >=30min clocks out
 - Commit 5ea5f589 in saunders-render-app
 
+### CLOCK SYSTEM REBUILD — offline-first + whole-crew (2026-06-08)
+Live in dashboard.py (NOT timeclock.py — its payroll routes are shadowed; dashboard registered first in main.py).
+- **clock-IN** `POST /owner/api/payroll/clockin_crew {employee_ids, check_in?}` — `check_in` is the device tap time (ISO/UTC), honored so an offline clock-in records the real start, not the sync time. Same-day re-tap never overwrites (returns `already[]`). Prior-day open shift = closed (forgot-to-clockout, flagged) + fresh one created — never overwritten.
+- **clock-OUT (manual "End Day")** `POST /owner/api/payroll/clockout_crew {employee_ids?, check_out?}` — clocks out the WHOLE crew, offline-safe (device check_out), idempotent (skips already-out), falls back to crew.today.{date} snapshot if ids omitted. ⚠ Empty body = clocks out the live snapshot crew — NEVER call to "test."
+- **clock-OUT (auto at home)** now clocks out the WHOLE crew, not just the device owner. All 3 home-arrival sites (gps_ping, OwnTracks transition-enter, OwnTracks location-ping) call `_crew_home_clockout()` over crew.today.{date} after handling the driver.
+- Frontend (field.html): clock bar shows `● Clocked in <time> · Crew: N`, 🏁 End Day button (double-tap guarded, queues to localStorage wsc_pending_clockout, flushes on load + `online` event). Crew persisted in localStorage wsc_crew_today.
+
 ### Render Env Vars — Missing as of 2026-05-15
 Three vars still need to be set by DJ:
 - GCAL_1_URL: Google Calendar ICS URL (Settings → Secret iCal address)
