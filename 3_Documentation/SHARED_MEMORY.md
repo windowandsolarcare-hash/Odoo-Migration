@@ -143,6 +143,11 @@ Live in dashboard.py (NOT timeclock.py — its payroll routes are shadowed; dash
 - **clock-OUT (auto at home)** now clocks out the WHOLE crew, not just the device owner. All 3 home-arrival sites (gps_ping, OwnTracks transition-enter, OwnTracks location-ping) call `_crew_home_clockout()` over crew.today.{date} after handling the driver.
 - Frontend (field.html): clock bar shows `● Clocked in <time> · Crew: N`, 🏁 End Day button (double-tap guarded, queues to localStorage wsc_pending_clockout, flushes on load + `online` event). Crew persisted in localStorage wsc_crew_today.
 
+### SCHEDULING via Render Claude — tech/items are UI-only (2026-06-09)
+- **Workiz TECH (Team) and LINE ITEMS cannot be set via the Workiz API** — DJ must do those in the Workiz job UI. Only STATUS is API-settable (`workiz_update` Status="Pending" + SubStatus).
+- New scheduling flow (now in Render Claude SYSTEM_PROMPT): when DJ schedules a job, ASK "Want me to set the status, or will you?" (skip if he named one). If he sets it → leave status alone. If Claude sets it → offer 4 options: "send confirmation"→`Send Confirmation - Text`, "send next job"→`Next Appointment - Text`, "send next job 2"→`Next Appointment 2 - Text`, "scheduled"→`Scheduled`. EITHER WAY hand DJ the job link `https://app.workiz.com/root/job/{uuid}/` for tech+items.
+- Temporary bridge until Workiz is removed.
+
 ### Render Env Vars — Missing as of 2026-05-15
 Three vars still need to be set by DJ:
 - GCAL_1_URL: Google Calendar ICS URL (Settings → Secret iCal address)
