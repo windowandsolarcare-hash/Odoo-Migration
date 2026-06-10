@@ -56,6 +56,7 @@ This rule is permanent — do not change even if new companies are added.
 - Workiz client ID on contact: ref field
 
 ## KNOWN BUGS / RULES
+- UI: Clock-in bar = fixed, top:0, height 36px, max z-index (clockin-bar.js, on every owner page). ANY full-screen position:fixed overlay MUST start at top:36px, NEVER inset:0/top:0, or the bar covers its header. The bar's body-padding/#app-shrink offset only protects normal-flow content, not fixed overlays. (Fixed 2026-06-09: ql_panel.js mobile Customers overlay was inset:0.)
 - After action_confirm() on SO, write date_order back - Odoo resets it to now()
 - date_order = Workiz JobDateTime (start time, UTC) - never use end time
 - No imports in Odoo server action code
