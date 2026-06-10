@@ -368,6 +368,7 @@ Utility: save_memory, delete_memory
 - POST /api/reactivation/book — {lead_id, graveyard_uuid, job_type, date, time}: converts graveyard Workiz job in place (JobType + JobDateTime), closes CRM lead → Won (stage 4). DJ adds line items + sets Scheduled in Workiz after.
 - POST /api/reactivation/decline — {lead_id}: crm.lead → Lost (stage 6).
 - Sent tab (2026-06-09): header toggle [To Send | Sent]. crm.lead stages: 5=Attempt1-Sent, 4=Won, 6=Lost.
+- POST /api/duplicate_job (dashboard.py, 2026-06-09): clone a job into a NEW Workiz job. Body {so_id, job_type, date, time}. Copies all fields from source job, JobType override, new JobDateTime, NO SubStatus (DJ finishes in Workiz). Powers field.html history-modal 📄 Duplicate button (replaced Job History). Reuses /api/reactivation/suggest for slots. Workiz line items do NOT copy (create API limit).
 
 ### Danny Mode (index.html)
 - Auth stores user type in localStorage 
