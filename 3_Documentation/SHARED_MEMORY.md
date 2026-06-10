@@ -362,6 +362,11 @@ Utility: save_memory, delete_memory
 -  - queries Odoo: Property records, last visit >= 6mo ago, last reactivation > 1yr or never, not Do Not Contact. Returns list with partner_id, name, city, service, frequency, last_visit, est_price, last_so_id
 -  - body:  - calls SA 562 in Odoo, reads x_studio_manual_sms_override, returns 
 -  - body:  - writes SMS back to SO field, calls SA 563
+- GET /api/reactivation/sent — open reactivation leads (crm.lead stage 5 "Attempt 1 - Sent" + graveyard uuid). The backlog to book when a customer REPLIES to the text directly (not via Calendly).
+- GET /api/reactivation/suggest?partner_id= — suggested date/time slots from field.py _find_scheduling_openings (direct call, no LLM). Returns options + last_job_type.
+- POST /api/reactivation/book — {lead_id, graveyard_uuid, job_type, date, time}: converts graveyard Workiz job in place (JobType + JobDateTime), closes CRM lead → Won (stage 4). DJ adds line items + sets Scheduled in Workiz after.
+- POST /api/reactivation/decline — {lead_id}: crm.lead → Lost (stage 6).
+- Sent tab (2026-06-09): header toggle [To Send | Sent]. crm.lead stages: 5=Attempt1-Sent, 4=Won, 6=Lost.
 
 ### Danny Mode (index.html)
 - Auth stores user type in localStorage 
