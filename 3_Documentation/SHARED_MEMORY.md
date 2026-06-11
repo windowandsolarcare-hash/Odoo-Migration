@@ -2,8 +2,17 @@ OK
 OK
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-05-20
+# Last updated: 2026-06-11
 # Format: key facts only - both Claudes read this on every session
+
+## 2026-06-11 — CUSTOMER ANALYTICS APP (LIVE) + PYTHON RUNTIME PIN
+- **New app:** `/owner/analytics` (own files `routers/owner/analytics.py` + `static/owner/analytics.html`). Snapshot KPIs + per-year trends + 8 charts + cohort retention. Cached in `ir.config_parameter` key `analytics_customer_cache`; recomputed nightly at 5am + on the page's Refresh button.
+- **Customer unit = the Property record** = `sale.order.partner_id` (record_category 'Property'); its `parent_id` = the person. Group all retention/LTV math by partner_id.
+- **True customer** = a Property with ≥1 `sale.order` Done (`x_studio_x_studio_workiz_status='Done'`) AND `amount_total>0` AND `company_id=1`. This is the denominator for every ratio. Leads = properties with 0 such jobs.
+- **⚠ Property records have `company_id=False`** — filtering them by `=1` returns ZERO. Use `['company_id','in',[False,1]]`. Company scoping for the customer math happens at the sale.order level (Done jobs are company 1).
+- **Active window = flat 30 months.** Active-as-of-date D = most recent done job ≤ D within 30 mo of D. Everything is computed relative to an as-of date (snapshot=today, chronological=each year-end) — that's how "repeat in 2023 but lapsed today" both stay true.
+- Verified counts 2026-06-11: 896 properties, 745 true customers, 151 leads, $420,724 lifetime done revenue, 402 lifetime-repeat (54%).
+- **Render runtime is now PINNED to Python 3.12.8** via a `.python-version` file in repo root — DO NOT delete it. Why: Render auto-bumped to Python 3.14 which removed the `cgi` stdlib module → broke `httpx` import → every deploy `update_failed`. The same venv rebuild (newer FastAPI) also exposed missing `BackgroundTasks` imports in payments.py + shift_review.py (now fixed). requirements.txt is unpinned, so future rebuilds can resurface similar breaks — if a deploy fails on an import/NameError in a file you didn't touch, that's the cause.
 
 ## MULTI-COMPANY DATABASE
 This Odoo database has multiple companies. WSC is company_id = 1.
