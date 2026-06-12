@@ -1005,3 +1005,10 @@ Calendar job rows now navigate to `/owner/field?open_so=X&date_raw=YYYY-MM-DD`.
 - Owner API routes are under the **/owner** prefix, e.g. `/owner/api/reactivation/candidates`.
 - `/api/reactivation/candidates` is defined in BOTH `routers/owner/dashboard.py` (~line 11624) and `routers/owner/reactivation.py`. dashboard.py is included first in main.py, so **its copy WINS and reactivation.py is dead code**. To change reactivation candidate behavior, edit **dashboard.py**.
 - Reactivation candidate cards now show street **address** (property street + city) instead of just city — in both the list and the opened-customer view.
+
+## Set-aside / "make inactive" policy (2026-06-11)
+- "Inactive" = Odoo **archived** (`active=False`) — there is NO 'Inactive' value in x_studio_activelead (only Active / Lead Only / Do Not Contact). Archiving hides the contact from EVERY forward-looking list.
+- **Moved** → archive only; stays OFF Do Not Call (kept clean). **Passed away** → archive + Do Not Call. **Restore** → un-archive + clear DNC.
+- Other reasons (Too far, Price complaints, Hard to deal with, Low value, Not worth the time, One-time job) = soft park only (no archive/DNC).
+- Single backend: `POST /owner/api/analytics/setaside` ({pid, on, reason}) in routers/owner/analytics.py. Reactivation reuses the SAME endpoint via its "💤 Set aside" reason sheet, so both screens behave identically.
+- 2026-06-11 cleanup: archived 6 Passed-away (+DNC) and 24 Moved (cleared 6 wrongly-DNC'd) from the existing set-aside list.
