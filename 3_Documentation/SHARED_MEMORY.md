@@ -1016,3 +1016,8 @@ Calendar job rows now navigate to `/owner/field?open_so=X&date_raw=YYYY-MM-DD`.
 ## Reactivation cooldown is now selectable (2026-06-11)
 - The reactivation candidate cooldown (don't re-show someone we already texted within the window) is NO LONGER hardcoded at 365 days. Reactivation page has 6 / 9 / 12-month pills; default 12 mo (=365d, same as before).
 - Backend: `/owner/api/reactivation/candidates?cooldown_months=6|9|12` (dashboard.py). Maps 6→183d, 9→274d, 12→365d. Filters `x_studio_last_reactivation_sent`.
+
+## Analytics: set-aside excluded from present KPIs, kept in historical (2026-06-11)
+- Active / Lapsed / Upcoming / Leads counts now EXCLUDE the set-aside bucket (present/forward = today + future). Historical totals (true_customers, lifetime revenue, retention-by-year, leaderboards, Pareto) KEEP set-asides — they were real customers.
+- Analytics is cached (`analytics_customer_cache`); POST /owner/api/analytics/recompute to refresh after logic changes (cron also runs 5am).
+- GOTCHA: archiving a CONTACT does NOT drop them from analytics true-customers — analytics rolls up via active PROPERTY children + Done SOs, not the contact active flag. To remove from present KPIs, the contact must be in the set-aside bucket. (Richard Rodner 23575 was DNC-only, not set aside → showed Active; fixed by setting aside as Moved.)
