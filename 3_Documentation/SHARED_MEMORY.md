@@ -999,3 +999,9 @@ Calendar job rows now navigate to `/owner/field?open_so=X&date_raw=YYYY-MM-DD`.
 
 ### KEY VOCABULARY (added to CLAUDE.md)
 "The schedule" = Render field assistant daily job list. Gate: `state in ['sale','done']` AND `date_order` = that day. Submitted jobs are NOT on the schedule (draft quotations). A job lands on the schedule when Workiz status is Scheduled / Send Confirmation - Text / Next Appointment - Text / Next Appointment 2 - Text.
+
+## Reactivation app — route shadowing gotcha (2026-06-11)
+- The LIVE field app is repo **saunders-render-app** (service wsc-field-assistant), NOT Odoo-Migration/5_Mobile_Interface (that app.py is a dead stale copy — editing it does nothing).
+- Owner API routes are under the **/owner** prefix, e.g. `/owner/api/reactivation/candidates`.
+- `/api/reactivation/candidates` is defined in BOTH `routers/owner/dashboard.py` (~line 11624) and `routers/owner/reactivation.py`. dashboard.py is included first in main.py, so **its copy WINS and reactivation.py is dead code**. To change reactivation candidate behavior, edit **dashboard.py**.
+- Reactivation candidate cards now show street **address** (property street + city) instead of just city — in both the list and the opened-customer view.
