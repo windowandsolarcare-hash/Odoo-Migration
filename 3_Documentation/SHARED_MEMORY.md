@@ -1026,3 +1026,7 @@ Calendar job rows now navigate to `/owner/field?open_so=X&date_raw=YYYY-MM-DD`.
 - Present KPIs (true_customers, active, lapsed, upcoming, leads, active_repeat) exclude PARKED = set-aside bucket OR DNC (x_studio_activelead='Do Not Contact' OR phone_blacklisted/STOP).
 - true_customers is now the PRESENT customer base (excl parked+DNC). All-time count kept as `true_customers_all` for historical ratios. Live: 507 present / 585 all-time, active 355.
 - STOP handler (Odoo action 954, base.automation 6) now ALSO archives the contact (active=False) in addition to blacklist + Do Not Contact + opp Lost. GitHub: 1_Production_Code/odoo_webhook_stop_handler.py.
+
+## Service Area field — use x_studio_service_area, not the empty twin (2026-06-11)
+- Real Service Area field = `x_studio_service_area` (values Hemet / Desert / All areas), on the PROPERTY record. ~712/897 filled.
+- The twin `x_studio_x_studio_service_area` is EMPTY on all properties — CLAUDE.md's table wrongly listed it. Caused analytics service-area graph to be 100% "Unknown" (Nick Conway etc.). Fixed analytics.py to read the right field. Frequency=x_studio_x_frequency, Type=x_studio_x_type_of_service are unaffected.
