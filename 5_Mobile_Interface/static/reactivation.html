@@ -536,7 +536,7 @@
       document.getElementById('candidates-scroll').innerHTML = visible.map((c) => `
         <div class="candidate-card" onclick="openCandidate(${c.partner_id})">
           <div class="cand-customer">${esc(c.name)}</div>
-          <div class="cand-city">${esc(c.city || '')}</div>
+          <div class="cand-city">${esc(c.address || c.city || '')}</div>
           <div class="cand-meta">
             ${c.service ? `<span class="cand-tag service">Service: ${esc(c.service)}</span>` : ''}
             ${c.last_visit ? `<span class="cand-tag date">Last Visit: ${esc(c.last_visit)}</span>` : ''}
