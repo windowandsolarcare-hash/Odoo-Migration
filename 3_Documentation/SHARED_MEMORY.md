@@ -1012,3 +1012,7 @@ Calendar job rows now navigate to `/owner/field?open_so=X&date_raw=YYYY-MM-DD`.
 - Other reasons (Too far, Price complaints, Hard to deal with, Low value, Not worth the time, One-time job) = soft park only (no archive/DNC).
 - Single backend: `POST /owner/api/analytics/setaside` ({pid, on, reason}) in routers/owner/analytics.py. Reactivation reuses the SAME endpoint via its "💤 Set aside" reason sheet, so both screens behave identically.
 - 2026-06-11 cleanup: archived 6 Passed-away (+DNC) and 24 Moved (cleared 6 wrongly-DNC'd) from the existing set-aside list.
+
+## Reactivation cooldown is now selectable (2026-06-11)
+- The reactivation candidate cooldown (don't re-show someone we already texted within the window) is NO LONGER hardcoded at 365 days. Reactivation page has 6 / 9 / 12-month pills; default 12 mo (=365d, same as before).
+- Backend: `/owner/api/reactivation/candidates?cooldown_months=6|9|12` (dashboard.py). Maps 6→183d, 9→274d, 12→365d. Filters `x_studio_last_reactivation_sent`.
