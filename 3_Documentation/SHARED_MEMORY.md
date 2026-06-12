@@ -1021,3 +1021,8 @@ Calendar job rows now navigate to `/owner/field?open_so=X&date_raw=YYYY-MM-DD`.
 - Active / Lapsed / Upcoming / Leads counts now EXCLUDE the set-aside bucket (present/forward = today + future). Historical totals (true_customers, lifetime revenue, retention-by-year, leaderboards, Pareto) KEEP set-asides — they were real customers.
 - Analytics is cached (`analytics_customer_cache`); POST /owner/api/analytics/recompute to refresh after logic changes (cron also runs 5am).
 - GOTCHA: archiving a CONTACT does NOT drop them from analytics true-customers — analytics rolls up via active PROPERTY children + Done SOs, not the contact active flag. To remove from present KPIs, the contact must be in the set-aside bucket. (Richard Rodner 23575 was DNC-only, not set aside → showed Active; fixed by setting aside as Moved.)
+
+## Analytics now excludes DNC + "true customers" is a present KPI (2026-06-11)
+- Present KPIs (true_customers, active, lapsed, upcoming, leads, active_repeat) exclude PARKED = set-aside bucket OR DNC (x_studio_activelead='Do Not Contact' OR phone_blacklisted/STOP).
+- true_customers is now the PRESENT customer base (excl parked+DNC). All-time count kept as `true_customers_all` for historical ratios. Live: 507 present / 585 all-time, active 355.
+- STOP handler (Odoo action 954, base.automation 6) now ALSO archives the contact (active=False) in addition to blacklist + Do Not Contact + opp Lost. GitHub: 1_Production_Code/odoo_webhook_stop_handler.py.
