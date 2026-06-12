@@ -2768,7 +2768,7 @@ async def api_reactivation_candidates(service: str = 'all', city: str = ''):
         contacts = odoo_rpc('res.partner', 'search_read',
             [domain],
             {'fields': [
-                'id', 'name', 'city',
+                'id', 'name', 'city', 'street',
                 'x_studio_last_visit_all_properties',
                 'x_studio_last_reactivation_sent',
                 'x_studio_x_type_of_service',
@@ -2788,15 +2788,18 @@ async def api_reactivation_candidates(service: str = 'all', city: str = ''):
         props = odoo_rpc('res.partner', 'search_read',
             [[['parent_id', 'in', contact_ids],
               ['x_studio_x_studio_record_category', '=', 'Property']]],
-            {'fields': ['id', 'parent_id'], 'limit': 2000})
+            {'fields': ['id', 'parent_id', 'street'], 'limit': 2000})
 
         # Map property_id → contact_id
         prop_to_contact = {}
         contact_to_props = {}
+        contact_to_street = {}
         for p in (props or []):
             cid = p['parent_id'][0] if isinstance(p['parent_id'], list) else p['parent_id']
             prop_to_contact[p['id']] = cid
             contact_to_props.setdefault(cid, []).append(p['id'])
+            if cid not in contact_to_street and p.get('street'):
+                contact_to_street[cid] = p['street']
 
         prop_ids = list(prop_to_contact.keys())
 
@@ -2850,6 +2853,7 @@ async def api_reactivation_candidates(service: str = 'all', city: str = ''):
             candidates.append({
                 'partner_id':  cid,
                 'name':        c.get('name', ''),
+                'address':     c.get('street') or contact_to_street.get(cid, ''),
                 'city':        c.get('city', ''),
                 'service':     svc_label,
                 'frequency':   c.get('x_studio_x_frequency', ''),
