@@ -90,3 +90,7 @@ if contact:
         contact.sudo().message_post(body='[STOP] ' + str(len(open_opps)) + ' opportunity/ies marked Lost. IDs: ' + str(open_opps.ids))
     else:
         contact.sudo().message_post(body='[STOP] No open opportunities found to mark Lost (contact.id=' + str(contact.id) + ')')
+
+    # 6. Archive (make inactive) — STOP customers leave every working list/KPI.
+    # Done LAST so the chatter/CRM logging above runs on the live record first.
+    contact.sudo().write({'active': False})
