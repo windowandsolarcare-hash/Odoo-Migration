@@ -331,36 +331,21 @@ def create_fallback_todo(booking_info, raw_service_address, failed_at, reason):
 def create_odoo_activity(so_id, graveyard_uuid, customer_name, booked_datetime_pacific):
     """Create a To-Do activity on the SO alerting DJ to manually schedule in Workiz."""
     try:
-        # Look up To-Do activity type
-        atype_payload = {
-            "jsonrpc": "2.0", "method": "call",
-            "params": {
-                "service": "object", "method": "execute_kw",
-                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY,
-                         "mail.activity.type", "search_read",
-                         [[["name", "ilike", "to"]]],
-                         {"fields": ["id", "name"], "limit": 5}]
-            }
-        }
-        atype_resp = requests.post(ODOO_URL, json=atype_payload, timeout=10).json()
-        activity_type_id = 4  # fallback: standard To-Do ID
-        if atype_resp.get("result"):
-            for at in atype_resp["result"]:
-                if "to" in at["name"].lower() and "do" in at["name"].lower():
-                    activity_type_id = at["id"]
-                    break
+        # Pull the graveyard job's line items so the Activities page can render the
+        # Phase 5-style "Copy Items & Open in Workiz" card (two-clip clipboard).
+        job = get_workiz_job_details(graveyard_uuid) or {}
+        raw_items = str(job.get('next_job_line_items') or '')
+        item_lines = [ln.lstrip('•').strip() for ln in raw_items.split('\n') if ln.strip()]
+        items_html = '<br/>'.join(item_lines)
 
-        workiz_link = f"https://app.workiz.com/root/job/{graveyard_uuid}/1"
+        # Phase 5 format: summary starts "Add tech + line items" + note carries WORKIZ_UUID and
+        # "Name: $Price" lines, so activities.html buildP5Card renders the copy card for it.
         note = (
-            f"Calendly booking received for {customer_name}.<br/>"
-            f"Requested time: {booked_datetime_pacific} Pacific<br/>"
-            f'Workiz job: <a href="{workiz_link}" target="_blank">{workiz_link}</a><br/><br/>'
-            f"<b>Action required:</b><br/>"
-            f"1. Open the Workiz job above<br/>"
-            f"2. Click the <b>Schedule</b> button to register the appointment<br/>"
-            f"3. Verify date/time looks correct<br/>"
-            f"4. Add Pricing Line Items to the job<br/>"
-            f"5. Change SubStatus to <b>Send Confirmation - Text</b>"
+            f"Add tech + line items<br/>"
+            f"WORKIZ_UUID:{graveyard_uuid}<br/>"
+            f"{items_html}<br/><br/>"
+            f"Calendly booking · {booked_datetime_pacific} Pacific · "
+            f"Schedule in Workiz + set SubStatus to Send Confirmation - Text"
         )
 
         today = datetime.today().strftime('%Y-%m-%d')
@@ -374,8 +359,8 @@ def create_odoo_activity(so_id, graveyard_uuid, customer_name, booked_datetime_p
                          [{
                              "res_model_id": 670,  # sale.order model ID
                              "res_id": so_id,
-                             "activity_type_id": activity_type_id,
-                             "summary": f"Calendly booking: {customer_name} — Schedule in Workiz",
+                             "activity_type_id": 15,  # Follow-up (matches Phase 5)
+                             "summary": f"Add tech + line items — {customer_name}",
                              "note": note,
                              "user_id": ODOO_USER_ID,
                              "date_deadline": today
