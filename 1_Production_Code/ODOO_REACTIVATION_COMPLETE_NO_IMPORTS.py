@@ -9,6 +9,8 @@
 WORKIZ_API_TOKEN = "api_1hu6lroiy5zxomcpptuwsg8heju97iwg"
 WORKIZ_AUTH_SECRET = "sec_334084295850678330105471548"
 WORKIZ_BASE_URL = f"https://api.workiz.com/api/v1/{WORKIZ_API_TOKEN}"
+RENDER_CLONE_URL = "https://wsc-field-assistant.onrender.com/owner/api/workiz/clone_job"
+RENDER_CLONE_TOKEN = "wsc-daily-sync-2026"
 
 # History log configuration
 history_table_name = 'x_crm_activity_log_ids' 
@@ -410,43 +412,28 @@ Primary Service: {primary_service_str}"""
             continue
 
         # NOTE: LineItems, Team, Tags cannot be set via create API - they're read-only or require separate API calls
-        graveyard_data = {
-            "auth_secret": WORKIZ_AUTH_SECRET,
-            "ClientId": client_id,
-            "Country": "US",
-            "FirstName": str(historical_job.get("FirstName") or ""),
-            "LastName": str(historical_job.get("LastName") or ""),
-            "Address": str(historical_job.get("Address") or ""),
-            "City": str(historical_job.get("City") or ""),
-            "State": str(historical_job.get("State") or ""),
-            "PostalCode": postal_clean,
-            "JobType": "Reactivation Lead",
-            "Unit": str(historical_job.get("Unit") or ""),
-            "ServiceArea": str(historical_job.get("ServiceArea") or contact.x_studio_x_studio_service_area or "Hemet"),
-            "JobSource": str(historical_job.get("JobSource") or "Referral"),
-            "information_to_remember": message_body,
-            "JobNotes": str(historical_job.get("JobNotes") or ""),
-            "Phone": phone_clean,
-            # ENRICHMENT: Copy custom field data from historical job
-            "gate_code": str(historical_job.get("gate_code") or historical_job.get("GateCode") or ""),
-            "pricing": str(historical_job.get("pricing") or historical_job.get("Pricing") or ""),
-            "type_of_service_2": str(historical_job.get("type_of_service_2") or historical_job.get("type_of_service") or "On Request"),
-            "frequency": str(historical_job.get("frequency") or "Unknown"),
-            # Use Odoo contact's last_visit_all_properties as the authoritative date —
-            # this is the same date shown in the SMS, ensuring they match.
-            # Fall back to the historical job's last_date_cleaned only if Odoo has nothing.
-            "last_date_cleaned": (last_visit.strftime('%Y-%m-%d') if last_visit else fixed_last_date),
-            "ok_to_text": str(historical_job.get("ok_to_text") or "Yes"),
-            "confirmation_method": str(historical_job.get("confirmation_method") or "Cell Phone"),
-            # LINE ITEMS: Actual prices sent in SMS (for manual entry when customer books)
-            "next_job_line_items": actual_prices_sent
+        clone_body = {
+            # SINGLE SOURCE OF TRUTH: shared Render cloner builds the canonical payload + creates the job.
+            "token": RENDER_CLONE_TOKEN,
+            "source": historical_job,
+            "job_type": "Reactivation Lead",
+            "tos_default": "On Request",
+            "line_items": actual_prices_sent,
+            "extra": {
+                "ClientId": client_id,
+                "Phone": phone_clean,
+                "PostalCode": postal_clean,
+                "ServiceArea": str(historical_job.get("ServiceArea") or contact.x_studio_x_studio_service_area or "Hemet"),
+                "information_to_remember": message_body,
+                "last_date_cleaned": (last_visit.strftime('%Y-%m-%d') if last_visit else fixed_last_date),
+            }
         }
         
         source_order.message_post(body=f"[DEBUG] Creating graveyard job...")
         source_order.message_post(body=f"[DEBUG] Request URL: {WORKIZ_BASE_URL}/job/create/")
         source_order.message_post(body=f"[DEBUG] ClientId: {client_id}")
         
-        create_response = requests.post(f"{WORKIZ_BASE_URL}/job/create/", json=graveyard_data, timeout=10)
+        create_response = requests.post(RENDER_CLONE_URL, json=clone_body, timeout=30)
         
         source_order.message_post(body=f"[DEBUG] Create response status: {create_response.status_code}")
         source_order.message_post(body=f"[DEBUG] Create response body: {create_response.text[:500]}")
@@ -468,13 +455,7 @@ Primary Service: {primary_service_str}"""
                 
                 # Get UUID from data array
                 if isinstance(create_result, dict):
-                    data_list = create_result.get('data', [])
-                    if data_list and len(data_list) > 0:
-                        graveyard_uuid = data_list[0].get('UUID')
-                elif isinstance(create_result, list):
-                    # Fallback: direct list
-                    if len(create_result) > 0:
-                        graveyard_uuid = create_result[0].get('UUID')
+                    graveyard_uuid = create_result.get('workiz_uuid')  # shared cloner returns {ok, workiz_uuid}
             
             if not graveyard_uuid:
                 source_order.message_post(body="⚠️ Could not extract graveyard UUID from response")
