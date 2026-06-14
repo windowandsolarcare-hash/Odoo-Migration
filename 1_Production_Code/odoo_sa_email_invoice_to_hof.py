@@ -28,6 +28,10 @@ if move and move.move_type == 'out_invoice':
     if po:
         subject = 'Invoice #%s — PO #%s' % (move.name, po)
 
+    # Silent open-tracking pixel — pings the tracker when the recipient opens the email.
+    pixel = ('<img src="https://wsc-field-assistant.onrender.com/printing/track/open?po=%s&inv=%s" '
+             'width="1" height="1" style="display:none" alt="">') % (po, move.name)
+
     body = (
         '<p>Attached is our invoice #%s%s. Please pay at your convenience. '
         'Also please note our NEW remittance address:</p>'
@@ -36,12 +40,13 @@ if move and move.move_type == 'out_invoice':
         '<p>Dan Saunders<br>Saunders Printing<br>dan@scenicartprint.com<br>800-283-8765</p>'
     ) % (move.name, (' for your PO #%s' % po) if po else '')
 
+    # NBHOF copy carries the tracking pixel; DJ's silent copy does NOT (so his open isn't logged).
     mail = env['mail.mail'].create({
         'subject': subject,
         'email_from': 'Dan Saunders <dan@scenicartprint.com>',
         'reply_to': 'dan@scenicartprint.com',
         'email_to': to_addr,
-        'body_html': body,
+        'body_html': body + pixel,
         'attachment_ids': [(6, 0, [att.id])],
         'auto_delete': False,
     })
