@@ -350,43 +350,37 @@ LINE ITEMS TO ADD:
     # canonical Workiz payload + creates the job. Phase 5 only supplies its specifics:
     # next maintenance JobType, calculated date, AUTO-SCHEDULED line-item reference,
     # Maintenance default, and the derived ServiceArea (+ SecondPhone).
-    clone_body = {
-        'token': RENDER_CLONE_TOKEN,
-        'source': completed_job_data,
-        'job_type': get_next_job_type(completed_job_data),
-        'job_datetime': scheduled_datetime,
-        'tos_default': 'Maintenance',
-        'line_items': line_items_reference,
-        'extra': {
+    # SINGLE SOURCE OF TRUTH: the Odoo WORKIZ_CLONE server action (id 1338) builds the canonical
+    # payload + creates the job. Odoo is always-up (unlike Render), so this is the reliable path.
+    clone_ctx = {
+        'clone_source': completed_job_data,
+        'clone_job_type': get_next_job_type(completed_job_data),
+        'clone_job_datetime': scheduled_datetime,
+        'clone_tos_default': 'Maintenance',
+        'clone_line_items': line_items_reference,
+        'clone_extra': {
             'ServiceArea': _service_area_for_job(completed_job_data),
             'SecondPhone': (str(completed_job_data.get('SecondPhone'))
                             if completed_job_data.get('SecondPhone') else None),
         },
     }
 
-    print(f"[*] Creating job for {completed_job_data.get('FirstName')} {completed_job_data.get('LastName')} via shared cloner")
+    print(f"[*] Creating job for {completed_job_data.get('FirstName')} {completed_job_data.get('LastName')} via Odoo WORKIZ_CLONE")
 
-    # Retry the shared endpoint — Render deploys/502s are usually brief, so back off and retry
-    # before giving up (the endpoint create is idempotent enough: a hard fail = no job created).
     last_err = 'unknown'
-    for attempt in range(1, 4):  # 3 attempts
+    for attempt in range(1, 4):  # retry Odoo blips (rare) with backoff
         try:
-            response = requests.post(RENDER_CLONE_URL, json=clone_body, timeout=30)
-            if response.status_code == 200:
-                d = response.json()
-                if d.get('ok'):
-                    new_uuid = d.get('workiz_uuid')
-                    print(f"[OK] Job created via shared cloner (attempt {attempt}); UUID: {new_uuid}")
-                    return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid}
-                last_err = d.get('error') or 'clone failed'
-                # A real validation error won't fix itself on retry — stop early.
-                break
-            last_err = f'clone endpoint HTTP {response.status_code}: {response.text[:160]}'
+            clone = odoo_rpc('ir.actions.server', 'run', [[1338]], {'context': clone_ctx})
+            if clone and clone.get('ok') and clone.get('workiz_uuid'):
+                new_uuid = clone['workiz_uuid']
+                print(f"[OK] Job created via Odoo cloner (attempt {attempt}); UUID: {new_uuid}")
+                return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid}
+            last_err = 'clone returned no uuid (create_status=%s)' % ((clone or {}).get('create_status'))
         except Exception as e:
             last_err = str(e)
         if attempt < 3:
             print(f"[!] clone attempt {attempt} failed ({last_err}); retrying…")
-            time.sleep(attempt * 6)  # 6s, 12s backoff (covers Render deploy windows)
+            time.sleep(attempt * 6)
     return {'success': False, 'message': f'clone failed after retries: {last_err}'}
 
 
