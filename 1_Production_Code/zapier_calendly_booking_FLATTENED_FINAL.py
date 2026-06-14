@@ -179,12 +179,13 @@ def update_workiz_job(job_uuid, booking_time_utc, job_type, job_notes=""):
     print(f"   UTC:     {booking_time_utc}")
     print(f"   Pacific: {pacific_datetime}")
     
-    # Fetch current job to get existing notes (so we don't overwrite them)
+    # Fetch the current (graveyard) job — for notes AND to carry its custom fields forward.
+    current_job = get_workiz_job_details(job_uuid) or {}
+
     combined_notes = ""
     if job_notes:
-        current_job = get_workiz_job_details(job_uuid)
         existing_notes = current_job.get('JobNotes', '') if current_job else ''
-        
+
         # Prepend new Calendly notes to existing notes with clear delimiter
         if existing_notes and existing_notes.strip():
             combined_notes = f"[Calendly Booking] {job_notes} |||ORIGINAL_NOTES||| {existing_notes}"
@@ -192,8 +193,8 @@ def update_workiz_job(job_uuid, booking_time_utc, job_type, job_notes=""):
         else:
             combined_notes = f"[Calendly Booking] {job_notes}"
             print(f"[*] Adding Calendly notes as new JobNotes")
-    
-    # Update Workiz job — date/time and type only
+
+    # Update Workiz job — date/time and type.
     # NOTE: SubStatus intentionally NOT set here. DJ manually clicks Schedule in Workiz UI,
     # verifies the time, then sets SubStatus to "Send Confirmation - Text" manually.
     # The scheduling toggle is UI-only and cannot be triggered via API.
@@ -201,8 +202,21 @@ def update_workiz_job(job_uuid, booking_time_utc, job_type, job_notes=""):
         "auth_secret": WORKIZ_AUTH_SECRET,
         "UUID": job_uuid,
         "JobDateTime": pacific_datetime,
-        "JobType": job_type
+        "JobType": job_type,
+        # Carry the graveyard job's custom fields forward (with safe defaults) so the booked
+        # job is never left blank — important for legacy graveyards created before the
+        # reactivation-launch enrichment existed. Mirrors the duplicate-job field set.
+        "Country": "US",
+        "type_of_service_2": str(current_job.get('type_of_service_2') or 'On Request'),
+        "frequency": str(current_job.get('frequency') or 'Unknown'),
+        "confirmation_method": str(current_job.get('confirmation_method') or 'Cell Phone'),
+        "ok_to_text": str(current_job.get('ok_to_text') or 'Yes'),
+        "JobSource": str(current_job.get('JobSource') or 'Referral'),
     }
+    for _f in ('gate_code', 'pricing', 'last_date_cleaned'):
+        _v = current_job.get(_f)
+        if _v:
+            payload[_f] = str(_v)
 
     # Add combined notes if provided (skip if None, which means notes already have Calendly booking)
     if combined_notes:
