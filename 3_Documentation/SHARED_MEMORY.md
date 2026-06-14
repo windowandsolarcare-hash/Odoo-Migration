@@ -1,9 +1,12 @@
-OK
-OK
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-06-11
+# Last updated: 2026-06-14
 # Format: key facts only - both Claudes read this on every session
+
+## 2026-06-14 — BRAND ASSETS + CUSTOMER BOOKING PAGE
+- **Official logo (servable):** `https://wsc-field-assistant.onrender.com/static/brand/logo_window_solar_care.png` (PNG 500×235, white bg, tagline "We don't just Clean, We Care!"). Also in repo `static/brand/` + Odoo-Migration `4_Reference_Data/brand/`. Use for any branded/customer-facing output.
+- **Brand palette:** primary `#5e4766` (plum), secondary `#010101`. Customer-facing name = **"Window & Solar Care"** (ampersand). Phone (951) 972-6946.
+- **NEW customer booking page (Phase 1, live):** public `routers/booking.py` at `/book`; personal portal link `/book/c/<token>`. City-aware availability, books a `Submitted` review-queue SO (not auto-confirmed). Replaces Calendly long-term; Calendly STILL RUNNING in parallel for old reactivation links (~4-6 mo). Do not break Calendly.
 
 ## 2026-06-11 — CUSTOMER ANALYTICS APP (LIVE) + PYTHON RUNTIME PIN
 - **New app:** `/owner/analytics` (own files `routers/owner/analytics.py` + `static/owner/analytics.html`). Snapshot KPIs + per-year trends + 8 charts + cohort retention. Cached in `ir.config_parameter` key `analytics_customer_cache`; recomputed nightly at 5am + on the page's Refresh button.
