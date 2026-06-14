@@ -412,72 +412,38 @@ Primary Service: {primary_service_str}"""
             continue
 
         # NOTE: LineItems, Team, Tags cannot be set via create API - they're read-only or require separate API calls
-        clone_body = {
-            # SINGLE SOURCE OF TRUTH: shared Render cloner builds the canonical payload + creates the job.
-            "token": RENDER_CLONE_TOKEN,
-            "source": historical_job,
-            "job_type": "Reactivation Lead",
-            "tos_default": "On Request",
-            "line_items": actual_prices_sent,
-            "extra": {
-                "ClientId": client_id,
-                "Phone": phone_clean,
-                "PostalCode": postal_clean,
-                "ServiceArea": str(historical_job.get("ServiceArea") or contact.x_studio_x_studio_service_area or "Hemet"),
-                "information_to_remember": message_body,
-                "last_date_cleaned": (last_visit.strftime('%Y-%m-%d') if last_visit else fixed_last_date),
-            }
+        clone_ctx = {
+            'clone_source': historical_job,
+            'clone_job_type': "Reactivation Lead",
+            'clone_tos_default': "On Request",
+            'clone_line_items': actual_prices_sent,
+            'clone_extra': {
+                'ClientId': client_id,
+                'Phone': phone_clean,
+                'PostalCode': postal_clean,
+                'ServiceArea': str(historical_job.get("ServiceArea") or contact.x_studio_x_studio_service_area or "Hemet"),
+                'information_to_remember': message_body,
+                'last_date_cleaned': (last_visit.strftime('%Y-%m-%d') if last_visit else fixed_last_date),
+            },
         }
-        
-        source_order.message_post(body=f"[DEBUG] Creating graveyard job...")
-        source_order.message_post(body=f"[DEBUG] Request URL: {WORKIZ_BASE_URL}/job/create/")
-        source_order.message_post(body=f"[DEBUG] ClientId: {client_id}")
-        
-        create_response = None
-        _clone_err = ''
-        for _attempt in range(3):
-            try:
-                create_response = requests.post(RENDER_CLONE_URL, json=clone_body, timeout=30)
-                if create_response.status_code == 200:
-                    break
-                _clone_err = "HTTP %s" % create_response.status_code
-            except Exception as _e:
-                create_response = None
-                _clone_err = str(_e)
-            if _attempt < 2:
-                source_order.message_post(body="[DEBUG] clone attempt %s failed (%s) - retrying" % (_attempt + 1, _clone_err))
-                _ws = datetime.datetime.now()
-                while (datetime.datetime.now() - _ws).total_seconds() < (4 * (_attempt + 1)):
-                    pass
-        
-        _status = create_response.status_code if create_response is not None else 0
-        source_order.message_post(body=f"[DEBUG] Create response status: {_status}")
-        if create_response is not None:
-            source_order.message_post(body=f"[DEBUG] Create response body: {create_response.text[:500]}")
-        
+        source_order.message_post(body="[DEBUG] Creating graveyard job via Odoo WORKIZ_CLONE (SA 1338)...")
         graveyard_uuid = None
         graveyard_success = False
-        
-        if _status not in [200, 204]:
-            source_order.message_post(body="⚠️ Failed to create graveyard job (HTTP %s) after retries" % _status)
-            source_order.message_post(body="[DEBUG] Last error: %s" % _clone_err)
-            source_order.message_post(body="[INFO] Opportunity created but SMS not sent - re-run reactivation (Render may have been down)")
-        else:
-            source_order.message_post(body=f"[DEBUG] Graveyard job created (HTTP {create_response.status_code})")
-            
-            # Extract UUID from response
-            # Workiz format: {"flag":true, "data":[{"UUID":"MJUERK", ...}]}
-            if create_response.status_code == 200:
-                create_result = create_response.json()
-                
-                # Get UUID from data array
-                if isinstance(create_result, dict):
-                    graveyard_uuid = create_result.get('workiz_uuid')  # shared cloner returns {ok, workiz_uuid}
-            
-            if not graveyard_uuid:
-                source_order.message_post(body="⚠️ Could not extract graveyard UUID from response")
-            else:
-                graveyard_success = True
+        _clone_err = ''
+        for _attempt in range(2):
+            try:
+                _clone_res = env['ir.actions.server'].browse(1338).with_context(**clone_ctx).run()
+                graveyard_uuid = (_clone_res or {}).get('workiz_uuid')
+                if graveyard_uuid:
+                    graveyard_success = True
+                    break
+                _clone_err = "no uuid (create_status=%s)" % ((_clone_res or {}).get('create_status'))
+            except Exception as _e:
+                _clone_err = str(_e)
+        source_order.message_post(body="[DEBUG] WORKIZ_CLONE uuid=%s err=%s" % (graveyard_uuid, _clone_err))
+        if not graveyard_success:
+            source_order.message_post(body="⚠️ Failed to create graveyard job: %s" % _clone_err)
+            source_order.message_post(body="[INFO] Opportunity created but SMS not sent - re-run reactivation.")
         
         # Only proceed with SMS triggering if graveyard job was created successfully
         if graveyard_success and graveyard_uuid:
