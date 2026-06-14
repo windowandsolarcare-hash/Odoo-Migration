@@ -33,9 +33,6 @@ ODOO_API_KEY = "7e92006fd5c71e4fab97261d834f2e6004b61dc6"
 WORKIZ_API_TOKEN = "api_1hu6lroiy5zxomcpptuwsg8heju97iwg"
 WORKIZ_AUTH_SECRET = "sec_334084295850678330105471548"
 WORKIZ_BASE_URL = f"https://api.workiz.com/api/v1/{WORKIZ_API_TOKEN}"
-# Shared canonical Workiz job-cloner (single source of truth — see dashboard.build_clone_payload)
-RENDER_CLONE_URL = "https://wsc-field-assistant.onrender.com/owner/api/workiz/clone_job"
-RENDER_CLONE_TOKEN = "wsc-daily-sync-2026"
 
 
 def odoo_rpc(model, method, args, kwargs=None):
@@ -346,10 +343,6 @@ Previous Job UUID: {completed_job_data.get('UUID')}
 LINE ITEMS TO ADD:
 {line_items_text}"""
     
-    # SINGLE SOURCE OF TRUTH: the shared Render cloner (build_clone_payload) builds the
-    # canonical Workiz payload + creates the job. Phase 5 only supplies its specifics:
-    # next maintenance JobType, calculated date, AUTO-SCHEDULED line-item reference,
-    # Maintenance default, and the derived ServiceArea (+ SecondPhone).
     # SINGLE SOURCE OF TRUTH: the Odoo WORKIZ_CLONE server action (id 1338) builds the canonical
     # payload + creates the job. Odoo is always-up (unlike Render), so this is the reliable path.
     clone_ctx = {
