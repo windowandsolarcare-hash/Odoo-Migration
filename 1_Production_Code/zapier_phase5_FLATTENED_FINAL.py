@@ -32,6 +32,9 @@ ODOO_API_KEY = "7e92006fd5c71e4fab97261d834f2e6004b61dc6"
 WORKIZ_API_TOKEN = "api_1hu6lroiy5zxomcpptuwsg8heju97iwg"
 WORKIZ_AUTH_SECRET = "sec_334084295850678330105471548"
 WORKIZ_BASE_URL = f"https://api.workiz.com/api/v1/{WORKIZ_API_TOKEN}"
+# Shared canonical Workiz job-cloner (single source of truth — see dashboard.build_clone_payload)
+RENDER_CLONE_URL = "https://wsc-field-assistant.onrender.com/owner/api/workiz/clone_job"
+RENDER_CLONE_TOKEN = "wsc-daily-sync-2026"
 
 
 def odoo_rpc(model, method, args, kwargs=None):
@@ -342,114 +345,36 @@ Previous Job UUID: {completed_job_data.get('UUID')}
 LINE ITEMS TO ADD:
 {line_items_text}"""
     
-    # Extract last cleaned date from completed job
-    last_cleaned = ""
-    job_datetime = completed_job_data.get('JobDateTime', '')
-    if job_datetime:
-        last_cleaned = job_datetime.split(' ')[0]  # Extract date portion (YYYY-MM-DD)
-    
-    new_job_data = {
-        'auth_secret': WORKIZ_AUTH_SECRET,
-        
-        # Required fields
-        'ClientId': completed_job_data.get('ClientId'),
-        'FirstName': completed_job_data.get('FirstName'),
-        'LastName': completed_job_data.get('LastName'),
-        'Address': completed_job_data.get('Address'),
-        'City': completed_job_data.get('City'),
-        'State': completed_job_data.get('State', 'CA'),
-        'PostalCode': completed_job_data.get('PostalCode'),
-        'Phone': completed_job_data.get('Phone'),
-        'JobDateTime': scheduled_datetime,
-        'JobType': get_next_job_type(completed_job_data),
-        
-        # Service area: desert vs Hemet (required for routing)
-        'ServiceArea': _service_area_for_job(completed_job_data),
-        
-        # Custom fields (Workiz expects strings for these)
-        'frequency': str(completed_job_data.get('frequency') or ''),
-        'alternating': str(completed_job_data.get('alternating') or ''),
-        'type_of_service_2': str(completed_job_data.get('type_of_service_2') or completed_job_data.get('type_of_service') or 'Maintenance'),
-        'gate_code': str(completed_job_data.get('gate_code') or ''),
-        'pricing': str(completed_job_data.get('pricing') or ''),
-        'ok_to_text': str(completed_job_data.get('ok_to_text') or 'Yes'),
-        'confirmation_method': str(completed_job_data.get('confirmation_method') or 'Cell Phone'),
-        'last_date_cleaned': last_cleaned,  # Date of completed job for reference
-        
-        # LINE ITEMS REFERENCE (with context) - adjust field name to match your Workiz custom field
-        'next_job_line_items': line_items_reference,
-        
-        # Job notes - preserve from previous job
-        'JobNotes': str(completed_job_data.get('JobNotes') or '')
+    # SINGLE SOURCE OF TRUTH: the shared Render cloner (build_clone_payload) builds the
+    # canonical Workiz payload + creates the job. Phase 5 only supplies its specifics:
+    # next maintenance JobType, calculated date, AUTO-SCHEDULED line-item reference,
+    # Maintenance default, and the derived ServiceArea (+ SecondPhone).
+    clone_body = {
+        'token': RENDER_CLONE_TOKEN,
+        'source': completed_job_data,
+        'job_type': get_next_job_type(completed_job_data),
+        'job_datetime': scheduled_datetime,
+        'tos_default': 'Maintenance',
+        'line_items': line_items_reference,
+        'extra': {
+            'ServiceArea': _service_area_for_job(completed_job_data),
+            'SecondPhone': (str(completed_job_data.get('SecondPhone'))
+                            if completed_job_data.get('SecondPhone') else None),
+        },
     }
-    
-    # Add optional fields only if they have valid values (Workiz expects strings)
-    email = completed_job_data.get('Email', '')
-    if email:
-        new_job_data['Email'] = str(email)
-    
-    second_phone = completed_job_data.get('SecondPhone', '')
-    if second_phone:
-        new_job_data['SecondPhone'] = str(second_phone)
-    
-    unit = completed_job_data.get('Unit', '')
-    if unit:
-        new_job_data['Unit'] = str(unit)
-    
-    job_source = completed_job_data.get('JobSource', '')
-    if job_source:
-        new_job_data['JobSource'] = str(job_source)
-    
-    create_url = f'{WORKIZ_BASE_URL}/job/create/'
-    
-    print(f"[*] Creating job for {new_job_data['FirstName']} {new_job_data['LastName']}")
-    
-    # NOTE: Team and Tags are NOT included in create payload per Workiz API:
-    # - Team: Must be assigned via /job/assign/ endpoint after creation
-    # - Tags: Can only be updated via /job/update/ endpoint after creation
-    
+
+    print(f"[*] Creating job for {completed_job_data.get('FirstName')} {completed_job_data.get('LastName')} via shared cloner")
+
     try:
-        response = requests.post(create_url, json=new_job_data, timeout=10)
-        created_ok = False
-
-        # Per Workiz API: 200 = success and returns job resource (UUID, ClientId, link); 204 = No Content.
-        new_uuid = None
-        if response.status_code == 204:
-            print("[OK] Job created successfully (HTTP 204)")
-            created_ok = True
-        elif response.status_code == 200:
-            try:
-                result = response.json()
-                # Docs: { "flag": true, "data": [ { "UUID", "ClientId", "link" } ] } (or array wrapping that)
-                if isinstance(result, list) and len(result) > 0:
-                    result = result[0]
-                if result.get('flag') == True:
-                    data = result.get('data')
-                    if data and isinstance(data, list) and len(data) > 0:
-                        first = data[0]
-                        new_uuid = first.get('UUID')
-                        _link = first.get('link')
-                        print(f"[OK] Job created (HTTP 200); UUID: {new_uuid}; link: {_link or 'n/a'}")
-                    else:
-                        print(f"[OK] Job created (HTTP 200): {result.get('msg', '')}")
-                    created_ok = True
-                elif (result.get('msg') or '').lower().find('created') >= 0:
-                    print(f"[OK] Job created (HTTP 200): {result.get('msg')}")
-                    created_ok = True
-                else:
-                    return {'success': False, 'message': result.get('msg'), 'details': result.get('details')}
-            except Exception:
-                return {'success': False, 'message': "HTTP 200 but invalid JSON"}
-        else:
-            try:
-                error_result = response.json()
-                return {'success': False, 'message': error_result.get('msg'), 'details': error_result.get('details')}
-            except Exception:
-                return {'success': False, 'message': f"HTTP {response.status_code}"}
-
-        if created_ok:
-            return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid}
-    
+        response = requests.post(RENDER_CLONE_URL, json=clone_body, timeout=30)
+        if response.status_code != 200:
+            return {'success': False, 'message': f'clone endpoint HTTP {response.status_code}: {response.text[:200]}'}
+        d = response.json()
+        if not d.get('ok'):
+            return {'success': False, 'message': d.get('error') or 'clone failed'}
+        new_uuid = d.get('workiz_uuid')
+        print(f"[OK] Job created via shared cloner; UUID: {new_uuid}")
+        return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid}
     except Exception as e:
         return {'success': False, 'message': str(e)}
 
