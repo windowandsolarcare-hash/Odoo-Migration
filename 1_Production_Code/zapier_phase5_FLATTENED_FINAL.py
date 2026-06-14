@@ -17,6 +17,7 @@ Generated: 2026-02-07
 
 import requests
 import json
+import time
 from datetime import datetime, timedelta
 import re
 
@@ -365,18 +366,28 @@ LINE ITEMS TO ADD:
 
     print(f"[*] Creating job for {completed_job_data.get('FirstName')} {completed_job_data.get('LastName')} via shared cloner")
 
-    try:
-        response = requests.post(RENDER_CLONE_URL, json=clone_body, timeout=30)
-        if response.status_code != 200:
-            return {'success': False, 'message': f'clone endpoint HTTP {response.status_code}: {response.text[:200]}'}
-        d = response.json()
-        if not d.get('ok'):
-            return {'success': False, 'message': d.get('error') or 'clone failed'}
-        new_uuid = d.get('workiz_uuid')
-        print(f"[OK] Job created via shared cloner; UUID: {new_uuid}")
-        return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid}
-    except Exception as e:
-        return {'success': False, 'message': str(e)}
+    # Retry the shared endpoint — Render deploys/502s are usually brief, so back off and retry
+    # before giving up (the endpoint create is idempotent enough: a hard fail = no job created).
+    last_err = 'unknown'
+    for attempt in range(1, 4):  # 3 attempts
+        try:
+            response = requests.post(RENDER_CLONE_URL, json=clone_body, timeout=30)
+            if response.status_code == 200:
+                d = response.json()
+                if d.get('ok'):
+                    new_uuid = d.get('workiz_uuid')
+                    print(f"[OK] Job created via shared cloner (attempt {attempt}); UUID: {new_uuid}")
+                    return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid}
+                last_err = d.get('error') or 'clone failed'
+                # A real validation error won't fix itself on retry — stop early.
+                break
+            last_err = f'clone endpoint HTTP {response.status_code}: {response.text[:160]}'
+        except Exception as e:
+            last_err = str(e)
+        if attempt < 3:
+            print(f"[!] clone attempt {attempt} failed ({last_err}); retrying…")
+            time.sleep(attempt * 6)  # 6s, 12s backoff (covers Render deploy windows)
+    return {'success': False, 'message': f'clone failed after retries: {last_err}'}
 
 
 # ==============================================================================
