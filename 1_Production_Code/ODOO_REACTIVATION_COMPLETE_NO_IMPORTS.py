@@ -413,6 +413,7 @@ Primary Service: {primary_service_str}"""
         graveyard_data = {
             "auth_secret": WORKIZ_AUTH_SECRET,
             "ClientId": client_id,
+            "Country": "US",
             "FirstName": str(historical_job.get("FirstName") or ""),
             "LastName": str(historical_job.get("LastName") or ""),
             "Address": str(historical_job.get("Address") or ""),
