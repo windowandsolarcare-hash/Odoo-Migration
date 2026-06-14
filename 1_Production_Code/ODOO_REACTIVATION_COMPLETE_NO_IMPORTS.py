@@ -433,18 +433,35 @@ Primary Service: {primary_service_str}"""
         source_order.message_post(body=f"[DEBUG] Request URL: {WORKIZ_BASE_URL}/job/create/")
         source_order.message_post(body=f"[DEBUG] ClientId: {client_id}")
         
-        create_response = requests.post(RENDER_CLONE_URL, json=clone_body, timeout=30)
+        create_response = None
+        _clone_err = ''
+        for _attempt in range(3):
+            try:
+                create_response = requests.post(RENDER_CLONE_URL, json=clone_body, timeout=30)
+                if create_response.status_code == 200:
+                    break
+                _clone_err = "HTTP %s" % create_response.status_code
+            except Exception as _e:
+                create_response = None
+                _clone_err = str(_e)
+            if _attempt < 2:
+                source_order.message_post(body="[DEBUG] clone attempt %s failed (%s) - retrying" % (_attempt + 1, _clone_err))
+                _ws = datetime.datetime.now()
+                while (datetime.datetime.now() - _ws).total_seconds() < (4 * (_attempt + 1)):
+                    pass
         
-        source_order.message_post(body=f"[DEBUG] Create response status: {create_response.status_code}")
-        source_order.message_post(body=f"[DEBUG] Create response body: {create_response.text[:500]}")
+        _status = create_response.status_code if create_response is not None else 0
+        source_order.message_post(body=f"[DEBUG] Create response status: {_status}")
+        if create_response is not None:
+            source_order.message_post(body=f"[DEBUG] Create response body: {create_response.text[:500]}")
         
         graveyard_uuid = None
         graveyard_success = False
         
-        if create_response.status_code not in [200, 204]:
-            source_order.message_post(body=f"⚠️ Failed to create graveyard job (HTTP {create_response.status_code})")
-            source_order.message_post(body=f"[DEBUG] Full response: {create_response.text}")
-            source_order.message_post(body=f"[INFO] Opportunity created but SMS not sent - check Workiz field validation")
+        if _status not in [200, 204]:
+            source_order.message_post(body="⚠️ Failed to create graveyard job (HTTP %s) after retries" % _status)
+            source_order.message_post(body="[DEBUG] Last error: %s" % _clone_err)
+            source_order.message_post(body="[INFO] Opportunity created but SMS not sent - re-run reactivation (Render may have been down)")
         else:
             source_order.message_post(body=f"[DEBUG] Graveyard job created (HTTP {create_response.status_code})")
             
