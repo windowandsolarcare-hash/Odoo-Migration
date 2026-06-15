@@ -1,7 +1,13 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-06-14
+# Last updated: 2026-06-15
 # Format: key facts only - both Claudes read this on every session
+
+## 2026-06-15 — SYNC ROLL-UP, WORKIZ-vs-ODOO JOBS, BOOKING DOMAIN
+- **Field 🔄 Sync now ROLLS UP to the Property master.** SA 955 (Sync from Workiz) syncs the job→SO snapshot AND, if that job is the property's LATEST non-canceled job, pushes gate/pricing/frequency/type-of-service UP to the Property master (`x_studio_x_gate_code`/`x_studio_x_pricing`/`x_studio_x_frequency`/`x_studio_x_type_of_service`). Older jobs DON'T touch the master; non-empty only. So: fix the gate in Workiz on the CURRENT job → Sync → it flows to the property + future jobs. SO fields = frozen snapshot; Property = current master.
+- **Listing a customer's jobs: search BOTH Odoo AND Workiz.** Odoo (sale.order/crm.lead) is NOT complete — "Re-engagement Lead"/"Reactivation Lead" Workiz jobs can be Workiz-ONLY (no Odoo record) and pile up from repeated follow-up texts. Hit the Workiz API to see them.
+- **Deleting a job with an invoice is BLOCKED** by the safe-delete procedure. A posted/in_payment invoice must be reset-to-draft + payment unwound + cancelled (an accounting change, needs DJ OK) before the SO can be deleted.
+- **Customer booking links = `https://wscare.pro/c/<contact_id>-<sig>`** (branded short domain, HTTPS). Reactivation/follow-up SMS now sends THIS (not Calendly), via Workiz automation (`information_to_remember` + SubStatus trigger). Booking → Booking Requests review page (/owner/booking_requests).
 
 ## 2026-06-14 — BRAND ASSETS + CUSTOMER BOOKING PAGE
 - **Official logo (servable):** `https://wsc-field-assistant.onrender.com/static/brand/logo_window_solar_care.png` (PNG 500×235, white bg, tagline "We don't just Clean, We Care!"). Also in repo `static/brand/` + Odoo-Migration `4_Reference_Data/brand/`. Use for any branded/customer-facing output.
