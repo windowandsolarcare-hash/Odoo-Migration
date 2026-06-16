@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-16 (PM) — MY DAY phone notifications (web push) + list search
+- **My Day** (`/owner/myday`, ☀️ tile) now has **phone notifications**. Tap the 🔔 bell in the header on your phone (installed PWA) and Allow. You get a **7 AM daily summary** + a **ping the moment a reminder comes due**. Built on web push (pywebpush + a service-worker push handler in `/sw.js`); an in-app scheduler checks every 5 min. Verify with `POST /owner/api/myday/test-push`. Samsung: set the app Battery = Unrestricted so pings aren't killed. iOS needs the app Added to Home Screen.
+- **My Day list search** ("Search reminders, customers…") finds anything across ALL items, including the 100+ beyond this week (server-backed `/api/myday?q=`). The Add form now matches the Activities Add screen + has the customer "finds anything" search. Tapping a card opens it on the Activities page and **Close returns you to My Day** (was stranding you in Activities).
+
 ## 2026-06-16 — BOOKING/QUOTE/SCHEDULER OVERHAUL (supersedes the 06-15 PM block below)
 - **New Order = single front door** (`/owner/new-order`, Tools tile 🧭). Asks order type → routes: Reactivation reply → Sent Book sheet; Existing/Brand-new → New Job. **Auto-detect** warns if a picked customer has an open reactivation. New Job tile removed from Tools (New Order replaces it; /owner/new-job route kept).
 - **New Job = WORKIZ-ONLY now** (CORRECTION to 06-15 entry below): it does NOT create the Odoo SO. It creates the Workiz job via SA 1338; Phase 3 (Zapier) builds the SO with the correct 6-digit number. SO-create code is commented out for after Workiz retires. Carries name/phone/email/address/ServiceArea/gate/pricing/ClientId/last_date_cleaned + end time; preloads line items to clipboard + opens Workiz Items.
