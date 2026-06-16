@@ -1,7 +1,19 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-06-15
+# Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
+
+## 2026-06-16 — BOOKING/QUOTE/SCHEDULER OVERHAUL (supersedes the 06-15 PM block below)
+- **New Order = single front door** (`/owner/new-order`, Tools tile 🧭). Asks order type → routes: Reactivation reply → Sent Book sheet; Existing/Brand-new → New Job. **Auto-detect** warns if a picked customer has an open reactivation. New Job tile removed from Tools (New Order replaces it; /owner/new-job route kept).
+- **New Job = WORKIZ-ONLY now** (CORRECTION to 06-15 entry below): it does NOT create the Odoo SO. It creates the Workiz job via SA 1338; Phase 3 (Zapier) builds the SO with the correct 6-digit number. SO-create code is commented out for after Workiz retires. Carries name/phone/email/address/ServiceArea/gate/pricing/ClientId/last_date_cleaned + end time; preloads line items to clipboard + opens Workiz Items.
+- **Shared scheduler brain** (`scheduler.py` `build_day_plan` + `/owner/api/scheduler/day-plan`) + `static/owner/route_map.js` (`WSCRouteMap`, Leaflet/OSRM). Used by Booking Requests, **reactivation Book Job sheet**, and **New Job step 3** — all show that day's schedule + free 1.5h slots (green = route-tightest) + driving-route map.
+- **Time fields = 15-min dropdowns everywhere** (`WSCTime.fill`), NOT native `<input type=time>` (its Android clock dialog clipped the Set button). Applies to New Job, reactivation Book, online booking review.
+- **WINDOW QUOTE tool fixes:** Pick-from-schedule now BRANCHES — a `Quote`-type job (call-in quote made in Workiz) is reused in place; a REAL job (e.g. solar) gets a SEPARATE new quote SO (no longer overwrites the solar job's line items — that was a bug). **Approve & Push** creates the Workiz job (if none) + renames the SO to the Workiz number, then pushes notes. LIVE quote routes are in `dashboard.py` (not quotes.py — shadow).
+- **SO name = Workiz SerialId, `str(int(SerialId)).zfill(6)`** (e.g. 004812). Directly-created SOs get native `S0xxx` that don't match → rename to SerialId. **Phase 4 backstop** auto-renames any uuid-linked `S0…` SO to its Workiz number on the next poll (fixes strays like S00133→004749).
+- **Calendly bookings now show on the Booking Requests page** (single incoming hub), NOT a separate Activity. Section "📅 Booked via Calendly · open in Workiz" with the Workiz job link + a Done button. (Zapier `zapier_calendly_booking` calls `add_calendly_incoming()` → `booking.calendly.incoming`.)
+- **Reactivation:** pricing now baked into the graveyard at creation (SA 563 clone_extra). Reactivation candidate filter (on the CONTACT): `record_category='Contact'`, `activelead='Active'`, `last_visit_all_properties` < 6mo ago, `next_job_date`=False, `last_reactivation_sent` past cooldown (6/9/12mo) or False, has window/solar service, not set-aside.
+- **Bev Hartin** (contact 23629) set up as a reactivation TEST: email=dansyourrealtor@gmail.com + phone=DJ's 951-972-6946, only her 2 real 2023 jobs remain, now shows on reactivation candidates.
+- **Workiz job DELETE API:** `POST /job/delete/{UUID}/` body `{auth_secret, ID:UUID}` (ID required).
 
 ## 2026-06-15 (PM) — NEW JOB → WORKIZ + SHARED SCHEDULER/MAP
 - **NEW ORDER front door (/owner/new-order):** one entry for booking any job. Asks reactivation reply / existing / brand-new, then routes — reactivation→the Sent Book sheet, existing/new→New Job. Auto-detect: if you pick a customer who has an OPEN reactivation lead, it warns and offers to book that instead (so a reactivation never gets mishandled even if you tap the wrong door). Tools tile = 🧭 New Order.
