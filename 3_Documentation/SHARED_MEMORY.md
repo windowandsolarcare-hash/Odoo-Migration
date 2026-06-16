@@ -3,6 +3,13 @@
 # Last updated: 2026-06-15
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-15 (PM) — NEW JOB → WORKIZ + SHARED SCHEDULER/MAP
+- **New Job intake (/owner/new-job) now creates a real Workiz job** (via shared cloner SA 1338, from scratch) AND links its uuid onto the SO. Phase 3 is idempotent on the uuid so no duplicate SO. So a job booked in New Job now appears in Workiz too (was Odoo-only before). Success screen has "Open in Workiz →".
+- **Route-shadow fixed:** the whole intake suite was DUPLICATED in dashboard.py and shadowing new_job.py (new_job.py was dead). Removed the dupe; new_job.py now owns `/api/intake/*` + `/new-job`. (Same trap as the reactivation shadow.)
+- **Shared scheduler brain:** new `routers/owner/scheduler.py` `build_day_plan` + `GET /owner/api/scheduler/day-plan?date=&lat=&lon=` returns that day's schedule + free 1.5h slots + route-tightest GPS slot. New `static/owner/route_map.js` (`WSCRouteMap.render`) = shared Leaflet/OSRM driving-route map.
+- **All 3 booking funnels now share it:** online Booking Requests (backend delegates to build_day_plan), reactivation Book Job sheet (route map added; /suggest returns the customer's prop coords), and New Job step 3 (route map added). New stop = plum ★, existing day's jobs = green in time order, redraws as you change date/time.
+- **Workiz job DELETE API** needs `POST /job/delete/{UUID}/` with body `{auth_secret, ID:UUID}` — the `ID` body field is required.
+
 ## 2026-06-15 — SYNC ROLL-UP, WORKIZ-vs-ODOO JOBS, BOOKING DOMAIN
 - **Field 🔄 Sync now ROLLS UP to the Property master.** SA 955 (Sync from Workiz) syncs the job→SO snapshot AND, if that job is the property's LATEST non-canceled job, pushes gate/pricing/frequency/type-of-service UP to the Property master (`x_studio_x_gate_code`/`x_studio_x_pricing`/`x_studio_x_frequency`/`x_studio_x_type_of_service`). Older jobs DON'T touch the master; non-empty only. So: fix the gate in Workiz on the CURRENT job → Sync → it flows to the property + future jobs. SO fields = frozen snapshot; Property = current master.
 - **Listing a customer's jobs: search BOTH Odoo AND Workiz.** Odoo (sale.order/crm.lead) is NOT complete — "Re-engagement Lead"/"Reactivation Lead" Workiz jobs can be Workiz-ONLY (no Odoo record) and pile up from repeated follow-up texts. Hit the Workiz API to see them.
