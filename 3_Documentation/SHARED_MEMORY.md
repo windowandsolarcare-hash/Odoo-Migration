@@ -3,6 +3,12 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-16 (PM) — ADD TO SCHEDULE + field 3-dot menu parity
+- **"📅 Add to schedule"** button at the top of today's list in the **field assistant** (`/owner/field`). Tap → sheet: **What** (e.g. "Steve"), **Day** (defaults today), **Time** (15-min dropdown 6 AM–8 PM), optional **Notes**. Saves a confirmed **Personal Time** block that shows inline on the schedule at that time. Backend `POST /owner/api/schedule/add_block` creates+confirms a Personal Time sale.order (partner 23054, company 1, job_type 'Personal Time', notes_snapshot1='[Job Notes] …'), PT→UTC, writes date_order back after confirm.
+- **My Day → Put on schedule:** every reminder card now has a **📅** button → jumps to the field schedule with the add-block sheet **prefilled** from the task; on save it **marks the to-do Done** in My Day (no duplicate). URL hand-off `/owner/field?block_name=&block_date=&block_time=&myday_id=&myday_source=`; all sheet logic lives in field.html.
+- **Field row 3-dot (⋯) menu now ALWAYS shows all 6 items** (Open in Workiz / Open Odoo SO / Open Property / Sync / Add Workiz Note / Delete). Items a job can't use are **grayed out** instead of hidden. A job with **no Workiz job (no uuid/link)** — e.g. an Odoo-only SO like Sam Nunn `S00128` — grays the four Workiz actions. Sync is now correctly gated on the Workiz uuid, not just the SO id.
+- Tech note (Odoo 19, verified): confirming an **empty sale.order (no order lines) works** — needed for Personal Time blocks. `action_confirm` resets `date_order` to now() so always write it back.
+
 ## 2026-06-16 (PM) — MY DAY organize: priority / categories / reorder / collapse
 - **My Day** now organizes reminders: **Priority** High/Med/Low (colored flag), **Categories** = free-form tags you add/rename/delete IN the app ("✎ Categories"), **drag-to-reorder** (⠿ handle), **collapsible groups**. Toggle grouping **Date / Category / Priority** (segmented buttons under the search). Filter chips (your categories) narrow the list.
 - Tap **⋮** on a reminder to edit it (title/date/time/priority/categories), snooze, or delete. Tapping the card body still opens it on Activities and returns here.
