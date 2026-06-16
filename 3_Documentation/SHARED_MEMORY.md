@@ -3,6 +3,11 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-16 (PM) — MY DAY organize: priority / categories / reorder / collapse
+- **My Day** now organizes reminders: **Priority** High/Med/Low (colored flag), **Categories** = free-form tags you add/rename/delete IN the app ("✎ Categories"), **drag-to-reorder** (⠿ handle), **collapsible groups**. Toggle grouping **Date / Category / Priority** (segmented buttons under the search). Filter chips (your categories) narrow the list.
+- Tap **⋮** on a reminder to edit it (title/date/time/priority/categories), snooze, or delete. Tapping the card body still opens it on Activities and returns here.
+- Tech: priority = custom field `x_myday_priority` on project.task; categories = native `project.tags` but My Day only manages its OWN subset (registry param `myday.tags`) and NEVER deletes a tag shared with other features; reorder = native `sequence`. API `/owner/api/myday` now returns flat `{items,tags,today}`.
+
 ## 2026-06-16 (PM) — MY DAY phone notifications (web push) + list search
 - **My Day** (`/owner/myday`, ☀️ tile) now has **phone notifications**. Tap the 🔔 bell in the header on your phone (installed PWA) and Allow. You get a **7 AM daily summary** + a **ping the moment a reminder comes due**. Built on web push (pywebpush + a service-worker push handler in `/sw.js`); an in-app scheduler checks every 5 min. Verify with `POST /owner/api/myday/test-push`. Samsung: set the app Battery = Unrestricted so pings aren't killed. iOS needs the app Added to Home Screen.
 - **My Day list search** ("Search reminders, customers…") finds anything across ALL items, including the 100+ beyond this week (server-backed `/api/myday?q=`). The Add form now matches the Activities Add screen + has the customer "finds anything" search. Tapping a card opens it on the Activities page and **Close returns you to My Day** (was stranding you in Activities).
