@@ -2697,7 +2697,21 @@ def main(input_data):
         so_id = existing_so['id']
         print(f"[OK] Found existing SO: {existing_so['name']} (ID: {so_id})")
         so_state = existing_so.get('state')
-        
+
+        # Backstop rename: if this uuid-linked SO still has a native Odoo name (S0…) but Workiz
+        # has a SerialId, rename it to the 6-digit Workiz number so the SO number matches Workiz.
+        # Fixes quote-tool / directly-created SOs (and existing strays like S00133 -> 004749).
+        try:
+            _curname = (existing_so.get('name') or '').strip()
+            _serial = workiz_job.get('SerialId', '')
+            if _curname[:1].upper() == 'S' and _serial:
+                _newname = format_serial_id(_serial)
+                if _newname and _newname != _curname:
+                    _odoo_write("sale.order", [so_id], {"name": _newname})
+                    print(f"[OK] Renamed SO {_curname} -> {_newname} (match Workiz SerialId)")
+        except Exception as _e:
+            print(f"[!] SO rename backstop skipped: {_e}")
+
         result = update_existing_sales_order(so_id, workiz_job, so_state=so_state)
 
         # Task removal on Submitted disabled — tasks no longer used.
