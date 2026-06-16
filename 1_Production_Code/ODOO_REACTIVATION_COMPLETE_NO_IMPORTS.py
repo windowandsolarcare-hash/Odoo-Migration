@@ -424,6 +424,7 @@ Primary Service: {primary_service_str}"""
                 'ServiceArea': str(historical_job.get("ServiceArea") or contact.x_studio_x_studio_service_area or "Hemet"),
                 'information_to_remember': message_body,
                 'last_date_cleaned': (last_visit.strftime('%Y-%m-%d') if last_visit else fixed_last_date),
+                'pricing': actual_prices_sent,
             },
         }
         source_order.message_post(body="[DEBUG] Creating graveyard job via Odoo WORKIZ_CLONE (SA 1338)...")
