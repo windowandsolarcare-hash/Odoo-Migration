@@ -378,6 +378,48 @@ def create_odoo_activity(so_id, graveyard_uuid, customer_name, booked_datetime_p
         print(f"[WARNING] create_odoo_activity failed: {e}")
     return False
 
+
+def add_calendly_incoming(so_id, graveyard_uuid, customer_name, booked_datetime_pacific):
+    """Feed the owner Booking Requests page (single incoming hub) with this Calendly booking
+    instead of a separate Activity. Writes ir.config_parameter 'booking.calendly.incoming'
+    (JSON list, newest first, capped 100). The page shows a 'Booked via Calendly · finish in
+    Workiz' card with the Workiz link to add tech + line items."""
+    import json as _j
+    try:
+        job = get_workiz_job_details(graveyard_uuid) or {}
+        raw_items = str(job.get('next_job_line_items') or '')
+        items = '\n'.join(ln.lstrip('•').strip() for ln in raw_items.split('\n') if ln.strip())
+        entry = {
+            'so_id': so_id,
+            'workiz_uuid': graveyard_uuid,
+            'workiz_link': f'https://app.workiz.com/root/job/{graveyard_uuid}/1',
+            'customer': customer_name,
+            'date': booked_datetime_pacific,
+            'items': items,
+            'added': datetime.today().strftime('%Y-%m-%d %H:%M'),
+        }
+        getp = {"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "ir.config_parameter", "get_param", ["booking.calendly.incoming"]]}}
+        cur = requests.post(ODOO_URL, json=getp, timeout=10).json().get("result") or "[]"
+        try:
+            lst = _j.loads(cur) if isinstance(cur, str) else []
+        except Exception:
+            lst = []
+        if not isinstance(lst, list):
+            lst = []
+        lst = [e for e in lst if e.get('workiz_uuid') != graveyard_uuid]   # dedup
+        lst.insert(0, entry)
+        lst = lst[:100]
+        setp = {"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw",
+                "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "ir.config_parameter", "set_param",
+                         ["booking.calendly.incoming", _j.dumps(lst)]]}}
+        requests.post(ODOO_URL, json=setp, timeout=10)
+        print(f"[OK] Calendly booking queued to Booking Requests hub: {graveyard_uuid}")
+        return True
+    except Exception as e:
+        print(f"[WARNING] add_calendly_incoming failed: {e}")
+    return False
+
 def set_tasks_to_planned(so_id):
     """Find all project tasks for this SO and move them to Planned stage (ID 17).
     Phase 3 (Workiz webhook) normally does this, but it doesn't fire for Calendly-booked SOs."""
@@ -1151,12 +1193,20 @@ def main(input_data):
     # Alert DJ to go to Workiz, click Schedule, verify time, then set
     # SubStatus to "Send Confirmation - Text" manually.
 
-    create_odoo_activity(
+    # Single incoming hub: feed the owner Booking Requests page instead of a separate Activity.
+    # (Old create_odoo_activity kept below, commented, in case we want to revert.)
+    add_calendly_incoming(
         sales_order_id,
         opportunity['x_workiz_graveyard_uuid'],
         booking_info['name'],
         booked_datetime_pacific
     )
+    # create_odoo_activity(
+    #     sales_order_id,
+    #     opportunity['x_workiz_graveyard_uuid'],
+    #     booking_info['name'],
+    #     booked_datetime_pacific
+    # )
 
     set_tasks_to_planned(sales_order_id)
 
