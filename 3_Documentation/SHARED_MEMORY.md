@@ -4,6 +4,8 @@
 # Format: key facts only - both Claudes read this on every session
 
 ## 2026-06-15 (PM) — NEW JOB → WORKIZ + SHARED SCHEDULER/MAP
+- **NEW ORDER front door (/owner/new-order):** one entry for booking any job. Asks reactivation reply / existing / brand-new, then routes — reactivation→the Sent Book sheet, existing/new→New Job. Auto-detect: if you pick a customer who has an OPEN reactivation lead, it warns and offers to book that instead (so a reactivation never gets mishandled even if you tap the wrong door). Tools tile = 🧭 New Order.
+
 - **New Job intake (/owner/new-job) now creates a real Workiz job** (via shared cloner SA 1338, from scratch) AND links its uuid onto the SO. Phase 3 is idempotent on the uuid so no duplicate SO. So a job booked in New Job now appears in Workiz too (was Odoo-only before). Success screen has "Open in Workiz →".
 - **Route-shadow fixed:** the whole intake suite was DUPLICATED in dashboard.py and shadowing new_job.py (new_job.py was dead). Removed the dupe; new_job.py now owns `/api/intake/*` + `/new-job`. (Same trap as the reactivation shadow.)
 - **Shared scheduler brain:** new `routers/owner/scheduler.py` `build_day_plan` + `GET /owner/api/scheduler/day-plan?date=&lat=&lon=` returns that day's schedule + free 1.5h slots + route-tightest GPS slot. New `static/owner/route_map.js` (`WSCRouteMap.render`) = shared Leaflet/OSRM driving-route map.
