@@ -3,6 +3,13 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — UNIFIED SCHEDULER + 7-MILE DAY-PICK RULE
+- **One day-picker engine now drives both Phase 5 (auto maintenance) and the reactivation Book sheet** — `scheduler.rank_days`. It ranks the customer's city service-weekdays around the frequency-cycle target by route tightness + open slots.
+- **The 7-mile rule (DJ's call):** it walks candidate days outward from the ideal cycle date and takes the **first day where you're already within ~7 miles of another job that has an open slot** — it does NOT push weeks further out just to save a couple miles. Empty days (a special trip) are avoided unless nothing else is reachable. The standard 1.5-hour slot grid (8:00/9:30/11:00/12:30/2:00/3:30) is used everywhere now.
+- **Frequency drives the anchor**, not a fixed 3 months: 6-month customers target ~6 months out, 12-month ~12 months. Search window widens with the cycle (3mo ±21d … 12mo ±42d). For a LAPSED reactivation customer (already overdue) the target collapses to "today forward — as soon as we're next in their area."
+- Reactivation Book sheet now suggests the **top 3** route-tightest days (was the old proximity logic). Verified: Dwight Fichtner (Hemet) → 3 Tuesdays, first = a day with 5 nearby jobs 0.2 mi away.
+- STILL separate: Render Claude's phone "find an opening" tool (`find_next_opening`) — different "fit them in soon" use, left as-is for now.
+
 ## 2026-06-17 — MY DAY recurring to-dos
 - **My Day reminders can now REPEAT.** Add/Edit a reminder → **Repeat** dropdown: Daily / Every weekday (Mon–Fri) / Weekly / Every 2 weeks / Monthly (default = does not repeat). Recurring cards show a **🔁** tag.
 - When you **check off** a recurring to-do it goes to **Done history** AND a **fresh copy auto-appears** for the next date (weekly → +7 days, monthly → same day next month, etc.). Time-of-day is preserved (PT day-math).
