@@ -726,18 +726,18 @@ def write_next_job_date_to_contact(contact_id, scheduled_datetime_str):
 # PHASE 5A: MAINTENANCE PATH
 # ==============================================================================
 
-def get_best_fit(property_id, target_date_str):
+def get_best_fit(property_id, target_date_str, window_days=21):
     """Ask the Render scheduler for the best DAY + route-tightest slot in a window AROUND the
-    target (~3-month) date — by availability + route geography, NOT exact-cycle math. Searches
-    the property city's service weekdays in target±21 days and picks the day you're already
-    nearest an existing job with an open slot. Reuses the EXACT engine the booking +
-    Maintenance-to-Schedule screens use (build_day_plan). Returns ('YYYY-MM-DD','HH:MM:00') or
-    (None, None) — caller keeps the city-weekday default on None."""
+    target (frequency-cycle) date — by availability + route geography, NOT exact-cycle math.
+    Searches the property city's service weekdays in target±window and picks the FIRST day
+    you're already within ~7 miles of an existing job with an open slot. Reuses the EXACT
+    engine the booking + Maintenance-to-Schedule screens use (build_day_plan). Returns
+    ('YYYY-MM-DD','HH:MM:00') or (None, None) — caller keeps the city-weekday default on None."""
     if not target_date_str or not property_id:
         return None, None
     try:
         url = ('https://wsc-field-assistant.onrender.com/owner/api/scheduler/best-fit'
-               '?prop_id=%s&target=%s&window=21' % (property_id, target_date_str[:10]))
+               '?prop_id=%s&target=%s&window=%s' % (property_id, target_date_str[:10], window_days))
         r = requests.get(url, timeout=30)
         if r.status_code != 200:
             return None, None
@@ -781,9 +781,13 @@ def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoic
 
     # Ask the Render scheduler for the BEST DAY + route-tightest slot in a window AROUND that
     # target (availability + route geography, same engine the booking + Maintenance-to-Schedule
-    # screens use). It may shift a few weeks off the exact cycle to land on a tighter route day.
+    # screens use). It may shift off the exact cycle to land on a tighter route day. The window
+    # scales with the cycle (longer cycle = exact date matters less = look wider).
     # Falls back to the city-weekday default if the app is unreachable or no open day is found.
-    best_date, best_time = get_best_fit(property_id, scheduled_datetime[:10])
+    _fm = re.search(r'(\d+)', str(frequency or ''))
+    _months = int(_fm.group(1)) if _fm else 3
+    _window = min(42, max(21, _months * 4 + 9))
+    best_date, best_time = get_best_fit(property_id, scheduled_datetime[:10], _window)
     if best_date and best_time:
         scheduled_datetime = best_date + ' ' + best_time
         print(f"[OK] Best-fit day+slot applied: {scheduled_datetime}")
