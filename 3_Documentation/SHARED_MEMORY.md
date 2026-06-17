@@ -14,6 +14,12 @@ Canonical roadmap toward end-to-end autonomous ops (intake→schedule→execute�
 - Polish: unify the last scheduler fork (`find_next_opening`→`rank_days`); reactivation `initialized` field.
 - DJ's start-three: Zapier→Render migration, A2P paperwork, opening balances.
 
+## 2026-06-17 — ONLINE BOOKING NOW OFFERS ROUTE-AWARE DATES
+- **The customer booking page (`/book`) now offers days that are best for OUR schedule**, not just the soonest. It was the last place still picking dates geography-blind (next 4 open city-days, chronological).
+- Now it ranks open days **"soonest that's good for us"**: among the soonest open service-days, the ones where we're **already within ~7 miles of a job that day** come first (flagged "📍 We're in your area"); it only reaches further out if none of the soonest days are nearby. Same city map + 7-mile rule as Phase 5 / reactivation (shared from `scheduler.py`).
+- Uses the customer's address coordinates (from the address autocomplete pick, or their property if it's a known-customer link). Before they pick an address it falls back to city-level ordering, then refines once the address is in.
+- Still NOT route-aware (future): Render Claude's phone "find an opening" tool, and the New Job date chips.
+
 ## 2026-06-17 — UNIFIED SCHEDULER + 7-MILE DAY-PICK RULE
 - **One day-picker engine now drives both Phase 5 (auto maintenance) and the reactivation Book sheet** — `scheduler.rank_days`. It ranks the customer's city service-weekdays around the frequency-cycle target by route tightness + open slots.
 - **The 7-mile rule (DJ's call):** it walks candidate days outward from the ideal cycle date and takes the **first day where you're already within ~7 miles of another job that has an open slot** — it does NOT push weeks further out just to save a couple miles. Empty days (a special trip) are avoided unless nothing else is reachable. The standard 1.5-hour slot grid (8:00/9:30/11:00/12:30/2:00/3:30) is used everywhere now.
