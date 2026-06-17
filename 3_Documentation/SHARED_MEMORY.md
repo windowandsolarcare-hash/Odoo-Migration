@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — Book a job from the Schedule Calendar + My Day already on it
+- The **Schedule Calendar** is the place to look ahead (the field schedule only runs ~2-3 weeks). It now has a green **"➕ Book a job"** button on each day → opens **New Order** prefilled to that day, so you can book a future job (e.g. around Thanksgiving) right from where you're looking. New Order still asks existing/new customer; the chosen day carries into New Job.
+- Heads-up: your **My Day items already appear on the calendar** — they're under the "Activities" filter (the calendar pulls them from the same place as My Day). They're just not labeled "My Day". (A clearer label + a dedicated My Day chip is a planned tweak.)
+
 ## 2026-06-17 — Put a Google Calendar event on the WORK schedule
 - On the **Schedule Calendar**, tapping a day shows its Google Calendar events. Each now has a green **"📅 Add to schedule"** button (next to "Open in GCal").
 - Tap it and that event becomes a **Personal Time block** on your actual work/field schedule at its time (all-day events default to 9:00 AM — adjust on the schedule). Title + location carry into the block notes.
