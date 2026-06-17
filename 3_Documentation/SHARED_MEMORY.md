@@ -3,6 +3,17 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — SYSTEM ROADMAP ("complete the system", DJ-approved)
+Canonical roadmap toward end-to-end autonomous ops (intake→schedule→execute→pay→bookkeep→retain→grow, approve-first, phone-run). Full version in Claude Code memory `project_system_roadmap`. Headline items:
+- **Reliability:** finish Zapier→Render migration (Phases 3/4/5/6) [top leverage]; `/owner/health` monitor; fix Notes Google-OAuth 7-day expiry; a test/staging path (no more prod-only).
+- **Growth:** review-engine after Done jobs (needs Twilio A2P — start paperwork now); WordPress→Odoo Website + SEO; employee referral program.
+- **Finance:** opening balances + finish the accounting bridge (real Chase ≈ $1,000 target); recurring auto-bookkeeping (cash-expense capture); fix Stripe abandoned-checkout stranded invoice.
+- **Data integrity:** Workiz↔Odoo reconciliation sweep/tool; finish at-source job provenance.
+- **★ NEW (DJ 2026-06-17): AI answers inbound TEXTS + PHONE CALLS** — AI receptionist: auto-answer customer SMS (book/reschedule via the shared `rank_days` scheduler, answer questions, handle reactivation replies, escalate to DJ) + AI voice for missed/after-hours calls (qualify, book, take message, text a link). Needs Twilio A2P + a Voice number; start approve-first → autonomous; honor Do-Not-Contact/STOP.
+- **★ NEW (DJ 2026-06-17): Revisit Render Claude (YOU) and make you better** — audit + upgrade the field assistant: tighten SYSTEM_PROMPT, close tool/capability gaps (e.g. give you the customer "brain" + the `rank_days` scheduler), enforce numbered-list replies everywhere, revisit model/cost + reliability.
+- Polish: unify the last scheduler fork (`find_next_opening`→`rank_days`); reactivation `initialized` field.
+- DJ's start-three: Zapier→Render migration, A2P paperwork, opening balances.
+
 ## 2026-06-17 — UNIFIED SCHEDULER + 7-MILE DAY-PICK RULE
 - **One day-picker engine now drives both Phase 5 (auto maintenance) and the reactivation Book sheet** — `scheduler.rank_days`. It ranks the customer's city service-weekdays around the frequency-cycle target by route tightness + open slots.
 - **The 7-mile rule (DJ's call):** it walks candidate days outward from the ideal cycle date and takes the **first day where you're already within ~7 miles of another job that has an open slot** — it does NOT push weeks further out just to save a couple miles. Empty days (a special trip) are avoided unless nothing else is reachable. The standard 1.5-hour slot grid (8:00/9:30/11:00/12:30/2:00/3:30) is used everywhere now.
