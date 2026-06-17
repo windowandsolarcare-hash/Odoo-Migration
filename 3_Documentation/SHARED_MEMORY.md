@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — Community Pass on the job detail (gate/HOA access pass)
+- The field job detail now has a **🎫 Community Pass** card (alongside Photos). Snap a photo OR upload a PDF of a gated-community access pass; it shows on that job and taps open full-screen (to show at the gate). Per-job. Delete with the × on each.
+- Backend: stored as an `ir.attachment` on the SO tagged `description='community_pass'`. Endpoints `GET /owner/api/passes?so_id=`, `POST /owner/api/pass_delete` (only deletes passes, never real photos), upload via the existing `POST /owner/api/attachment` (now accepts `description`). Served by `/owner/api/attachment_image`. Passes are kept out of the regular Photos section.
+
 ## 2026-06-17 — Re-engagement SMS: dropped redundant customer name before the address
 - The re-engagement text said "Hi Dwight … We last cleaned at **Dwight Fichtner, 404 Tewell Drive** on …" — name printed twice. Now it reads "We last cleaned at **404 Tewell Drive**".
 - **Why:** an Odoo Property record's display name (and `partner_shipping_id[1]`) is "Customer Name, Street" when it has a parent contact; the `street` field is the clean address. **Rule:** any customer-facing text (SMS, email, booking confirmation) must build the address from `street`, NOT the display name, or the name double-prints.
