@@ -726,28 +726,30 @@ def write_next_job_date_to_contact(contact_id, scheduled_datetime_str):
 # PHASE 5A: MAINTENANCE PATH
 # ==============================================================================
 
-def get_best_slot_time(date_str, property_id):
-    """Ask the Render scheduler for the route-tightest free 1.5h slot on date_str for this
-    property — reuses the EXACT engine the booking + Maintenance-to-Schedule screens use
-    (build_day_plan). Returns 'HH:MM:00' or None (caller keeps the default time on None)."""
-    if not date_str or not property_id:
-        return None
+def get_best_fit(property_id, target_date_str):
+    """Ask the Render scheduler for the best DAY + route-tightest slot in a window AROUND the
+    target (~3-month) date — by availability + route geography, NOT exact-cycle math. Searches
+    the property city's service weekdays in target±21 days and picks the day you're already
+    nearest an existing job with an open slot. Reuses the EXACT engine the booking +
+    Maintenance-to-Schedule screens use (build_day_plan). Returns ('YYYY-MM-DD','HH:MM:00') or
+    (None, None) — caller keeps the city-weekday default on None."""
+    if not target_date_str or not property_id:
+        return None, None
     try:
-        url = ('https://wsc-field-assistant.onrender.com/owner/api/scheduler/day-plan'
-               '?date=%s&prop_id=%s' % (date_str, property_id))
-        r = requests.get(url, timeout=20)
+        url = ('https://wsc-field-assistant.onrender.com/owner/api/scheduler/best-fit'
+               '?prop_id=%s&target=%s&window=21' % (property_id, target_date_str[:10]))
+        r = requests.get(url, timeout=30)
         if r.status_code != 200:
-            return None
+            return None, None
         d = r.json()
         if not d.get('ok'):
-            return None
-        sm = d.get('suggested_minute')
-        if sm is None:
-            return None
-        h, m = int(sm) // 60, int(sm) % 60
-        return '%02d:%02d:00' % (h, m)
+            return None, None
+        best = d.get('best')
+        if not best or not best.get('date') or not best.get('time'):
+            return None, None
+        return best['date'], best['time']
     except Exception:
-        return None
+        return None, None
 
 
 def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=None, contact_id=None):
@@ -771,19 +773,22 @@ def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoic
             except ValueError:
                 print(f"[WARN] Could not parse JobDateTime: {job_datetime_str}")
     
-    # Calculate next date from completed job date (not today)
+    # Calculate the TARGET (~frequency) date from the completed job date. This is now just the
+    # center of the search window, not the final answer — the exact cycle date matters less than
+    # landing on a day we're already near this customer with an open slot.
     scheduled_datetime = calculate_next_service_date(frequency, customer_city, base_date)
-    print(f"[OK] Next service (city-weekday): {scheduled_datetime}")
+    print(f"[OK] Target service date (~{frequency}): {scheduled_datetime}")
 
-    # Upgrade the fixed 10 AM to the ROUTE-TIGHTEST free slot for that day, via the Render
-    # scheduler (same engine the booking + Maintenance-to-Schedule screens use). Falls back to
-    # the original time if the app is unreachable or that day has no open slot.
-    best_time = get_best_slot_time(scheduled_datetime[:10], property_id)
-    if best_time:
-        scheduled_datetime = scheduled_datetime[:10] + ' ' + best_time
-        print(f"[OK] Route-tightest slot applied: {scheduled_datetime}")
+    # Ask the Render scheduler for the BEST DAY + route-tightest slot in a window AROUND that
+    # target (availability + route geography, same engine the booking + Maintenance-to-Schedule
+    # screens use). It may shift a few weeks off the exact cycle to land on a tighter route day.
+    # Falls back to the city-weekday default if the app is unreachable or no open day is found.
+    best_date, best_time = get_best_fit(property_id, scheduled_datetime[:10])
+    if best_date and best_time:
+        scheduled_datetime = best_date + ' ' + best_time
+        print(f"[OK] Best-fit day+slot applied: {scheduled_datetime}")
     else:
-        print(f"[*] No route slot suggestion — keeping {scheduled_datetime}")
+        print(f"[*] No best-fit suggestion — keeping {scheduled_datetime}")
 
     # Determine next job type (for alternating)
     next_job_type = get_next_job_type(workiz_job)
