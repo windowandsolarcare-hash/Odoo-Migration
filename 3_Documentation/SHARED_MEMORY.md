@@ -3,6 +3,11 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — MY DAY recurring to-dos
+- **My Day reminders can now REPEAT.** Add/Edit a reminder → **Repeat** dropdown: Daily / Every weekday (Mon–Fri) / Weekly / Every 2 weeks / Monthly (default = does not repeat). Recurring cards show a **🔁** tag.
+- When you **check off** a recurring to-do it goes to **Done history** AND a **fresh copy auto-appears** for the next date (weekly → +7 days, monthly → same day next month, etc.). Time-of-day is preserved (PT day-math).
+- Tech: new char field **`x_myday_recur`** (id 20875) on `project.task`; `/api/myday/add` + `/update` accept `recur`; `/api/myday/done` spawns the next occurrence (carries title/note/customer/priority/categories/recur) then marks the current one done. Only to-dos recur, not follow-up activities. Commits myday.py 9ec4b790, myday.html c6d78fdd.
+
 ## 2026-06-16 (PM) — Reactivation date placeholder + customer-tab "brain"
 - ⚠ **`x_studio_last_reactivation_sent = 2019-01-01` is the INIT placeholder = "never sent".** Every contact was seeded with it (so old Odoo filters had a date to compare); it only becomes a REAL date when a message is actually sent. Treat 2019-01-01 as never-sent anywhere you read this field (don't show "Reactivation sent: Jan 1, 2019").
 - **Customer tab (field assistant) is the customer "brain":** click a customer → property header (gate/pricing/frequency/type-of-service/service-area/last-visit, service fields only); duplicate same-address property records collapse to ONE (most-recent-visit). SO cards show date/amount/status/type + tech + gate. Click an SO card → full SO detail (grouped Job/Pricing/Access/Order + line items/payments/photos). Reactivation status on the card: "Past due on reactivation" (→launch) + "Reactivation sent: <real date>" (→Sent tab); reverse link from reactivation candidate/Sent detail → "🧑 Customer card".
