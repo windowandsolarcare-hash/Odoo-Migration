@@ -3,7 +3,8 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
-## 2026-06-17 — NOTES app: folder organizing added
+## 2026-06-17 — NOTES app: folder organizing + file upload added
+- **📎 Upload a file** (PDF / Word / Excel / image / anything) straight into the Notes app: tap 📎, it stores the file **as-is** in the selected folder in the vault and it shows in the notes list with a type icon. This is how you store downloaded Gmail attachments. Move/tag them via the ✎ Organize sheet like any note. (40MB/upload, commits notes.py 24101b19, notes.html 75def271.)
 - The **Notes app** (`/owner/notes`, Saunders Vault on Google Drive — NOT Odoo) now lets you **organize by folder**: pick a folder when writing a note (or ✨ Auto-file by AI), a **📁 New Folder** button, a **folder filter**, a folder chip on each card, and **move** a note between folders via the "Organize Note" (✎) sheet. Tags already worked; this adds the folder side.
 - New notes → Google Docs in **Quick Notes/**, 7 categories (Personal, Admin, Ideas & Projects, Finance, Saunders Printing, W&SC Operations, Customers) + AI tags + AI summary + photo OCR + optional customer link. Still TODO (not run): import ~67 Evernote `.enex` notebooks into the vault. Endpoints `POST /api/notes/category`, `PATCH /api/notes/{id}/move`. Commits notes.py 650f6e98, notes.html 42e21f4a.
 
