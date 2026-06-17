@@ -8,6 +8,10 @@
 - The **Notes app** (`/owner/notes`, Saunders Vault on Google Drive — NOT Odoo) now lets you **organize by folder**: pick a folder when writing a note (or ✨ Auto-file by AI), a **📁 New Folder** button, a **folder filter**, a folder chip on each card, and **move** a note between folders via the "Organize Note" (✎) sheet. Tags already worked; this adds the folder side.
 - New notes → Google Docs in **Quick Notes/**, 7 categories (Personal, Admin, Ideas & Projects, Finance, Saunders Printing, W&SC Operations, Customers) + AI tags + AI summary + photo OCR + optional customer link. Still TODO (not run): import ~67 Evernote `.enex` notebooks into the vault. Endpoints `POST /api/notes/category`, `PATCH /api/notes/{id}/move`. Commits notes.py 650f6e98, notes.html 42e21f4a.
 
+## 2026-06-17 — Calendar: recurring to-dos + look-back history
+- **Look-back history:** past days on the Schedule Calendar now show the My Day to-dos you CHECKED OFF that day (✓, dimmed) — a daily diary. Auto reactivation/followup tasks are filtered out so it's only your real to-dos. (Jobs already gave full history incl. payments/photos; this adds your to-dos.)
+- **Recurring expansion:** if a My Day to-do repeats (daily/weekly/monthly…), the calendar now paints it on EVERY future repeat day (faded 🔁 "repeats"), not just the next one — so you see recurring commitments when planning ahead. You have no recurring to-dos set yet, so make one repeat and it'll show.
+
 ## 2026-06-17 — Book a job from the Schedule Calendar + My Day already on it
 - The **Schedule Calendar** is the place to look ahead (the field schedule only runs ~2-3 weeks). It now has a green **"➕ Book a job"** button on each day → opens **New Order** prefilled to that day, so you can book a future job (e.g. around Thanksgiving) right from where you're looking. New Order still asks existing/new customer; the chosen day carries into New Job.
 - Your **My Day items show on the calendar** under a clearly-labeled **☀️ My Day** layer now (renamed from "Activities"), with its own on/off toggle next to Jobs/Planner. (Done 2026-06-17.)
