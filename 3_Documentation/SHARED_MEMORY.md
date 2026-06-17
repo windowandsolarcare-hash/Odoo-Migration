@@ -3,6 +3,11 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — SMART MORNING DIGEST (My Day 7 AM push)
+- The 7 AM "My Day" push used to be just a count ("17 items for today"). It now **brings the important items forward by name**: top 5, 🔴 overdue/High first → 🟡 Med → rest, then "+N more". Tap → /owner/myday.
+- **What triggers / counts each morning:** follow-up activities due today-or-overdue, to-dos with a due date today-or-overdue, **plus undated HIGH-priority to-dos** (so important-but-undated things don't stay invisible). Undated Med/Low to-dos are NOT included. Priority scale: 3=High, 2=Med, 1=Low, 0=None.
+- It's an in-app scheduled job (every ~5 min), fires once in the 7–9 AM window. `GET /owner/api/myday/digest-preview` shows exactly what the next push will say (read-only, no send).
+
 ## 2026-06-17 — SYSTEM ROADMAP ("complete the system", DJ-approved)
 Canonical roadmap toward end-to-end autonomous ops (intake→schedule→execute→pay→bookkeep→retain→grow, approve-first, phone-run). Full version in Claude Code memory `project_system_roadmap`. Headline items:
 - **Reliability:** finish Zapier→Render migration (Phases 3/4/5/6) [top leverage]; `/owner/health` monitor; fix Notes Google-OAuth 7-day expiry; a test/staging path (no more prod-only).
