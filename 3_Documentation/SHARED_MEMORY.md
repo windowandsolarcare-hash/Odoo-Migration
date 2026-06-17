@@ -3,6 +3,11 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — Put a Google Calendar event on the WORK schedule
+- On the **Schedule Calendar**, tapping a day shows its Google Calendar events. Each now has a green **"📅 Add to schedule"** button (next to "Open in GCal").
+- Tap it and that event becomes a **Personal Time block** on your actual work/field schedule at its time (all-day events default to 9:00 AM — adjust on the schedule). Title + location carry into the block notes.
+- It's a one-time copy: if you later move the event in Google, re-add it. (A future "auto-mirror" calendar that stays in sync is planned but not built.)
+
 ## 2026-06-17 — Community Pass on the job detail (gate/HOA access pass)
 - The field job detail now has a **🎫 Community Pass** card (alongside Photos). Snap a photo OR upload a PDF of a gated-community access pass; it shows on that job and taps open full-screen (to show at the gate). Per-job. Delete with the × on each.
 - Backend: stored as an `ir.attachment` on the SO tagged `description='community_pass'`. Endpoints `GET /owner/api/passes?so_id=`, `POST /owner/api/pass_delete` (only deletes passes, never real photos), upload via the existing `POST /owner/api/attachment` (now accepts `description`). Served by `/owner/api/attachment_image`. Passes are kept out of the regular Photos section.
