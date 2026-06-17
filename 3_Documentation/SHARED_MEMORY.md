@@ -3,6 +3,11 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — HIRING: video interview cockpit
+- **Video-interview round is live in the Hiring app.** The 3 candidates DJ chose (David Osuna, Reginald Martin, Leonardo Garcia) are moved to the **Interview** stage. Open one → new **🎥 Video Interview** section: Yes/Maybe/No decision, shared **Core Questions**, and **per-candidate questions** pre-loaded — each with a checkbox + a notes box DJ types into live; autosaves as he goes. Add/edit/delete questions on the fly.
+- Built to run DURING the live video call. Questions were written to NOT repeat the phone screen and to be open-ended (candidates give short answers).
+- Tech: data stored in custom field **`x_video_interview`** on hr.applicant (JSON), deliberately separate from `applicant_notes` so it can't be wiped. Core questions = param `hiring.video.general_questions`. Endpoints `/api/hiring/video_questions` + `/api/hiring/applicant/{id}/video`. Odoo stage 3 "First Interview" = the app's "Interview" tab. Commits hiring.py 105820fb, hiring.html f71a8231.
+
 ## 2026-06-17 — SMART MORNING DIGEST (My Day 7 AM push)
 - The 7 AM "My Day" push used to be just a count ("17 items for today"). It now **brings the important items forward by name**: top 5, 🔴 overdue/High first → 🟡 Med → rest, then "+N more". Tap → /owner/myday.
 - **What triggers / counts each morning:** follow-up activities due today-or-overdue, to-dos with a due date today-or-overdue, **plus undated HIGH-priority to-dos** (so important-but-undated things don't stay invisible). Undated Med/Low to-dos are NOT included. Priority scale: 3=High, 2=Med, 1=Low, 0=None.
