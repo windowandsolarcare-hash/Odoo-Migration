@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — NOTES app: folder organizing added
+- The **Notes app** (`/owner/notes`, Saunders Vault on Google Drive — NOT Odoo) now lets you **organize by folder**: pick a folder when writing a note (or ✨ Auto-file by AI), a **📁 New Folder** button, a **folder filter**, a folder chip on each card, and **move** a note between folders via the "Organize Note" (✎) sheet. Tags already worked; this adds the folder side.
+- New notes → Google Docs in **Quick Notes/**, 7 categories (Personal, Admin, Ideas & Projects, Finance, Saunders Printing, W&SC Operations, Customers) + AI tags + AI summary + photo OCR + optional customer link. Still TODO (not run): import ~67 Evernote `.enex` notebooks into the vault. Endpoints `POST /api/notes/category`, `PATCH /api/notes/{id}/move`. Commits notes.py 650f6e98, notes.html 42e21f4a.
+
 ## 2026-06-17 — Book a job from the Schedule Calendar + My Day already on it
 - The **Schedule Calendar** is the place to look ahead (the field schedule only runs ~2-3 weeks). It now has a green **"➕ Book a job"** button on each day → opens **New Order** prefilled to that day, so you can book a future job (e.g. around Thanksgiving) right from where you're looking. New Order still asks existing/new customer; the chosen day carries into New Job.
 - Heads-up: your **My Day items already appear on the calendar** — they're under the "Activities" filter (the calendar pulls them from the same place as My Day). They're just not labeled "My Day". (A clearer label + a dedicated My Day chip is a planned tweak.)
