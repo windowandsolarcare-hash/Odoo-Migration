@@ -17,7 +17,6 @@ Generated: 2026-02-07
 
 import requests
 import json
-import time
 from datetime import datetime, timedelta
 import re
 
@@ -343,38 +342,116 @@ Previous Job UUID: {completed_job_data.get('UUID')}
 LINE ITEMS TO ADD:
 {line_items_text}"""
     
-    # SINGLE SOURCE OF TRUTH: the Odoo WORKIZ_CLONE server action (id 1338) builds the canonical
-    # payload + creates the job. Odoo is always-up (unlike Render), so this is the reliable path.
-    clone_ctx = {
-        'clone_source': completed_job_data,
-        'clone_job_type': get_next_job_type(completed_job_data),
-        'clone_job_datetime': scheduled_datetime,
-        'clone_tos_default': 'Maintenance',
-        'clone_line_items': line_items_reference,
-        'clone_extra': {
-            'ServiceArea': _service_area_for_job(completed_job_data),
-            'SecondPhone': (str(completed_job_data.get('SecondPhone'))
-                            if completed_job_data.get('SecondPhone') else None),
-        },
+    # Extract last cleaned date from completed job
+    last_cleaned = ""
+    job_datetime = completed_job_data.get('JobDateTime', '')
+    if job_datetime:
+        last_cleaned = job_datetime.split(' ')[0]  # Extract date portion (YYYY-MM-DD)
+    
+    new_job_data = {
+        'auth_secret': WORKIZ_AUTH_SECRET,
+        
+        # Required fields
+        'ClientId': completed_job_data.get('ClientId'),
+        'FirstName': completed_job_data.get('FirstName'),
+        'LastName': completed_job_data.get('LastName'),
+        'Address': completed_job_data.get('Address'),
+        'City': completed_job_data.get('City'),
+        'State': completed_job_data.get('State', 'CA'),
+        'PostalCode': completed_job_data.get('PostalCode'),
+        'Phone': completed_job_data.get('Phone'),
+        'JobDateTime': scheduled_datetime,
+        'JobType': get_next_job_type(completed_job_data),
+        
+        # Service area: desert vs Hemet (required for routing)
+        'ServiceArea': _service_area_for_job(completed_job_data),
+        
+        # Custom fields (Workiz expects strings for these)
+        'frequency': str(completed_job_data.get('frequency') or ''),
+        'alternating': str(completed_job_data.get('alternating') or ''),
+        'type_of_service_2': str(completed_job_data.get('type_of_service_2') or completed_job_data.get('type_of_service') or 'Maintenance'),
+        'gate_code': str(completed_job_data.get('gate_code') or ''),
+        'pricing': str(completed_job_data.get('pricing') or ''),
+        'ok_to_text': str(completed_job_data.get('ok_to_text') or 'Yes'),
+        'confirmation_method': str(completed_job_data.get('confirmation_method') or 'Cell Phone'),
+        'last_date_cleaned': last_cleaned,  # Date of completed job for reference
+        
+        # LINE ITEMS REFERENCE (with context) - adjust field name to match your Workiz custom field
+        'next_job_line_items': line_items_reference,
+        
+        # Job notes - preserve from previous job
+        'JobNotes': str(completed_job_data.get('JobNotes') or '')
     }
+    
+    # Add optional fields only if they have valid values (Workiz expects strings)
+    email = completed_job_data.get('Email', '')
+    if email:
+        new_job_data['Email'] = str(email)
+    
+    second_phone = completed_job_data.get('SecondPhone', '')
+    if second_phone:
+        new_job_data['SecondPhone'] = str(second_phone)
+    
+    unit = completed_job_data.get('Unit', '')
+    if unit:
+        new_job_data['Unit'] = str(unit)
+    
+    job_source = completed_job_data.get('JobSource', '')
+    if job_source:
+        new_job_data['JobSource'] = str(job_source)
+    
+    create_url = f'{WORKIZ_BASE_URL}/job/create/'
+    
+    print(f"[*] Creating job for {new_job_data['FirstName']} {new_job_data['LastName']}")
+    
+    # NOTE: Team and Tags are NOT included in create payload per Workiz API:
+    # - Team: Must be assigned via /job/assign/ endpoint after creation
+    # - Tags: Can only be updated via /job/update/ endpoint after creation
+    
+    try:
+        response = requests.post(create_url, json=new_job_data, timeout=10)
+        created_ok = False
 
-    print(f"[*] Creating job for {completed_job_data.get('FirstName')} {completed_job_data.get('LastName')} via Odoo WORKIZ_CLONE")
+        # Per Workiz API: 200 = success and returns job resource (UUID, ClientId, link); 204 = No Content.
+        new_uuid = None
+        if response.status_code == 204:
+            print("[OK] Job created successfully (HTTP 204)")
+            created_ok = True
+        elif response.status_code == 200:
+            try:
+                result = response.json()
+                # Docs: { "flag": true, "data": [ { "UUID", "ClientId", "link" } ] } (or array wrapping that)
+                if isinstance(result, list) and len(result) > 0:
+                    result = result[0]
+                if result.get('flag') == True:
+                    data = result.get('data')
+                    if data and isinstance(data, list) and len(data) > 0:
+                        first = data[0]
+                        new_uuid = first.get('UUID')
+                        _link = first.get('link')
+                        print(f"[OK] Job created (HTTP 200); UUID: {new_uuid}; link: {_link or 'n/a'}")
+                    else:
+                        print(f"[OK] Job created (HTTP 200): {result.get('msg', '')}")
+                    created_ok = True
+                elif (result.get('msg') or '').lower().find('created') >= 0:
+                    print(f"[OK] Job created (HTTP 200): {result.get('msg')}")
+                    created_ok = True
+                else:
+                    return {'success': False, 'message': result.get('msg'), 'details': result.get('details')}
+            except Exception:
+                return {'success': False, 'message': "HTTP 200 but invalid JSON"}
+        else:
+            try:
+                error_result = response.json()
+                return {'success': False, 'message': error_result.get('msg'), 'details': error_result.get('details')}
+            except Exception:
+                return {'success': False, 'message': f"HTTP {response.status_code}"}
 
-    last_err = 'unknown'
-    for attempt in range(1, 4):  # retry Odoo blips (rare) with backoff
-        try:
-            clone = odoo_rpc('ir.actions.server', 'run', [[1338]], {'context': clone_ctx})
-            if clone and clone.get('ok') and clone.get('workiz_uuid'):
-                new_uuid = clone['workiz_uuid']
-                print(f"[OK] Job created via Odoo cloner (attempt {attempt}); UUID: {new_uuid}")
-                return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid}
-            last_err = 'clone returned no uuid (create_status=%s)' % ((clone or {}).get('create_status'))
-        except Exception as e:
-            last_err = str(e)
-        if attempt < 3:
-            print(f"[!] clone attempt {attempt} failed ({last_err}); retrying…")
-            time.sleep(attempt * 6)
-    return {'success': False, 'message': f'clone failed after retries: {last_err}'}
+        if created_ok:
+            return {'success': True, 'message': 'Job created', 'new_job_uuid': new_uuid}
+    
+    except Exception as e:
+        return {'success': False, 'message': str(e)}
 
 
 # ==============================================================================
@@ -649,6 +726,30 @@ def write_next_job_date_to_contact(contact_id, scheduled_datetime_str):
 # PHASE 5A: MAINTENANCE PATH
 # ==============================================================================
 
+def get_best_slot_time(date_str, property_id):
+    """Ask the Render scheduler for the route-tightest free 1.5h slot on date_str for this
+    property — reuses the EXACT engine the booking + Maintenance-to-Schedule screens use
+    (build_day_plan). Returns 'HH:MM:00' or None (caller keeps the default time on None)."""
+    if not date_str or not property_id:
+        return None
+    try:
+        url = ('https://wsc-field-assistant.onrender.com/owner/api/scheduler/day-plan'
+               '?date=%s&prop_id=%s' % (date_str, property_id))
+        r = requests.get(url, timeout=20)
+        if r.status_code != 200:
+            return None
+        d = r.json()
+        if not d.get('ok'):
+            return None
+        sm = d.get('suggested_minute')
+        if sm is None:
+            return None
+        h, m = int(sm) // 60, int(sm) % 60
+        return '%02d:%02d:00' % (h, m)
+    except Exception:
+        return None
+
+
 def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoice_id=None, contact_id=None):
     """Create next maintenance job in Workiz."""
     print("\n" + "="*70)
@@ -672,8 +773,18 @@ def schedule_next_maintenance_job(workiz_job, property_id, customer_city, invoic
     
     # Calculate next date from completed job date (not today)
     scheduled_datetime = calculate_next_service_date(frequency, customer_city, base_date)
-    print(f"[OK] Next service: {scheduled_datetime}")
-    
+    print(f"[OK] Next service (city-weekday): {scheduled_datetime}")
+
+    # Upgrade the fixed 10 AM to the ROUTE-TIGHTEST free slot for that day, via the Render
+    # scheduler (same engine the booking + Maintenance-to-Schedule screens use). Falls back to
+    # the original time if the app is unreachable or that day has no open slot.
+    best_time = get_best_slot_time(scheduled_datetime[:10], property_id)
+    if best_time:
+        scheduled_datetime = scheduled_datetime[:10] + ' ' + best_time
+        print(f"[OK] Route-tightest slot applied: {scheduled_datetime}")
+    else:
+        print(f"[*] No route slot suggestion — keeping {scheduled_datetime}")
+
     # Determine next job type (for alternating)
     next_job_type = get_next_job_type(workiz_job)
     
