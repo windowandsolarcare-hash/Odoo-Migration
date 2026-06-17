@@ -3,6 +3,11 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-16 (PM) — Reactivation date placeholder + customer-tab "brain"
+- ⚠ **`x_studio_last_reactivation_sent = 2019-01-01` is the INIT placeholder = "never sent".** Every contact was seeded with it (so old Odoo filters had a date to compare); it only becomes a REAL date when a message is actually sent. Treat 2019-01-01 as never-sent anywhere you read this field (don't show "Reactivation sent: Jan 1, 2019").
+- **Customer tab (field assistant) is the customer "brain":** click a customer → property header (gate/pricing/frequency/type-of-service/service-area/last-visit, service fields only); duplicate same-address property records collapse to ONE (most-recent-visit). SO cards show date/amount/status/type + tech + gate. Click an SO card → full SO detail (grouped Job/Pricing/Access/Order + line items/payments/photos). Reactivation status on the card: "Past due on reactivation" (→launch) + "Reactivation sent: <real date>" (→Sent tab); reverse link from reactivation candidate/Sent detail → "🧑 Customer card".
+- Full-SO view shows the reactivation SMS **only when actually sent** (a crm.lead reached stage 5 for the customer) — a never-sent preview draft (`x_studio_manual_sms_override`) is hidden.
+
 ## 2026-06-16 (PM) — ADD TO SCHEDULE + field 3-dot menu parity
 - **"📅 Add to schedule"** button at the top of today's list in the **field assistant** (`/owner/field`). Tap → sheet: **What** (e.g. "Steve"), **Day** (defaults today), **Time** (15-min dropdown 6 AM–8 PM), optional **Notes**. Saves a confirmed **Personal Time** block that shows inline on the schedule at that time. Backend `POST /owner/api/schedule/add_block` creates+confirms a Personal Time sale.order (partner 23054, company 1, job_type 'Personal Time', notes_snapshot1='[Job Notes] …'), PT→UTC, writes date_order back after confirm.
 - **My Day → Put on schedule:** every reminder card now has a **📅** button → jumps to the field schedule with the add-block sheet **prefilled** from the task; on save it **marks the to-do Done** in My Day (no duplicate). URL hand-off `/owner/field?block_name=&block_date=&block_time=&myday_id=&myday_source=`; all sheet logic lives in field.html.
