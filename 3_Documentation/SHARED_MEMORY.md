@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — My Day: action items now typed Task vs Follow-up (CRM Activity-Mgmt step 1)
+- Every My Day item now has a **Type: ✅ Task or 📞 Follow-up** (a reactivation is just a Follow-up). Pick it in the Add/Edit sheet; it shows as a chip on the card; you can **group by Type**. Field = `x_myday_type` on project.task ('task'/'followup'); mail.activity items count as Follow-ups.
+- This is step 1 of turning My Day into the Activity-Management pillar of the comprehensive CRM (Jobs + one Action-Item entity, optionally tied to a customer). Next: show a customer's tasks/follow-ups on their customer page.
+
 ## ★ NORTH STAR (2026-06-17) — this is all ONE comprehensive CRM
 The whole Workiz→Odoo migration exists to build a **comprehensive CRM** (Workiz lacked one; Odoo can be one). The "apps" we ship are PILLARS of one CRM, not separate tools:
 - Customer "brain"/Customer tab = **Contacts** · My Day/action-items = **Activity Management** · Reactivation+crm.lead = **Pipeline/Campaigns** · Customer Analytics = **Segmentation** · texts (Workiz/future Twilio) = **Communications log** · reviews/blasts = **Marketing**.
