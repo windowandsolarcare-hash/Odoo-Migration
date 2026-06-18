@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — Calendar "Upcoming" advance-look (command-center step 3)
+- The Schedule Calendar now has a **🔜 Upcoming** section (above Today's List) showing the **next ~3 weeks of everything dated** — jobs, your to-dos & follow-ups (incl. recurring repeats), and Google events — grouped by day (Today / Tomorrow / Wed Jun 25…). Tap a day to open its full sheet.
+- This is the forward "what's coming" view that was missing — you no longer have to tap each day to see what's ahead. Respects the Jobs / ☀️ My Day toggles.
+
 ## 2026-06-17 — Customer page now shows their Action Items (CRM circle-back, step 2)
 - Open a customer in the Customer tab → a new **"☀️ Action Items"** section (between the property header and their jobs) lists every open **task** (✅) and **follow-up** (📞) tied to that customer, with priority + due date. So from a customer you see everything pending for them — the back-and-forth view.
 - Backend: `/api/customer_jobs` now returns `actions` (open project.task by partner_id + mail.activity on the contact/properties). Display-only for now (tap-to-edit later).
