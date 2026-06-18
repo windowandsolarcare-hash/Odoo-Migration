@@ -7,6 +7,11 @@
 - The Schedule Calendar now has a **🔜 Upcoming** section (above Today's List) showing the **next ~3 weeks of everything dated** — jobs, your to-dos & follow-ups (incl. recurring repeats), and Google events — grouped by day (Today / Tomorrow / Wed Jun 25…). Tap a day to open its full sheet.
 - This is the forward "what's coming" view that was missing — you no longer have to tap each day to see what's ahead. Respects the Jobs / ☀️ My Day toggles.
 
+## 2026-06-17 — Step B: Activities tile retired (audit showed it was ~95% done)
+- Audit: re-engagement/reactivation items were ALREADY all project.task (0 mail.activity) — My Day handles them. Only 3 mail.activity existed; 2 personal ones migrated to tasks.
+- The **Activities tile is removed** from the dashboard — My Day is the single home (route kept as a fallback). 
+- ONE mail.activity type still gets created: the transient **"Add tech + line items"** booking reminder (created on reactivation booking, AUTO-CLOSED by Phase 4). Left as-is: converting it would need a coordinated change to all its creators + Phase 4's auto-close (risky, near-zero gain). It also shows in My Day. Convert only as a careful coordinated pass if ever wanted.
+
 ## 2026-06-17 — My Day editor is now the complete view (incl. Launch); tasks stop routing to Activities
 - Tapping a TASK (in My Day or on the calendar) now opens **My Day's rich editor** — with Customer, Type, Recurrence, Priority, Categories — instead of the minimal Activities page (which loses all that). Activities-type items still open in Activities (for now).
 - The editor has a **🚀 Launch re-engagement text** button for Follow-ups with a customer: builds the text (you can edit it), sends it via the same Workiz path + all the same safety gates (cooldown / STOP / Do-Not-Contact), then marks the task done. Same send as the Activities "Launch" — just in the editor now.
