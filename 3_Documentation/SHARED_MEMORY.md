@@ -3,6 +3,12 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — Today's List retired into My Day; Daily Planner kept
+- **Daily Planner** (`/owner/planner`) = your HABIT tracker — **kept, unchanged**. Habits live here.
+- **Today's List** (the old daily checklist, `chores.html`) = **retired**. Its open items + recurring chores were rolled into **My Day**: 10 open one-offs (NBHOF, Andrea Dawson card, Call Blinds Guy, Call Ariana, Blood work post prolia, Talk to HOA about Danny, Bloodwork for fasting mom, Take dad's blood sugar, Check mail, Put away mail) + 4 recurring chores (Trash Cans = weekly Wed, Text Uncle Nick = monthly, Change House Filter + Change Shower Filter = every 6 months). Completed items were left behind as history. The Today's List dashboard tile is gone (data parked, nothing deleted).
+- **My Day now supports an "Every 6 months" repeat** (in addition to daily/weekdays/weekly/biweekly/monthly). Check off a recurring item and the next one spawns automatically.
+- My Day task/follow-up editor now has a **✓ Done** button (in addition to the card checkbox).
+
 ## 2026-06-17 — Reference quick-ref area (📌 /owner/reference)
 - New **Reference** mini-app — DJ's "Evernote Shortcuts" replacement for important info: phone numbers, addresses, account info, call-back numbers, equipment lists, etc.
 - It's a **flat list of titled cards**, each with free text. Tap a card to view/edit, ＋ to add, drag the ⠿ handle to reorder, search box up top. Tile: **📌 Reference** in the My Day group on the owner dashboard.
