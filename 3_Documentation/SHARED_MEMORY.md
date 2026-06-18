@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — Customer page now shows their Action Items (CRM circle-back, step 2)
+- Open a customer in the Customer tab → a new **"☀️ Action Items"** section (between the property header and their jobs) lists every open **task** (✅) and **follow-up** (📞) tied to that customer, with priority + due date. So from a customer you see everything pending for them — the back-and-forth view.
+- Backend: `/api/customer_jobs` now returns `actions` (open project.task by partner_id + mail.activity on the contact/properties). Display-only for now (tap-to-edit later).
+
 ## 2026-06-17 — My Day: action items now typed Task vs Follow-up (CRM Activity-Mgmt step 1)
 - Every My Day item now has a **Type: ✅ Task or 📞 Follow-up** (a reactivation is just a Follow-up). Pick it in the Add/Edit sheet; it shows as a chip on the card; you can **group by Type**. Field = `x_myday_type` on project.task ('task'/'followup'); mail.activity items count as Follow-ups.
 - This is step 1 of turning My Day into the Activity-Management pillar of the comprehensive CRM (Jobs + one Action-Item entity, optionally tied to a customer). Next: show a customer's tasks/follow-ups on their customer page.
