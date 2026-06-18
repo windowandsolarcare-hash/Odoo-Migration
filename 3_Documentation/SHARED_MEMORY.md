@@ -3,6 +3,13 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## ★ NORTH STAR (2026-06-17) — this is all ONE comprehensive CRM
+The whole Workiz→Odoo migration exists to build a **comprehensive CRM** (Workiz lacked one; Odoo can be one). The "apps" we ship are PILLARS of one CRM, not separate tools:
+- Customer "brain"/Customer tab = **Contacts** · My Day/action-items = **Activity Management** · Reactivation+crm.lead = **Pipeline/Campaigns** · Customer Analytics = **Segmentation** · texts (Workiz/future Twilio) = **Communications log** · reviews/blasts = **Marketing**.
+- Approach (proven on tasks): use Odoo's engine, build a friendly Render field-UI on top, extend only where Odoo's stock UI/logic is weak. No custom Odoo models (project.task/crm.lead/res.partner are standard, fine).
+- "Light CRM" = only the task/follow-up layer; the destination is COMPREHENSIVE. Design features to interlock around the customer record.
+- Action-item model being built: Jobs (sale.order) + ONE Action-Item (project.task) typed Task|Follow-up (Reactivation = a Follow-up), optional date/customer/priority/tags/subtasks.
+
 ## 2026-06-17 — NOTES app: folder organizing + file upload added
 - **📎 Upload a file** (PDF / Word / Excel / image / anything) straight into the Notes app: tap 📎, it stores the file **as-is** in the selected folder in the vault and it shows in the notes list with a type icon. This is how you store downloaded Gmail attachments. Move/tag them via the ✎ Organize sheet like any note. (40MB/upload, commits notes.py 24101b19, notes.html 75def271.)
 - **One note, multiple documents:** tap 📎 and **add files one at a time** (they stack — mobile-safe; multi-select at once is unreliable on phones), type a **name** in the note box, hit Save → they're bundled into **one folder-note** (shows as a single 📁 card with the doc count; tap to open all of them). Each note card now has a **🗑 delete** button too. (Commits notes.py 1ef09f9a, notes.html 41d1ebc2.)
