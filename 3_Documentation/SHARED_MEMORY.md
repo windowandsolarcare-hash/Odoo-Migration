@@ -3,6 +3,11 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — Planner↔My Day sync, calendar search, My Day floating shortcut
+- **Daily Planner habits and their My Day to-dos are now in TWO-WAY SYNC.** Check off a habit in the Planner → it's marked done in My Day (and vice-versa) for that day; un-check reverses it. (Engine: match by name `emoji + name`; the live hook is in dashboard.py because the planner check-in route is shadowed there.)
+- **Schedule Calendar now has a job SEARCH box** — type a customer name, address, or SO# → matching scheduled jobs appear → tap one to open the job. (`GET /api/calendar/search`.) Note: search includes a customer's property records, since jobs attach to the property (whose name is the street), not the customer name.
+- **Floating quick-launch (the "+" button) now has a ☀️ My Day shortcut.**
+
 ## 2026-06-17 — Today's List retired into My Day; Daily Planner kept
 - **Daily Planner** (`/owner/planner`) = your HABIT tracker — **kept, unchanged**. Habits live here.
 - **Today's List** (the old daily checklist, `chores.html`) = **retired**. Its open items + recurring chores were rolled into **My Day**: 10 open one-offs (NBHOF, Andrea Dawson card, Call Blinds Guy, Call Ariana, Blood work post prolia, Talk to HOA about Danny, Bloodwork for fasting mom, Take dad's blood sugar, Check mail, Put away mail) + 4 recurring chores (Trash Cans = weekly Wed, Text Uncle Nick = monthly, Change House Filter + Change Shower Filter = every 6 months). Completed items were left behind as history. The Today's List dashboard tile is gone (data parked, nothing deleted).
