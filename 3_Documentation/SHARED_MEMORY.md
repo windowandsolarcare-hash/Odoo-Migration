@@ -7,6 +7,11 @@
 - The Schedule Calendar now has a **🔜 Upcoming** section (above Today's List) showing the **next ~3 weeks of everything dated** — jobs, your to-dos & follow-ups (incl. recurring repeats), and Google events — grouped by day (Today / Tomorrow / Wed Jun 25…). Tap a day to open its full sheet.
 - This is the forward "what's coming" view that was missing — you no longer have to tap each day to see what's ahead. Respects the Jobs / ☀️ My Day toggles.
 
+## 2026-06-17 — My Day editor is now the complete view (incl. Launch); tasks stop routing to Activities
+- Tapping a TASK (in My Day or on the calendar) now opens **My Day's rich editor** — with Customer, Type, Recurrence, Priority, Categories — instead of the minimal Activities page (which loses all that). Activities-type items still open in Activities (for now).
+- The editor has a **🚀 Launch re-engagement text** button for Follow-ups with a customer: builds the text (you can edit it), sends it via the same Workiz path + all the same safety gates (cooldown / STOP / Do-Not-Contact), then marks the task done. Same send as the Activities "Launch" — just in the editor now.
+- This is Step A toward retiring the Activities screen entirely. Step B (remember): change Phase 5 / reengage / reactivation to CREATE My Day tasks (project.task Follow-ups) instead of mail.activity, migrate existing ones, then remove the Activities page. Spec: 3_Documentation/ACTIVITY_MANAGEMENT_SPEC.md.
+
 ## 2026-06-17 — Customer page now shows their Action Items (CRM circle-back, step 2)
 - Open a customer in the Customer tab → a new **"☀️ Action Items"** section (between the property header and their jobs) lists every open **task** (✅) and **follow-up** (📞) tied to that customer, with priority + due date. So from a customer you see everything pending for them — the back-and-forth view.
 - Backend: `/api/customer_jobs` now returns `actions` (open project.task by partner_id + mail.activity on the contact/properties). Display-only for now (tap-to-edit later).
