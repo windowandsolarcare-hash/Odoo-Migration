@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-18 — Duplicate sheet: shared day-view component + clipboard split
+- The field-app **Duplicate** bottom sheet's day-view (that day's schedule + open 1.5h slots + route map, synced to the time picker) is now a **reusable component `WSCDayPlan`** in `static/owner/route_map.js`. Call `WSCDayPlan.render({date,lat,lon,name,timeInputId,ids:{...}})`; `WSCDayPlan.clear()` resets it. Any future screen that needs "pick a time around the day's existing jobs, on a map" should use this instead of re-writing it. (Reactivation Book + New Job step 3 still have their own copies — migrating them to WSCDayPlan is a deferred to-do.)
+- **Duplicate → clipboard now copies each line item as TWO clips: price first, then the description** (so on the Workiz screen, paste #1 = description, paste #2 = price). Matches how reactivation/Phase-5 hand-offs already worked.
+
 ## 2026-06-17 — Planner↔My Day sync, calendar search, My Day floating shortcut
 - **Daily Planner habits and their My Day to-dos are now in TWO-WAY SYNC.** Check off a habit in the Planner → it's marked done in My Day (and vice-versa) for that day; un-check reverses it. (Engine: match by name `emoji + name`; the live hook is in dashboard.py because the planner check-in route is shadowed there.)
 - **Schedule Calendar now has a job SEARCH box** — type a customer name, address, or SO# → matching scheduled jobs appear → tap one to open the job. (`GET /api/calendar/search`.) Note: search includes a customer's property records, since jobs attach to the property (whose name is the street), not the customer name.
