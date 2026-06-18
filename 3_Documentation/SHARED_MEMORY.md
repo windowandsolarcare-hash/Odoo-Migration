@@ -3,6 +3,11 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-17 — Reference quick-ref area (📌 /owner/reference)
+- New **Reference** mini-app — DJ's "Evernote Shortcuts" replacement for important info: phone numbers, addresses, account info, call-back numbers, equipment lists, etc.
+- It's a **flat list of titled cards**, each with free text. Tap a card to view/edit, ＋ to add, drag the ⠿ handle to reorder, search box up top. Tile: **📌 Reference** in the My Day group on the owner dashboard.
+- **Odoo-backed** (stored in `ir.config_parameter` `owner.reference.cards`), NOT Google — so it never breaks on a token expiry like the Notes app. Endpoints: `/owner/api/reference` (+ /add /update /delete /reorder). Files: `routers/owner/reference.py`, `static/owner/reference.html`.
+
 ## 2026-06-17 — Calendar "Upcoming" advance-look (command-center step 3)
 - The Schedule Calendar now has a **🔜 Upcoming** section (above Today's List) showing the **next ~3 weeks of everything dated** — jobs, your to-dos & follow-ups (incl. recurring repeats), and Google events — grouped by day (Today / Tomorrow / Wed Jun 25…). Tap a day to open its full sheet.
 - This is the forward "what's coming" view that was missing — you no longer have to tap each day to see what's ahead. Respects the Jobs / ☀️ My Day toggles.
