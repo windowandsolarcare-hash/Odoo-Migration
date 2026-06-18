@@ -21,6 +21,7 @@ The whole Workiz→Odoo migration exists to build a **comprehensive CRM** (Worki
 - Approach (proven on tasks): use Odoo's engine, build a friendly Render field-UI on top, extend only where Odoo's stock UI/logic is weak. No custom Odoo models (project.task/crm.lead/res.partner are standard, fine).
 - "Light CRM" = only the task/follow-up layer; the destination is COMPREHENSIVE. Design features to interlock around the customer record.
 - Action-item model being built: Jobs (sale.order) + ONE Action-Item (project.task) typed Task|Follow-up (Reactivation = a Follow-up), optional date/customer/priority/tags/subtasks.
+- **Canonical spec: `3_Documentation/ACTIVITY_MANAGEMENT_SPEC.md`** — full model, field reference, views, built steps 0-3, and the Step 4 (consolidate mail.activity→project.task Follow-ups) plan. Read it for any task/follow-up work.
 
 ## 2026-06-17 — NOTES app: folder organizing + file upload added
 - **📎 Upload a file** (PDF / Word / Excel / image / anything) straight into the Notes app: tap 📎, it stores the file **as-is** in the selected folder in the vault and it shows in the notes list with a type icon. This is how you store downloaded Gmail attachments. Move/tag them via the ✎ Organize sheet like any note. (40MB/upload, commits notes.py 24101b19, notes.html 75def271.)
