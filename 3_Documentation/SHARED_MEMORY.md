@@ -4,7 +4,7 @@
 # Format: key facts only - both Claudes read this on every session
 
 ## 2026-06-18 — My Day reminders can carry photos/files
-- When adding (or editing) a **My Day reminder/to-do** you can now attach **photos or files** — "📎 Add photo or file" in both the Add sheet and the task editor. On a phone the picker offers camera/gallery. Cards show a **📎 N** badge; the editor shows thumbnails (tap to open full-size / open a PDF) and an ✕ to remove one.
+- When adding (or editing) a **My Day reminder/to-do** you can now attach **photos or files** via three buttons in both the Add sheet and the task editor — **📷 Camera** (opens camera), **🖼️ Photos** (gallery), **📎 Files** (file picker, images + PDFs). Cards show a **📎 N** badge; the editor shows thumbnails (tap to open full-size / open a PDF) and an ✕ to remove one.
 - Stored as native Odoo `ir.attachment` on the project.task (`description='myday'`), served by the existing `/owner/api/attachment_image?att_id=`. Endpoints: `POST /api/myday/attach`, `GET /api/myday/attachments?task_id=`, `POST /api/myday/attach_delete`. `/api/myday` task items carry `att_count`.
 
 ## 2026-06-18 — Duplicate sheet: shared day-view component + clipboard split
