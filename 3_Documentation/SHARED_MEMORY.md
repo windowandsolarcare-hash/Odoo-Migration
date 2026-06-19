@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-19 — Upload Zoo's invoice per PO
+- Zoo Printing's own invoice (what Zoo bills us) lives behind their dashboard login and is never emailed, so it can't be auto-fetched. Each PO job card now has **⬆ Upload Zoo Invoice** (PDF or photo). Once uploaded it shows **🧾 Zoo Invoice** (view/print in a new tab) + ⬆ to replace.
+- Stored as an Odoo ir.attachment on the invoice. Endpoints: `POST /printing/api/jobs/{id}/upload-zoo-invoice`, `GET /printing/api/jobs/{id}/zoo-invoice.pdf`. NOTE: "🧾 Zoo Invoice" = Zoo's bill TO us; the separate "🧾 View Invoice" = our invoice to the Hall of Fame.
+
 ## 2026-06-19 — Zoo Printing emails archived per PO (view + print)
 - Every Saunders Printing PO now keeps its **Zoo Printing emails** (estimate / order confirmation / shipped) so DJ can read or print them. On a job card: **📧 Zoo Emails (N)** opens a clean printable page (🖨 Print button); ⟳ re-collects from Gmail. If none saved yet: **📧 Collect Zoo Emails**.
 - Future POs self-archive automatically — the Zoo watcher saves each email's raw body as it processes it. The **Collect** button backfills already-read emails (X-GM-RAW Gmail search by PO# / Zoo order#), safe to re-run, deduped by (kind, sub-order).
