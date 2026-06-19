@@ -3,6 +3,10 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-18 — My Day reminders can carry photos/files
+- When adding (or editing) a **My Day reminder/to-do** you can now attach **photos or files** — "📎 Add photo or file" in both the Add sheet and the task editor. On a phone the picker offers camera/gallery. Cards show a **📎 N** badge; the editor shows thumbnails (tap to open full-size / open a PDF) and an ✕ to remove one.
+- Stored as native Odoo `ir.attachment` on the project.task (`description='myday'`), served by the existing `/owner/api/attachment_image?att_id=`. Endpoints: `POST /api/myday/attach`, `GET /api/myday/attachments?task_id=`, `POST /api/myday/attach_delete`. `/api/myday` task items carry `att_count`.
+
 ## 2026-06-18 — Duplicate sheet: shared day-view component + clipboard split
 - The field-app **Duplicate** bottom sheet's day-view (that day's schedule + open 1.5h slots + route map, synced to the time picker) is now a **reusable component `WSCDayPlan`** in `static/owner/route_map.js`. Call `WSCDayPlan.render({date,lat,lon,name,timeInputId,ids:{...}})`; `WSCDayPlan.clear()` resets it. Any future screen that needs "pick a time around the day's existing jobs, on a map" should use this instead of re-writing it. (Reactivation Book + New Job step 3 still have their own copies — migrating them to WSCDayPlan is a deferred to-do.)
 - **Duplicate → clipboard now copies each line item as TWO clips: price first, then the description** (so on the Workiz screen, paste #1 = description, paste #2 = price). Matches how reactivation/Phase-5 hand-offs already worked.
