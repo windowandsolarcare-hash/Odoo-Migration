@@ -3,6 +3,11 @@
 # Last updated: 2026-06-16
 # Format: key facts only - both Claudes read this on every session
 
+## 2026-06-19 — Zoo Printing emails archived per PO (view + print)
+- Every Saunders Printing PO now keeps its **Zoo Printing emails** (estimate / order confirmation / shipped) so DJ can read or print them. On a job card: **📧 Zoo Emails (N)** opens a clean printable page (🖨 Print button); ⟳ re-collects from Gmail. If none saved yet: **📧 Collect Zoo Emails**.
+- Future POs self-archive automatically — the Zoo watcher saves each email's raw body as it processes it. The **Collect** button backfills already-read emails (X-GM-RAW Gmail search by PO# / Zoo order#), safe to re-run, deduped by (kind, sub-order).
+- Stored on the tracker job at `job['zoo']['emails']`. Endpoints: `POST /printing/api/jobs/{id}/collect-zoo-emails`, `GET /printing/api/jobs/{id}/zoo-emails.html`. Verified on latest PO 044167 (Zoo 6734814): estimate + confirmation captured, page prints with full bodies.
+
 ## 2026-06-18 — My Day reminders can carry photos/files
 - When adding (or editing) a **My Day reminder/to-do** you can now attach **photos or files** via three buttons in both the Add sheet and the task editor — **📷 Camera** (opens camera), **🖼️ Photos** (gallery), **📎 Files** (file picker, images + PDFs). Cards show a **📎 N** badge; the editor shows thumbnails (tap to open full-size / open a PDF) and an ✕ to remove one.
 - Stored as native Odoo `ir.attachment` on the project.task (`description='myday'`), served by the existing `/owner/api/attachment_image?att_id=`. Endpoints: `POST /api/myday/attach`, `GET /api/myday/attachments?task_id=`, `POST /api/myday/attach_delete`. `/api/myday` task items carry `att_count`.
