@@ -204,6 +204,11 @@ Each becomes one `rows()` function returning `ReportRow[]`.
 
 ---
 
+## 8b. Design principles (DJ, locked 2026-06-21)
+- **Brand color = water-blue `#0090d0`** (from the logo). NOT plum — the Odoo `res.company.primary_color` field is mis-set to `#5e4766` and must not be used as the brand color. Accent shades: dark `#35aee6`, light `#0077b3`, header/buttons `#0090d0`. Day/night both required (field-readable in sunlight).
+- **Data-dense by default.** DJ prefers lots of data points over simple. When we already make a call to Odoo/Workiz, **gather the full record and show it** — the user filters by eye and ignores what they don't need; never pre-trim. The Brain shows the COMPLETE Odoo + Workiz + property + invoice + timer + chatter record, not a 4-field summary. Rows carry several data points (customer, address, SO#, type, tech, total, line items, status, overdue), not just title/amount.
+- **Actions appear only when the capability is real.** A button must do a real thing or not be shown. Capabilities not built yet (e.g. **Send SMS — pending Twilio A2P numbers**) are hidden until live; placeholders in previews are clearly labeled as such and never imply a working feature.
+
 ## 9. Non-goals / guardrails
 - No new Odoo seats / custom models / second instance (hard limits).
 - No big-bang rewrite; old screens live until parity.
