@@ -162,14 +162,19 @@ Backend: a single `GET /owner/api/reports/{key}?<filters>` returns `{rows, count
 
 ---
 
-## 6. Phasing (incremental — never a big-bang rewrite)
+## 6. Phasing (schedule-centric, incremental — never a big-bang rewrite)
 
 > Guardrail: existing screens keep working until their replacement is at parity. Nothing is deleted without DJ's OK (CLAUDE rule 10).
 
-- **Phase 0 — Foundation.** `common.css` + `report_kit.js` (result component, badge, pill, brain stub). No behavior change. Retrofit ONE existing screen to it as a smoke test.
-- **Phase 1 — Hub + 3 flagship reports.** Build `/owner/reports` (cards→pills) + the report registry + `GET /api/reports[/{key}]`. Wire **Overdue Maintenance, Stale SOs, Reactivation Due** into the unified result. Old pages stay.
-- **Phase 2 — The Brain (the big build).** Universal detail+action sheet with inline **reschedule / mark-paid / send-SMS / edit**, opened from every result row. This is where dead-ends die.
-- **Phase 3 — Migrate the rest** (lapsed, unpaid, hemet, submitted, deleted, payroll views…) onto the hub; retire bespoke pages as each reaches parity.
+Re-sequenced around the heart (confirmed by DJ 2026-06-21): we do **not** start with a reports screen. We start by making the **schedule** the command center, then the **brain** the place you solve, then fold the feeders in.
+
+- **Phase 0 — Foundation / shared skin.** `common.css` (one palette + card/row/pill/badge/header/sheet) + `report_kit.js` (`renderResult`, `badge`, `openBrain` stub). New files; additive; zero behavior change. Retrofit ONE screen as a smoke test. *This is the base every later phase inherits.*
+
+- **Phase 1 — The HEART: schedule as command center.** Make the schedule/calendar view answer two questions at a glance: **what's ON the schedule** and **what *should* be** (gaps, overdue maintenance, unscheduled next-jobs, ready-to-book reactivations) — and let you **fill a gap in place** (book it onto a day/slot without leaving). Feeders surface here as "work waiting to land on the schedule." (Reuses the shared scheduler/day-plan that already exists.)
+
+- **Phase 2 — The BRAIN: the universal solve/book surface.** One customer/job detail+action sheet with inline **book-onto-schedule / reschedule / mark-paid / send-SMS / edit fields**, opened from a schedule row OR any feeder row. This is where dead-ends die. (Generalizes the Customers-tab brain we already seeded.)
+
+- **Phase 3 — Feeder lanes on the shared skin.** Migrate the lists (reactivation, stale SOs, lapsed, unpaid, hemet, submitted, payroll views…) onto the unified result component + report registry. Each row resolves **into the schedule (book)** or **into the brain (solve)** — never a dead-end. This is the "report hub," correctly framed as feeders into the heart.
 
 **Parallel debt track (invisible, prevents recurring bugs):**
 - Delete the shadow-route duplicates from `dashboard.py` so the real routers run (kills the class of bug we hit with `scheduled_sos`).
