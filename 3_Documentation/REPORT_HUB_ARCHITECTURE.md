@@ -1,19 +1,39 @@
-# Report Hub + Brain — Architecture & Redesign Plan
-**Status:** DRAFT for review (DJ + Claude) · **Created:** 2026-06-21
+# ERP Architecture — Schedule (heart) + Customer (brain)
+**Status:** DRAFT for review (DJ + Claude) · **Created:** 2026-06-21 · **Reframed:** 2026-06-21 (ERP, not reporting)
 **Scope:** owner app in `saunders-render-app` (`routers/owner/*.py`, `static/owner/*.html`)
-**Goal:** turn ~58 bolted-on report screens into ONE designed system: a report hub, one result format, and one place to *solve* what a report surfaces (the Brain).
+**Goal:** evolve the owner app into a cohesive **ERP** whose HEART is the schedule and whose BRAIN is the customer — turning ~58 bolted-on screens into modules that all feed those two. The unified result component + Brain action sheet are the *mechanism*; the schedule is the center.
+*(Filename keeps "REPORT_HUB" for link stability — but the report hub is one feeder mechanism, not the center. See §1.)*
 
 ---
 
-## 1. Why we're doing this (DJ's words)
+## 1. What we're building — an ERP, not a reporting tool
 
-> "It's starting to feel like a bunch of add-ons rather than a well-thought-out app. All reports should come from the same report screen — maybe a pill you press, maybe a card — but the result should look formatted exactly the same as any other report, just different data. And the results should be drillable or editable. Too often I find something in a report and it doesn't give me the ability to solve it right there. That's why I wanted everything in the Brain."
+> DJ, 2026-06-21: "I'm creating an **ERP-like system, not a reporting system.** Customer is the brain, but the **schedule is the heart** — everything else complements the schedule and the business."
 
-Three principles fall out of that:
+Two organs anchor the whole system:
 
-1. **One way to see a report.** Every report is selected the same way and renders in the same format. Different data, identical frame.
-2. **One way to solve.** Any row, from any report, opens the same detail+action surface (the Brain). You fix it where you found it.
-3. **Reports are lenses, not pages.** A report is a saved query that returns standard rows — not a hand-built screen.
+- **The Schedule is the HEART.** The field schedule / calendar / dispatch is where the business actually runs: jobs land on it, get worked, get paid. A day in the field *is* the business. Everything the system does exists to keep the right work flowing onto the schedule and to run it smoothly.
+- **The Customer is the BRAIN.** Each customer record holds everything — history, properties, pricing, cadence, comms, money — and is where you DECIDE and SOLVE.
+
+Everything else is a **complement** to those two — nothing is a standalone destination:
+
+| Role | Modules | Serves the heart by… |
+|---|---|---|
+| **FILL** the schedule | Reactivation, Maintenance-due/overdue, Booking requests, New orders, Quotes | putting the right jobs on the calendar at the right time |
+| **RUN** the schedule | Field assistant, Route/GPS, Timer, Payments, Confirmations | executing the day |
+| **MONEY** | Invoicing, Pre-deposit, Reconciliation | the financial result of the schedule |
+| **TEAM** | Payroll, Timeclock, Hiring | the labor that executes it |
+| **LEARN / STEER** | Analytics, Reports | reading the business to decide what to schedule & where to grow |
+| **GROW** | Marketing, Reviews, SEO, Website | generating demand that becomes scheduled work |
+
+**So where do "reports" fit?** They are *feeder lanes*, not the centerpiece. Almost every report answers one of two questions — *"what should go on the schedule next?"* or *"what's falling through that I need to fix?"* — and its rows resolve **into the schedule** (book it) or **into the brain** (solve it).
+
+The original pain ("a bunch of add-ons… I find something in a report and can't solve it right there") is real, but the cure is not "a better reporting system." The cure is an ERP organized around the heart and brain, where the **unified result component + the Brain action sheet (below) are the *mechanism*** that lets every complement feed the schedule. They are plumbing, not the product.
+
+Three operating principles:
+1. **The schedule is the center of gravity.** Every feature is judged by how it gets the right work onto the schedule or runs it better.
+2. **One way to solve.** Any row, from any list, opens the same Brain detail+action surface. You fix it where you found it — or you book it onto the schedule from there.
+3. **Lenses, not pages.** A report/list is a saved query returning standard rows — not a hand-built screen.
 
 ---
 
@@ -28,6 +48,29 @@ Three principles fall out of that:
 
 ## 3. Target architecture
 
+### 3.0 The ERP, organized around the heart
+```
+                         ┌──────────────────────────┐
+        FILL ──────────► │                          │ ◄────── RUN
+   reactivation,         │     THE SCHEDULE         │   field assistant,
+   maint-due, booking,   │      (the HEART)         │   route/GPS, timer,
+   new orders, quotes    │  field sched · calendar  │   payments, confirms
+                         │       · dispatch         │
+        GROW ──────────► │                          │ ◄────── MONEY / TEAM
+   marketing, reviews,   └────────────┬─────────────┘   invoicing, deposits,
+   SEO, website                       │                 payroll, hiring
+                                      │ every job ties to a customer
+                                      ▼
+                         ┌──────────────────────────┐
+                         │   THE CUSTOMER (BRAIN)    │  know everything,
+                         │  history·props·pricing·   │  DECIDE & SOLVE here
+                         │   cadence·comms·money     │
+                         └──────────────────────────┘
+```
+The Schedule is the center of gravity; the Customer is the knowledge/decision center. Every other module is an arrow pointing at one of them.
+
+### 3.1 The feeder mechanism (how complements reach the heart/brain)
+The hub/result/Brain pattern below is the *plumbing* that lets any list resolve into **book-it-on-the-schedule** or **solve-it-in-the-brain**. It is one mechanism serving the organs above — not the center of the app.
 ```
         ┌─────────────────────────────────────────────────────┐
         │  REPORT HUB  /owner/reports                          │
