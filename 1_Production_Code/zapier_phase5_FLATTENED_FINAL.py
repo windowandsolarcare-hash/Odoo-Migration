@@ -585,7 +585,7 @@ def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
     if workiz_link:
         desc_parts.append(f'<b>Workiz Job:</b> <a href="{workiz_link}" target="_blank">{uuid}</a>')
     desc_parts.append('')
-    desc_parts.append('<b>Action:</b> Open Activities in the Render app → tap this task → tap <b>Launch Reactivation</b> to send the reactivation SMS.')
+    desc_parts.append('<b>Action:</b> Open Activities in the Render app → tap this task → tap <b>Launch Re-engagement Text</b> to send the re-engagement SMS.')
     description = '<p>' + '<br/>'.join(desc_parts) + '</p>'
 
     try:
