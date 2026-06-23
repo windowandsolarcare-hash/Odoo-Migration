@@ -1,7 +1,14 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-06-16
+# Last updated: 2026-06-23
 # Format: key facts only - both Claudes read this on every session
+
+
+## 2026-06-23 — Workiz text history exported → stored on Odoo customers
+- DJ can now export a customer's full Workiz SMS/chat history (text file). **Quirk: every exported file is named "Nick Conway (n)" no matter who the customer is** — the real customer is the non-"Dan Saunders" speaker inside the file (sometimes a raw phone number if Workiz had no name yet). Match to Odoo by name + phone.
+- **Twilio canNOT hold this history** — its message logs can't be backfilled and the Conversations API stamps every message "today," so importing there gives a fake timeline. **Odoo is the home for text history** (the comms-log pillar of the CRM). Twilio is wire-only going forward; new texts get logged into the same Odoo record so old + new live in one timeline per customer.
+- **Storage = full transcript as an ir.attachment on the customer's res.partner + a one-line chatter stamp** ("💬 Workiz text history imported | N messages | span | file"). NOT a full inline chatter wall — Odoo chatter escapes the break tag to literal text and collapses newlines, so a long thread renders unreadable. The attachment is the clean readable/searchable copy.
+- First 6 imported 2026-06-23: Nick Conway, Myra Lane, Elsa Sandvold, Joseph Merritt, Ruby Weaver. **Merry [818-720-1063], 41 Grenache Rancho Mirage 92270 = new Jun-17 lead, not in Odoo, no last name yet** — skipped, needs a contact first. (Importer lives on the Claude Code side: workiz_chat_import.py.)
 
 ## 2026-06-19 — Upload Zoo's invoice per PO
 - Zoo Printing's own invoice (what Zoo bills us) lives behind their dashboard login and is never emailed, so it can't be auto-fetched. Each PO job card now has **⬆ Upload Zoo Invoice** (PDF or photo). Once uploaded it shows **🧾 Zoo Invoice** (view/print in a new tab) + ⬆ to replace.
