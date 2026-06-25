@@ -274,7 +274,7 @@ def mark_opportunity_won(opportunity_id):
 # FALLBACK: CREATE ODOO TO-DO WHEN AUTOMATION CANNOT COMPLETE
 # ==============================================================================
 
-def create_fallback_todo(booking_info, raw_service_address, failed_at, reason):
+def create_fallback_todo(booking_info, raw_service_address, failed_at, reason, workiz_uuid=''):
     """
     When the Calendly flow fails (bad address, no graveyard lead, etc.), create
     a standalone Odoo To-Do so DJ can manually correct the address and process
@@ -301,6 +301,8 @@ def create_fallback_todo(booking_info, raw_service_address, failed_at, reason):
             f"2. Correct the property address if needed\n"
             f"3. Re-run the Calendly flow OR manually create the Workiz job and SO"
         )
+        if workiz_uuid:
+            desc += f"\n\nWorkiz job (already located): https://app.workiz.com/root/job/{workiz_uuid}/1"
 
         payload = {
             "jsonrpc": "2.0", "method": "call",
@@ -311,7 +313,7 @@ def create_fallback_todo(booking_info, raw_service_address, failed_at, reason):
                          [{"name": task_name,
                            "description": desc + "\n\n📍 Source: zapier_calendly_booking → fallback_todo",
                            "project_id": False,
-                           "user_ids": [ODOO_USER_ID],
+                           "user_ids": [(4, ODOO_USER_ID)],
                            "date_deadline": today}]]
             }
         }
@@ -322,6 +324,57 @@ def create_fallback_todo(booking_info, raw_service_address, failed_at, reason):
             print(f"[WARNING] Fallback To-Do create failed: {resp}")
     except Exception as e:
         print(f"[WARNING] create_fallback_todo exception: {e}")
+
+
+def create_booking_alert(so_id, workiz_uuid, customer_name, booked_datetime_pacific, service_type, service_address, contact_id):
+    """Reliable My Day reminder that a customer booked online and the job needs confirming in
+    Workiz. Plain project.task (the My-Day-native, persistent, NOTIFYING list = 7am digest +
+    due-time pings); due today so it surfaces immediately. Workiz link front-and-center. Deduped
+    by UUID so Calendly retries do not spam. This is the alert DJ actually sees; the Booking
+    Requests hub stays as the finish-in-Workiz workflow page."""
+    try:
+        from datetime import date as _date
+        today = _date.today().strftime('%Y-%m-%d')
+        workiz_link = f"https://app.workiz.com/root/job/{workiz_uuid}/1" if workiz_uuid else ""
+        if workiz_uuid:
+            try:
+                dpayload = {"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw",
+                    "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "search_count",
+                             [[["description", "ilike", workiz_uuid], ["state", "not in", ["1_done", "1_canceled"]]]]]}}
+                if (requests.post(ODOO_URL, json=dpayload, timeout=10).json().get("result") or 0) > 0:
+                    print(f"[OK] Booking alert already exists for {workiz_uuid} - skip dup")
+                    return True
+            except Exception:
+                pass
+        task_name = f"New online booking - {customer_name} ({booked_datetime_pacific}) - confirm in Workiz"
+        desc = (
+            f"A customer booked online (Calendly).\n\n"
+            f"Customer: {customer_name}\n"
+            f"When:     {booked_datetime_pacific} Pacific\n"
+            f"Address:  {service_address}\n"
+            f"Service:  {service_type}\n"
+            f"Workiz job: {workiz_link}\n\n"
+            f"To confirm the appointment:\n"
+            f"1. Open the Workiz job above\n"
+            f"2. Click Schedule, verify the date/time\n"
+            f"3. Add the pricing line items\n"
+            f"4. Set SubStatus to 'Send Confirmation - Text'\n\n"
+            f"Source: zapier_calendly_booking -> booking_alert"
+        )
+        vals = {"name": task_name, "description": desc, "project_id": False,
+                "user_ids": [(4, ODOO_USER_ID)], "date_deadline": today}
+        if contact_id:
+            vals["partner_id"] = contact_id
+        payload = {"jsonrpc": "2.0", "method": "call", "params": {"service": "object", "method": "execute_kw",
+                   "args": [ODOO_DB, ODOO_USER_ID, ODOO_API_KEY, "project.task", "create", [vals]]}}
+        resp = requests.post(ODOO_URL, json=payload, timeout=10).json()
+        if resp.get("result"):
+            print(f"[OK] My Day booking alert created (task {resp['result']}) for {customer_name}")
+            return True
+        print(f"[WARNING] booking alert create returned no result: {resp}")
+    except Exception as e:
+        print(f"[WARNING] create_booking_alert failed: {e}")
+    return False
 
 
 # ==============================================================================
@@ -1163,6 +1216,7 @@ def main(input_data):
     )
 
     if not workiz_result['success']:
+        create_fallback_todo(booking_info, service_address, 'Phase 3C', workiz_result['message'], workiz_uuid=opportunity['x_workiz_graveyard_uuid'])
         return {'success': False, 'failed_at': 'Phase 3C', 'message': workiz_result['message']}
 
     booked_datetime_pacific = workiz_result.get('pacific_datetime', booking_info['booking_time'])
@@ -1174,6 +1228,7 @@ def main(input_data):
     won_result = mark_opportunity_won(opportunity['id'])
     
     if not won_result['success']:
+        create_fallback_todo(booking_info, service_address, 'Phase 3D', won_result['message'], workiz_uuid=opportunity['x_workiz_graveyard_uuid'])
         return {'success': False, 'failed_at': 'Phase 3D', 'message': won_result['message']}
     
     # -------------------------------------------------------------------------
@@ -1183,6 +1238,7 @@ def main(input_data):
     so_result = process_phase3e(contact_id, property_id, opportunity, booking_info, won_result)
 
     if not so_result['success']:
+        create_fallback_todo(booking_info, service_address, 'Phase 3E', so_result['message'], workiz_uuid=opportunity['x_workiz_graveyard_uuid'])
         return {'success': False, 'failed_at': 'Phase 3E', 'message': so_result['message']}
 
     sales_order_id = so_result['sales_order_id']
@@ -1200,6 +1256,16 @@ def main(input_data):
         opportunity['x_workiz_graveyard_uuid'],
         booking_info['name'],
         booked_datetime_pacific
+    )
+    # Real My Day reminder (notifies: 7am digest + due-time push) so a booking is never missed.
+    create_booking_alert(
+        sales_order_id,
+        opportunity['x_workiz_graveyard_uuid'],
+        booking_info['name'],
+        booked_datetime_pacific,
+        booking_info.get('service_type', ''),
+        service_address,
+        contact_id
     )
     # create_odoo_activity(
     #     sales_order_id,
