@@ -1,8 +1,16 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-06-23
+# Last updated: 2026-06-25
 # Format: key facts only - both Claudes read this on every session
 
+
+## 2026-06-25 — Foldable-phone fit for owner/field pages + bottom-sheet modals
+- DJ's phone is a **Samsung foldable**. Pages built for the wide unfolded screen don't reflow to the narrow cover screen → content pans sideways, popups render too wide (Save button cut off) or below the fold. Fixed myday.html through several rounds; this recipe applies to ANY owner/field screen with those symptoms.
+- **(1) Stop sideways pan:** `html,body{overflow-x:clip;max-width:100%;overscroll-behavior:none}`. Use **overflow-x:clip, NOT hidden** — `hidden` on the root makes html a scroll container and KILLS vertical scrolling. `overscroll-behavior:none` also = the no-pull-to-refresh rule (re-add wherever missing).
+- **(2) Modal uses the VISIBLE viewport:** container `position:fixed;inset:0;height:100dvh`, sheet `max-height:92vh;max-height:92dvh`. Plus **fitModal() JS**: on open AND on `window.visualViewport` resize/scroll, set each modal's inline left/top/width/height from the visualViewport rect (`m.style.inset="auto"; left=vv.offsetLeft; top=vv.offsetTop; width=vv.width; height=vv.height`). No-op on normal phones; on the fold it snaps the popup to fit so right-edge buttons aren't cut off.
+- **(3) Editor opens at top + capped fields:** after open, set the scroll container `scrollTop=0` across two requestAnimationFrames + a 150ms backup. Auto-grow textareas must be CAPPED (title ~130px / note ~240px) then scroll inside, or a long note makes the editor taller than the screen; make the title a `<textarea>` so a long title wraps instead of scrolling sideways.
+- **Last resort if still wide:** the webview is genuinely stuck at the unfolded width — DJ must fully close + reopen the app while folded.
+- TODO (DJ wants): apply (1)+(2) to the other owner/field screens (field.html etc.).
 
 ## 2026-06-23 — Workiz text history exported → stored on Odoo customers
 - DJ can now export a customer's full Workiz SMS/chat history (text file). **Quirk: every exported file is named "Nick Conway (n)" no matter who the customer is** — the real customer is the non-"Dan Saunders" speaker inside the file (sometimes a raw phone number if Workiz had no name yet). Match to Odoo by name + phone.
