@@ -4,6 +4,19 @@
 # Format: key facts only - both Claudes read this on every session
 
 
+## 2026-06-24 — Personal Time blocks can be MOVED/rescheduled (not just deleted)
+- On the field schedule, a **Personal Time block** (the "📅 Add to schedule" items) can now be **moved to a different day/time** instead of delete-and-re-enter. Open the block's **⋯ 3-dot menu → "📅 Move / Reschedule"** → the same Add sheet reopens prefilled (name/day/time/notes) → change day/time → **Save changes**. Same block, notes kept.
+- Backend: `GET /owner/api/schedule/block_info?so_id=` (prefill) + `POST /owner/api/schedule/move_block {so_id,date,time,name?,notes?}` — rewrites `date_order` only (PT→UTC), no re-confirm. **GUARDED to Personal Time blocks only** (refuses any SO with a workiz_uuid or job_type != 'Personal Time') so a real customer job can't be moved this way and desync Workiz.
+- POST-WORKIZ goal (parked, DJ): once Workiz is dropped and Odoo is the single source of truth, relax that guard + add a calendar move UI (drag / tap→Move) so REAL jobs can be reshuffled block-by-block on the calendar. The capability is proven — moving any job is just a `date_order` rewrite. Locked today only because Phase 4 Workiz sync would overwrite the move.
+
+## 2026-06-24 — Saunders Printing invoice: send is REAL, plus Preview-to-Me, view-cache, $0 guard
+- **"Send Invoice" emails the live invoice to NBHOF for real** (bhatton@ + retailinvoices@baseballhall.org) + a silent copy to windowandsolarcare@gmail.com, and marks the job sent. It is **NOT a preview** — the green "NBHOF opened the invoice email" badge is the real customer open.
+- **NEW "📩 Preview to Me" button** (next to Send Invoice): emails the current invoice PDF **to DJ only** — does not post, does not email NBHOF, does not mark sent. Use it to eyeball the invoice, then tap Send Invoice for the real send.
+- **"View Invoice" was showing a stale PDF = browser cache**, not Odoo (Odoo re-renders fresh every time). Fixed with no-cache headers; the viewer/PO/Zoo-invoice now always load current.
+- **$0-card guard:** if any card on a HOF invoice prices to $0 (a product already in Odoo at list_price 0), DJ now gets an email + a note on the invoice so it's caught before sending.
+- **Dates:** the invoice is dated **the day it's sent** (not when the draft was created); Net-30 due date follows. Verified.
+- **Google Drive:** the draft invoice is filed at PO-receipt, then the **posted (non-draft) version overwrites it on send** (same filename). The send-time Drive re-file now **alerts DJ if it fails** (was silent; the Google token rotates ~weekly, so a dead token used to leave a draft on Drive unnoticed — tap "File to Drive" to refresh after re-minting the token).
+
 ## 2026-06-25 — Foldable-phone fit for owner/field pages + bottom-sheet modals
 - DJ's phone is a **Samsung foldable**. Pages built for the wide unfolded screen don't reflow to the narrow cover screen → content pans sideways, popups render too wide (Save button cut off) or below the fold. Fixed myday.html through several rounds; this recipe applies to ANY owner/field screen with those symptoms.
 - **(1) Stop sideways pan:** `html,body{overflow-x:clip;max-width:100%;overscroll-behavior:none}`. Use **overflow-x:clip, NOT hidden** — `hidden` on the root makes html a scroll container and KILLS vertical scrolling. `overscroll-behavior:none` also = the no-pull-to-refresh rule (re-add wherever missing).
