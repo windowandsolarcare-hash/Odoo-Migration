@@ -1,8 +1,16 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-06-25
+# Last updated: 2026-06-29
 # Format: key facts only - both Claudes read this on every session
 
+
+## 2026-06-29 — Command Center is the new schedule home; reschedule updates WORKIZ; paid jobs drop off
+- **Command Center** (`/owner/command-center`, schedule_hub.html) is now the hub's **PRIMARY card** — it WRAPS Field Assistant (Field stays the engine). Tapping a job in CC opens the full Field Assistant job panel (`/owner/field?open_so=...&from=cc`); the panel's back button reads **"‹ Schedule"** and returns you to where you were. CC remembers the last pill (On schedule / Calendar / Needs scheduling) via `localStorage wsc_cc_view`.
+- **RESCHEDULE NOW UPDATES WORKIZ** (was Odoo-only = desync). `POST /owner/api/schedule/reschedule {so_id,date,time}` (scheduler.py): if the SO has a Workiz UUID → `workiz_post job/update {JobDateTime: <PACIFIC-LOCAL 'YYYY-MM-DD HH:MM:SS'>}` and Phase 4 syncs date to Odoo. **Day/time ONLY — status is preserved** (a job at 'Send Confirmation - Text' is NOT knocked back). EXCEPTION: a still-'Submitted' placeholder gets promoted to SubStatus 'Scheduled' + a "[Render] Review before sending" to-do. No-UUID Personal Time blocks keep the old date_order write. ★ This is the FIRST app→Workiz write (works because the job already exists in Workiz); Workiz stays source of truth.
+- **Reschedule reachable everywhere**: a 🔁 Reschedule button on every booked-job card (On-schedule / Calendar / Needs-scheduling, skips Done jobs) AND a "🔁 Reschedule" item in the job's ⋯ 3-dot menu (real Workiz jobs) in Field Assistant. Day/time only.
+- **Needs-scheduling cards open like any job** (tap → full panel) so you can take a late Zelle/cash payment right from the to-be-scheduled list.
+- **Paid jobs drop off "needs scheduling"**: `calendar_jobs` now returns a `paid` flag (via `_paid_status_by_so`); a paid job is no longer flagged "skipped/missed" (and loses the red skipped badge). So: open it from the list → take payment → it clears itself.
+- CC Past Jobs list sort fixed to **newest-first** (matches Field Assistant).
 
 ## 2026-06-24 — Personal Time blocks can be MOVED/rescheduled (not just deleted)
 - On the field schedule, a **Personal Time block** (the "📅 Add to schedule" items) can now be **moved to a different day/time** instead of delete-and-re-enter. Open the block's **⋯ 3-dot menu → "📅 Move / Reschedule"** → the same Add sheet reopens prefilled (name/day/time/notes) → change day/time → **Save changes**. Same block, notes kept.
