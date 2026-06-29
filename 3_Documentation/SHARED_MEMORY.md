@@ -4,6 +4,11 @@
 # Format: key facts only - both Claudes read this on every session
 
 
+## 2026-06-29 — Navigate is GPS-first; offline app-shell service worker; address-write wipes coords
+- **Navigate now routes by GPS coords, not just text.** Symptom: tap Navigate → Google "Can't seem to find a way there", pin in a greenbelt. Cause = bad text city/zip (78770 Falsetto Dr was stored `Sun City / 92253`; real = `Indio / 92211`, but its GPS was correct). Fix: `dashboard.py` `_nav_by_partner()` adds `nav_lat`/`nav_lon`/`nav_addr` to every job in `/api/dashboard`, `/api/upcoming`, `/api/past_jobs`; `field.html` `navUrlForJob(j)` → coords (`maps/dir/?api=1&destination=lat,lon`) when present, else full address. Jobs with no geocode (lat 0) fall back to address+state.
+- **★ ODOO GOTCHA: writing ANY address field (street/city/zip/state_id) on a `res.partner` RESETS `partner_latitude`/`partner_longitude` to 0.0** (Odoo forces re-geocode). After fixing an address, re-write the lat/lon back in a second `write()` or you lose navigation coords.
+- **Offline launch fixed (service worker).** The hub registered `/sw.js` but the worker (in `routers/auth.py` `_SW_JS`) only handled push notifications + passed all fetches straight through (no cache) → with no signal the app hung on the W splash. Added network-first navigation caching + stale-while-revalidate for `/static` to `_SW_JS` (push/notificationclick handlers untouched). Online still always gets fresh; offline serves the last-cached page. **One-time:** open a page with signal once so it caches itself, then it opens offline.
+
 ## 2026-06-29 — Online booking Approve: reuses the re-engagement job, one-tap to Workiz, marks reminder done
 - **Background:** sending a re-engagement SMS CREATES a Workiz job ("Re-engagement Lead", the text in `information_to_remember`, SubStatus "Re-engagement Trigger"). That job is what the customer replies to when they book online.
 - **OLD bug:** booking Approve ignored it — cloned the customer's *old* job into a 3rd job, orphaning the re-engagement job + losing its text. (Sydney Ann Leonard: re-eng job `Q1RMO8` orphaned, approved job `5GT9OT` had no text. Fixed by hand: text copied to 5GT9OT, Q1RMO8 canceled.)
