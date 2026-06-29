@@ -4,6 +4,12 @@
 # Format: key facts only - both Claudes read this on every session
 
 
+## 2026-06-29 — Command Center: Break/End Day bar, refresh button + auto-refresh, offline net
+- **Break + End Day bar** added to Command Center (schedule_hub.html), mirrors Field Assistant. Shares the SAME payroll endpoints (`/owner/api/payroll/{status,break,clockout_crew}`) and SAME localStorage keys (`wsc_emp_id`, `wsc_break`, `wsc_crew_today`, `wsc_pending_clockout`) so break/clock state is in sync across both pages. Employee id from `localStorage.wsc_emp_id` (set when you clock in via Field Assistant); the bar only shows while clocked in.
+- **Refresh:** ↺ header button + auto-refresh when you return to the page (`pageshow`/`visibilitychange`). Fixes "Sync saved a job-type change but the list still showed the old value" — tapping back from a job restored the page from bfcache and didn't re-fetch.
+- **★ Offline correctness (DJ's field worry):** `cjson()` is cache-first from IndexedDB — returns the on-device saved schedule INSTANTLY and never blocks on the network (8s timeout, errors swallowed), so an offline refresh can't blank/freeze the screen. Stable cache keys `cal:on` / `cal:need` were added so a NEW day with no signal shows the last saved schedule (it already spans ~3 weeks ahead) instead of an empty list. Field rule: open the schedule once where you have signal and it carries through dead zones all day.
+- Removed the old top date/$/jobs/weather line from the Command Center.
+
 ## 2026-06-29 — Navigate is GPS-first; offline app-shell service worker; address-write wipes coords
 - **Navigate now routes by GPS coords, not just text.** Symptom: tap Navigate → Google "Can't seem to find a way there", pin in a greenbelt. Cause = bad text city/zip (78770 Falsetto Dr was stored `Sun City / 92253`; real = `Indio / 92211`, but its GPS was correct). Fix: `dashboard.py` `_nav_by_partner()` adds `nav_lat`/`nav_lon`/`nav_addr` to every job in `/api/dashboard`, `/api/upcoming`, `/api/past_jobs`; `field.html` `navUrlForJob(j)` → coords (`maps/dir/?api=1&destination=lat,lon`) when present, else full address. Jobs with no geocode (lat 0) fall back to address+state.
 - **★ ODOO GOTCHA: writing ANY address field (street/city/zip/state_id) on a `res.partner` RESETS `partner_latitude`/`partner_longitude` to 0.0** (Odoo forces re-geocode). After fixing an address, re-write the lat/lon back in a second `write()` or you lose navigation coords.
