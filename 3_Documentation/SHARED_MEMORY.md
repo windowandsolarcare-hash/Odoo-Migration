@@ -4,6 +4,10 @@
 # Format: key facts only - both Claudes read this on every session
 
 
+## 2026-06-29 — Command Center Reschedule now suggests the best route-tight day + draws the route
+- The **Reschedule** sheet now SUGGESTS the soonest day & time where you're already going to be nearby (the 7-mile route rule), pre-fills it, and shows that day's other jobs + open time slots + a route map. You can tap a different suggested day, pick any open slot, or set your own day/time. Same engine + map the duplicate-job and online-booking sheets use — not a new system.
+- Built by REUSING the shared scheduler: new `GET /owner/api/scheduler/so-suggest?so_id=` (resolves the job's property, returns the top route-tight days via `rank_days`) + `route_map.js`'s `WSCDayPlan` for the day view/map. If suggestions can't load, the plain day/time picker still works. The reschedule itself still updates Workiz (source of truth).
+
 ## 2026-06-29 — Command Center: Break/End Day bar, refresh button + auto-refresh, offline net
 - **Break + End Day bar** added to Command Center (schedule_hub.html), mirrors Field Assistant. Shares the SAME payroll endpoints (`/owner/api/payroll/{status,break,clockout_crew}`) and SAME localStorage keys (`wsc_emp_id`, `wsc_break`, `wsc_crew_today`, `wsc_pending_clockout`) so break/clock state is in sync across both pages. Employee id from `localStorage.wsc_emp_id` (set when you clock in via Field Assistant); the bar only shows while clocked in.
 - **Refresh:** ↺ header button + auto-refresh when you return to the page (`pageshow`/`visibilitychange`). Fixes "Sync saved a job-type change but the list still showed the old value" — tapping back from a job restored the page from bfcache and didn't re-fetch.
