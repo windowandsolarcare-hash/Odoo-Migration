@@ -4,6 +4,10 @@
 # Format: key facts only - both Claudes read this on every session
 
 
+## 2026-06-30 — Reach a customer from the job menu: Re-engage + Reactivate
+- Open any job's three-dot menu (Field Assistant) → two new actions: **💬 Re-engage** (lighter check-in text) and **🔁 Reactivate** (win-back with booking link). Each pulls up the actual text for that customer, you can edit it, and it only sends when you confirm. Works from anywhere you've opened a job, including out of the Command Center Investigate list.
+- Reuses the existing flows — re-engage = followup preview/launch, reactivate = reactivation preview/launch — so both go out through Workiz texting exactly like today. **Do Not Contact / STOP numbers are still hard-blocked.** Cooldowns now WARN but let you override (re-engage 45 days, reactivate 1 year). When Twilio replaces Workiz, only the sending changes under these same two buttons.
+
 ## 2026-06-29 — Command Center Reschedule now suggests the best route-tight day + draws the route
 - The **Reschedule** sheet now SUGGESTS the soonest day & time where you're already going to be nearby (the 7-mile route rule), pre-fills it, and shows that day's other jobs + open time slots + a route map. You can tap a different suggested day, pick any open slot, or set your own day/time. Same engine + map the duplicate-job and online-booking sheets use — not a new system.
 - Built by REUSING the shared scheduler: new `GET /owner/api/scheduler/so-suggest?so_id=` (resolves the job's property, returns the top route-tight days via `rank_days`) + `route_map.js`'s `WSCDayPlan` for the day view/map. If suggestions can't load, the plain day/time picker still works. The reschedule itself still updates Workiz (source of truth).
