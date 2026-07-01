@@ -4,9 +4,9 @@
 # Format: key facts only - both Claudes read this on every session
 
 
-## 2026-06-30 — Reach a customer from the job menu: Re-engage + Reactivate
-- Open any job's three-dot menu (Field Assistant) → two new actions: **💬 Re-engage** (lighter check-in text) and **🔁 Reactivate** (win-back with booking link). Each pulls up the actual text for that customer, you can edit it, and it only sends when you confirm. Works from anywhere you've opened a job, including out of the Command Center Investigate list.
-- Reuses the existing flows — re-engage = followup preview/launch, reactivate = reactivation preview/launch — so both go out through Workiz texting exactly like today. **Do Not Contact / STOP numbers are still hard-blocked.** Cooldowns now WARN but let you override (re-engage 45 days, reactivate 1 year). When Twilio replaces Workiz, only the sending changes under these same two buttons.
+## 2026-06-30 — Re-engagement lives on the re-engagement TASKS (a job-menu version was removed)
+- The approved **re-engagement** (customer win-back text) is the button on the **"Re-engagement:" tasks** — Activities → "Launch Re-engagement Text", and the approve-first screen at **/owner/reengage**. Send path = followup preview → launch → markdone (Workiz SubStatus "Re-engagement Trigger"). It's keyed on the CUSTOMER (parent) record, not the property.
+- A short-lived experiment that added 💬 Re-engage + 🔁 Reactivate to the Field job three-dot menu was **REMOVED** the same day (DJ: avoid confusion) — do NOT re-add duplicate outreach buttons on the job screen. Reach re-engagement from the re-engagement tasks. The Calendly booking-link **reactivation campaign** (/owner/reactivation) is a separate system.
 
 ## 2026-06-29 — Command Center Reschedule now suggests the best route-tight day + draws the route
 - The **Reschedule** sheet now SUGGESTS the soonest day & time where you're already going to be nearby (the 7-mile route rule), pre-fills it, and shows that day's other jobs + open time slots + a route map. You can tap a different suggested day, pick any open slot, or set your own day/time. Same engine + map the duplicate-job and online-booking sheets use — not a new system.
