@@ -4,9 +4,10 @@
 # Format: key facts only - both Claudes read this on every session
 
 
-## 2026-06-30 — Re-engagement lives on the re-engagement TASKS (a job-menu version was removed)
-- The approved **re-engagement** (customer win-back text) is the button on the **"Re-engagement:" tasks** — Activities → "Launch Re-engagement Text", and the approve-first screen at **/owner/reengage**. Send path = followup preview → launch → markdone (Workiz SubStatus "Re-engagement Trigger"). It's keyed on the CUSTOMER (parent) record, not the property.
-- A short-lived experiment that added 💬 Re-engage + 🔁 Reactivate to the Field job three-dot menu was **REMOVED** the same day (DJ: avoid confusion) — do NOT re-add duplicate outreach buttons on the job screen. Reach re-engagement from the re-engagement tasks. The Calendly booking-link **reactivation campaign** (/owner/reactivation) is a separate system.
+## 2026-06-30 — Contact a customer from the job 3-dot menu: Re-engagement + Reactivation
+- DJ's 3 ways to reach a customer: (1) direct text (Workiz until Twilio), (2) **Re-engagement**, (3) **Reactivation**. He wants #2 and #3 on **every open job's three-dot menu** so he can reach a customer from the job screen anytime.
+- These are TWO DIFFERENT flows (don't conflate): **Re-engagement** = the follow-up cycle text (keyed on the CUSTOMER record, greets the real name, 45-day cooldown). **Reactivation** = the 1-year+ dormant campaign with a Calendly booking link (365-day cooldown). Each opens a preview you can edit before sending; Do-Not-Contact / STOP numbers are hard-blocked; the cooldown only warns and lets you override. Both send through Workiz today; Twilio swaps in later with no change to the buttons.
+- (History: this was added, briefly removed while we pinned down the re-engagement-vs-reactivation difference, then restored with each button wired to the correct flow.)
 
 ## 2026-06-29 — Command Center Reschedule now suggests the best route-tight day + draws the route
 - The **Reschedule** sheet now SUGGESTS the soonest day & time where you're already going to be nearby (the 7-mile route rule), pre-fills it, and shows that day's other jobs + open time slots + a route map. You can tap a different suggested day, pick any open slot, or set your own day/time. Same engine + map the duplicate-job and online-booking sheets use — not a new system.
