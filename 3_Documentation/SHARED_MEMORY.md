@@ -1,8 +1,25 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-06-29
+# Last updated: 2026-07-01
 # Format: key facts only - both Claudes read this on every session
 
+
+## 2026-07-01 — Job LENGTH captured (Workiz retiring), schedules show start–end, editable
+- **New Odoo field `x_job_length_min`** (int minutes) on sale.order. Workiz's `JobEndDateTime` was the only end-time source and Workiz is retiring, so we captured length into Odoo. **Backfilled 3,500 jobs** from Workiz per-UUID (★ Workiz GET needs a `User-Agent` header or it 403s; most jobs are real 60-min blocks).
+- **Display:** dashboard.py `_len_end(date_order,x_len,job_type)` → real length wins, else `_job_block_min` estimate (windows/solar 90, combo 120, gutter 60, touch/quote 30). Command Center rows + the job-detail header now show **start – end**; booking review too. Only the booking-review + CC + job detail show it — the Field Assistant schedule LIST is retired (below).
+- **EDIT:** job-detail panel has a `⏱ Length` picker (30–180 presets) → `POST /owner/api/job/set_length {so_id,minutes}`; updates the range live, hidden for Personal Time, shows "(est.)" when estimated.
+- **CAPTURE going forward:** booking approve + reschedule (writes Workiz `JobEndDateTime`, captures a default if missing) + new_job (computes from entered end_time; ready for post-Workiz direct SO creation).
+
+## 2026-07-01 — Field Assistant SCHEDULE LIST is RETIRED (don't re-add features to it)
+The `renderSchedule`/`#schedule-section` list in field.html is no longer the working schedule — the **Command Center is the schedule** and opens jobs straight into the field.html JOB DETAIL panel (full-screen via `from=cc`). The DETAIL panel is still used; only the LIST is dead. Add schedule features to Command Center + the job detail, NOT the field list.
+
+## 2026-07-01 — Future job showed TODAY's date (FIXED); Payment date field; notification buttons
+- **BUG fixed:** a future job opened in the field detail showed TODAY's date (not its real date) because `/api/upcoming` & `/api/past_jobs` payloads had no `date_raw` → `_apHeaderWhen` fell back to today. Added `_pt_date` + `date_raw` to those builders; `openJobById` carries the real date. (This made DJ think jobs were missing from the Customer Brain — they were not.)
+- **Record Payment (job detail)** now has a **Payment DATE field** (all methods; defaults to Pacific today, editable) so a Zelle recorded a few days late ties to the bank on the right date. Backend `/owner/api/payment` already accepted `payment_date` — only the UI was missing.
+- **Push notifications** (My Day reminders + booking requests) now have **Done + Snooze** action buttons (SW `notificationclick` in auth.py → `/api/myday/done|snooze`). **Booking requests notify IMMEDIATELY** (booking.py pushes on create) + the task is **High priority, today**.
+
+## 2026-07-01 — Offline service worker: JS/CSS now network-first; full app-kill needed to swap
+`auth.py` `_SW_JS`: navigations + `/static/*.js|*.css` are NETWORK-FIRST (code changes show immediately online); images/fonts stale-while-revalidate; offline still falls back to cache. Cache bumped to `wsc-shell-v2` (purges stale). ★ **The service worker only swaps on a FULL app kill (swipe-close), NOT log-off/in** — added `controllerchange` auto-reload so future updates self-apply. Floating app-launcher (`ql_panel.js`) redesigned as a LABELED menu (icons were hard to remember), now on all owner screens.
 
 ## 2026-06-30 — Contact a customer from the job 3-dot menu: Re-engagement + Reactivation
 - DJ's 3 ways to reach a customer: (1) direct text (Workiz until Twilio), (2) **Re-engagement**, (3) **Reactivation**. He wants #2 and #3 on **every open job's three-dot menu** so he can reach a customer from the job screen anytime.
@@ -19,8 +36,9 @@
 - **★ Offline correctness (DJ's field worry):** `cjson()` is cache-first from IndexedDB — returns the on-device saved schedule INSTANTLY and never blocks on the network (8s timeout, errors swallowed), so an offline refresh can't blank/freeze the screen. Stable cache keys `cal:on` / `cal:need` were added so a NEW day with no signal shows the last saved schedule (it already spans ~3 weeks ahead) instead of an empty list. Field rule: open the schedule once where you have signal and it carries through dead zones all day.
 - Removed the old top date/$/jobs/weather line from the Command Center.
 
-## 2026-06-29 — Navigate is GPS-first; offline app-shell service worker; address-write wipes coords
-- **Navigate now routes by GPS coords, not just text.** Symptom: tap Navigate → Google "Can't seem to find a way there", pin in a greenbelt. Cause = bad text city/zip (78770 Falsetto Dr was stored `Sun City / 92253`; real = `Indio / 92211`, but its GPS was correct). Fix: `dashboard.py` `_nav_by_partner()` adds `nav_lat`/`nav_lon`/`nav_addr` to every job in `/api/dashboard`, `/api/upcoming`, `/api/past_jobs`; `field.html` `navUrlForJob(j)` → coords (`maps/dir/?api=1&destination=lat,lon`) when present, else full address. Jobs with no geocode (lat 0) fall back to address+state.
+## 2026-06-29 — Navigate = ADDRESS-first (reversed from coords 2026-07-01); address-write wipes coords
+- **Navigate routes by the full street ADDRESS (nav_addr = street/city/state-ZIP), NOT raw coords.** `dashboard.py` `_nav_by_partner()` adds `nav_lat`/`nav_lon`/`nav_addr` to jobs; `field.html` `navUrlForJob(j)` uses `(nav_addr||address)` as the Maps `destination` FIRST (only falls back to `lat,lon` when there's NO text address). ★ REVERSED from coords-first 2026-07-01: routing to raw `lat,lon` made Maps pin the NEAREST KNOWN address = a neighbor → DJ knocked on the wrong door. A complete zip'd address shows the real door AND routes right. Do NOT flip back to coords-first. (The old "Sun City can't route" case was a DATA bug — fixed by correcting the property's city/zip: 78770 Falsetto Dr was `Sun City/92253`, real = `Indio/92211`.)
+- **★ ODOO GOTCHA: writing any address field (street/city/zip/state_id) on a res.partner RESETS partner_latitude/longitude to 0.0** (re-geocode trigger) — write the lat/lon back after.
 - **★ ODOO GOTCHA: writing ANY address field (street/city/zip/state_id) on a `res.partner` RESETS `partner_latitude`/`partner_longitude` to 0.0** (Odoo forces re-geocode). After fixing an address, re-write the lat/lon back in a second `write()` or you lose navigation coords.
 - **Offline launch fixed (service worker).** The hub registered `/sw.js` but the worker (in `routers/auth.py` `_SW_JS`) only handled push notifications + passed all fetches straight through (no cache) → with no signal the app hung on the W splash. Added network-first navigation caching + stale-while-revalidate for `/static` to `_SW_JS` (push/notificationclick handlers untouched). Online still always gets fresh; offline serves the last-cached page. **One-time:** open a page with signal once so it caches itself, then it opens offline.
 
