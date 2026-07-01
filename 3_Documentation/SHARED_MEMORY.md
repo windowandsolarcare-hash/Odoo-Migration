@@ -4,6 +4,14 @@
 # Format: key facts only - both Claudes read this on every session
 
 
+## 2026-07-01 — Re-engagement editor unified; DNC button; Navigate-to-Next; city lookup; Skipped fix
+- **ONE shared re-engagement editor** = `static/owner/reeng_editor.js` (`window.WSCReeng`). Both the **My Day re-engagement task** AND the **Field job 3-dot menu → 💬 Re-engagement** now render THIS same screen (Check last contact + safety banner + View full text chain + ✨ Draft from conversation + 🚀 Launch + editable text). My Day's inline copy was deleted — edit reeng_editor.js once, it changes everywhere. ✨ Draft sits ABOVE 🚀 Launch. Cooldown (45d) HARD-BLOCKS a re-send (no override).
+- **🛑 Do Not Contact** on the Field job 3-dot menu → `POST /owner/api/customer/do_not_contact {partner_id}` mirrors the Workiz STOP webhook: sets `x_studio_activelead='Do Not Contact'` on the parent customer + blacklists the phone + chatter note. Excludes them from re-engage/reactivate sends and from the forward-looking worklists.
+- **🧭 Navigate to Next Address** button on the job detail (after Charge at Door) → opens Maps to the NEXT stop on the SAME DAY as the job you're viewing, so you stay on the current job. Says "no next job on {weekday}'s schedule" inline if you're on the last one.
+- **Navigate now uses the exact street ADDRESS, not raw GPS coords** (coords made Maps label the wrong/nearest door). Full street+city+state+ZIP → right door + shows the real address. Coords only as a last resort.
+- **📍 Next available by city** button in Command Center → pick a serviced city (Palm Springs, Hemet, etc.), see the next route-tight open days/times + day map. No customer needed. (For "when can you come out?" phone calls.)
+- **Skipped bucket** now shows EVERY real missed job again (DNC + recently-texted customers are TAGGED — 🚫 Do Not Contact / ✓ texted Nd ago — not hidden). Those still drop off the forward-looking Overdue/Upcoming buckets. Skipped had wrongly shrunk to 5.
+
 ## 2026-07-01 — Job LENGTH captured (Workiz retiring), schedules show start–end, editable
 - **New Odoo field `x_job_length_min`** (int minutes) on sale.order. Workiz's `JobEndDateTime` was the only end-time source and Workiz is retiring, so we captured length into Odoo. **Backfilled 3,500 jobs** from Workiz per-UUID (★ Workiz GET needs a `User-Agent` header or it 403s; most jobs are real 60-min blocks).
 - **Display:** dashboard.py `_len_end(date_order,x_len,job_type)` → real length wins, else `_job_block_min` estimate (windows/solar 90, combo 120, gutter 60, touch/quote 30). Command Center rows + the job-detail header now show **start – end**; booking review too. Only the booking-review + CC + job detail show it — the Field Assistant schedule LIST is retired (below).
