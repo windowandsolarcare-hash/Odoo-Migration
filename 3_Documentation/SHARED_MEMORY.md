@@ -1,8 +1,14 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-07-01
+# Last updated: 2026-07-04
 # Format: key facts only - both Claudes read this on every session
 
+
+## 2026-07-04 — Daily sync report: wrong-CASE Workiz keys caused false "Workiz=blank" (pricing + gate code)
+- **Daily SO↔Workiz sync ("⚠ Workiz blank fields" report) was reading Workiz JSON keys with the WRONG CASE**, so real values looked blank and never synced. `_sync_so_with_workiz` (routers/owner/dashboard.py). Workiz `job/get` MIXES case — match it EXACTLY, never guess.
+- **Capitalized keys:** Status, SubStatus, JobNotes, JobType, JobSource, JobDateTime, Team, LineItems, UUID.
+- **lowercase keys:** `pricing`, `frequency`, `type_of_service_2`, **`gate_code`**.
+- Fixed `'Pricing'`→`'pricing'` (commit 630ef356) AND `'GateCode'`→`'gate_code'` (commit 1f68a21a) on 2026-07-04. Also str()-wrap Workiz numeric-ish fields before `.strip()` (pricing can be a bare int). Rule: fetch the live Workiz job (needs a `User-Agent` header off-Render or 403) and confirm exact key casing before trusting any "field=blank" report.
 
 ## 2026-07-01 — Re-engagement editor unified; DNC button; Navigate-to-Next; city lookup; Skipped fix
 - **ONE shared re-engagement editor** = `static/owner/reeng_editor.js` (`window.WSCReeng`). Both the **My Day re-engagement task** AND the **Field job 3-dot menu → 💬 Re-engagement** now render THIS same screen (Check last contact + safety banner + View full text chain + ✨ Draft from conversation + 🚀 Launch + editable text). My Day's inline copy was deleted — edit reeng_editor.js once, it changes everywhere. ✨ Draft sits ABOVE 🚀 Launch. Cooldown (45d) HARD-BLOCKS a re-send (no override).
