@@ -542,6 +542,12 @@ def update_invoice_with_workiz_link(invoice_id, new_job_uuid, customer_name, sch
 
 def create_followup_activity(workiz_job, contact_id, days_until_followup=180):
     """Create follow-up To-Do in Odoo. Due date = now + days_until_followup (from job frequency), adjusted to Sunday."""
+    # DISABLED 2026-07-07 (DJ approved): re-engagement is now computed FRESH every time by the Outreach
+    # Campaigns window (bucket-based on last-visit + maintenance + last_followup_sent cooldown — no task
+    # needed). Auto-creating a "Re-engagement:" project.task per Done job only re-clutters My Day and is
+    # redundant. Return a no-op success so the rest of Phase 5 is unaffected (caller skips the invoice link
+    # when todo_id is None). To re-enable, delete this early return. Original logic preserved below.
+    return {'success': True, 'todo_id': None, 'due_date': '', 'disabled': True}
     try:
         res_id = int(contact_id) if contact_id is not None else 0
     except (TypeError, ValueError):
