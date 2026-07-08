@@ -1,8 +1,13 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-07-07
+# Last updated: 2026-07-08
 # Format: key facts only - both Claudes read this on every session
 
+
+## 2026-07-08 — CRM Activity log is the ONE record of all outreach (both types); read x_activity_date
+- **`x_crm_activity_log`** (one2many `x_crm_activity_log_ids` on res.partner, linked via `x_contact_id`=CUSTOMER) is the single structured log for EVERY outreach — reactivation AND re-engagement. Fields: `x_name`, `x_description`(the SMS text), `x_activity_type`(reactivation_sms | reengagement_sms | follow_up_call | welcome_email), `x_campaign_id`(utm.campaign: 1=Reactivation, 3=Re-engagement), `x_related_order_id`(sale.order), and **`x_activity_date` (datetime) = the real send date — SORT/REPORT BY THIS, not create_date**.
+- Both send paths write here now: reactivation via SA 563, re-engagement via `/api/followup/launch`. Fully backfilled — 344 rows, all dated (34 re-engagements backfilled from `x_studio_last_followup_sent` + chatter message).
+- **For any "communication history / last contacted" UI: query x_crm_activity_log for the contact, order by `x_activity_date desc`.** The newest row = the true last contact + its type. The date fields (`x_studio_last_reactivation_sent`/`x_studio_last_followup_sent`) are just the fast filter index behind the Outreach lists. RULE: never stamp a date field without a matching log entry.
 
 ## 2026-07-07 — Re-engagement is now TASK-FREE (Outreach Campaigns window); My Day de-cluttered
 - **Re-engagement no longer uses a "Re-engagement:" project.task.** The new **Outreach Campaigns window** (`/owner/outreach`) computes it FRESH every load: a customer is "re-engagement" if serviced within the last year (`x_studio_last_visit_all_properties`) AND not a maintenance customer; the Launch list = those not texted within a **cooldown** (adjustable chips 1/2/3/6mo, default 2mo re-eng / 6mo reactivation, filtered by `x_studio_last_followup_sent`). Self-healing — nothing to delete/lose. Reactivation works the same way (cooldown on `x_studio_last_reactivation_sent`, default 6mo).
