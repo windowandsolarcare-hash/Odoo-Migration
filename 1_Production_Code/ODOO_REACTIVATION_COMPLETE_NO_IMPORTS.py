@@ -498,7 +498,8 @@ Primary Service: {primary_service_str}"""
                 "x_related_order_id": int(source_order.id),
                 "x_contact_id": int(contact.id),
                 "x_campaign_id": campaign_id,
-                "x_activity_type": "reactivation_sms"
+                "x_activity_type": "reactivation_sms",
+                "x_activity_date": datetime.datetime.now()
             }
             
             contact.write({
