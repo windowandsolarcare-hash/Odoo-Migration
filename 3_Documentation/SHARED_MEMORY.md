@@ -1,8 +1,15 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-07-04
+# Last updated: 2026-07-07
 # Format: key facts only - both Claudes read this on every session
 
+
+## 2026-07-07 — Re-engagement is now TASK-FREE (Outreach Campaigns window); My Day de-cluttered
+- **Re-engagement no longer uses a "Re-engagement:" project.task.** The new **Outreach Campaigns window** (`/owner/outreach`) computes it FRESH every load: a customer is "re-engagement" if serviced within the last year (`x_studio_last_visit_all_properties`) AND not a maintenance customer; the Launch list = those not texted within a **cooldown** (adjustable chips 1/2/3/6mo, default 2mo re-eng / 6mo reactivation, filtered by `x_studio_last_followup_sent`). Self-healing — nothing to delete/lose. Reactivation works the same way (cooldown on `x_studio_last_reactivation_sent`, default 6mo).
+- **STOPPED auto-creating re-engagement tasks:** Phase 5's `create_followup_activity` (zapier_phase5) is a no-op now. **Do NOT recreate "Re-engagement:" tasks.** Deleted 129 redundant ones from My Day (kept 18 not covered by the new flow).
+- **My Day outreach banner is ONE line:** "📣 Outreach — N to reach out · M awaiting reply" → /owner/outreach. The old separate "⏳ Reactivations — awaiting reply" row was removed.
+- **Snooze/remove a customer from outreach = `x_snooze_until` (res.partner)** + `POST /api/outreach/park` (snooze months/season/date | remove=DNC | wake). Snoozed customers drop off all outreach lists until the date; "Wake now" clears it and opens draft-and-send.
+- Send path unchanged: `WSCReeng` widget → `/api/followup/launch` (re-eng, writes `x_studio_last_followup_sent`) or `/api/reactivation/launch` (SA 563, writes `x_studio_last_reactivation_sent`). ★ Reactivation launch now re-resolves a live SO if the passed one was deleted.
 
 ## 2026-07-04 — Daily sync report: wrong-CASE Workiz keys caused false "Workiz=blank" (pricing + gate code)
 - **Daily SO↔Workiz sync ("⚠ Workiz blank fields" report) was reading Workiz JSON keys with the WRONG CASE**, so real values looked blank and never synced. `_sync_so_with_workiz` (routers/owner/dashboard.py). Workiz `job/get` MIXES case — match it EXACTLY, never guess.
