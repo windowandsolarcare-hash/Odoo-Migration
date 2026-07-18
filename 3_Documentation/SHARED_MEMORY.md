@@ -1326,3 +1326,8 @@ Calendar job rows now navigate to `/owner/field?open_so=X&date_raw=YYYY-MM-DD`.
 ## 2026-07-17 — v2 REDESIGN BATCH 2 (7 pages shipped as previews)
 
 New preview pages at /static/owner/ (live app untouched, same live endpoints): v2_new_order, v2_new_job (full 3-step wizard, creates REAL Workiz jobs via /api/intake/create-job with date_pt), v2_quote (draft survives refresh via localStorage wsc_v2_quote_draft), v2_submitted (Refresh now polls until the Workiz scan finishes), v2_maintenance (tab persisted in wsc_v2_maint_tab; Sync-all chunk loop confirms cleared drafts via SA 955), v2_stale_sos (all 6 payment endpoints + CSV match + fix-dates + voice), v2_deleted (read-only audit). v2_home launcher/cards rewired to them. The old maintenance detail/set_slot view (unreachable dead UI, set_slot WRITES Workiz) was intentionally NOT rebuilt. Always hand DJ preview links with a fresh ?v= (service worker serves stale /static/* otherwise).
+
+
+## 2026-07-18 — FIELD TABS BROKEN OUT (v2 batch 3)
+
+field.html's 3 tabs are now standalone v2 previews: v2_customers.html (full Customer Brain — search/dossier/pay/duplicate/reschedule/sync/DNC/delete/outreach; embeds shared wsc_park.js + reeng_editor.js + cust_ctx.js + paid-cache.js; accepts ?cust_q=&cust_pid=), v2_stats.html (month day-bars via /api/stats/month + /api/sales/day), v2_voice.html (/owner/ask + /owner/execute chat, shared wsc_saved_qs). Saunders Business Group line removed from v2_home header. ROUTER-SHADOWING FACT (verified): /owner/ask, /owner/execute, /api/todos* exist in both dashboard.py and field.py/activities.py — dashboard.py registers FIRST in main.py and WINS for duplicated paths.
