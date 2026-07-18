@@ -1321,3 +1321,8 @@ Calendar job rows now navigate to `/owner/field?open_so=X&date_raw=YYYY-MM-DD`.
 ## Service Area field — use x_studio_service_area, not the empty twin (2026-06-11)
 - Real Service Area field = `x_studio_service_area` (values Hemet / Desert / All areas), on the PROPERTY record. ~712/897 filled.
 - The twin `x_studio_x_studio_service_area` is EMPTY on all properties — CLAUDE.md's table wrongly listed it. Caused analytics service-area graph to be 100% "Unknown" (Nick Conway etc.). Fixed analytics.py to read the right field. Frequency=x_studio_x_frequency, Type=x_studio_x_type_of_service are unaffected.
+
+
+## 2026-07-17 — v2 REDESIGN BATCH 2 (7 pages shipped as previews)
+
+New preview pages at /static/owner/ (live app untouched, same live endpoints): v2_new_order, v2_new_job (full 3-step wizard, creates REAL Workiz jobs via /api/intake/create-job with date_pt), v2_quote (draft survives refresh via localStorage wsc_v2_quote_draft), v2_submitted (Refresh now polls until the Workiz scan finishes), v2_maintenance (tab persisted in wsc_v2_maint_tab; Sync-all chunk loop confirms cleared drafts via SA 955), v2_stale_sos (all 6 payment endpoints + CSV match + fix-dates + voice), v2_deleted (read-only audit). v2_home launcher/cards rewired to them. The old maintenance detail/set_slot view (unreachable dead UI, set_slot WRITES Workiz) was intentionally NOT rebuilt. Always hand DJ preview links with a fresh ?v= (service worker serves stale /static/* otherwise).
