@@ -1331,3 +1331,8 @@ New preview pages at /static/owner/ (live app untouched, same live endpoints): v
 ## 2026-07-18 — FIELD TABS BROKEN OUT (v2 batch 3)
 
 field.html's 3 tabs are now standalone v2 previews: v2_customers.html (full Customer Brain — search/dossier/pay/duplicate/reschedule/sync/DNC/delete/outreach; embeds shared wsc_park.js + reeng_editor.js + cust_ctx.js + paid-cache.js; accepts ?cust_q=&cust_pid=), v2_stats.html (month day-bars via /api/stats/month + /api/sales/day), v2_voice.html (/owner/ask + /owner/execute chat, shared wsc_saved_qs). Saunders Business Group line removed from v2_home header. ROUTER-SHADOWING FACT (verified): /owner/ask, /owner/execute, /api/todos* exist in both dashboard.py and field.py/activities.py — dashboard.py registers FIRST in main.py and WINS for duplicated paths.
+
+
+## 2026-07-18 — V2 REDESIGN: FULL COVERAGE (overnight batch)
+
+16 more v2 previews shipped: pre_deposit, waiting, voicemails, weekly_reports, activities, inputs, ai, vault (unified notes+vault+reference), planner, calendar, timeclock, shift_review, hr, hiring (read-focused — deep notes editing stays on real page, fragile notes_raw blob), analytics (Chart.js dashboard), quick (voice kiosk). Every W&SC owner app now has a v2 at /static/owner/v2_*.html and v2_home links to all of them. Still pending DJ input: field.html day-view/timer/clock-in (payroll), hiring deep-edit cockpit, offline photo queue, non-W&SC portals. NOTHING replaced — all previews. v2 checklist doc in Vault (W&SC Operations) is current.
