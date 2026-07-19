@@ -141,7 +141,7 @@ for source_order in records:
     name_encoded = full_name.replace(' ', '+').replace('&', '%26')
     address_encoded = (contact_vals.get('street') or "").replace(' ', '+').replace('#', '%23').replace('&', '%26')
     
-    cal_url = f"https://calendly.com/wasc/{city_slug}?name={name_encoded}&a1={address_encoded}"
+    cal_url = "https://wscare.pro/book"  # Calendly retired 2026-07-19; Render swaps to tokenized wscare.pro/c/<token> link
     
     # Build SMS message
     message_body = f"""Hi {first_name}, I hope all is well. It's Window & Solar Care.
