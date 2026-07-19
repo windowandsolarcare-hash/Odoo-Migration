@@ -97,7 +97,7 @@ for source_order in records:
     address_encoded = street_address.replace(' ', '+').replace('#', '%23').replace('&', '%26')
     
     # Build Calendly URL with prefilled data
-    cal_url = f"https://calendly.com/wasc/{city_slug}?name={name_encoded}&a1={address_encoded}"
+    cal_url = "https://wscare.pro/book"  # Calendly retired 2026-07-19; Render swaps to tokenized wscare.pro/c/<token> link
 
     message_body = f"""Hi {first_name}, I hope all is well. It's Window & Solar Care.
 
