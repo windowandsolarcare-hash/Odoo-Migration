@@ -1,0 +1,6 @@
+Workiz FINAL export 2026-08-02 20:08 (start_date=2000, full history)
+Total unique jobs: 3860
+Status counts: {'Submitted': 884, 'Pending': 387, 'Done': 2555, 'Canceled': 33, 'done pending approval': 1}
+JobDateTime range: 2019-07-16 .. 2027-06-08
+CreatedDate range: 2020-02-25 .. 2026-07-30
+Fields per job: ['UUID', 'LocationId', 'LocationKey', 'SerialId', 'JobName', 'JobDateTime', 'JobEndDateTime', 'CreatedDate', 'JobTotalPrice', 'JobAmountDue', 'SubTotal', 'item_cost', 'tech_cost', 'ClientId', 'Status', 'SubStatus', 'PaymentDueDate', 'Phone', 'SecondPhone', 'PhoneExt', 'SecondPhoneExt', 'Email', 'Comments', 'FirstName', 'LastName', 'LineItems', 'Company', 'Address', 'City', 'State', 'PostalCode', 'Country', 'Latitude', 'Longitude', 'Unit', 'ServiceArea', 'JobType', 'JobNotes', 'JobSource', 'Tags', 'CreatedBy', 'LastStatusUpdate', 'Team', 'pricing', 'frequency', 'type_of_service_2', 'last_date_cleaned', 'next_job_line_items', 'ok_to_text', 'confirmation_method']
