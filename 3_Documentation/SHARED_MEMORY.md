@@ -8,7 +8,8 @@
 The branded self-schedule page (`/book/sched/{token}`) now serves BOTH moments. Add **`?c=1`** to the link → confirmation wording ("We have you on the schedule for…", "Yes, I'll be there ✓"); without it, schedule wording ("proposed for…", "That works ✓"). BOTH show all 3 options (confirm is never a dead-end — they can still reschedule/pick a day).
 - **Confirmed flag** = `wsc.reminders.confirmed.<so_id>`. Set when the customer replies YES OR books through the branded page. The 4-day auto-confirm skips anyone with this flag.
 - **A reschedule un-confirms**: `/api/schedule/reschedule` clears the confirmed flag + the self-schedule state (a confirmation is for one specific appointment). After a reschedule the customer must confirm the new date.
-- **After DJ reschedules** a job: >2 weeks out → the branded SCHEDULE page auto-offers; ≤2 weeks → the branded CONFIRM page (`?c=1`). 2-week cutoff.
+- **After DJ reschedules** a job: NOTHING auto-sends — a tappable "🔁 Rescheduled — text the new time" banner is ARMED on the job detail; DJ taps to review & send. Which flavor is chosen by the 2-week cutoff: >2 weeks out → SCHEDULE page; ≤2 weeks → CONFIRM page (`?c=1`).
+- **Nothing self-launches**: the schedule + confirm sends are all DJ-approved in-app (manual button, or the reschedule nudge). The nightly 4-day confirm + night-before reminder are approval cards on the HUD — they don't send without DJ tapping approve either.
 - **"✓ Confirmed" banner/badge** shows on the job detail AND Command Center cards once confirmed.
 - The plain "Send confirmation" button on the job screen was RETIRED — one "Send scheduling options" button leads to the branded page.
 - `/api/sched/launch` takes `mode` ('schedule'|'confirm'); `/api/sched/state` + bulk `/api/sched/states` now report `confirmed`.
