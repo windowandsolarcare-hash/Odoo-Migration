@@ -4,6 +4,15 @@
 # Format: key facts only - both Claudes read this on every session
 
 
+## 2026-08-06 — Scheduling lifecycle: ONE branded page does schedule AND confirm
+The branded self-schedule page (`/book/sched/{token}`) now serves BOTH moments. Add **`?c=1`** to the link → confirmation wording ("We have you on the schedule for…", "Yes, I'll be there ✓"); without it, schedule wording ("proposed for…", "That works ✓"). BOTH show all 3 options (confirm is never a dead-end — they can still reschedule/pick a day).
+- **Confirmed flag** = `wsc.reminders.confirmed.<so_id>`. Set when the customer replies YES OR books through the branded page. The 4-day auto-confirm skips anyone with this flag.
+- **A reschedule un-confirms**: `/api/schedule/reschedule` clears the confirmed flag + the self-schedule state (a confirmation is for one specific appointment). After a reschedule the customer must confirm the new date.
+- **After DJ reschedules** a job: >2 weeks out → the branded SCHEDULE page auto-offers; ≤2 weeks → the branded CONFIRM page (`?c=1`). 2-week cutoff.
+- **"✓ Confirmed" banner/badge** shows on the job detail AND Command Center cards once confirmed.
+- The plain "Send confirmation" button on the job screen was RETIRED — one "Send scheduling options" button leads to the branded page.
+- `/api/sched/launch` takes `mode` ('schedule'|'confirm'); `/api/sched/state` + bulk `/api/sched/states` now report `confirmed`.
+
 ## 2026-07-08 — CRM Activity log is the ONE record of all outreach (both types); read x_activity_date
 - **`x_crm_activity_log`** (one2many `x_crm_activity_log_ids` on res.partner, linked via `x_contact_id`=CUSTOMER) is the single structured log for EVERY outreach — reactivation AND re-engagement. Fields: `x_name`, `x_description`(the SMS text), `x_activity_type`(reactivation_sms | reengagement_sms | follow_up_call | welcome_email), `x_campaign_id`(utm.campaign: 1=Reactivation, 3=Re-engagement), `x_related_order_id`(sale.order), and **`x_activity_date` (datetime) = the real send date — SORT/REPORT BY THIS, not create_date**.
 - Both send paths write here now: reactivation via SA 563, re-engagement via `/api/followup/launch`. Fully backfilled — 344 rows, all dated (34 re-engagements backfilled from `x_studio_last_followup_sent` + chatter message).
