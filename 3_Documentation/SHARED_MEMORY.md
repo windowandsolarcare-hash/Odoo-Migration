@@ -1,8 +1,18 @@
 # SHARED MEMORY - Window & Solar Care
 # Synced between Claude Code (local) and Render Claude (field assistant)
-# Last updated: 2026-07-08
+# Last updated: 2026-08-18
 # Format: key facts only - both Claudes read this on every session
 
+
+## 2026-08-18 — NEW public marketing site is being built in ODOO (not WordPress, not the Render app)
+The rebuilt public marketing site lives in Odoo website module, website id 1 (company 1), preview at
+https://window-solar-care.odoo.com/ — 17 pages, target domain wscare.pro. It replaces the slow
+WordPress windowandsolarcare.com. Every quote/book CTA points at https://wscare.pro/book (never a
+Calendly link). Structure: ONE shared wsc.page wrapper + wsc.styles/wsc.cta/wsc.guarantees/
+wsc.service_grid/wsc.areas component views; page records hold only their body. To change anything
+site-wide (phone, cities, CTA copy) edit the shared component, not the pages.
+ODOO QUIRK: /terms is a RESERVED route — a website.page there publishes fine but serves an HTTP
+error. Use /terms-and-conditions. Owned by the Web session; the Render app is untouched by it.
 
 ## 2026-08-11 — Answered calls ALWAYS log now + customer lookup matches Second Phone
 Voice = Twilio (routers/owner/voice.py). BUG (fixed): an answered live call from an UNrecognized number with no existing text thread logged NOWHERE — `/voice/recording-saved` + `/voice/transcript-ready` only wrote to a thread `if conv is not None` (never created one). Now they create the thread like voicemails do (new call thread = status 'open', not unread — it's history, not an action item). So every answered call shows in the inbox now.
