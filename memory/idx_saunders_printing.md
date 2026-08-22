@@ -1,0 +1,20 @@
+# Saunders Printing (NBHOF) — memory index
+
+- [project_nbhof_new_inductee_box_labeling.md](project_nbhof_new_inductee_box_labeling.md) — ★ ANNUAL COMMITMENT (promised to Ben Hatton 2026-08-04): FIRST new-inductee plaque postcard order each year ships with NO sample card on the outside (confidential plaque art); re-orders unchanged; banding stays. Fires late June/early July.
+- [project_booking_portal_display_rules.md](project_booking_portal_display_rules.md) — Customer booking portal (wscare.pro/c/{token}, booking.py /api/me + static/booking/index.html) display rules (DJ 2026-07-04): "recent visits" =…
+- [project_calendar_job_move_postworkiz.md](project_calendar_job_move_postworkiz.md) — POST-WORKIZ feature (parked, not started): move REAL jobs block-by-block on the calendar (drag / tap→Move).
+- [project_customer_portal_booking.md](project_customer_portal_booking.md) — ACTIVE BUILD (2026-06-14): self-hosted customer booking page → customer portal, replaces Calendly long-term.
+- [project_hof_watcher_non_po_guard.md](project_hof_watcher_non_po_guard.md) — HOF inbound watcher (check_hof_emails) now validates a PDF is REALLY a purchase order before auto-creating a job+invoice.
+- [project_nbhof_postcard_c_numbers.md](project_nbhof_postcard_c_numbers.md) — NBHOF photo-postcard C##### item-number sequence: next = max C on latest invoice's card lines + 1.
+- [project_nbhof_watcher_reorder_po.md](project_nbhof_watcher_reorder_po.md) — Saunders NBHOF PO watcher (routers/printing/watcher.py, daily cron GET /printing/api/check-po, IMAP dan@scenicartprint.com UNSEEN FROM…
+- [project_property_displayname_has_name.md](project_property_displayname_has_name.md) — GOTCHA: a parented Property res.partner's display_name (and partner_shipping_id[1]) = "Customer Name, Street" (e.g.
+- [project_redesign_restore_point.md](project_redesign_restore_point.md) — Pre-redesign SNAPSHOT (2026-06-21): both repos tagged stable-2026-06-21 + branch backup-2026-06-21-pre-redesign (saunders-render-app @56c55a6…
+- [project_saunders_printing.md](project_saunders_printing.md) — Commercial web-to-print business: Odoo Website storefront, Stripe payments, automated file prep (bleed/CMYK/DPI/PDF), DJ prints and ships.
+- [project_saunders_printing_odoo.md](project_saunders_printing_odoo.md) — Saunders Printing = Odoo company ID 3. AR acct 233, Revenue acct 266, Sales journal ID 21.
+- [project_setaside_inactive_policy.md](project_setaside_inactive_policy.md) — Set-aside policy: "inactive"=Odoo archived (active=False, vanishes everywhere).
+- [project_twilio_port_details.md](project_twilio_port_details.md) — Exact details to port DJ's 7 Workiz numbers → his Twilio account (ACc937...): local 760-334-5315/5350/5355 + 951-223-4602 + 951-927-8680 (PIN…
+- [project_twilio_port_from_workiz.md](project_twilio_port_from_workiz.md) — Porting the biz phone numbers off Workiz into DJ's OWN Twilio account = a Twilio-to-Twilio INTERNAL TRANSFER (Workiz runs on Twilio), not a…
+- [project_workers_comp_shopping.md](project_workers_comp_shopping.md) — ACTIVE: shopping workers' comp b/c hiring David Osuna (PT tech, ~$33,280 payroll).
+- [project_wsc_llc_formation.md](project_wsc_llc_formation.md) — W&SC is now a CA LLC (entity B20260293155, Articles filed 6/23/2026, approved 6/25 via CA SOS bizfile).
+- [project_zoo_printing_automation.md](project_zoo_printing_automation.md) — Zoo Printing automation (APPROVED, build pending retail email).
+- [session_jun14_saunders_printing.md](session_jun14_saunders_printing.md) — 2026-06-14 full Saunders Printing build: Zoo email automation (zoo_watcher), one-tap invoice send (SA 1335) + render (SA 1336), per-card…
