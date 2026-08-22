@@ -75,6 +75,7 @@ Detail lives in topic files. This index is sharded by domain — open the sub-in
 - [feedback_render_put_env_vars.md](feedback_render_put_env_vars.md) — CRITICAL: Render PUT /env-vars wipes ALL vars. Always GET first, merge, then PUT full list.
 - [feedback_report_gray_lines.md](feedback_report_gray_lines.md) — Every P&L/financial report emailed to DJ needs a light-gray line under EVERY line item (phone readability).
 - [feedback_route_work_to_claude_code.md](feedback_route_work_to_claude_code.md) — Default ALL work to Claude Code (me = flat Max sub, no marginal $).
+- [feedback_mirror_memory_to_github.md](feedback_mirror_memory_to_github.md) — ★ When you write/edit ANY memory, ALSO mirror it to GitHub Odoo-Migration/memory/<name> via `gh api` Contents PUT (fetch sha first) — NEVER git push (main is protected). In addition to the SHARED_MEMORY dual-write.
 - [feedback_save_filter.md](feedback_save_filter.md) — DJ wants auto-saves (no slash command). Filter SHARED_MEMORY writes — only runtime-relevant facts go there;
 - [feedback_script_insertion_anchor.md](feedback_script_insertion_anchor.md) — Never use rfind('</script>') — finds last external script tag.
 - [feedback_send_email_with_attachment.md](feedback_send_email_with_attachment.md) — Full pattern for sending email + PDF attachment via Odoo JSON-RPC.
