@@ -4,6 +4,12 @@
 
 ---
 
+## ☁️ CLOUD SESSIONS — HOW TO READ YOUR MEMORY (2026-08-22)
+
+**If you are a CLOUD Claude Code session** (running against the GitHub repo on an Anthropic-hosted machine, NOT DJ's local Surface Pro): your memory does NOT auto-load, and the local path `C:\Users\dj\.claude\...\memory\` does NOT exist here. Your full memory lives IN THIS REPO at **`./memory/`** (mirrored from local, kept in lockstep). At session start: read **`memory/MEMORY.md`** (the index + standing rules), then open the relevant **`memory/idx_*.md`** domain shard or `Grep` the `memory/` folder for your topic — same content a local session gets auto-loaded. Also read `3_Documentation/SHARED_MEMORY.md`, and for fleet mail read `saunders-render-app` → `3_Documentation/AGENT_MAIL.md`. When you write a new memory, write it to `./memory/` in THIS repo (a cloud session's commit IS the mirror — no separate push needed).
+
+---
+
 ## START HERE
 
 **This file is the single source of truth for new sessions.** CLAUDE_CONTEXT.md and MASTER_PROJECT_CONTEXT.md are deep-reference only — do NOT require reading at session start. Everything critical is in this file.
