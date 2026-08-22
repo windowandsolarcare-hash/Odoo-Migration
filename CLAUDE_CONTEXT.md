@@ -341,7 +341,7 @@ print(json.dumps(payload))
 ## CREDENTIALS
 
 **Odoo:** window-solar-care.odoo.com, DB: window-solar-care, API Key in `.cursorrules` (legacy — kept for reference)
-**Workiz:** API Token api_1hu6lroiy5zxomcpptuwsg8heju97iwg, Auth sec_334084295850678330105471548  
+**Workiz:** API Token [RETIRED — Workiz dead 2026-08-03], Auth [RETIRED — Workiz dead 2026-08-03]  
 **GitHub:** windowandsolarcare-hash/Odoo-Migration, main branch
 
 ---
