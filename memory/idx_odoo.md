@@ -43,3 +43,5 @@
 - [project_respartner_no_mobile_field.md](project_respartner_no_mobile_field.md) — res.partner has NO `mobile` field (only `phone`); reading mobile crashes. Phone lives on PERSON not PROPERTY → job/property screens need parent_id.phone fallback.
 - [project_property_dedup.md](project_property_dedup.md) — Duplicate PROPERTY cleanup: use Odoo NATIVE base.partner.merge (moves posted invoices; manual write cant; cap 3/merge; deletes dupes). ~58 excess. Barry test DONE.
 - [SO partner_id is the PROPERTY](project_so_partner_id_is_property.md) — ★ a job/SO partner_id is the property child (record_category=Property), NOT the person; person = parent_id. activeJob.partner_id is the property. intake endpoint now walks property→person.
+
+- [project_odoo_api_key_rotated_2026-08-22.md](project_odoo_api_key_rotated_2026-08-22.md) — Odoo API key ROTATED 2026-08-22; old key 7e92… is DEAD (Access Denied); new key in Render env ODOO_API_KEY + local file, never committed.
