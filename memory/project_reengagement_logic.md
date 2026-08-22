@@ -1,0 +1,53 @@
+---
+name: project_reengagement_logic
+description: "THE approved re-engagement (customer win-back text) — where it lives, its exact endpoints, and the rule not to duplicate it. Pinned 2026-06-30 after I mis-mapped it twice."
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: b8f82f75-713b-49ec-b4d3-aeb0cffeef8f
+---
+
+**Re-engagement = the approved customer win-back text.** DJ 2026-06-30: "this is the re-engagement logic and button. it appears on the re-engagement tasks." Don't rebuild it — reuse it exactly where it is.
+
+**RE-ENGAGEMENT TAG (2026-07-06, DJ):** every re-engagement (follow-up) To-Do carries **project.tags "Re-engagement" = id 22**. Phase 5 (`zapier_phase5_FLATTENED_FINAL.py`) is the ONLY creator of "Re-engagement: <customer>" project.tasks (reengage.py just SCANS them; reactivation.py just SENDS the text) — it now sets `'tag_ids':[(4,22)]` on create (commit 19eeca19). Backfilled all 211 existing "Re-engagement:" tasks. project.tags ref: Re-engagement=22, Follow-Up=13, Schedule=21, Personal=16, OK=4, CF=1. In My Day these surface as "Categories" (tag_ids). ★ xmlrpc write via a `list(*a)` wrapper = `x('project.task','write', ids, {vals})` — NOT `[[ids,{vals}]]` (over-nesting throws the misleading `make_write() missing 'vals'`).
+
+## Where it lives (the button)
+- On the **"Re-engagement:" project.tasks** (created by Phase 5 / `reengage.py` auto-pilot when an On-Request/Unknown customer's cycle comes due). 
+- UI: **activities.html "Launch Re-engagement Text"** button (`detailOpenFollowup()` → `openFollowupModal()`), and the `reengage.py` approve-first screen at **`/owner/reengage`** (Reactivations-Due, one-tap Send/Skip).
+
+## The send mechanics (the logic) — all in reactivation.py
+- Preview `POST /api/followup/preview {partner_id}` → `sms_text` (built by `_build_followup_sms`, a template: "Hi {first}, it's Dan… been too long since I was out at {street}… desert dust… crystal clear again"), + `customer`, `cooldown_warning` (45-day, `FOLLOWUP_COOLDOWN_DAYS`).
+- Launch `POST /api/followup/launch {partner_id, activity_id?, sms_text}` → clones the latest Workiz job + sets **SubStatus `'Re-engagement Trigger'`** → a Workiz automation fires the actual SMS. Hard-blocks phone_blacklisted (STOP) + `x_studio_activelead=='Do Not Contact'` + the 45-day cooldown.
+- Close `POST /api/followup/markdone {activity_id}`.
+- `reengage.py /api/reengage/due` + `/act` just wrap those same followup endpoints.
+
+## ★ partner_id MUST be the CUSTOMER (parent), never the property
+`followup_preview/launch` are keyed on the parent customer: they read `contact.name` for "Hi {first}" AND search properties `where parent_id == partner_id`. The tasks store the parent id, so it works. If you pass a **Property child** partner (name = the street) you get "Hi 40448" and an empty job lookup — that was my bug.
+
+## Cooldown BLOCKS (no override) + "recently contacted" drop rule (updated 2026-07-01)
+- The job-menu/shared-editor re-engagement send does NOT pass `override` — the 45-day cooldown HARD-BLOCKS a re-send (DJ 2026-07-01: "I hope it is blocked"; also matches My Day). The preview shows "Send will be blocked" and followup/launch returns the cooldown error. (Earlier I'd added override:true — removed.)
+- Needs-scheduling / skipped / Investigate drop rule is now **"contacted within the last 45 days"** (`_recentContact(last_contacted)` = < 45 days), NOT the old "last_contacted >= due date". Reason: a re-engaged customer often has a FUTURE-dated Submitted job (Rick Kammerer, due Jul 10, contacted 5 days ago) so `>= due date` never fired. 45 days = the re-engagement cooldown window; after it they reappear (eligible again).
+
+## After you contact them, they drop off the worklists (2026-06-30)
+Sending a re-engagement OR reactivation doesn't change the job status, so the customer used to linger on the CC lists. Fix: `calendar_jobs` (dashboard.py) now returns **`last_contacted`** = the customer's `res.partner.x_last_communication` (the rollup of last_followup_sent + last_reactivation_sent, on the PARENT; kept current by SA 1365 — see [[project_last_communication_rollup_field]]). schedule_hub `_isSkipped` and `showInvestigate` now DROP a past job when `last_contacted >= its due date` (contacted since it came due = handled). Both channels update x_last_communication so both drop the customer. Verified: Jose Bugarin (23206) re-engaged 2026-07-01 → x_last_communication 2026-07-01. (Investigate is button-triggered so re-tap/↺ to see it; Needs view auto-refreshes on return.)
+
+## ★ Re-engagement ≠ Reactivation — TWO DIFFERENT FLOWS (see [[project_reengagement_vs_reactivation]])
+DJ corrected me 2026-06-30: they are NOT the same. Do not conflate.
+- **Re-engagement** (this flow) = Phase-5 On-Request/Unknown cycle → `project.task` "Re-engagement:", Workiz JobType **`Re-engagement Lead`** + SubStatus **`Re-engagement Trigger`**, **45-day** cooldown (`x_studio_last_followup_sent`), `followup/*` endpoints.
+- **Reactivation** = 1yr+ dormant **campaign** → `crm.lead`, JobType **`Reactivation Lead`**, Calendly booking link, **365-day** cooldown (`x_studio_last_reactivation_sent`), SA 563 / `/api/reactivation/*`. DJ: LEAVE IT ALONE.
+- The leftover `dt-btn-reactivate` id / `/api/todos/reactivate` naming around the re-engagement task was a **BUG** (re-engagement task wired to the reactivation campaign → "no sales order" error), FIXED 2026-06-23. Do NOT read that stale naming as "they're the same" — that's the exact trap.
+
+## ★ ONE shared editor = `reeng_editor.js` / `window.WSCReeng` (2026-07-01, DJ: consolidate, same screen everywhere)
+DJ worked hard on the My Day re-engagement TASK editor look (🔍 Check last contact + safety banner, 📜 View full text chain, ✨ Draft from conversation, 🚀 Launch, editable Text-to-send) and wants that EXACT screen everywhere — not a stripped box. Built `static/owner/reeng_editor.js` = `WSCReeng.render(containerEl, {partner_id, name, kind:'reengage'|'reactivate', so_id, onSent})` — a faithful extraction of the My Day editor, reusing the same endpoints (`reeng_review/one`, `text_history`, `followup/preview`+`ai_draft`+`launch`, `reactivation/preview`+`launch`). It **normalizes partner→parent** via a new `GET /api/followup/resolve?partner_id=` (so the job menu's Property partner works; My Day's parent is a no-op). `onSent` lets the host decide what to do after a send.
+- **DONE: Field job 3-dot menu** (field.html) now hosts WSCReeng in the #outreach-modal (loads `/static/owner/reeng_editor.js` after route_map.js). Removed the old little-box `outreachPreview*/outreachSend`. Same screen as the task now, on the job.
+- ★ CSS-TOKEN GOTCHA (fixed 2026-07-01): `field.html` does NOT define `--card2`/`--line`/`--dim` (it uses `--bg-card`/`--text-muted`); My Day DOES define them. So a component copied from My Day using `var(--card2)` etc. renders invisible in field (customer text bubbles vanished into the bg — DJ's "blends into the background"). reeng_editor.js now uses fallbacks everywhere (`var(--card2,var(--bg-card,#1e293b))`, `var(--line,#334155)`, `var(--dim,var(--text-muted,#94a3b8))`) and the "them" bubbles use a FIXED contrasting slate `#33465c` + `#e6edf5` (not a token, so it can't collide with the panel bg). Rule: any shared owner-UI JS must self-provide color fallbacks — don't assume a token exists on every page.
+- UI polish (2026-07-01): in the shared editor **✨ Draft from conversation now sits ABOVE 🚀 Launch** (DJ: draft first, then send). Text-chain modal header/✕ were invisible (relied on tokens field lacks) → header now uses explicit colors (`#16213a` bg, `#f1f5f9` title, a visible slate `#33465c` ✕ pill). Both from DJ screenshots.
+- ✅ **DONE (Phase B, 2026-07-01): My Day migrated to WSCReeng** — myday.html loads `reeng_editor.js`; `#tkLaunchWrap` is now just `<div id="tk-reeng"></div>` + the ⏭ Skip button; showTask calls `WSCReeng.render($('tk-reeng'), {partner_id:it.partner_id, name:it.customer, kind:'reengage', onSent: snooze task 60d + closeTask + load})`. DELETED the inline copy (TKFLAG, tkRenderCheck, tkFullHistory, tkCheckContact, tkLaunchPrep, tkAiDraft, tkLaunchSend, tkEsc, tkIsMe). Kept `tkSkipReeng` (task-side) + a guarded `closeThm` (the old #thm modal div is now dead/harmless; WSCReeng uses its own #re-thm). **reeng_editor.js is now the ONE source** for My Day + the Field job menu.
+
+## Job 3-dot menu HAS both channels (DJ's final spec, 2026-06-30)
+DJ's 3 customer-comm channels: (1) direct text (Workiz until Twilio), (2) Re-engagement, (3) Reactivation. He wants **#2 + #3 on every open job's 3-dot menu** (drive everything to the job screen). LIVE in field.html:
+- "💬 Re-engagement" → `openReEngageFromMenu` → #outreach-modal → **`followup/ai_draft {partner_id}`** (NOT the plain template) so the message is TAILORED to the customer's text history (continue-the-conversation), then `followup/launch {partner_id, sms_text, override:true}`. Modal handles `do_not_send` (block + reason), `heads_up` (amber note), and the no-history template fallback (`source:'template'`). ai_draft ALSO resolves property→parent via `_followup_customer_id`. DJ 2026-06-30: "why a default message?" — because I'd wired the template preview; the developed logic is `ai_draft` (reads [workiz-history], Dan's voice). See [[project_reengagement_sms_template_detector]].
+- "🔁 Reactivation" → `openReactivateFromMenu` → #outreach-modal → **also drafts from text history** via `followup/ai_draft {partner_id, flow:'reactivation'}` (2026-06-30, DJ wanted the tailored draft on reactivation too; `flow='reactivation'` adds a "1yr+ gap, acknowledge warmly" hint to the AI prompt) → SEND via `reactivation/launch {so_id, sms_text}` = writes `x_studio_manual_sms_override` + runs **SA 563** (the campaign: crm.lead + Reactivation Lead Workiz job + 365d). SA 563 is self-sufficient — skipping the SA 562 preview is safe. Both channels now = tailored AI draft; only the SEND/tracking differs (followup vs SA 563 campaign). Uses wscare.pro booking link (not Calendly) on both.
+- Shown when `partner && soid && customer!=='Personal Time'`. Modal = preview→edit→send. DNC/blacklist hard-block; cooldown warns + Send stays enabled (override).
+- reactivation.py `_followup_customer_id(partner_id)` resolves a Property partner → parent customer (real name in the greeting, not the street) — called in followup preview+launch. `override` param bypasses the 45-day followup cooldown.
+- HISTORY (don't be confused): I first built this, DJ had me DELETE it while we nailed the re-engage-vs-reactivation distinction, then he confirmed he wants BOTH — restored 2026-06-30 with the correct distinct flows. See [[project_reengagement_vs_reactivation]], [[project_reeng_reactivation_closed_loop]].
