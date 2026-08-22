@@ -1,5 +1,6 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_cloud_lead_write_path.md](project_cloud_lead_write_path.md) — ★ CLOUD sessions: `gh` NOT installed + api.github.com egress-BLOCKED (403, don't route around). Write via MCP `create_or_update_file` = Contents PUT to main. Read via on-disk clone + `git fetch origin main`. Cost: full file passes through context per write (~26k for AGENT_MAIL). safe_deploy.py absent — gate by hand.
 - [project_odoo_rpc_429_retry.md](project_odoo_rpc_429_retry.md) — ★ Odoo JSON-RPC 200-with-no-`error` = SUCCESS even if `result` absent (VOID methods like mail.mail.send omit it). Never bare res['result'] → do res.get('result'). Was the Saunders preview 500 (send WAS working; UI lied). shared/odoo.py fixed dd5ccdf; +429/5xx retry. Owner-side routers/owner/shared.py may need same.
 - [project_silent_lie_swallowed_reads.md](project_silent_lie_swallowed_reads.md) — RULE: `except: return []` on a read that FEEDS A PAGE is a silent lie if empty renders as plausible-but-false (429 gave a real customer an empty service history). Raise + degrade honestly; soften only where empty==failed to the viewer. Also: KeyError:'result' (error checked first) ≠ masked Odoo error; check fix didn't postdate the logs.
 
