@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-22T22:35:07.214Z
+  modified: 2026-08-22T22:46:25.984Z
 ---
 
 **Discovered 2026-08-22 during the cloud-session rollout (cloud-Portal tested all three domains).** These are the real limits of Anthropic-hosted cloud Claude Code sessions for THIS project:
@@ -16,6 +16,7 @@ metadata:
 2. **Outbound network is GitHub-ONLY by default.** `wscare.pro`, `wsc-field-assistant.onrender.com`, and `window-solar-care.odoo.com` ALL return **403 at the security proxy**. Consequences:
    - A cloud CODE session (Portal, Specialists) can read/reason/edit/push code, but **cannot smoke-test the live app or query Odoo** — our "verify by content, not status code" discipline ([[feedback_odoo_verify_content_not_status]]) must be done by a LOCAL session or DJ for anything a cloud session ships.
    - **Operator-cloud is fully blocked** — Operator works ONLY by calling the app's HTTP endpoints ([[project_new_job_via_app_endpoints]]), which 403 here.
-   - **Fix:** open the cloud environment's network allowlist — claude.ai/code → environment settings → Network → **Custom** (add `wscare.pro`, `wsc-field-assistant.onrender.com`, `window-solar-care.odoo.com`) or **Full**. Env changes apply to NEW sessions (a running session keeps its startup network), so restart/relaunch the session after changing it. This is required before Operator-cloud and before any cloud session can self-verify.
+   - **STATUS 2026-08-22: the allowlist WAS OPENED for this project's Default cloud environment** — `wscare.pro`, `wsc-field-assistant.onrender.com`, and `window-solar-care.odoo.com` are now reachable (cloud-Specialists + cloud-Operator both confirmed `/healthz` → 200 by content). So current cloud sessions on the Default env CAN self-verify and hit the app. (A brand-new/other environment would still start GitHub-only until its allowlist is opened.)
+   - **Fix (how it was done):** open the cloud environment's network allowlist — claude.ai/code → environment settings → Network → **Custom** (add `wscare.pro`, `wsc-field-assistant.onrender.com`, `window-solar-care.odoo.com`) or **Full**. Env changes apply to NEW sessions (a running session keeps its startup network), so restart/relaunch the session after changing it. This is required before Operator-cloud and before any cloud session can self-verify.
 
 **Also relevant (from the mechanics research):** cloud sessions do NOT auto-load `~/.claude` memory (read `./memory/` from the repo — see the CLOUD SESSIONS section in CLAUDE.md); user-scoped MCP servers aren't available (repo `.mcp.json` is); no dedicated secrets store (env vars are visible — don't put API keys there, see [[project_odoo_api_key_rotated_2026-08-22]]); ~4 vCPU/16GB/30GB; sessions persist + resume via claude.ai/code or `claude --teleport`. Related: [[project_claude_remote_control]].
