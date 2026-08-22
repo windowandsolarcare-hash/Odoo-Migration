@@ -1,6 +1,19 @@
 # Claude Code - Project Instructions
-**Last Updated:** 2026-05-03
+**Last Updated:** 2026-08-18
 **Migration:** Cursor → Claude Code (permanent)
+
+---
+
+## 🛑 WORKIZ IS RETIRED (went dark 2026-08-03) — READ THIS FIRST
+
+**Workiz no longer exists in the loop. Odoo is the SINGLE SOURCE OF TRUTH for jobs, schedule, status, and payments.** The Workiz API is dead — any call to `api.workiz.com` returns 401/errors, and that is EXPECTED, not an outage. Do NOT raise alarms about "sync being down," and do NOT propose fixes that "duplicate in Workiz," "set status in Workiz," or "sync from Workiz."
+
+- **Everything below in this file that describes Workiz as live is LEGACY** — the Zapier Phases (3/4/5/6), the Workiz API sections, "the schedule" Workiz-status gate, the Workiz status/substatus rules, the reactivation-via-Workiz flow. Kept for history/reference only. Do not act on them as current behavior.
+- **What replaced it (all Odoo/app/Twilio-native, already built):** jobs are created directly as Odoo SOs (New Job → `new_job.py`); **duplicate a job = the Odoo-native "Duplicate job" in Customer Brain** (📋 Create as Submitted / 📅 Create & Schedule) — NOT Workiz; scheduling/reschedule is Odoo-native; customer texts go via **Twilio `messaging.send`** (number ported ~2026-07-30).
+- **TWO senses of "done" — keep them straight (Portal flagged 2026-08-18):** *service happened* = `x_studio_x_studio_workiz_status == 'Done'` (what the customer portal / history / due-math read); *job closed out* = **PAID IN FULL** (`_execute_payment` writes status Done + spawns the next maintenance SO). A customer who hasn't paid still had their windows cleaned — their portal must still show that visit. Don't let one definition overwrite the other in code.
+- **`x_studio_x_studio_workiz_status` is NOT vestigial — it is the LIVE status field** (Odoo-native now, still actively written; only the *name* is legacy). **Rule 2 stands: "Done jobs" = `workiz_status == 'Done'`.** Do NOT "clean it up" as part of Workiz removal. Truly vestigial (history-only): `x_studio_x_studio_workiz_uuid/_link/_tech`. Legacy `if(uuid ...)` UI gates on Odoo-native jobs are a known recurring bug class — don't trust a missing UUID as "not a real job."
+- **SO names post-retirement:** new SOs may carry Odoo-default names (`S00192`, `S00218`) alongside the migrated 6-digit form (`003575`) and the new `_next_job_name` YY-counter form (`264938`). **Match SO names EXACTLY — never zero-pad a guess.**
+- **Full detail:** memory `project_workiz_retirement.md` + `WORKIZ_RETIREMENT_INVENTORY.md`. Migration is role-by-role; some touchpoints may still be mid-transition — verify against current code, never assume Workiz is live.
 
 ---
 
@@ -34,6 +47,49 @@ These rules exist because they have been broken before. Each one caused a real p
 
 7. **Confirmation policy:** Do not ask for confirmation on routine tasks — just do them. Only stop and confirm before irreversible or destructive actions (deleting files/branches, force push, dropping data, actions visible to others).
 
+8. **Odoo is multi-company — always filter by `company_id`.** Three companies share one Odoo instance: Window and Solar Care (1), Cheryl Johnson REALTOR® (2), Saunders Printing (3). Any financial query (invoices, payments, journal entries, expenses) MUST include `['company_id', '=', 1]` when working on W&SC. Omitting this filter will silently mix in Saunders Printing or Cheryl Johnson data. Confirmed 2026-06-05 when Saunders Printing invoices appeared in W&SC revenue report.
+   - **`res.partner` CUSTOMER searches** (any `name ilike` / `phone like` list DJ browses — New Order/New Job pickers, Customer Brain `search_customers`, Vault `search_customer`, payments/customer lookups, etc.) MUST include **`['company_id', 'in', [1, False]]`** — NOT `= 1`. ★ W&SC customers are NOT tagged company 1: they are almost all `company_id = False` (shared/unstamped from the migration); only ~103 are stamped 1, vs ~1566 shared. Cheryl (2) has 314 stamped contacts, Saunders (3) has 1. `= 1` would hide nearly every real W&SC customer; `in [1, False]` keeps W&SC (stamped + shared) and drops Cheryl/Saunders. res.partner is NOT auto-isolated by Odoo (DJ's user has all 3 companies), so EVERY customer-list search needs this leaf. Added 2026-07-03 after Cheryl's clients appeared in the New Order picker. See [[project_new_order_parked_surfacing]].
+
+9. **Repetition is a design smell — STOP and ASK, don't grind. This is the single most important judgment rule.** When a task has you making the SAME change in many places ("update all the V1 pages," "apply this to every page," "roll this format out"), the instant you notice you're on the 2nd–3rd near-identical edit, STOP. Identical code repeated across N files is the loudest possible signal that the thing should be ONE shared source, not N copies. Ask DJ one quick question first — *"this is duplicated across N files; want one shared file they all call, instead of N hardcoded copies?"* A ten-second question beats the alternative every time. **Real incident (2026-07-22):** DJ asked to update all V1 pages to the agreed V2 launcher format; a single session hardcoded the same floating launcher into **34 separate pages** — while just "executing the task" — instead of proposing a shared file. DJ (correctly): *"caught in the rhythm of executing the task instead of seeing the big picture."* See [[feedback_question_when_big_picture_wrong]] and [[project_v2_launcher_duplicated_stale]].
+   - This does NOT conflict with rules 10–11 (never remove/rewrite working code; surgical edits only). Those govern *how* to touch existing logic. THIS governs *raising a structural concern before* a large repetitive task. When the big picture looks wrong, the right move is **neither** "mechanically duplicate" **nor** "unilaterally refactor working code" — it is **ASK which one DJ wants.** Executing a task correctly at the line level while the overall structure is wrong is still a failure. Judgment (question the shape of the work) outranks throughput (finish the edits). A quick question is nearly free; damaging or bloating working code across dozens of files is expensive to undo.
+
+10. **WE WORK ON V2 FILES ONLY. Most owner screens were migrated to a "V2" redesign (`static/owner/v2_*.html`), and the V2 file is what DJ's daily launcher actually opens — so the matching legacy non-`v2_` file is DEAD to us unless proven otherwise.** Before editing ANY owner screen: check whether a `v2_<name>.html` twin exists. If it does, edit the **V2** file — editing the legacy twin means DJ won't see your change (burned 2026-07-30: added an "Edit prices" link to `quote.html`, but DJ's launcher opens `v2_quote.html`). Two launchers coexist and this is the tell: the OLD `ql_panel.js` (single-column quick panel) sits on legacy pages; DJ's REGULAR launcher is the v2 **WSCLauncher** (`v2_apps.js`, the 🚀 FAB with **★Favorites / All** tabs) and it links to `/static/owner/v2_*.html`. Known holdout NOT yet on V2: **`field.html`** (the field assistant — big/complicated, deliberately still V1; it has no V2 twin, so it is NOT a legacy file to remove). When in doubt which file a launcher opens, grep `v2_apps.js` for the app's href before assuming. See [[project_two_quote_pages_two_launchers]] and [[project_v2_launcher_duplicated_stale]].
+
+---
+
+## AGENT MAIL — CROSS-SESSION MESSAGES (DJ approved 2026-07-26)
+
+Two Claude Code sessions work this project (a lead session and a specialists/PM session).
+**At session start AND after finishing any task, read `3_Documentation/AGENT_MAIL.md` in the
+saunders-render-app REPO** (fetch via gh api — it lives there because both sessions read that
+repo; the local Odoo-Migration copy is just a pointer). Also read that repo's
+`3_Documentation/SHARED_MEMORY.md` — the specialists session posts durable notes there.
+When you have something for the other session, APPEND an entry there (newest on top) instead of
+giving DJ long text to relay — DJ's nudge is the single word "mail" = go check the file. Mark
+entries HANDLED when done; prune handled entries older than ~a week. Long-form content still goes
+in its own doc (`*_BRIEF.md` / `*_STATUS.md`); mail entries just point to it. Decisions, approvals,
+priorities, and anything customer-facing or money-touching still go through DJ.
+
+### ★ AUTO-WATCH — ARM YOUR MAIL WATCHER AT SESSION START (DJ 2026-08-17: kill the manual "mail" relay)
+So DJ no longer has to nudge "mail," each session watches its OWN mailbox. **At session start, arm your watcher if it isn't already** (check `CronList`): capture the current `AGENT_MAIL.md` commit SHA to `/c/Users/dj/agentmail_lastsha_<lead|specialists>.txt`, then `CronCreate` a recurring ~7-min job (`*/7 * * * *`) whose prompt: reads that baseline, gets the live `AGENT_MAIL.md` sha, and if changed reads the newest entry — if addressed to you (`→ Lead`/`→ Specialists`/`→ Both`) and not `✅`, act on it + mark `✅`; if `→ DJ` and not `✅`, `PushNotification` DJ a one-line summary; then store the new sha. **Also: whenever YOU post a `→ DJ` entry, `PushNotification` DJ immediately.** Full protocol: `3_Documentation/AGENT_MAIL_PROTOCOL.md`. (Watcher is session-local — dies on exit, auto-expires 7 days — hence re-arm every session start. A 24/7 version would live in the Render app; not built.) Address every entry `→ Lead|Specialists|Web|All|DJ` and mark `✅` when handled.
+
+**★ SESSION ROSTER (5 sessions as of 2026-08-22).** Each session has ONE role + its own watcher baseline file `/c/Users/dj/agentmail_lastsha_<role>.txt` and signs mail with its name. When DJ asks "who are you?", state your role.
+- **Lead** — PURE OVERSEER (does NOT hand-write feature code): orchestrates all sessions, owns the DESIGN/specs + cross-stream continuity + brand consistency + the domain/DNS seams, QCs every stream, and runs independent fresh-eyes reviews (throwaway reviewer agents) at each launch gate.
+- **Specialists** — owns all existing Render APP code incl. `ideas.py` / the Idea Board "brain" (remaining phases) + the Cheryl push layer. Nobody else edits ideas.py.
+- **Web** — owns the public marketing website (Odoo website module) at wscare.pro. Touches no app code.
+- **Portal** — owns the NEW customer portal (new app files: `routers/owner/portal.py` + its static + magic-link auth). Coordinates with Specialists on additive shared touches (e.g. main.py router registration).
+- **Operator** — DJ's execute-only "hands": performs live operations (create/schedule jobs, send confirmations, record payments, add contacts/properties, lookups) STRICTLY via the app's own HTTP endpoints — NEVER codes, plans, builds, or raw-writes Odoo. Charter: `3_Documentation/OPERATOR_CHARTER.md` (app repo). Hands any build/new-endpoint need to **Lead**. See [[feedback_assistant_use_app_workflow_not_raw_api]] + [[project_new_job_via_app_endpoints]].
+`→ All` = all five. Keep file ownership clean (one owner per file) — that is how we avoid the collisions we hit on 2026-08-17.
+
+**★ ASK DJ DIRECTLY for anything only DJ knows (DJ 2026-08-18).** For information ONLY DJ has — content (reviews to feature, photos), business facts, preferences, account details — **any session asks DJ DIRECTLY: post a `→ DJ` AGENT_MAIL entry AND `PushNotification` him** (it reaches his phone even when it returns "not sent"), and if you're actively in conversation with DJ, just ask him in-chat. DJ answers that session directly. **Do NOT route DJ-only questions through Lead** (no "Lead asks DJ then relays the answer" — that's a needless hop). Lead is for cross-stream seams, architecture, and QC — not a relay for DJ's answers. (Lead may still surface things it notices, but sessions own their own DJ questions.)
+
+**★ NEVER IDLE WAITING ON DJ (DJ 2026-08-18).** DJ is often in the field. If his input is strictly REQUIRED to proceed on a task, ask him directly (→ DJ + push) — then **move on to your other work while you wait.** If the input is something that CAN wait (a nice-to-have, a review, a content piece), **PARK that one item** (note it as "waiting on DJ" in mail) and **keep building everything else.** Never stall the whole workstream on a single DJ answer when there is other work you own. Maximize forward progress; DJ catches up on parked items when he's free.
+
+**★ END-OF-TURN "OVER" STATUS (DJ 2026-08-18) — every session, every turn.** So DJ can tell at a glance which sessions are free to talk to (walkie-talkie "over"), the **VERY LAST LINE of every reply** is a status line:
+- Done & idle, ready for DJ → `🟢 <Role> — OVER` (may add a few words, e.g. `🟢 Web — OVER (site done, waiting on your photo pairs)`).
+- Still working / a background task is running / you'll produce more without DJ → `🟡 <Role> — working`.
+`<Role>` ∈ Lead / Specialists / Web / Portal. DJ scans: **🟢 = channel open, reply to me; 🟡 = still working, stand by.** Put it on EVERY reply from now on (including watcher ticks). It is always the last line.
+
 ---
 
 ## QUICK REFERENCE
@@ -45,12 +101,18 @@ These rules exist because they have been broken before. Each one caused a real p
 
 ---
 
+## KEY VOCABULARY
+
+**"The schedule"** = the Render field assistant daily job list (`wsc-field-assistant.onrender.com`). Gate: SO must have `state in ['sale', 'done']` AND `date_order` = that day. **Submitted jobs are NOT on the schedule** — Phase 3 creates them as draft quotations. A job lands on the schedule when Workiz status is one of: Scheduled / Send Confirmation - Text / Next Appointment - Text / Next Appointment 2 - Text — Phase 4 confirms the SO at that point.
+
+---
+
 ## CREDENTIALS
 
 - **Odoo URL:** `https://window-solar-care.odoo.com`
 - **Odoo DB:** `window-solar-care`
 - **Odoo User ID:** `2`
-- **Odoo API Key:** `[ROTATED 2026-08-22 — Render env ODOO_API_KEY / local key file, NOT in repo]`
+- **Odoo API Key:** `[ROTATED 2026-08-22 — read from local key file / Render env ODOO_API_KEY, NOT stored in repo]`
 - **Workiz API Token:** `[RETIRED — Workiz dead 2026-08-03]`
 - **Workiz Auth Secret:** `[RETIRED — Workiz dead 2026-08-03]`
 - **GitHub Repo:** `windowandsolarcare-hash/Odoo-Migration` (branch: `main`)
@@ -71,6 +133,18 @@ These rules exist because they have been broken before. Each one caused a real p
 9. **date_order = job START time always.** SO `date_order` is always the Workiz `JobDateTime` (start time) converted to UTC. NEVER use `JobEndDateTime`, `date_deadline`, or any end time for `date_order`. This has been the rule since day one — the schedule, the Render app, and all reporting depend on it.
 10. **NEVER comment out or remove existing working code without DJ's explicit approval.** This code was built over months, debugged, and agreed to work. Adding new code is fine. But commenting out, deleting, or disabling any existing logic — even temporarily, even with good intentions — requires DJ to say "yes, remove that." If you believe something should be removed, explain why and ask first. Do not act unilaterally.
 
+11. **Surgical edits only — never rewrite a function to fix one line.** When fixing a bug, change only the specific lines that are broken. Do not rewrite the whole function. Do not restructure surrounding logic. Do not "clean up" while you're in there. A function rewrite is how working code gets accidentally replaced — the new version solves the reported problem but silently drops the working logic that solved a different problem from 3 months ago. If you only need to change one condition, change that condition and nothing else.
+
+12. **localStorage for anything that must survive a page refresh.** The page refreshes constantly — phone screen sleep, app switching, auto-refresh. Any state that gates a user-facing flow (modals, prompts, navigation) MUST be stored in localStorage, not a plain JS variable. A JS variable initialized to `false` is always `false` after a refresh. If you see a gate like `if (_someVariable)` controlling a modal or prompt, verify it's backed by localStorage — if it isn't, that's a bug waiting to happen.
+
+13. **Phone edge cases — code for ALL of these, not just the happy path.** This app runs on a phone in the field. Before shipping any button, fetch, or modal, verify each of the following is handled:
+    - **Double-tap:** User taps a button, nothing appears to happen, they tap again. Guard every async button by disabling it on first tap and re-enabling in `finally`. Use a module-level `_pending` flag for modals without a direct button reference.
+    - **Fetch timeout:** Never leave a fetch open-ended. Wrap with a 10s timeout (30s for heavy ops). A hanging fetch blocks the user with no feedback.
+    - **No signal / signal drops mid-fetch:** If the operation must succeed (clock-in, payment, timer log), save intent to localStorage BEFORE the fetch, then retry on next page load. Never silently lose data because a fetch threw.
+    - **Page refresh / app backgrounded:** Any in-progress state must be in localStorage. If the OS kills the webview, the user comes back to a fresh page. JS variables are gone. localStorage is not.
+    - **Async init race:** `whoami`, `payroll/status`, and similar boot calls are async. The user may interact before they return. Cache their results in localStorage so the first render is correct without waiting.
+    - **Already-completed action replayed on refresh:** Use idempotent keys (e.g. date-keyed localStorage flags) so retrying a queued action on the next load doesn't create duplicates.
+
 ---
 
 ## ODOO CUSTOM FIELD NAMES (EXACT — CASE SENSITIVE)
@@ -89,7 +163,7 @@ These rules exist because they have been broken before. Each one caused a real p
 | Frequency | res.partner | `x_studio_x_frequency` | e.g. "3 Months" |
 | Type of Service | res.partner | `x_studio_x_type_of_service` | Written from Workiz type_of_service_2 |
 | Alternating | res.partner | `x_studio_x_alternating` | "Yes" or "No" |
-| Service Area | res.partner | `x_studio_x_studio_service_area` | |
+| Service Area | res.partner | `x_studio_service_area` | Values: Hemet / Desert / All areas. On the PROPERTY record. NOTE: the twin `x_studio_x_studio_service_area` exists but is EMPTY on all 897 props — do NOT use it. Corrected 2026-06-11. |
 | Workiz Client ID | res.partner | `ref` | Stores "1234" (ClientId numeric) |
 | Location ID | res.partner | `x_studio_x_studio_location_id` | Workiz serialId / ClientId |
 | Record Category | res.partner | `x_studio_x_studio_record_category` | "Property" for property records |
@@ -99,13 +173,15 @@ These rules exist because they have been broken before. Each one caused a real p
 | SMS Override | sale.order | `x_studio_manual_sms_override` | Reactivation SMS text |
 | CRM Activity Log | res.partner | `x_crm_activity_log_ids` | Activity log entries |
 | Prices Per Service | res.partner | `x_studio_prices_per_service` | Pricing menu |
-| Last Reactivation | res.partner | `x_studio_last_reactivation_sent` | 90-day cooldown |
+| Last Reactivation | res.partner | `x_studio_last_reactivation_sent` | Reactivation cooldown = **365 days** (Reactivation page candidate filter uses `one_year_ago`; SA 563 only WRITES this, never checks it — analytics Reactivate button enforces the 365-day warn+override). Followup flow is a separate 45-day cooldown. "90 days" was stale doc, corrected 2026-06-11. |
 | Graveyard UUID | crm.lead | `x_workiz_graveyard_uuid` | |
 | Graveyard Link | crm.lead | `x_workiz_graveyard_link` | |
 | Historical UUID | crm.lead | `x_historical_workiz_uuid` | |
 | Historical Link | crm.lead | `x_studio_x_historical_workiz_link` | |
 | Odoo Contact ID | crm.lead | `x_odoo_contact_id` | Linked res.partner ID |
 | Workiz Status | sale.order | `x_studio_x_studio_workiz_status` | "Done" = job complete. Filter for Done jobs ONLY with this field |
+| Frequency SO | sale.order | `x_studio_x_studio_frequency_so` | Selection: 3/4/6/12 Months, Unknown. Synced from Workiz by SA 955. Dashboard reads this first, falls back to res.partner x_studio_x_frequency |
+| Type of Service SO | sale.order | `x_studio_x_studio_type_of_service_so` | Selection: Maintenance / On Request / Unknown (per-job). Only `Maintenance` jobs count as "late/overdue" for due badges — On Request/Unknown are never late. Partner-level equivalent = `x_studio_x_type_of_service`. Verified 2026-06-11 |
 | Render Access Code | hr.employee | `x_render_access_code` | 4-digit PIN for Render app login |
 | Next Job Date | res.partner | `x_studio_next_job_date` | Next scheduled job date — written by Phase 3/5, cleared by Phase 4 on Done/Canceled |
 
@@ -128,6 +204,17 @@ These are facts confirmed by direct API query. Never infer these from patterns o
 | mail.activity.type "Follow-up" | ID `15` | 2026-05-28 | Created via API for Phase 5 reminder activities |
 | mail.activity.type "To-Do" | ID `4` | — | Personal tasks |
 | ir.model sale.order ID | `670` | — | Used in mail.activity res_model_id |
+| Render workspace ID | `tea-d78l9fqdbo4c7388n9og` | 2026-06-03 | "Dan's workspace" — use with mcp__render tools, never ask DJ |
+| Render main service ID | `srv-d78le0fkijhs738dsli0` | 2026-06-03 | wsc-field-assistant web service |
+| Odoo company: Window and Solar Care | `company_id = 1` | 2026-06-05 | Always filter by this for W&SC financial queries |
+| Odoo company: Saunders Printing | `company_id = 3` | 2026-06-05 | Separate business — do NOT mix into W&SC reports |
+| Odoo company: Cheryl Johnson, REALTOR® | `company_id = 2` | 2026-06-05 | Separate business — do NOT mix into W&SC reports |
+| account.journal — Chase Checking | id=6, code=BNK1, type=bank | 2026-06-07 | Where checks deposit. Maps to "Check" bucket in reports |
+| account.journal — Check Payments | id=17, code=CHK, type=bank | 2026-06-07 | Also maps to "Check" bucket |
+| account.journal — Cash | id=18, code=CASH, type=cash | 2026-06-07 | Maps to "Cash" bucket |
+| account.journal — Zelle | id=19, code=ZEL, type=bank | 2026-06-07 | Maps to "Zelle" bucket |
+| account.journal — Credit Card | id=20, code=CC, type=bank | 2026-06-07 | Maps to "Credit" bucket |
+| account.journal — Venmo | id=29, code=VENMO, type=bank | 2026-06-07 | Maps to "Other" bucket |
 
 **If you need a format not in this table: make an API call to confirm it. Do not guess.**
 
@@ -202,10 +289,22 @@ When updating SubStatus via the API, the body MUST include the parent Status="Pe
 | HTML tags in `message_post` body (`<br/>`, `<p>`, `<strong>`) | Tags display as literal text in chatter | Use plain text with ` \| ` pipe separators — Odoo escapes HTML in both server actions (Odoo 17+) and external JSON-RPC calls. Format: `[YYYY-MM-DD HH:MM:SS] Label: Field: Value \| Field: Value` |
 | No green indicator in chatter | N/A — previously thought impossible | Unicode emoji works fine — only HTML is escaped. Use `✅` for success, `⚠️` for warnings, `❌` for failures. DJ prefers `✅` on all completion messages. |
 | `PUT /v1/services/{id}/env-vars` with partial list | Wipes ALL env vars not included in payload — 2026-05-14 wiped STRIPE_SECRET_KEY, OWNTRACKS_SECRET, GCAL_1_URL | Always fetch full list first (`GET /env-vars`), merge new values in Python, then PUT the complete merged set. Render has no POST/PATCH for individual vars — PUT is the only write method. |
+| Python multi-line `str.replace()` on GitHub-fetched files | All replacements silently fail — files fetched from GitHub via `base64.b64decode` have CRLF (`\r\n`) line endings, so `\n`-based multi-line strings never match | Always call `.replace("\r\n", "\n")` on the decoded content before doing any string replacements. Push the normalized (LF) version — Render/Linux is fine with LF. |
 
 ---
 
 ## GITHUB DEPLOYMENT WORKFLOW
+
+### 🚫 MANDATORY PRE-PUSH GATES — NO EXCEPTIONS, EVERY FILE, EVERY PUSH
+
+These two are not optional and not "for big files." They are why regressions keep happening (e.g. the Jun-8 stale push that dropped 1,377 lines from field.html, the Apr-30 push that dropped 2,277). Run BOTH before every push:
+
+1. **FETCH THE LIVE FILE FIRST — never edit a local copy you didn't fetch this session.** `gh api .../contents/<path> | base64 -d > <local>`, then edit THAT. The local repo copy is assumed stale. Confirmed 2026-06-10: the field.html on disk was 750 lines behind live. If you skip this, you WILL eventually overwrite newer work.
+2. **`node --check` on any HTML/JS before pushing; `python -m py_compile` on any .py.** A syntax error or a dangling reference (removed element + leftover `getElementById`) crashes the whole app on load (stuck/error screen). This caught real crashes multiple times — Jun 7 had a cluster of them.
+
+`safe_deploy.py` enforces gate 1's line/byte regression guard automatically — USE IT for field.html / dashboard.py. Gate 2 is on you. (Splitting field.html into modules is the durable third fix — NOT approved yet, do not do it.)
+
+---
 
 **⚠ READ THIS BEFORE EVERY PUSH — 2026-04-30 incident:**
 
@@ -351,9 +450,17 @@ rm /c/Users/dj/gh_payload.json /c/Users/dj/edited_file.py
 
 **EFFICIENCY RULE (2026-04-26):** When you encounter trial-and-error patterns, repetitive errors, or inefficient processes, YOU OWN the responsibility to recognize, solve, document, and save them immediately without waiting for DJ's request. If you do something inefficiently 5 times, that's a signal to document the right way for the next session. Token waste + time waste = your responsibility to prevent. No asking. No waiting. Just save it.
 
-Memory directory: `C:\Users\dj\.claude\projects\C--Users-dj-Documents-Business-A-Window-and-Solar-Care-Migration-to-Odoo\memory\`
+Memory directory (local, auto-loaded): `C:\Users\dj\.claude\projects\C--Users-dj-Documents-Business-A-Window-and-Solar-Care-Migration-to-Odoo\memory\`
 
 Use type `project` for technical facts about how the system behaves. Include **Why:** and **How to apply:** lines.
+
+### ★ MEMORY IS MIRRORED TO GITHUB (2026-08-22) — keep it LIVING
+The FULL memory (every `.md` in the local memory dir) is mirrored to **`windowandsolarcare-hash/Odoo-Migration` → `memory/`** on GitHub. **Why:** it was LOCAL-ONLY and unbacked — a Surface Pro drive failure would have wiped 600+ files of accumulated knowledge; the mirror is the backup + makes memory available to cloud/other sessions.
+- **When you write OR edit ANY local memory file, ALSO push that individual file to `Odoo-Migration/memory/<same-name>` via `gh api` (Contents PUT, fetch sha first if it exists).** This is IN ADDITION to the SHARED_MEMORY.md dual-write below. Keep the GitHub mirror in lockstep with local — never let them drift.
+- Use `gh api` (Contents API), NEVER `git push` — main is protected by a ruleset that rejects direct git pushes (the Contents API is allowed; that's the whole reason for the "gh api, not git" rule).
+
+### ★ WHY MEMORIES MATTER — do not skip this (DJ 2026-08-22)
+Every Claude Code session starts BLANK. The only reason a fresh session comes up to speed in minutes — instead of relearning everything — is a strong CLAUDE.md + these memories. **Writing good memories is the single highest-leverage habit in this project; it is what makes each new session immediately valuable.** DJ explicitly reaffirmed this. So: capture discoveries the MOMENT they happen (a field name, a quirk, a decision, a "we agreed to X"), make them self-contained and dated, and never assume "someone will remember" — the next session won't, unless it's in memory. A background agreement that isn't written down does NOT survive. (Reality check found the memory practice only truly began ~March 2026 — the first ~4 months went uncaptured. Don't let that recur.)
 
 ### DUAL-WRITE RULE — SHARED MEMORY SYNC
 
@@ -453,7 +560,24 @@ These are changes that always require updating TWO places. Missing one breaks so
 
 | Trigger | File 1 | File 2 | Notes |
 |---|---|---|---|
-| Add a new Calendly event type at calendly.com/wasc | `ODOO_REACTIVATION_COMPLETE_NO_IMPORTS.py` — add city → slug in the `city_slug` block | Odoo server action 563 (Reactivation: 2. LAUNCH Campaign) — same change live | Slug list as of 2026-05-09: pmsg, cathedral-city-service, rm, pd, iw, indlaq, ht, gb |
+| ~~Calendly event types~~ | — | — | **Calendly RETIRED 2026-07-19** — never emit calendly.com links. All booking links = `wscare.pro/c/<token>` (make_token in routers/booking.py) or `wscare.pro/book` fallback. See memory `project_calendly_retired.md` |
+| Change /api/hemet/* behavior | `routers/owner/hemet.py` | `routers/owner/dashboard.py` (~line 8530+, its own copy of the hemet endpoints) | dashboard.py registers FIRST and SHADOWS hemet.py — patching hemet.py alone does nothing (burned 2026-07-19) |
+| Change the field VOICE assistant (`/owner/ask` — tools, SYSTEM_PROMPT, `_agent_loop`, the voice text-draft tool, Think-hard deep mode) | `routers/owner/dashboard.py` (the LIVE `/ask` — EDIT HERE) | `routers/owner/field.py` (its `/ask` twin is DEAD) | main.py includes dashboard FIRST, so **dashboard.py serves `/owner/ask` and field.py's copy does nothing** (burned 2026-08-19 — a whole voice-tool + deep-mode build landed in field.py with zero effect). Voice-assistant changes go in **dashboard.py**. Note: dashboard.py's `/ask` is still the pre-Workiz-retirement version (live Workiz tools + "WORKIZ FACTS" + an override "WORKIZ RETIRED" block on top); full cleanup pending — do NOT strip the still-live `workiz_status` FIELD in that cleanup. |
+
+**★ Route-shadowing rule (2026-08-19):** two routers registered under the same prefix can define the same path; the one included FIRST in `main.py` wins and the later one is a silent dead twin (hit us on `/api/hemet/*` and `/owner/ask`). Two defenses: (1) before editing OR reviewing any endpoint, confirm which file actually SERVES it (grep the path across the repo; late-registered routers — e.g. portal.py at main.py:292 — are the at-risk profile). (2) When adding a route to a late-registered router, **feature-namespace the path** (`/portal/...`, `/p/...`) instead of a generic one (`/ask`, `/api/job`, `/api/customers`) — collisions only happen on generic paths, so namespacing makes shadowing impossible by construction. **`anthropic` SDK stays pinned at `==0.122.0`** — 0.123/0.124 stamp `tool_use.toolset_name`, which the API 400-rejects (affects every session's Claude calls).
+| ANY field **voice assistant** change (tools, prompt, model routing, `_agent_loop`, `run_agent`) | `routers/owner/dashboard.py` (the LIVE `/ask`) | `routers/owner/field.py` (DEAD twin — do NOT edit for voice) | Both define `@router.post('/ask')`; main.py includes dashboard FIRST under `/owner`, so **dashboard.py serves `/owner/ask`, field.py's twin is shadowed/dead**. Burned hours 2026-08-19 building the voice text tool + deep mode in field.py with zero effect. Edit dashboard.py. See memory `project_voice_ask_lives_in_dashboard.md` |
+
+---
+
+## 🧱 INFRASTRUCTURE / ENVIRONMENT GOTCHAS (not business logic — check these BEFORE building)
+
+These are environment traps that silently waste hours; they recur unless recorded. Pre-flight a new endpoint/feature against them.
+
+- **Shadowed routes:** before building on any `/owner/*` route, confirm which file actually serves it — grep the repo for duplicate `@router.post('/<path>')` defs and check `main.py` include order (first `include_router` under a prefix wins). dashboard.py shadows BOTH hemet.py and field.py. (2026-08-19)
+- **Pin critical Python deps:** `requirements.txt` was unpinned, so a Render rebuild pulled `anthropic` 0.123/0.124 (released 2026-08-19) which stamps `tool_use.toolset_name` onto tool-use blocks → API 400 `Extra inputs are not permitted` on every tool call. Pinned `anthropic==0.122.0`. **Leave pinned; bump deliberately + test, never let it float.** (2026-08-19)
+- **Voice tool-card HTML is ESCAPED by the client renderers:** the voice pages (`v2_voice.html` `renderAnswer`, `field.html` `addHistory`/`addVmHistory`) run answers through `esc()`/`linkify` — so a tool that returns an `<a href>` card shows as literal HTML text unless the renderer special-cases it (like the maps/`navigate_to` button). Relative links (`/static/...`) aren't linkified either. Add a per-renderer branch that extracts the URL into a real button. (2026-08-19)
+- **Odoo rate-limits (HTTP 429):** aggressive testing (rapid curls) + background dashboard polling overloads `window-solar-care.odoo.com/jsonrpc` → 429s that make unrelated flows fail intermittently. Space out test calls; don't loop-hammer Odoo. (2026-08-19)
+- **On this stack HTTP 200 ≠ success:** Odoo serves a `placeholder.png`/error page on permission denial with a 200; verify route/permission changes by CONTENT (body bytes/type), never status code alone. (2026-08-19)
 
 ---
 
@@ -461,6 +585,8 @@ These are changes that always require updating TWO places. Missing one breaks so
 
 | Date | File | What | Why |
 |---|---|---|---|
+| 2026-06-09 | ql_panel.js | Mobile Customers overlay starts at `top:36px` (was `inset:0`) | **Clock-in bar = fixed, top:0, 36px, max z-index. ANY full-screen `position:fixed` overlay on an owner page MUST start at `top:36px`, never `inset:0`/`top:0`, or the bar covers its header.** Bar's body-padding/`#app`-shrink offset only protects normal-flow content, not fixed overlays. See [[project_clockin_bar_customer_overlay]] |
+| 2026-06-09 | reactivation.py/html, field.py | Reactivation "Sent" tab — book a customer who replied directly (not Calendly): suggested slots (find_next_opening direct), convert graveyard Workiz job in place, close CRM → Won | crm.lead stages: 5=Attempt1-Sent, 4=Won, 6=Lost. See [[project_reactivation_sent_book]] |
 | 2026-05-28 | phase3, phase4 | All task creation/sync/removal commented out | Tasks obsolete — field assistant gate is SO state in ['sale','done'], not tasks |
 | 2026-05-28 | phase3 | Creates Follow-up activity (type 15) on SO for Phase 5 Submitted jobs | Reminds DJ to add tech+items in Workiz; auto-closed by Phase 4 on SO confirm |
 | 2026-04-01 | phase4 | `confirm_sales_order()` writes date_order back after confirm | Odoo action_confirm() resets date_order to now() internally |
