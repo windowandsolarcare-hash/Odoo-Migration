@@ -1,0 +1,38 @@
+---
+name: project_so_full_start_time_edit
+description: "Customer & Order Detail editor (so_full) now has editable Start date + Start time (Pacific) that write date_order on the Odoo SO. DJ's manual way to change a job's time without the reschedule menu."
+metadata:
+  node_type: memory
+  type: project
+  originSessionId: 0e6fb90e-8d05-4272-91a3-ed7ee21488d7
+  modified: 2026-08-03T16:40:47.309Z
+---
+
+DJ wanted to change a job's start time (e.g. 11:53 → 11:00) directly in the **"Customer & Order Detail"** panel on the field/job screen (the so_full editor), NOT via the reschedule menu (which he keeps as a smart shortcut). Built 2026-08-03.
+
+**Where it lives:** the so_full editor renders from `GET /api/so_full` (**dashboard.py** ~L7560, the 'Job' group) and SAVES via `POST /api/brain/job` (**brain.py** `brain_job_save`). Frontend render = **v2_field.html** `loadFullDetails`.
+
+**What was added:**
+- **dashboard.py /api/so_full:** two new editable rows in the Job group — `{'label':'Start date','key':'x_start_date','type':'date'}` and `{'label':'Start time','key':'x_start_time','type':'time'}`, values computed from `date_order` (UTC) → Pacific. `x_start_date`/`x_start_time` are SYNTHETIC keys (not real Odoo fields).
+- **v2_field.html loadFullDetails:** added a render branch for `r.type==='date'||'time'` → `<input type=date/time class="fd-input">`. `.fd-input` does NOT set `-webkit-appearance:none`, so the native iOS picker opens fine. The existing `saveFullDetails` already sends any changed `[data-key]` value.
+- **brain.py brain_job_save:** pops `x_start_date`/`x_start_time` out of `changes` BEFORE the `_WRITABLE` whitelist, reads the SO's current `date_order`→PT, applies the new date/time (missing part kept from current), converts PT→UTC, and sets `vals['date_order']`. So editing either field writes `date_order` on the Odoo `sale.order`. Odoo-native, no Workiz.
+
+**Tested live:** on a throwaway SO dated 2026-08-04 18:53 UTC (11:53 PT): changing Start time→11:00 wrote date_order 18:00:00 (11:00 PT); changing Start date→2026-08-06 kept the time (2026-08-06 18:00:00). so_full renders Start date/time with correct PT values + input types. NOTE: so_full takes the Odoo **id**, not the SO **name/number** (264937 is Donna's job NUMBER → "SO not found"; use the id). Moving date_order moves the job on the field schedule (the schedule gate = date_order). See [[project_inbox_assistant_p1]] (reschedule flow = the smart shortcut), [[feedback_ios_date_input_appearance]].
+
+---
+**EXPANDED 2026-08-03 → FULL JOB-FORM EDITOR (DJ's core ask, said repeatedly).** The so_full editor is now the COMPLETE Workiz-job-form replacement — Workiz is gone and DJ had no other place to edit ~40% of a job's fields. He does NOT want fields added one at a time; he wants EVERY editable field on the job in that one panel. Now built:
+- **dashboard.py /api/so_full** — all editable sale.order fields, grouped + properly typed: Job Type (select, 25 opts), Start date/time, Length min (number), Status (select of Workiz statuses), Tech (select employees), Type of Service (select), Frequency (select), Lead Source (select, 18 opts); Pricing: Total (RO), Job Total Price / Amount Due / Tip (number), Paid? (Yes/No select→bool), Pricing Snapshot (textarea); Access & Notes: Gate Code, Notes, Reactivation SMS (textarea); Order: SO#/State (RO), Customer Ref, Workiz Link, Invoice Status/Created (RO). Option lists pulled from live `fields_get` 2026-08-03 (never guess selection values).
+- **brain.py brain_job_save** — REPLACED the hand-maintained `_WRITABLE` whitelist with: accept ANY sale.order field that is stored + not readonly + not in `_BLOCK` (`id,name,state,partner_id,partner_shipping_id,order_line,invoice_ids,amount_total,create_date,x_studio_pricing_mismatch,x_studio_creation_log`), with **type coercion** via `fields_get` (integer→int, float/monetary→float, boolean→bool via yes/true/1/on, else string). So adding a row in so_full is enough — no whitelist upkeep. Start date/time still convert PT→UTC→date_order.
+- **v2_field.html loadFullDetails** — renders `date`/`time`/`number` inputs (booleans reuse the select render as Yes/No).
+- **Tested live** (throwaway SO): Job Type→Solar, Length→120 (int), Tip→15.5 (float), Paid→Yes→True (bool), Status→Scheduled, Lead Source→Thumbtack, Gate→1234# all wrote; `state=done` was REJECTED (blocklist). NOTE: first test hit a deploy race (brain.py deployed after dashboard) — re-test after full deploy.
+- **STILL TODO (the other Workiz "tabs" — flagged to DJ, next):** (1) editing the CUSTOMER/PROPERTY record fields (phone, address, master gate/pricing/frequency/service area — they live on res.partner, so brain/job would need a partner-write path); (2) FINANCIAL line-item editing (add/remove/change order_line products — currently read-only). These are separate, bigger builds.
+
+---
+**2026-08-03 — the two remaining "doors" for pricing a NEW customer in-app (DJ, no-Odoo).**
+- **Address autocomplete:** so_full Address row is `type:'address'`. v2_field renders it with Google Places autocomplete (`fdAddr`/`fdAddrPick` → `/api/places/suggest` + `/api/places/details`). **Enhanced `scheduler.py /api/places/details`** to return `street/city/zip/state` from `addressComponents` (FieldMask now includes it). On pick it fills cust_street + cust_city + cust_zip; DJ taps Save Changes (writes to property+contact via the cust_ path). Verified: "8401 Maruyama Drive Hemet" → street/Hemet/92545/CA.
+- **Line-items editor (the PRICING door):** new **`POST /api/brain... /api/job/lines {so_id, lines:[{product_id,name,qty,price}]}`** (brain.py) replaces `order_line` (`[(5,0,0)]` + `(0,0,{...})`); refused once invoiced; returns new `amount_total`. Each line needs a `product_id` from **`GET /api/intake/products`** (returns a BARE LIST of `{id,name,price}`, service products company_id in [1,False]). v2_field `loadFullDetails` now renders an editable "Line items — what you charge" block under Pricing: rows (name/qty/price/✕), a product-picker `<select>` (+ Add), live Total, and **Save lines** (own button/endpoint, separate from Save Changes). State in `_fdLines`. Verified: Windows $320 + Solar $180 → amount_total $500. So a brand-new customer (Ella) is fully priceable in-app now — no Workiz, no Odoo. NOTE: deploy race — brain.py (later push) 404'd on first test, worked after full deploy.
+
+---
+**2026-08-03 — Pricing decluttered (DJ: "why are these blank?").** The line-items editor (top of Pricing) shows the live total, so the 4 redundant/legacy total rows were REMOVED from so_full Pricing: **Total (from lines)** (stale — it loaded as $0 before lines existed and didn't refresh; redundant with the line-editor total) + **Job Total Price / Amount Due / Tip** (`x_studio_job_total_price` / `x_studio_amount_due` / `x_studio_tip_amount` — VERIFIED nothing in the app reads/writes them; vestigial Workiz sync fields, always blank). Pricing section now = line-items editor (with live total) + Paid? + Pricing Snapshot + Pricing Check. The line total (`amount_total`, computed from order_line) is THE price. If DJ later wants a real "Amount Due" it must be COMPUTED (amount_total − payments), not this dead field.
+
+**BUILT (same day): real computed "Amount due"** in so_full Pricing (read-only) = `amount_total − Σ(posted out_invoice: amount_total − amount_residual)`, clamped ≥0; shows "(paid $X)" when partly paid. Updates automatically as payments post (reads invoice amount_residual). Verified: unpaid job → Amount due = full total ($240 Ella); paid job (SO 17064) → "$0 (paid $200)". This is the REAL amount-due DJ wanted (not the dead x_studio_amount_due field).
