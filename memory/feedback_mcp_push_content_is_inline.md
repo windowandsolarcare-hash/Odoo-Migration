@@ -48,15 +48,41 @@ an 18-byte Python file crashes app boot on the next Render deploy.
    or from the previous push's result. Omitting it fails; passing a stale one fails.
 4. The commit-message convention is unchanged: `YYYY-MM-DD | filename | description`.
 
-## Related environment facts for cloud sessions (same discovery, 2026-08-22)
+## You cannot script a guarded push — MCP is the ONLY GitHub path
 
-The cloud sandbox's network allowlist may permit **only `api.github.com`**. `wscare.pro`,
-`wsc-field-assistant.onrender.com` and `window-solar-care.odoo.com` all returned proxy 403s
-(`curl` exit 56). Check with `curl -sS "$HTTPS_PROXY/__agentproxy/status"`, which lists recent
-`connect_rejected` hosts. **Consequence: a cloud session cannot verify by content, cannot smoke-
-test a live endpoint, and cannot query Odoo** — so anything shipped from cloud needs a local
-session or DJ to run the content verification ([[feedback_odoo_verify_content_not_status]]).
-Say so explicitly rather than implying a change was verified. DJ is opening the allowlist.
+Do not burn time trying to rebuild `safe_deploy.py`'s guard as a shell script. **Raw `curl` to
+`api.github.com` is blocked for both reads and writes**, even though `GITHUB_TOKEN` / `GH_TOKEN`
+are present in the cloud env. Writes return *"Write access to this GitHub API path is not
+permitted through this proxy"*; reads return *"GitHub access is not enabled for this session."*
+The env tokens are not usable for this. `git fetch` **does** work (separate git proxy), which is
+the one useful lever — see the verification trick below.
+
+So the guard has to be **manual discipline on every push**: check the local byte count first,
+then check `size` in the MCP result.
+
+## Verifying a cloud push BY CONTENT
+
+The MCP result's `size` is a good first check but only proves length. For a real content check,
+use git (which is not proxy-blocked):
+
+```
+git fetch origin main -q
+git show origin/main:<path> | diff - <local file>     # silence = byte-identical
+```
+
+Do NOT use `git diff origin/main -- <path>` for a file you just created: a locally **untracked**
+file shows as a full deletion and looks alarming for no reason. Diff the blob, as above.
+
+That same `git fetch` also reveals **concurrent pushes from other sessions** — worth a look
+before assuming your local copy is current.
+
+## The broader cloud limits live elsewhere
+
+`gh` absence, the GitHub-only network allowlist, no auto-loaded `~/.claude` memory, and the fix
+(open the environment's network allowlist) are all documented in
+**[[project_cloud_session_env_limits]]** — written the same day by the cloud-Lead session. Keep
+the environment facts THERE and the push mechanics here; don't restate them in both or they will
+drift.
 
 Related: [[feedback_gh_push_empty_file_guard]], [[feedback_github_deployment_bash]],
 [[feedback_regression_guard_pushes]], [[feedback_mirror_memory_to_github]]
