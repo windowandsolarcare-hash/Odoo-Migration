@@ -1,0 +1,21 @@
+---
+name: project_job_end_time
+description: Odoo stores NO job end time/duration; how the booking review schedule shows a block end + Personal Time description
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: 3580ea04-ae9d-4fab-b3d1-3026be80528c
+---
+
+**Job length is now captured in Odoo field `x_job_length_min`** (integer minutes, id 21342, created 2026-07-01 on sale.order model 670). Odoo has NO native end/duration field (`date_order`=start only); Workiz's `JobEndDateTime` was the only source and Workiz is retiring (~6/29) — so we're capturing length into Odoo before it's gone. DJ chose duration-not-end-datetime (survives reschedule: end = start + length) and "smart default, EDITABLE" going forward.
+
+**Capture mechanisms (2026-07-01):**
+- **Backfill from Workiz** (DJ: per-UUID GET, NOT a bulk "all jobs" call): scratchpad backfill scripts loop SOs with a Workiz UUID, GET each Workiz job, `x_job_length_min = JobEndDateTime − JobDateTime` (minutes). ★ COMPLETE 2026-07-01: FULL history backfilled — **3,500 jobs captured**, only 30 left blank (deleted/no-end in Workiz). Ran in 2 passes (166 future+recent first, then all ~3,369 history at 1.6s/call, 0 errors). Task 1201 done. ★ Workiz GET needs a `User-Agent` header or it 403s (that was the earlier 403). Rate-limited (0.6s/call, 18s every 25, 20s backoff on error). FINDING: most jobs are real **60-min** blocks in Workiz, so my earlier job-type estimate (90/120) was WRONG — real capture matters.
+- **Going forward:** booking approve (reuse path) writes `x_job_length_min = end_min−start_min`. TODO (not yet built): clone-path booking relies on Workiz sync (SO is unlinked); reschedule + new_job capture; an EDITABLE length control (smart default by job type, DJ can change per job); Phase 4 (Zapier) ongoing capture while Workiz alive.
+- **Display (DONE 2026-07-01):** dashboard.py helper `_len_end(date_order,x_len,job_type)` → (eff_len, end_pt, is_est); real length wins else `_job_block_min` estimate. Wired into ALL job builders — `calendar_jobs`(CC), `tool_get_schedule`/`api_dashboard`(today), `api_upcoming`, `api_past_jobs`, `api_so_history` — each job now carries `length_min`/`end`/`length_est`. **Command Center** rows show start–end (jobMeta), **job detail panel** header shows start–end (`_apHeaderWhen` appends `job.end`). Booking review already had it. NOTE: Field Assistant schedule LIST is retired (see [[project_command_center_offline]]) — not targeted.
+- **EDIT length (DONE):** job detail panel has a `⏱ Length` `<select>` picker (presets 30/45/60/90/120/150/180 + current) → `setJobLength()` → `POST /owner/api/job/set_length {so_id,minutes}` (dashboard.py, caps 0..600; 0 clears→estimate). Updates the header range live. Hidden for Personal Time. Shows "(est.)" when using the estimate.
+- **CAPTURE (DONE):** booking approve (reuse path) + **reschedule** (scheduler.py: keeps length, sends Workiz `JobEndDateTime`=new start+len, writes job-type default if missing) + **new_job** (computes `job_len_min` from entered end_time; capture line added to the DISABLED direct-SO block, ready for post-Workiz). Tasks 1198/1199/1200/1201 all done.
+
+**Booking review "that day's schedule" (booking_requests.html + scheduler.py `build_day_plan`), 2026-07-01 — DJ asked to show start–end + Personal Time description:**
+- **Block END = job-type ESTIMATE** via new `_job_block_min(job_type)` in scheduler.py: combination/combo=120, gutter=60, touch=30, quote/estimate=30, windows/solar/default=90, Personal Time=0 (no end). Rows now carry `'end'` (= `_slot_label(minute+dur)`). Frontend `fmtRange(start,end)` shows "8:30 – 10:00 AM" (drops the first meridiem when both match). `.sched-t` widened 70→104px. NOTE: it's an ESTIMATE (told DJ), not the real end — because Odoo has none.
+- **Personal Time description**: rows now carry `'description'` = `_pt_desc(x_studio_x_studio_notes_snapshot1)` (strip `[Job Notes]` prefix, first line only) when job_type=='Personal Time'. Frontend shows the description as the row name instead of the literal "Personal Time" (e.g. "Therapist Appointment (Jesse)"). Mirrors dashboard.py `_personal_time_desc` / the main schedule's isPersonal handling. See [[project_command_center]].
