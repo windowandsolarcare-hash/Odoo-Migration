@@ -1,0 +1,17 @@
+---
+name: project_booking_detail_preserved
+description: "Online booking APPROVE now preserves the full customer request (notes/pref/requested-date) — was losing the customer's notes on approve. booking_requests.py + booking_requests.html."
+metadata:
+  node_type: memory
+  type: project
+---
+
+**Problem (DJ 2026-07-08, Walter Keller — years-in-the-making customer):** approving an online booking LOST most of the request. The customer's notes + preferred time only survived in the Workiz JobNotes; the app's approved log (`ir.config_parameter 'booking.requests.approved'`) kept ONLY date/time/type. So DJ couldn't see "word for word what they sent" after approving. Walter's note was critical: gate access to a gated community ("Directory at gate to The Canyon, look up Walter Keller, rings my cell, I buzz you in").
+
+**Fix (booking_requests.py `api_booking_request_approve`):** `_add_approved(...)` now also stores `req_date`, `pref`, `notes`; AND on approve it `message_post`s the FULL request to the customer's `res.partner` chatter ("📅 Online booking approved | requested <date> (<pref>) | <type> | scheduled … | Customer notes: …") — permanent, survives Workiz retiring. **Frontend (booking_requests.html):** the customer note shows as a prominent AMBER box on the review sheet (`#dNotes`, was faint/muted) BEFORE approve, and `renderApproved` now shows pref + the 📝 note in the approved list.
+
+**Booking data model:** pending request `info` (from `_pending()`, keyed by so_id) = `{date, pref('Morning'/'Afternoon'/'Anytime'), job_type, notes}`. On approve the JobNotes already got "Booked online via wscare.pro | requested <date> (<pref>) | Notes: <notes>" — that's the pre-fix surviving copy (Workiz). Approved log stored via `ir.config_parameter`. Retroactively fixed Walter's approved-log entry + posted his chatter (partner 23655). ★ When Workiz retires, the chatter/approved-log copies are the surviving record.
+
+**★ Combination-of-Services checkboxes (2026-07-08):** on the customer booking portal (static/booking/index.html), picking "Combination of Services" now reveals service checkboxes (`#comboSvc`: Windows — Inside & Out / Outside Windows Only / Solar Panel Cleaning / Screens). Can't submit a bare Combination without ≥1 checked (`checkReady` gate). The checked services fold into the submitted `notes` as "Services requested: X, Y — <their note>", so they flow through the same preservation pipeline (amber note box on review, approved list, customer chatter) — no new field. Walter Keller predates this so his combination isn't itemized.
+
+**★ 2026-07-08 changes:** (1) Removed the "Screens" combo checkbox (screens are bundled in the window job-types already). Combo checkboxes now = Windows — Inside & Out / Outside Windows Only / Solar Panel Cleaning. (2) SAVED ON OUR END confirmed: booking submit (booking.py api_request) creates an Odoo sale.order + message_posts the full request (incl notes/services) to the SO chatter + stores in `booking.requests.pending` (ir.config_parameter) — durable in Odoo, survives Workiz. (3) NO MORE My Day task for new bookings (was `project.task` in api_request) — the dashboard cockpit "New bookings" number surfaces them reliably; the IMMEDIATE web-push alert is KEPT (→ booking review). (4) Cockpit "New bookings" card now counts `/api/booking_requests` `.count` (real pending) and hrefs `/owner/booking_requests` (review page) — was counting My Day booking tasks + going to My Day. Approve's mark-task-done is now a harmless no-op (no task exists).
