@@ -47,6 +47,7 @@ Detail lives in topic files. This index is sharded by domain — open the sub-in
 - [feedback_github_deploy_from_bash.md](feedback_github_deploy_from_bash.md) — GitHub deployment from Claude Code requires powershell -Command wrapper, not raw bash/Python
 - [feedback_github_deploy_python_fallback.md](feedback_github_deploy_python_fallback.md) — When bash+powershell base64 returns "Problems parsing JSON" HTTP 400, switch to Python (base64.b64encode + json.dump).
 - [feedback_github_deployment_bash.md](feedback_github_deployment_bash.md) — CANONICAL: Use bash + base64 + temp file for GitHub deployments.
+- [feedback_mcp_push_content_is_inline.md](feedback_mcp_push_content_is_inline.md) — ★ CLOUD sessions have NO `gh` — push via GitHub MCP `create_or_update_file`, whose `content` is INLINE FILE TEXT, not a path. A path silently commits a placeholder over the real file (no regression guard). Check `size` in the result. Cloud allowlist may be GitHub-only → no verify-by-content.
 - [feedback_hist_modal_activejob_null.md](feedback_hist_modal_activejob_null.md) — Never setTimeout-clear activeJob after openNoteModal() — submitNote() checks it first and silently fails.
 - [feedback_ios_date_input_appearance.md](feedback_ios_date_input_appearance.md) — iOS bug: a styled <input type=date> with -webkit-appearance:none won't open/change.
 - [feedback_local_vs_deployed_drift.md](feedback_local_vs_deployed_drift.md) — 2026-04-27: Local Saunders Render App copy can lag deployed.
