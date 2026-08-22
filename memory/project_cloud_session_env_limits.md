@@ -5,12 +5,13 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-22T21:40:08.069Z
+  modified: 2026-08-22T22:35:07.214Z
 ---
 
 **Discovered 2026-08-22 during the cloud-session rollout (cloud-Portal tested all three domains).** These are the real limits of Anthropic-hosted cloud Claude Code sessions for THIS project:
 
 1. **`gh` CLI is NOT installed in the cloud shell.** Cloud sessions push via the **GitHub MCP Contents API** (the same Contents PUT that `gh api` performs → satisfies the `main`-branch ruleset that rejects `git push` but allows the Contents API). The standing "gh api to main, never git push" rule is unchanged — only the tool differs (MCP instead of gh CLI). Both cloud-Lead and cloud-Portal onboarded fine this way.
+   - **★ BIG-FILE CONSTRAINT (found 2026-08-22):** the GitHub **MCP push tool takes the whole file content INLINE** (in the session's context) — fine for small files (portal.py ~40KB) but NOT viable for the big ones (`field.py` ~189KB, `dashboard.py` ~748KB): the file blows the context and is error-prone. **RESOLUTION:** an env var **`GITHUB_TOKEN` IS present** in the cloud shell, so for big files a cloud session must push via a **DISK-based Contents-API script** (read file from disk → base64 → `curl` PUT to the Contents API; the file never enters context), NOT the inline MCP tool. That is how a cloud session can safely edit `dashboard.py`/`field.py`. cloud-Portal wrote a `push_gh.sh` doing exactly this.
 
 2. **Outbound network is GitHub-ONLY by default.** `wscare.pro`, `wsc-field-assistant.onrender.com`, and `window-solar-care.odoo.com` ALL return **403 at the security proxy**. Consequences:
    - A cloud CODE session (Portal, Specialists) can read/reason/edit/push code, but **cannot smoke-test the live app or query Odoo** — our "verify by content, not status code" discipline ([[feedback_odoo_verify_content_not_status]]) must be done by a LOCAL session or DJ for anything a cloud session ships.
