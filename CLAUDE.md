@@ -21,6 +21,10 @@
 
 **If you are a CLOUD Claude Code session** (running against the GitHub repo on an Anthropic-hosted machine, NOT DJ's local Surface Pro): your memory does NOT auto-load, and the local path `C:\Users\dj\.claude\...\memory\` does NOT exist here. Your full memory lives IN THIS REPO at **`./memory/`** (mirrored from local, kept in lockstep). At session start: read **`memory/MEMORY.md`** (the index + standing rules), then open the relevant **`memory/idx_*.md`** domain shard or `Grep` the `memory/` folder for your topic — same content a local session gets auto-loaded. Also read `3_Documentation/SHARED_MEMORY.md`, and for fleet mail read `saunders-render-app` → `3_Documentation/AGENT_MAIL.md`. When you write a new memory, write it to `./memory/` in THIS repo (a cloud session's commit IS the mirror — no separate push needed).
 
+**Cloud operational facts (found 2026-08-22, verified by cloud-Portal):**
+- **`gh` CLI is NOT installed in cloud shells.** Push via the **GitHub MCP Contents API** (same Contents PUT `gh api` does — satisfies the `main` ruleset). The "gh api to main, never git push" rule is unchanged; only the tool differs.
+- **Cloud outbound network is GitHub-only by default.** `wscare.pro`, `wsc-field-assistant.onrender.com`, and `window-solar-care.odoo.com` all **403 at the proxy**. So a cloud code-session CANNOT smoke-test the live app or query Odoo — the "verify by content, not status code" step must be done by a LOCAL session or DJ, UNLESS the environment's network allowlist is opened to those domains (claude.ai/code → environment settings → Network → Custom allowlist or Full). **Operator-cloud is fully blocked** until that allowlist is opened (it only works by calling the app's HTTP endpoints).
+
 ---
 
 ## START HERE
