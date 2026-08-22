@@ -1,0 +1,95 @@
+# Outreach / reactivation / CRM — memory index
+
+- [project_anonymous_voicemail_empty_norm.md](project_anonymous_voicemail_empty_norm.md) — Anonymous/blocked VMs keyed under EMPTY norm (''); inbox_status `if not c` guard rejected empty c → Done/Snooze silently failed. Fix: drop `not c`, conv-existence is the real guard. Any inbox endpoint guarding `if not c` mis-rejects the anon bucket. 2026-08-15.
+
+- [project_inbox_brain_and_job_buttons.md](project_inbox_brain_and_job_buttons.md) — Inbox thread: 🧠 Brain (Customer Brain pre-filtered to this customer via cust_q/cust_pid) + 📋 Their current job (jump to most-current SO via followups/job_link). Client-side, reuses existing deep-links. 2026-08-14.
+
+- [project_sms_send_paths_quiet_hours.md](project_sms_send_paths_quiet_hours.md) — TWO send paths: messaging.send() honors quiet-hours/opt-out/DNC/dedup+threads; sms._send_sms() raw immediate (inbox replies/payment link bypass quiet). Signature now 760-334-5355. Zelle auto "Funds Received" text added 2026-08-14.
+
+- [project_inbox_drafter_grounding.md](project_inbox_drafter_grounding.md) — Inbox drafter invented a street (Bob Hope Dr), 6 fake dates, + asked for a gate code on file. Fixed: _customer_context (sms.py) now feeds real address + gate-on-file + real open days w/ "use only this" lines. Price/service were real (from job history). 2026-08-11.
+
+- [project_delete_job_orphan_guard.md](project_delete_job_orphan_guard.md) — /api/delete_job + /api/delete_so auto-detect a reactivation graveyard lead (by workiz uuid) and flip it Won→Lost + clear graveyard link; pure no-op for normal deletes. Helper `_close_orphaned_reactivation_lead`. Terri Jones = first case. 2026-08-09.
+
+- [project_hud_denoise_and_recent_strip.md](project_hud_denoise_and_recent_strip.md) — HUD de-noise: FAB badge = card COUNT (feed.py, was ~70 sum); 19 inbox_ai cards → ONE '📥 Inbox — N need you' rollup (sms.py _sync_inbox_card); clear-once. + recent-thread strip above drafts (GET /api/inbox/recent → wsc_sendbox + _openSendBox). 2026-08-07.
+
+- [project_wsc_signature_on_every_text.md](project_wsc_signature_on_every_text.md) — ★ DJ's stacked signature (Dan Saunders / Window & Solar Care / 855-245-2273) on EVERY outbound text. Applied in sms.py _send_sms (single Twilio funnel): strip trailing '– Dan' + append block, idempotent. DON'T add sign-offs in templates/prompts. Added at send (preview won't show it). 2026-08-07.
+
+- [project_inbox_intent_buttons.md](project_inbox_intent_buttons.md) — Inbox reply INTENT BUTTONS (DJ: button to pick what I'm looking for): 📅 Booking link · ✅ Confirm · 💬 Reply → POST /api/inbox/intent, AI drafts, edit+send. Lead fixed shared _draft_reply to use REAL wscare.pro/c/<token> (no [booking tool link] placeholder). 2026-08-07.
+
+- [project_draft_booking_link_placeholder.md](project_draft_booking_link_placeholder.md) — AI reply drafts wrote literal "[booking tool link]" (would send as-is). Fixed on Follow-ups: _fill_booking_link swaps placeholder → real wscare.pro/c/<token>; /api/ai/rewrite preserves it. Source (_draft_reply/_inbox_brain) still emits placeholder → inbox may show it (flagged lead). 2026-08-07.
+
+- [project_zelle_copy_pushes_phone.md](project_zelle_copy_pushes_phone.md) — Zelle pay-page Copy tap = strong "paying now" → HUD card + web PUSH/buzz (_notify, vibrate). Page OPEN = quiet chatter only (link auto-preview could be a bot). Tracking in ir.config_parameter wsc.zelle.track.<so>. 2026-08-06.
+
+- [project_inbound_mms_dropped.md](project_inbound_mms_dropped.md) — Inbound MMS (picture texts) DROPPED: sms_incoming early-returns on empty Body + never reads NumMedia/MediaUrl. Needs media capture + auth'd proxy to display. Emoji inbound works fine. Routed to specialist 2026-08-05.
+
+- [project_inbox_hides_done_outbound.md](project_inbox_hides_done_outbound.md) — Texting a customer whose conv is status='done' sends+threads but stays HIDDEN from the inbox (All tab hides 'done'; send() only reopens 'needs_reply'). Fix: resurface done→open on outbound. John Bullock hand-fixed 2026-08-05.
+
+- [project_inbox_assistant.md](project_inbox_assistant.md) — ★ inbox triage assistant. Claude reads each text → 4 intents (respond/schedule/reschedule/cancel) → ONE HUD approval card (approve/edit/reject→3 options). Odoo-native, replaces parked Workiz assistant. Spec: 3_Documentation/INBOX_ASSISTANT_SPEC.md. P1 (respond-only) → specialist.
+- [project_inbox_assistant_p1.md](project_inbox_assistant_p1.md) — ★ Inbox Assistant PHASE 1 BUILT (2026-08-02, sms.py): `_triage_thread`(Haiku)→`_inbox_ai_card` (`inbox_ai:<norm>`). Respond-only; never invents price/date (facts via clean hooks quote_prices + open_days_for_partner→3 real days); `thread_tail`(last 3 msgs) on card. Approve/edit/reject endpoints.
+
+- [project_followups_job_detail_button.md](project_followups_job_detail_button.md) — Follow-ups cards each have a 🗂️ Job detail button → v2_field ?open_so= (resolver /api/followups/job_link phone→soonest-upcoming-else-recent job). Opens the one screen with all per-job actions; Done still clears the card. Chosen over duplicating the reschedule engine.
+- [project_shared_text_thread_component.md](project_shared_text_thread_component.md) — ★ ONE shared texting component: `static/owner/wsc_thread.js` → `WSCThread.open(pid,name)`. Both job detail (v2_field openTexts) + Customer Brain (v2_customers openTexts) call it. Live bubbles (sorted) + Claude reply + send. thread_by_partner now BACKFILLS imported Workiz history (was empty for history-only custs → why Brain showed the raw blob). Killed the wrong/wrong-sort/no-claude blob path.
+- [project_inbox_history_parse_empty_speaker.md](project_inbox_history_parse_empty_speaker.md) — ★ Bug+fix: imported history `[ts] : text` (empty-speaker = our outbound reactivations) folded into prior bubble → corrupted 169/187 stored convs. Fixed `_HIST_HDR` (`+?`→`*?`) + empty-speaker='out' + dupe collapse + HUD `tailHtml` now shows date. Stored data needs re-parse sweep (Stephen done).
+- [project_inbox_ivr_guard_and_back.md](project_inbox_ivr_guard_and_back.md) — sms.py `_is_automated`/`_AUTOMATED_NUMBERS` stops drafting replies to robocall/IVR voicemails (add numbers there). v2_inbox.html = LIVE inbox (inbox.html legacy); thread Back uses history state so phone-Back returns to the list.
+
+- [project_maint_stage0_advance.md](project_maint_stage0_advance.md) — Maintenance comms STAGE 0 (advance heads-up): reminders.py kind `maint_advance` (HUD approval cards on Submitted future jobs) + calfeed.py public `/cal/<token>.ics`. State in `wsc.maint.advance.<so_id>` for Stage 1. Inbound in reminders.handle_inbound.
+
+- [project_reminder_texts_build.md](project_reminder_texts_build.md) — ★ Reminder texts moved off Workiz onto Render/Twilio: messaging.py = THE send fn (STOP/DNC/idempotency), reminders.py = 3-day confirm + night-before via HUD approval card. Live 2026-07-30.
+- [project_analytics_audit_base.md](project_analytics_audit_base.md) — Customer Analytics audited 2026-07-25: raw data 100% accurate vs Odoo. Fixed 2 display bugs — unified base to DNC-only (set-asides now count, 492→545, all cards reconcile) + Active-repeat % = active_repeat/active. Cached; needs recompute. 2026-07-25.
+
+- [project_outreach_recent_jobs_done_only.md](project_outreach_recent_jobs_done_only.md) — Outreach/reactivation modal "Recent jobs" showed ALL SOs (incl not-done 'Solar May') as done. Fixed v2_outreach.html to Done-only, same set as Total sales (done). Inbox _customer_context still shows all-with-status (flagged). 2026-07-24.
+
+- [project_dnc_false_positive_dj_number.md](project_dnc_false_positive_dj_number.md) — DJ's own number 9519726946 was on the phone blacklist (phone.blacklist id 17) → falsely flagged Personal Time + Dan Saunders as DNC. phone_blacklisted is COMPUTED off the shared number, not per-record. Archived id 17 to fix. Check this before any DNC sweep.
+
+- [project_outreach_reactivation_upcoming_job.md](project_outreach_reactivation_upcoming_job.md) — Outreach "Reactivation" list showed customers with a BOOKED future job. `classify_customers()` (outreach.py) bucketed on last-visit only, ignoring `x_studio_next_job_date` (its docstring's "none upcoming" rule was never coded). Fixed: gate reactivation bucket on `next_job_date >= today` (commit e02686c1). Any NEW-outreach list must exclude already-booked customers.
+
+- [project_booking_approve_no_confirm_text.md](project_booking_approve_no_confirm_text.md) — Online-booking APPROVE was texting the customer before DJ added tech/items (reused reactivation graveyard job got SubStatus 'Send Confirmation - Text'). Fixed → 'Scheduled' (on schedule, no text); DJ sends confirmation himself. Clone path never had the bug. Commit 8947233.
+
+- [project_reactivation_duplicate_graveyard.md](project_reactivation_duplicate_graveyard.md) — Each reactivation send makes a NEW graveyard lead+Workiz job (Workiz = 1 automation/job, can't reuse) → booking one orphans the siblings. FIXED book to delete sibling orphan jobs + close sibling leads (commit 397709b). Backfill of existing 12 dupes still open.
+
+- [project_reengagement_no_myday_task.md](project_reengagement_no_myday_task.md) — Re-engagement is DATA-DRIVEN (outreach re-engage tab, classify_customers, no task needed). Phase-5 "Re-engagement:" task creation ~stopped (1 in Jul). Cleared the 16 legacy My Day tasks 2026-07-12 (all covered by a live flow). Auto-creator (zapier_phase5 create_followup_activity) ALREADY disabled 7/7 — verified 0 created since.
+- [project_activities_module.md](project_activities_module.md) — READ FIRST when editing /owner/activities, /api/todos, or /api/followup/*.
+- [project_activities_org_v2.md](project_activities_org_v2.md) — READ when editing /owner/activities open list. Sections (Overdue/Today/Week/Later) + type filter + search bar with X clear + Snooze chips in…
+- [project_ai_draft_from_conversation.md](project_ai_draft_from_conversation.md) — "Draft from conversation" AI (POST /api/followup/ai_draft, reactivation.py ~L874): reads a customer's imported [workiz-history] SMS transcript…
+- [project_crm_outreach_loop_plan.md](project_crm_outreach_loop_plan.md) — THE per-customer outreach-loop CRM build (planned 2026-07-06, "start of a visual CRM"): one next-reach date + state per customer powers a…
+- [project_dashboard_cockpit.md](project_dashboard_cockpit.md) — Dashboard COCKPIT: live worklist number cards (Maint-to-schedule/Outreach/Awaiting/Bookings/MyDay/Today) at top of owner home, each taps to the…
+- [project_do_not_contact_forward_looking.md](project_do_not_contact_forward_looking.md) — DJ RULE: Do Not Contact / STOP = hard exclusion from EVERY forward-looking feature (reactivation, reminders, blasts, scheduling).
+- [project_wscpark_shared_snooze.md](project_wscpark_shared_snooze.md) — WSCPark (wsc_park.js) = ONE shared snooze/remove/STOP/bring-back sheet for Outreach page + Customer Brain (DRY). Outreach page got a name search (/api/outreach/find incl. archived) + restore/un-stop action. Stage 2 TODO: wire field.html snooze to WSCPark.
+- [project_stop_optout_true_count.md](project_stop_optout_true_count.md) — TRUE stop count = phone.blacklist / crm-activity-log Opt-Out (17), NOT Do Not Contact (74, broader/manual) nor the DEAD x_studio_stop_request_received (0). STOP (SA954) archives the contact → hidden from active searches. Manual 🛑 STOP button added to outreach park sheet.
+- [project_duplicate_job_button.md](project_duplicate_job_button.md) — Field history modal: Job History btn → 📄 Duplicate (2026-06-09).
+- [project_followup_flow.md](project_followup_flow.md) — 2026-04-27: Follow-Up flow built parallel to reactivation but pure Render (no Odoo SAs).
+- [project_job_creation_provenance.md](project_job_creation_provenance.md) — Permanent "how a job was created" log: field x_studio_creation_log on sale.order, shown as "Created Via" in so_full.
+- [project_lead_source_valid_values.md](project_lead_source_valid_values.md) — Valid selection values for sale.order.x_studio_x_studio_lead_source.
+- [project_new_order_frontdoor.md](project_new_order_frontdoor.md) — New Order single front door (2026-06-15): /owner/new-order asks order type → routes to reactivation Book sheet (/owner/reactivation?book_lead=)…
+- [project_new_order_parked_surfacing.md](project_new_order_parked_surfacing.md) — New Order = 2 buttons (Existing/New). Existing → /api/order/check-parked surfaces a customer's PARKED campaign job (reactivation crm.lead…
+- [project_north_star_comprehensive_crm.md](project_north_star_comprehensive_crm.md) — NORTH STAR (read for strategy/architecture): the whole Workiz→Odoo migration exists to build a COMPREHENSIVE CRM (Workiz lacked one;
+- [project_reactivation_attempt2.md](project_reactivation_attempt2.md) — Attempt 2 SMS design (not built yet): 40-day trigger, daily run, "Attempt 2 - Sent" stage, closing message.
+- [project_reactivation_book_scriptorder.md](project_reactivation_book_scriptorder.md) — Reactivation Book sheet "won't take a time" via CC New Order deep-link (?book_lead auto-opens the sheet).
+- [project_reactivation_booked_missing_fields.md](project_reactivation_booked_missing_fields.md) — Booked reactivation job blank custom fields = LEGACY graveyard (created pre-enrichment, e.g.
+- [project_reactivation_initialized_field.md](project_reactivation_initialized_field.md) — FUTURE: add x_studio_reactivation_initialized field so new customers don't appear on reactivation report prematurely.
+- [project_reactivation_route_shadowed_in_dashboard.md](project_reactivation_route_shadowed_in_dashboard.md) — Live reactivation app = saunders-render-app (NOT Odoo-Migration/5_Mobile_Interface = dead copy).
+- [project_reactivation_screen_apr19.md](project_reactivation_screen_apr19.md) — Full state of reactivation.html as of 2026-04-19: 3 views (candidates, preview, SO list), all fields/pills, endpoints, Done jobs filter rule
+- [project_reactivation_sent_book.md](project_reactivation_sent_book.md) — Reactivation "Sent" tab (2026-06-09): book a reply-without-Calendly customer;
+- [project_reeng_reactivation_closed_loop.md](project_reeng_reactivation_closed_loop.md) — CLOSED LOOP (2026-06-25): re-engagement/reactivation never die + never double-contact.
+- [project_reengagement_autopilot.md](project_reengagement_autopilot.md) — Re-engagement auto-pilot (approve-first): daily 8AM scan of due Phase-5 "Re-engagement:" To-Dos passing gates → web-push → /owner/reengage…
+- [project_reengagement_flow.md](project_reengagement_flow.md) — READ when editing Phase 5, create_todo, or the Activities SMS predicate.
+- [project_reengagement_logic.md](project_reengagement_logic.md) — THE approved re-engagement (customer win-back text) LIVES ON the "Re-engagement:" project.tasks — button = activities.html "Launch Re-engagement…
+- [project_reengagement_sms_template_detector.md](project_reengagement_sms_template_detector.md) — Re-engagement SMS = _build_followup_sms() reactivation.py (→Workiz information_to_remember).
+- [project_reengagement_vs_reactivation.md](project_reengagement_vs_reactivation.md) — RE-ENGAGEMENT ≠ REACTIVATION (two DIFFERENT flows, both in reactivation.py — never conflate).
+- [project_session_apr2_unfinished.md](project_session_apr2_unfinished.md) — 3 unfinished items from Apr 1-2 session (hit rate limit): ~19 bad graveyard jobs (no phone#), Debbie Church CRM activity price mismatch, full…
+- [project_snooze_scheduled_sos.md](project_snooze_scheduled_sos.md) — Customer snooze (res.partner.x_snooze_until, written by outreach api_outreach_park on the PARENT) now cuts across the Command Center / overdue /…
+- [project_waiting_screen.md](project_waiting_screen.md) — NEW /owner/waiting 2-tab screen (Re-engagement Sent | Reactivation Sent), unified cards + same actions (Book deep-link / View text via…
+- [session_apr30_evening_summary.md](session_apr30_evening_summary.md) — Apr 30 evening (long): Photo flow polish, Re-engagement rename, record_check_payment v2 (multi-SO + tip + empty-SO), GPS Phase 1 logger, Stale…
+- [session_may09_summary.md](session_may09_summary.md) — 2026-05-09: QB expenses 3,324 JEs done, Workiz/Odoo 2025 cross-reference (7 missing invoices), Calendly Cathedral City fix in reactivation…
+- [session_may11_summary.md](session_may11_summary.md) — 2026-05-11: ql_panel CF tag fix, customer tab mobile overlay, voice autocomplete panel, sticky headers, get_customer_jobs tool…
+- [session_may28_hiring_retention.md](session_may28_hiring_retention.md) — 2026-05-28 evening: Indeed posting, retention analysis (65% YoY), reactivation gap (106 lapsed never contacted), blast architecture, initialized…
+- [project_sms_inbox_build.md](project_sms_inbox_build.md) — In-app Twilio SMS inbox — design decisions, existing sms.py state/bugs, phased build plan (catch-net → triage system).
+- [Calendly retired 100% (2026-07-19)](project_calendly_retired.md) — all booking links now wscare.pro tokenized/'/book'; dashboard.py shadows hemet.py for /api/hemet/*
+- [project_booking_is_book_only_no_reply.md](project_booking_is_book_only_no_reply.md) — Booking-from-text is BOOK-ONLY; no reply drafting. Customer texts auto-fire from Workiz status, not copy-paste. DJ wont hand-book as proof — fix+prove via the tool (Kevin thread = test).
+- [project_hud_followups_surface.md](project_hud_followups_surface.md) — HUD "Follow-ups waiting on you" card+page (read-only open-loop list from the Workiz sweep). NEVER sends to customers (sms:/tel: compose only). Data in wsc.followups.data; snapshot until post-port living refresh.
+- [project_inbox_suggested_reply_drafter.md](project_inbox_suggested_reply_drafter.md) — Inbox "Suggested reply" = _draft_reply() in sms.py; now fed real thread + Dan voice + HARD no-inventing prices/dates (Kevin fix 2026-07-31).
+- [project_inbox_drafter_invents_times.md](project_inbox_drafter_invents_times.md) — BUG 2026-08-03: reply drafter invents appt times (context date-only UTC, no time/PT). Fix = inject _find_upcoming_job/_fmt_pt_dt + forbid guessing. Specialist lane.
+
+- [project_followups_done_phoneless.md](project_followups_done_phoneless.md) — Follow-ups ✓Done/Snooze removed by PHONE only; STOP opt-out cards are phone-less → Done no-op. Fixed with name fallback (followups.py fcadaa6).- [project_booking_sms_optin_a2p.md](project_booking_sms_optin_a2p.md) — /book form has an A2P SMS opt-in checkbox (unchecked/optional, Twilio 10DLC gate); PASSIVE form field, NOT outbound to existing customers. Consent → timestamped chatter on SO + contact.
+- [Price history by service](project_price_history_by_service.md) — per-customer BY-SERVICE price pivot (brain.py + price_by_service.html, 💵 Prices in v2_customers). ★ household = res.partner child_of commercial root; naive partner_id returns 0 (SOs hang off property child).
+- [Grounded inbox drafts](project_grounded_inbox_drafts.md) — inbox auto-suggest hallucinated prices: _inbox_ai_facts was stranded in the DEAD HUD-card block (sms.py:994 return). Fix = shared _grounded_context() on all 5 live drafters + ✨; pure-read; escalation restored.
