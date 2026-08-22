@@ -1,0 +1,30 @@
+---
+name: project_capacity_overview_screen
+description: "'See the full picture' on My Day's capacity strip now opens a dedicated Capacity overview (v2_capacity.html) — upcoming weeks jobs/todos/goals vs work hours, tap a week for day-by-day. Was wrongly going to the Goals list."
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: 44fd339a-14fd-42e2-adef-f1ae97081400
+  modified: 2026-07-25T17:51:14.598Z
+---
+
+**2026-07-25 (DJ: 'See the full picture' opened the Goals app — wanted something different).** The link went to `v2_goals.html` (the goals LIST); the capacity cards were buried in a goal's detail. DJ chose a dedicated capacity overview.
+
+**Built:**
+- `goals.py` `GET /api/goals/days?start=YYYY-MM-DD&days=7` (commit eb94b8e) — per-day breakdown: `{date, weekday, cap, job_hrs, todo_hrs, goal_hrs, committed, free, over}` using the standard job/todo/goal bucketing + the work-hours `_day_cap`.
+- `static/owner/v2_capacity.html` (NEW, commit 8663bb9; launcher "📊 Capacity") — loads `/api/goals/capacity?weeks=6` → a week card each (label, verdict pill, stacked Jobs/To-dos/Goals bar, "Nh free of your Ch week", over-by). Tap a week → `/api/goals/days` for that week → 7 day rows with mini bars + cap marker; weekend/0-cap days dimmed, over-capacity days red. Link to Work Hours.
+- `v2_myday.html` capacity strip "See the full picture ›" now → `v2_capacity.html` (was v2_goals). Added Capacity to `v2_apps.js`.
+
+**Verified live:** /days returned real data (e.g. Sat 7/25 cap 0h, 1h jobs + 2.5h todos = over 3.5h — matches the overload warning).
+
+**Drill-down 2026-07-25 (DJ: tapping a Capacity day should open the Schedule Calendar on that day with the SAME capacity data below + keep Google Calendar):** v2_capacity.html day rows are now `<a href="v2_calendar.html?date=<iso>">` (calendar already supported `?date=` → opens that day's sheet after ~700ms). v2_calendar.html `openDay` now prepends `<div id="day-cap">` and calls `renderDayCapacity(dk)` → fetches `/api/goals/day_capacity` and renders the SAME jobs/to-dos/goals-vs-work-hours bar (`.dc-card`) + free/over, plus a "See the full week ›" link back to Capacity. The sheet keeps its existing jobs list, Google Calendar events, and My Day — so it's one drill-down: Capacity weeks → day → calendar day (capacity + gcal + jobs). Commits calendar 91cf975/6f9fa47, capacity 57d31da. **BUG caught in browser:** first push passed the timeout as jfetch's 2nd arg — this page's `jfetch(u,opts,ms)` took it as `opts`, fetch failed → null → empty block. Fix: `jfetch(url,null,15000)`. (Reusable: check each page's jfetch signature — some are `(u,opts,ms)`, others `(u,ms)`.)
+
+**Week strip in the day pop-up 2026-07-26 (DJ's idea, commit 8ed4663):** the calendar day sheet (`openDay`) now renders a sticky **Sun–Sat week row** (`weekStripHtml`, `.ws-strip`) at the top — tap any day in the row → `openDay(iso)` re-renders the WHOLE sheet (title + capacity + jobs + gcal + My Day) for that day, NO X needed. To change weeks, X out to the month grid and pick another week. Each strip day shows a dot if it has jobs/todos; selected day highlighted brand, today underlined. Verified: opened Tue 7/28, tapped Thu in strip → sheet switched to Thu 7/30. This is the confirmed drill-down UX (supersedes the earlier "tap grid behind overlay" idea DJ rejected).
+
+**Week-nav arrows in the sheet header 2026-07-25 (DJ's idea, commit 37e39d1):** the day-sheet header had a blank spot between the title and the ✕. Added two `.wk-nav` arrows (`‹ ›`) there, grouped with ✕ in `.sheet-hnav`. `shiftWeek(±1)` moves `currentSheetDay` ±7 days and re-`openDay`s → slides the whole sheet (title + strip + capacity + jobs + gcal + My Day) to the same weekday next/prev week, so DJ can page across weeks WITHOUT X-ing out to the month grid (the earlier only-way-to-change-weeks). Strip re-centers on the new week automatically since it's built from `currentSheetDay`.
+
+**"No jobs scheduled" false-negative fix 2026-07-26 (commit 3ebc7f8):** arriving via `?date=`, `openDay` was fired on a fixed `setTimeout(...,700)` that beat the async `load()` (calendar_jobs → calData) — so the sheet rendered before jobs loaded and showed "No jobs scheduled" on days that HAD jobs (verified Jul 28 has 3 real jobs). Fix: `Promise.all([load(), loadActivities()]).then(()=>openDay(openDk))` — open only after data is in. Verified Jul 28 sheet now shows 3 job rows + capacity + gcal. **Design confirmed:** DJ likes the pop-up overlay (Option 2), NOT an inline-below-calendar panel (Option 1) — overlay keeps detail in view w/o scrolling; switch days via X → tap another day. (Optional future: tap a grid day while the sheet is open to switch it directly without X.)
+
+**Past-day fix 2026-07-25 (DJ: tapping Jul 20 looked wrong — commit cef60e4):** the day capacity block is now HIDDEN on days before today (`renderDayCapacity` returns early if `dk < todayStr`). Capacity = a planning tool; "Nh free of Xh" is meaningless on a day that already passed, and it was counting overdue leftover to-dos (no duration → defaulted to 0.5h each) as if planned. Today + future days still show it. Verified: Jul 20 hidden, Jul 28 shows "2h free of 6h". (Side note surfaced but not changed: zero-length blocks like Personal Time count as "Jobs 0h" even when they appear as cards — expected given personal-time = 0 unless x_job_length_min set.)
+
+**Also fixed 2026-07-25 — Journal back button** (v2_journal.html e1998a6): v2_apps.js `WSCBack` normalizer hijacks any header ‹ button to a generic history-back, which broke the Journal's SMART back (entry→list, list→leave — both views are one page so history.back always left the app). Fix: after v2_apps runs, RE-CLAIM the button — a DOMContentLoaded (or immediate if already loaded) `setTimeout(reclaim,0)` that re-sets `back-btn.onclick=onBack`. **Reusable pattern** for any v2 page with in-page sub-views that needs smart back despite the shared launcher's back-normalizer. See [[project_workhours_capacity_model]], [[project_launcher_back_bfcache]].
