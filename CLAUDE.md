@@ -44,9 +44,9 @@ These rules exist because they have been broken before. Each one caused a real p
 - **Odoo URL:** `https://window-solar-care.odoo.com`
 - **Odoo DB:** `window-solar-care`
 - **Odoo User ID:** `2`
-- **Odoo API Key:** `7e92006fd5c71e4fab97261d834f2e6004b61dc6`
-- **Workiz API Token:** `api_1hu6lroiy5zxomcpptuwsg8heju97iwg`
-- **Workiz Auth Secret:** `sec_334084295850678330105471548`
+- **Odoo API Key:** `[ROTATED 2026-08-22 — Render env ODOO_API_KEY / local key file, NOT in repo]`
+- **Workiz API Token:** `[RETIRED — Workiz dead 2026-08-03]`
+- **Workiz Auth Secret:** `[RETIRED — Workiz dead 2026-08-03]`
 - **GitHub Repo:** `windowandsolarcare-hash/Odoo-Migration` (branch: `main`)
 
 ---
@@ -137,8 +137,8 @@ GET:    https://api.workiz.com/api/v1/{TOKEN}/job/get/{UUID}/
 UPDATE: https://api.workiz.com/api/v1/{TOKEN}/job/update/{UUID}/
 DELETE: https://api.workiz.com/api/v1/{TOKEN}/job/delete/{UUID}/
 ```
-- Token: `api_1hu6lroiy5zxomcpptuwsg8heju97iwg`
-- Auth Secret: `sec_334084295850678330105471548` — needed for POST/UPDATE/DELETE, **NOT for GET**
+- Token: `[RETIRED — Workiz dead 2026-08-03]`
+- Auth Secret: `[RETIRED — Workiz dead 2026-08-03]` — needed for POST/UPDATE/DELETE, **NOT for GET**
 - In Odoo server actions: use `requests.get(url)` — `requests` is available in Odoo eval context
 - **Rate limit:** ~30 calls before hitting HTTP 429 — sleep 15-30 seconds between batches
 
