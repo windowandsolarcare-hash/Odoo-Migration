@@ -293,5 +293,5 @@ Old scripts, "Part 1/2/3" files, and previous experiments.
 
 ## 🔑 CREDENTIALS (SHORT)
 - **Odoo:** User ID `2`, DB `window-solar-care`, URL `window-solar-care.odoo.com`
-- **Workiz:** API Token `api_1hu6lroiy5zxomcpptuwsg8heju97iwg`, Auth `sec_334084295850678330105471548`
+- **Workiz:** API Token `[RETIRED — Workiz dead 2026-08-03]`, Auth `[RETIRED — Workiz dead 2026-08-03]`
 - **GitHub:** `windowandsolarcare-hash/Odoo-Migration` (Branch: `main`)
