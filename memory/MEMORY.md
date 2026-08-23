@@ -1,22 +1,22 @@
 # Memory Index (TOC)
 
-Detail lives in topic files. This index is sharded by domain — open the sub-index for the area you're working in, or `Grep` the memory dir. 290 topic memories across 11 domains + 47 standing rules.
+Detail lives in topic files. This index is sharded by domain — open the sub-index for the area you're working in, or `Grep` the memory dir. 534 topic memories across 11 domains + 65 standing rules.
 
 > **Maintaining this index (read before adding a memory):** put the new one-line hook in the matching `idx_<domain>.md` — NOT here. Keep hooks ≤~145 chars (detail goes in the topic file). Only touch THIS file to add a `feedback_*` standing rule or a brand-new domain shard. This keeps MEMORY.md small enough to fully load every session (the whole reason it's sharded — restructured 2026-07-10 from one 147 KB flat list that only ~1/6 loaded). Re-shard script: `scratchpad/reindex_memory.py`; full pre-split backup: `MEMORY_full_backup_2026-07-10.md`.
 
 ## Domain sub-indexes
 
-- [Field app (field.html / job detail)](idx_field_app.md) — 28 — `idx_field_app.md`
-- [Scheduling & Command Center](idx_scheduling.md) — 35 — `idx_scheduling.md`
-- [Outreach / reactivation / CRM](idx_outreach_crm.md) — 33 — `idx_outreach_crm.md`
-- [My Day & tasks](idx_myday.md) — 10 — `idx_myday.md`
-- [Vault / Notes / Drive](idx_vault_notes.md) — 28 — `idx_vault_notes.md`
-- [Odoo quirks & fields](idx_odoo.md) — 19 — `idx_odoo.md`
-- [Workiz / phases / sync](idx_workiz_sync.md) — 35 — `idx_workiz_sync.md`
-- [Infra / deploy / GitHub / Render](idx_infra_deploy.md) — 47 — `idx_infra_deploy.md`
-- [Saunders Printing (NBHOF)](idx_saunders_printing.md) — 17 — `idx_saunders_printing.md`
-- [Business & personal](idx_business.md) — 14 — `idx_business.md`
-- [Misc](idx_misc.md) — 24 — `idx_misc.md`
+- [Field app (field.html / job detail)](idx_field_app.md) — 55 — `idx_field_app.md`
+- [Scheduling & Command Center](idx_scheduling.md) — 76 — `idx_scheduling.md`
+- [Outreach / reactivation / CRM](idx_outreach_crm.md) — 77 — `idx_outreach_crm.md`
+- [My Day & tasks](idx_myday.md) — 30 — `idx_myday.md`
+- [Vault / Notes / Drive](idx_vault_notes.md) — 37 — `idx_vault_notes.md`
+- [Odoo quirks & fields](idx_odoo.md) — 34 — `idx_odoo.md`
+- [Workiz / phases / sync](idx_workiz_sync.md) — 52 — `idx_workiz_sync.md`
+- [Infra / deploy / GitHub / Render](idx_infra_deploy.md) — 85 — `idx_infra_deploy.md`
+- [Saunders Printing (NBHOF)](idx_saunders_printing.md) — 18 — `idx_saunders_printing.md`
+- [Business & personal](idx_business.md) — 28 — `idx_business.md`
+- [Misc](idx_misc.md) — 44 — `idx_misc.md`
 
 ## ★ Standing rules (how DJ wants me to work) — always honor
 
