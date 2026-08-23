@@ -53,3 +53,4 @@
 - [project_marketing_site_odoo.md](project_marketing_site_odoo.md) — Public marketing site = Odoo website module (site 1). ONE shared wsc.page/wsc.styles + component views; pages are body-only. Re-runnable build script.
 - [project_odoo_website_page_api.md](project_odoo_website_page_api.md) — Odoo website API: website.page _inherits ir.ui.view (one-call create); COW header/footer views by key+website_id; /terms is a RESERVED route that silently errors.
 - [project_wsc_address_do_not_publish.md](project_wsc_address_do_not_publish.md) — W&SC = service-area business, NO public street address. Odoo company addr (Palm Desert) is STALE; the real one is DJ's HOME. Never publish/schema it.
+- [project_thumbtack_proxy_numbers.md](project_thumbtack_proxy_numbers.md) — Thumbtack proxy/masked customer numbers ARE a usable permanent channel (DJ's Twilio number is registered to the Thumbtack account) — store the proxy as the customer's phone.
