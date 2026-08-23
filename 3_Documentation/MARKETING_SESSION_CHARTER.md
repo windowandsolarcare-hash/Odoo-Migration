@@ -141,6 +141,49 @@ the whole app. Don't add a server to something that doesn't need one.
 
 ---
 
+## DESIGNING PRINT PIECES (postcards, flyers) — talk first, then `/design`
+
+Cheryl will design the EDDM postcards. Two different activities, and using the wrong one wastes time:
+
+**Talk to Claude for the THINKING.** What the postcard has to accomplish, what the offer is, the headline,
+what to cut, whether the hierarchy works, how the Hemet piece should differ from the desert piece. Plain
+conversation is the right tool here and it's where most of the value is — a beautiful postcard with a weak
+offer is a wasted mailing. Settle the message before anyone opens a design tool.
+
+**Use `/design` to MAKE it.** That skill builds a canvas Cheryl can edit visually — click an element, change
+it, undo — and export as PNG or PDF. That visual editing is exactly right for her: she can push things around
+herself without touching code. Postcards, flyers and one-pagers are what it's built for.
+
+### ★ Press-quality export — VERIFIED on this project, don't relearn it
+
+DJ already ran this on the W&SC 6x9 litho piece (2026-08-22). The findings, which are worth their weight:
+
+- **Author the artboard at 300-DPI pixel dimensions and the PNG export IS the press file.** Export is 1:1 with
+  the artboard's CSS pixels. His 9.25 x 6.25 in artboard (9x6 trim + .125 bleed) was authored at
+  **2775 x 1875 px** and exported at exactly that. No upscaler, no quality loss, type renders natively crisp.
+- **Compute it as** `(trim inches + 2 × bleed) × 300`. Keep every inset in those same 300-DPI pixels — with a
+  .125 bleed, trim sits 37.5px in from each edge and a .25in safe margin sits 112.5px in.
+- **Embed photos at the artboard's full pixel width** or the export goes soft.
+- **Photoshop will open it as 72 DPI and it will look wrong.** It isn't. Fix by relabeling, not resampling:
+  Image Size, **uncheck Resample**, set Resolution to 300. Tell DJ this every time or he'll think the export
+  broke.
+- **The export is RGB with an alpha channel.** Flatten it, then convert to CMYK for litho.
+- **Do NOT use "Export PDF" for press** — it rasterizes to JPEG and builds the page at 96 px/inch, so the
+  pixels are right but the page size is wildly wrong. Export PNG as the master and rewrap to TIFF or PDF for
+  the printer.
+- **Publish the canvas as its own step**, ideally first thing in a turn. Saves issued at the end of a long
+  working turn have hung for many minutes; issued alone they take about ten seconds. If one does hang, stop it
+  at about a minute and re-issue it on its own — nothing is lost.
+
+### Before designing anything, confirm the size
+
+**EDDM has its own mail-piece size requirements, and designing at the wrong trim wastes the whole piece.**
+Verify the current allowed dimensions from USPS directly, write down what you found and the date, and only
+then set the artboard. Do not take a size from a printer's template, from an old file, or from memory —
+including DJ's 6x9, which was a different job and is not automatically EDDM-legal.
+
+---
+
 ## THE BUSINESS (what you're marketing)
 
 **Window & Solar Care** — residential window cleaning and solar panel cleaning.
