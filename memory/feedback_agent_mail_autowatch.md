@@ -20,3 +20,5 @@ metadata:
 **Why:** removes DJ from the relay — sessions ping each other automatically; DJ only gets a phone push when a decision needs him (and PushNotification returns "not sent" when he's actively in the terminal — that's correct, no double-notify). **Caveat:** CronCreate is session-local (dies on session exit, auto-expires 7 days) → must re-arm every session start; a 24/7 version would live in the Render app (not built). Protocol doc: `3_Documentation/AGENT_MAIL_PROTOCOL.md`. Also in CLAUDE.md AGENT MAIL section. See [[project_agent_mail_channel]] [[feedback_agent_mail]].
 
 **Interval = 15 min (NOT 7)** per DJ's 2026-08-22 cost decision to reduce usage; offset the minute per session. Corrected 2026-08-24 after a stray 7-min instruction. Use the Contents-API **blob** sha for the baseline, never the commit sha.
+
+**Operator is EXEMPT from the watcher** (DJ confirmed 2026-08-25): Operator is execute-only and DJ-driven — it reads AGENT_MAIL at session start + on DJ nudge, but arms NO cron. "Arm everyone" notes do not apply to Operator.
