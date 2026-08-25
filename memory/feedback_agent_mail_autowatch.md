@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-18T15:01:35.879Z
+  modified: 2026-08-25T13:51:44.267Z
 ---
 
 **DJ 2026-08-17: stop making DJ type "mail."** Each Claude Code session self-watches its own mailbox, and DJ's phone is pinged only when HE is needed.
@@ -21,4 +21,4 @@ metadata:
 
 **Interval = 15 min (NOT 7)** per DJ's 2026-08-22 cost decision to reduce usage; offset the minute per session. Corrected 2026-08-24 after a stray 7-min instruction. Use the Contents-API **blob** sha for the baseline, never the commit sha.
 
-**Operator is EXEMPT from the watcher** (DJ confirmed 2026-08-25): Operator is execute-only and DJ-driven — it reads AGENT_MAIL at session start + on DJ nudge, but arms NO cron. "Arm everyone" notes do not apply to Operator.
+**Operator does NOT check AGENT_MAIL autonomously — AT ALL** (DJ clarified 2026-08-25): no watcher cron AND NOT at session start. Operator reads mail ONLY when DJ explicitly nudges it. Lead still reaches Operator by POSTING a `→ Operator` message to mail, but that message sits parked until DJ nudges Operator to look. Operator is purely DJ's hands, directed by DJ. Any "arm your watcher / check the mail" fleet note NEVER applies to Operator.
