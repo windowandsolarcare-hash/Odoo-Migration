@@ -44,6 +44,7 @@ Detail lives in topic files. This index is sharded by domain — open the sub-in
 - [feedback_field_html_js_syntax_check.md](feedback_field_html_js_syntax_check.md) — ALWAYS run node --check on field.html JS before pushing.
 - [feedback_field_readability_sunlight.md](feedback_field_readability_sunlight.md) — DJ has limited vision + works outdoors in bright sun → ALL field/owner UI must be large-text + high-contrast with a genuinely sunlight-readable…
 - [feedback_gh_push_empty_file_guard.md](feedback_gh_push_empty_file_guard.md) — Before any raw gh api PUT, verify b64 length (<1000 → abort) — a missing/empty local file silently pushes EMPTY and crashes app boot (new_job.py…
+- [feedback_cloud_push_size_limit.md](feedback_cloud_push_size_limit.md) — ★ CLOUD sessions CANNOT push a file over ~60-100KB (MCP content is inline = one message). Truncation silently corrupts live code, unrecoverable from cloud. This truncated AGENT_MAIL.md (423KB) on 08-27. Design the change into a NEW small file; hand big files to a `gh` session.
 - [feedback_github_deploy_from_bash.md](feedback_github_deploy_from_bash.md) — GitHub deployment from Claude Code requires powershell -Command wrapper, not raw bash/Python
 - [feedback_github_deploy_python_fallback.md](feedback_github_deploy_python_fallback.md) — When bash+powershell base64 returns "Problems parsing JSON" HTTP 400, switch to Python (base64.b64encode + json.dump).
 - [feedback_github_deployment_bash.md](feedback_github_deployment_bash.md) — CANONICAL: Use bash + base64 + temp file for GitHub deployments.
