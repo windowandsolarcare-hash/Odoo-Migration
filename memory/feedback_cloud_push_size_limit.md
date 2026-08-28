@@ -1,10 +1,10 @@
 ---
 name: feedback_cloud_push_size_limit
-description: "★ STANDING RULE for CLOUD sessions: you cannot push a file bigger than roughly 60-100 KB. The GitHub MCP Contents API takes the file's ENTIRE contents inline in one tool call, which exceeds a single message for big files — the push truncates and silently corrupts live code. This is what truncated AGENT_MAIL.md to one entry on 2026-08-27. Never attempt AGENT_MAIL.md (423 KB), dashboard.py (735 KB), field.html, v2_field.html (264 KB). Hand those to a session with gh."
+description: "★ STANDING RULE for CLOUD sessions: you cannot push a file bigger than roughly 60-100 KB. The GitHub MCP Contents API takes the file's ENTIRE contents inline in one tool call, which exceeds a single message for big files — the push truncates and silently corrupts live code. This is what truncated AGENT_MAIL.md to one entry on 2026-08-27. Never attempt AGENT_MAIL.md (423 KB), dashboard.py (735 KB), field.html, v2_field.html (264 KB). Hand those to a session with gh. AND: when re-emitting ANY file, read it to EOF and diff after pushing — a partial Read silently drops the tail."
 metadata:
   node_type: memory
   type: feedback
-  modified: 2026-08-28T19:20:00.000Z
+  modified: 2026-08-28T20:35:00.000Z
 ---
 
 **Discovered 2026-08-28 (Specialists, cloud) while shipping the Card-at-Door page.**
@@ -27,6 +27,16 @@ history from a1702632." That was this failure mode, not a one-off glitch.
 - `static/owner/v2_field.html` — **264 KB**; `static/owner/field.html` — same class
 - `routers/owner/payments.py` — **143 KB** (borderline; do not risk it)
 
+**★ THE SECOND WAY IT BITES — a partial READ, not the size limit. I did this to `routers/printing/jobs.py`
+the same day.** The file was 740 lines. I read it in two chunks and the second was
+`Read(offset=407, limit=332)` → lines 407–**738**. Nothing warned me the file had two more lines, so I
+emitted 738 of 740 and **pushed a `drive_download` missing its `return`** — it still compiled and the app
+still booted, so no error surfaced; the endpoint just silently returned `null`. Caught only by diffing
+the pushed file against my local copy, and fixed in a follow-up push.
+- **Read to EOF and prove it:** `wc -l` the file FIRST, and check `offset + limit > total`. A `Read` that
+  ends exactly at your limit is a tail-truncation waiting to happen — it looks identical to a complete read.
+- **Never assemble an emission from stitched partial reads without re-checking the boundaries.**
+
 **How to apply — a cloud session:**
 1. **CHECK THE SIZE BEFORE PLANNING AN EDIT:** `git show origin/main:<path> | wc -c`. Over ~60 KB → you
    are not pushing it. Decide that *before* you build, because it changes the design.
@@ -40,11 +50,17 @@ history from a1702632." That was this failure mode, not a one-off glitch.
    `main.py` router includes to shadow a route, just to avoid editing a big file.
 4. **NEVER post to `AGENT_MAIL.md` from a cloud session.** Write your report to its own small
    `3_Documentation/*_STATUS.md` and reach the other session directly (`SendMessage`) or through DJ.
-5. **ALWAYS verify a push by content**: re-fetch (`git fetch origin main && git show origin/main:<path>`)
-   and `diff` against the local file you validated. Byte-exact or it did not land. The GitHub result's
-   `size` is BYTES while Python's `len(str)` is CHARACTERS — on a file with emoji/box-drawing/em-dashes
-   those differ by over a thousand and look alarmingly like truncation when nothing is wrong. Diff, don't
-   eyeball the number.
+5. **ALWAYS verify a push by content — this is the step that saves you**: re-fetch
+   (`git fetch origin main && git show origin/main:<path>`) and `diff` against the local file you
+   validated. Byte-exact or it did not land. Two gotchas while reading the numbers:
+   - The GitHub result's `size` is **BYTES** while Python's `len(str)` is **CHARACTERS** — on a file with
+     emoji/box-drawing/em-dashes those differ by over a thousand and look alarmingly like truncation when
+     nothing is wrong. **Diff, don't eyeball the number.**
+   - **CRLF files** (e.g. `routers/printing/jobs.py`) come back with `\r\n`; an inline push writes LF, so
+     git shows the WHOLE file as changed. That is cosmetic and fine on Render/Linux, but it hides your
+     real change from a reviewer — say so in the commit message and tell the reviewer to use
+     `git diff --ignore-cr-at-eol`, and diff locally with `tr -d '\r'` on both sides so you can still see
+     your own deletions.
 
 **Why:** the project's single biggest historical risk is a stale or partial push over a large live file
 (the 2026-04-30 dashboard.py incident dropped 2,277 lines; the Jun-8 field.html push dropped 1,377).
