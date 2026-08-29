@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-29T19:42:38.997Z
+  modified: 2026-08-29T19:46:46.263Z
 ---
 
 **Project (started 2026-08-29): automate DJ's NBHOF plaque-card BACK-copy update in QuarkXPress via AppleScript.** DJ works this on his **Mac** (Mac Pro 2012); AppleScript is Mac-only, so Lead WRITES the script, DJ RUNS it in Script Editor / `osascript`, iterate. Lead can't test (Lead is on the Windows Surface).
@@ -41,6 +41,8 @@ metadata:
 **✅ STEP 1 WORKS (confirmed 2026-08-29 on C34263 DiMaggio):** file layout = `/Volumes/Seagate Backup Plus Drive/NBHOF Full/<CARDNUM>/<CARDNUM>.qxd` — the folder AND the .qxd are named exactly by the card number, so finding is trivial (`find` the folder, open the single .qxd). ⚠ **Quark 9 `open` GOTCHA:** `open (POSIX file p)` fails with "Can't make some data into the expected type." FIX: coerce first — `set a to (POSIX file p) as alias` (OUTSIDE the tell), `activate` Quark + `delay 1`, then `tell application "QuarkXPress" to open a`. That opens it reliably. Folders like `DNU` (do-not-use) and some non-C names exist alongside the C-number folders.
 
 **✅ STEP 2 WORKS (2026-08-29, C34263 DiMaggio):** Quark 9 text model — `document 1` has `text boxes` (this card = 6 boxes, 2 spreads). **Working accessor to READ text = `(text of story 1 of text box i of document 1) as string`** (NOT `text of box` / `contents of box` — those returned empty). TARGET BY CONTENT, not box index (indices vary per card): the **date** box = the one whose story text contains `"Date of Printing"` (ends `…Date of Printing October, 2025` — the print date is the LAST line); the **copyright** box = the one containing `"Copyright"` (`Copyright © 2025 National Baseball Hall of Fame`). Front (page 1) is the image; the back holds the copy. EDIT method (formatting-safe) = replace only the changed characters via `set text of characters X thru Y of story 1 of text box N … to newVal` — for the date, X..Y = right after `"Date of Printing "` to the last non-space char; for the year, the 4 chars just before `"National Baseball"` (avoids matching the © glyph). Do edits with NO SAVE first so DJ can eyeball formatting before we trust it. Quark "already open → open another window?" prompt fires if the doc is already open — final script must skip re-open.
+
+**✅ STEP 3 EDIT CONFIRMED (2026-08-29, DiMaggio):** the character-range replacement WORKS and PRESERVES formatting — "Date of Printing October, 2025" → "September, 2026" and "Copyright © 2025" → "© 2026", centering/fonts intact, verified on screen (not saved). So find→open→edit is fully proven. REMAINING: save (`save document 1`) + the "zoo separate files" PDF export (the hard part — Quark 9.5.4 export dict unknown; likely GUI-script the File→Export→Layout as PDF dialog → pick "zoo separate files" from the captured-settings dropdown → save into the PO folder). Then batch all cards.
 
 **BUILD PLAN (incremental, since Quark 9.5.4 can't be tested by Lead):** (1) find+open one card by number [TEST scaffold]; (2) read/show the two text boxes' current text; (3) do the two replacements + save; (4) create output folder + export via "zoo separate files" (likely GUI-scripted — DJ to screenshot the export dialog when we reach it); (5) batch over the PO's full card-number list (pulled from the Odoo invoice lines), NO per-card prompt. App name to `tell`: "QuarkXPress".
 
