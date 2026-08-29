@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-29T18:23:41.257Z
+  modified: 2026-08-29T18:41:50.737Z
 ---
 
 **Project (started 2026-08-29): automate DJ's NBHOF plaque-card BACK-copy update in QuarkXPress via AppleScript.** DJ works this on his **Mac** (Mac Pro 2012); AppleScript is Mac-only, so Lead WRITES the script, DJ RUNS it in Script Editor / `osascript`, iterate. Lead can't test (Lead is on the Windows Surface).
@@ -27,10 +27,15 @@ metadata:
 
 **Automation scope:** from finding the file (step 2) through exporting the 2 PDFs (step 10). The two batch parameters are constant across a print run: **print Month+Year** (e.g. "September 2026") and **copyright year** (e.g. 2026). AppleScript replaces Find Any File with a scoped `mdfind`/`find` over the NBHOF folder. Plan: get it rock-solid on ONE card, THEN batch the whole C-number list.
 
-**OPEN QUESTIONS blocking runnable code (asked DJ 2026-08-29):**
-- **QuarkXPress version** (About QuarkXPress) — its AppleScript dictionary varies a lot by version; governs the whole export path.
-- **"zoo printing" export**: is it a named **PDF Output Style** DJ picks by name (scriptable), and does the STYLE itself produce the 2 separate files, or is the split done another way (e.g. export page 1 and page 2 separately)?
-- **Exact text of the two edits**: the "Printed …" line literal (anchor on "Printed "?) and the copyright literal (e.g. "© 2025" — anchor on "©"?) so find/replace targets reliably and doesn't hit a stray "2025".
-- **Folder/file layout**: one parent NBHOF folder path; is each .qxd named by its C-number (or the folder named by C-number)? Where should exported PDFs land?
+**SPECIFICS (confirmed by DJ 2026-08-29):**
+- **QuarkXPress version = 9.5.4** (on the Mac Pro 2012). Older AppleScript dictionary — write for Quark 9, expect the PDF-export step to possibly need GUI scripting (System Events) since Quark 9's scriptable PDF export + named-style invocation is limited. Lead CANNOT test — build incrementally, DJ runs each step.
+- **SOURCE cards:** external drive **"Seagate Backup Plus Drive"** → folder **"NBHOF Full"** → then a folder PER CARD named by the card number (mostly `C#####` sequential; SOME start with `B` — "NBHOF does weird stuff"). Each card folder holds the `.qxd`. POSIX root: `/Volumes/Seagate Backup Plus Drive/NBHOF Full/<cardnumber>/`. (Script replaces Find Any File with a scoped `find`/`mdfind` here.)
+- **EXPORT destination:** `Print Files` (main) → `NBHOF` → a folder named by the **PO number** (grabbed off the NBHOF PO). This output folder is created FIRST (before edits) — script can create `Print Files/NBHOF/<PONUMBER>/`. ⚠ still need the full parent path of "Print Files" (internal drive vs Seagate) — ask before wiring export.
+- **EXPORT how:** File → Export → **Layout as PDF** → in the dialog, **PDF** section → **captured settings** dropdown → pick the saved style **"zoo separate files"** → Save. That style adds bleed + crop marks AND splits into 2 files (front `<C> (page 1).pdf` + back `<C> (page 2).pdf`). The `.qxd`/layout name drives the auto filename.
+- **EDIT 1 — main text box, upper-LEFT, LAST line reads literally:** `Date of Printing August, 2026`. Change ONLY the **month** (to the run's ship month) and the **year** (current) → e.g. `Date of Printing September, 2026`. Keep the format ("Month, Year" with comma). **Script should PROMPT DJ for the month** (choose-from-list); year defaults to current.
+- **EDIT 2 — copyright text box, lower-LEFT corner, reads:** `Copyright © 2026 National Baseball Hall of Fame` (literal: "Copyright" space © space YEAR space "National Baseball Hall of Fame"). Change ONLY the **year** to current.
+- **CONSISTENCY:** all edits are IDENTICAL for every card within one order/run → the run has ONE (month, year); apply to every card. Anchor find/replace on the literal strings "Date of Printing " and "Copyright © " (both live only on page 2 / the back, never the front) so we target the right boxes by CONTENT, not position.
+
+**BUILD PLAN (incremental, since Quark 9.5.4 can't be tested by Lead):** (1) find+open one card by number; (2) read/show the two text boxes' current text; (3) do the two replacements + save; (4) create output folder + export via "zoo separate files" (likely GUI-scripted — DJ to screenshot the export dialog when we reach it); (5) batch over the PO's full C-number list (pulled from the Odoo invoice lines). App name to `tell`: "QuarkXPress".
 
 Related: [[project_saunders_printing_odoo]], [[project_saunders_invoice_send_view]].
