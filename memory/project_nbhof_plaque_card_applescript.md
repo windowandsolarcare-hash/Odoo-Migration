@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-29T18:41:50.737Z
+  modified: 2026-08-29T18:52:05.801Z
 ---
 
 **Project (started 2026-08-29): automate DJ's NBHOF plaque-card BACK-copy update in QuarkXPress via AppleScript.** DJ works this on his **Mac** (Mac Pro 2012); AppleScript is Mac-only, so Lead WRITES the script, DJ RUNS it in Script Editor / `osascript`, iterate. Lead can't test (Lead is on the Windows Surface).
@@ -30,7 +30,7 @@ metadata:
 **SPECIFICS (confirmed by DJ 2026-08-29):**
 - **QuarkXPress version = 9.5.4** (on the Mac Pro 2012). Older AppleScript dictionary — write for Quark 9, expect the PDF-export step to possibly need GUI scripting (System Events) since Quark 9's scriptable PDF export + named-style invocation is limited. Lead CANNOT test — build incrementally, DJ runs each step.
 - **SOURCE cards:** external drive **"Seagate Backup Plus Drive"** → folder **"NBHOF Full"** → then a folder PER CARD named by the card number (mostly `C#####` sequential; SOME start with `B` — "NBHOF does weird stuff"). Each card folder holds the `.qxd`. POSIX root: `/Volumes/Seagate Backup Plus Drive/NBHOF Full/<cardnumber>/`. (Script replaces Find Any File with a scoped `find`/`mdfind` here.)
-- **EXPORT destination:** `Print Files` (main) → `NBHOF` → a folder named by the **PO number** (grabbed off the NBHOF PO). This output folder is created FIRST (before edits) — script can create `Print Files/NBHOF/<PONUMBER>/`. ⚠ still need the full parent path of "Print Files" (internal drive vs Seagate) — ask before wiring export.
+- **EXPORT destination (EXACT, confirmed via folder-picker 2026-08-29):** `/Users/Saunders/Documents/Business/A Printing/Designs/Design Work Main/Print Files Main/NBHOF/<PONUMBER>/` — the run's PDFs go in a PO-number folder inside `.../Print Files Main/NBHOF/`. Script creates the `<PONUMBER>/` subfolder (grab PO# off the NBHOF PO) before exporting. This is on the Mac's internal/boot drive (path under /Users, no /Volumes prefix). NOTE the folder is literally "A Printing".
 - **EXPORT how:** File → Export → **Layout as PDF** → in the dialog, **PDF** section → **captured settings** dropdown → pick the saved style **"zoo separate files"** → Save. That style adds bleed + crop marks AND splits into 2 files (front `<C> (page 1).pdf` + back `<C> (page 2).pdf`). The `.qxd`/layout name drives the auto filename.
 - **EDIT 1 — main text box, upper-LEFT, LAST line reads literally:** `Date of Printing August, 2026`. Change ONLY the **month** (to the run's ship month) and the **year** (current) → e.g. `Date of Printing September, 2026`. Keep the format ("Month, Year" with comma). **Script should PROMPT DJ for the month** (choose-from-list); year defaults to current.
 - **EDIT 2 — copyright text box, lower-LEFT corner, reads:** `Copyright © 2026 National Baseball Hall of Fame` (literal: "Copyright" space © space YEAR space "National Baseball Hall of Fame"). Change ONLY the **year** to current.
