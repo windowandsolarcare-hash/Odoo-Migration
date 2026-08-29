@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-29T18:52:05.801Z
+  modified: 2026-08-29T19:04:52.861Z
 ---
 
 **Project (started 2026-08-29): automate DJ's NBHOF plaque-card BACK-copy update in QuarkXPress via AppleScript.** DJ works this on his **Mac** (Mac Pro 2012); AppleScript is Mac-only, so Lead WRITES the script, DJ RUNS it in Script Editor / `osascript`, iterate. Lead can't test (Lead is on the Windows Surface).
@@ -36,6 +36,8 @@ metadata:
 - **EDIT 2 — copyright text box, lower-LEFT corner, reads:** `Copyright © 2026 National Baseball Hall of Fame` (literal: "Copyright" space © space YEAR space "National Baseball Hall of Fame"). Change ONLY the **year** to current.
 - **CONSISTENCY:** all edits are IDENTICAL for every card within one order/run → the run has ONE (month, year); apply to every card. Anchor find/replace on the literal strings "Date of Printing " and "Copyright © " (both live only on page 2 / the back, never the front) so we target the right boxes by CONTENT, not position.
 
-**BUILD PLAN (incremental, since Quark 9.5.4 can't be tested by Lead):** (1) find+open one card by number; (2) read/show the two text boxes' current text; (3) do the two replacements + save; (4) create output folder + export via "zoo separate files" (likely GUI-scripted — DJ to screenshot the export dialog when we reach it); (5) batch over the PO's full C-number list (pulled from the Odoo invoice lines). App name to `tell`: "QuarkXPress".
+**★ FINAL SCRIPT MUST NOT PROMPT FOR CARD NUMBERS (DJ 2026-08-29).** Eliminating the copy-C-number → paste-into-Find-Any-File step is a PRIMARY goal. Finished flow: DJ gives the **PO number** → script auto-pulls ALL that PO's card numbers (from the Odoo invoice lines) → loops every card hands-off (find→open→edit→save→export). The ONLY per-run prompt = the print **month** (once). The card-number `display dialog` in the test scripts is TEST-ONLY scaffolding — strip it in the final. PO 044744 = 14 plaque cards (C34263, C34260, C38564, C38588, C38599, C38625, C38427, C38643, C38534, C38624, C38315, C38239, C38405, C38618).
+
+**BUILD PLAN (incremental, since Quark 9.5.4 can't be tested by Lead):** (1) find+open one card by number [TEST scaffold]; (2) read/show the two text boxes' current text; (3) do the two replacements + save; (4) create output folder + export via "zoo separate files" (likely GUI-scripted — DJ to screenshot the export dialog when we reach it); (5) batch over the PO's full card-number list (pulled from the Odoo invoice lines), NO per-card prompt. App name to `tell`: "QuarkXPress".
 
 Related: [[project_saunders_printing_odoo]], [[project_saunders_invoice_send_view]].
