@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-29T21:03:33.990Z
+  modified: 2026-08-29T22:42:51.545Z
 ---
 
 **Project (started 2026-08-29): automate DJ's NBHOF plaque-card BACK-copy update in QuarkXPress via AppleScript.** DJ works this on his **Mac** (Mac Pro 2012); AppleScript is Mac-only, so Lead WRITES the script, DJ RUNS it in Script Editor / `osascript`, iterate. Lead can't test (Lead is on the Windows Surface).
@@ -51,6 +51,8 @@ metadata:
 ✅ WORKING FORM (confirmed 2026-08-29): the `in` param needs an **HFS (colon) path as text**, NOT a POSIX/slash path (POSIX gives "Invalid File Path"). Convert: `set outHFS to (POSIX file (poFolder & cardNum & ".pdf")) as text` → e.g. `1TB Mac Hard Drive:Users:Saunders:…:PO 044744:C34263.pdf`, then:
 `tell application "QuarkXPress" to export document 1 in outHFS as "PDF" PDF output style "Zoo Seperate Files"`
 (the "Zoo Seperate Files" style splits it into `<cardnum> (Page 01).pdf` + `(Page 02).pdf`). **`mkdir -p` the PO folder first** (Quark won't create it). PO folder path = `/Users/Saunders/Documents/Business/A Printing/Designs/Design Work Main/Print Files Main/NBHOF/PO <number>/`. Native export overwrites without a Replace prompt (no GUI). This is DJ's "set the style" instinct, done right — the style is passed as the `PDF output style` param, no need to make it the default. (All the System-Events/Accessibility/popup probing was a dead end — keep it only as a last resort if native export ever fails.)
+
+**⚠ NOT ALL CARD FOLDERS HAVE A CURRENT .qxd (found 2026-08-29, Mantle C34260).** Some C-number folders on the Seagate are LEGACY 2003-era archives with **no .qxd** — e.g. C34260 held only `C34260.FC/BU` (old Quark format, the pre-.qxd extension DJ used in 2003), a 2013 `.pdf`, 2000 `.tiff`s, and Quark `TXP*.noindex` temp files. So `find *.qxd` returns nothing there and that card can't be processed as-is, even though Odoo lists C34260 as the current "Mickey Charles Mantle Plaque Postcard" (Odoo only has 2026 data → can't reveal a legacy/alternate number). The card DJ actually prints ("dozens of times") is either the `.FC/BU` file itself (script would need to also match `*.FC*`/`*.BU*`) or a current `.qxd` under a different folder/number DJ knows. **BATCH must NOT silently skip/fail a card with no .qxd — it must report each such straggler so DJ identifies the right file.** Awaiting DJ: what he opens for Mantle.
 
 **BUILD PLAN (incremental, since Quark 9.5.4 can't be tested by Lead):** (1) find+open one card by number [TEST scaffold]; (2) read/show the two text boxes' current text; (3) do the two replacements + save; (4) create output folder + export via "zoo separate files" (likely GUI-scripted — DJ to screenshot the export dialog when we reach it); (5) batch over the PO's full card-number list (pulled from the Odoo invoice lines), NO per-card prompt. App name to `tell`: "QuarkXPress".
 
