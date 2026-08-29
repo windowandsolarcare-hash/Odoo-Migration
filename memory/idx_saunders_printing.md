@@ -6,6 +6,7 @@
 - [project_customer_portal_booking.md](project_customer_portal_booking.md) — ACTIVE BUILD (2026-06-14): self-hosted customer booking page → customer portal, replaces Calendly long-term.
 - [project_hof_watcher_non_po_guard.md](project_hof_watcher_non_po_guard.md) — HOF inbound watcher (check_hof_emails) now validates a PDF is REALLY a purchase order before auto-creating a job+invoice.
 - [project_nbhof_postcard_c_numbers.md](project_nbhof_postcard_c_numbers.md) — NBHOF photo-postcard C##### item-number sequence: next = max C on latest invoice's card lines + 1.
+- [project_nbhof_plaque_card_applescript.md](project_nbhof_plaque_card_applescript.md) — NEW (2026-08-29): AppleScript to automate NBHOF plaque-card BACK-copy update in QuarkXPress on DJ's Mac (find .qxd→page 2→update "Printed <Month Year>"+copyright year→save→export 2 PDFs via zoo preset). Lead writes, DJ runs; Zoo upload out of scope.
 - [project_nbhof_watcher_reorder_po.md](project_nbhof_watcher_reorder_po.md) — Saunders NBHOF PO watcher (routers/printing/watcher.py, daily cron GET /printing/api/check-po, IMAP dan@scenicartprint.com UNSEEN FROM…
 - [project_property_displayname_has_name.md](project_property_displayname_has_name.md) — GOTCHA: a parented Property res.partner's display_name (and partner_shipping_id[1]) = "Customer Name, Street" (e.g.
 - [project_redesign_restore_point.md](project_redesign_restore_point.md) — Pre-redesign SNAPSHOT (2026-06-21): both repos tagged stable-2026-06-21 + branch backup-2026-06-21-pre-redesign (saunders-render-app @56c55a6…
