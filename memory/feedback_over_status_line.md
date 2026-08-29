@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 1cb095a1-10e5-4519-903e-c06b100b873a
-  modified: 2026-08-20T08:08:30.416Z
+  modified: 2026-08-29T17:32:42.489Z
 ---
 
 **The very last line of every reply must be a status line** (DJ 2026-08-18, via Lead):
@@ -13,6 +13,9 @@ metadata:
 - Done and idle, channel open for DJ → `🟢 <Role> — OVER` (a few words of context are welcome:
   `🟢 Web — OVER (waiting on photo pairs)`).
 - Still working, a background task is running, or more output is coming without DJ → `🟡 <Role> — working`.
+
+**★ CLARIFICATION (DJ 2026-08-29): 🟡 means I am ACTIVELY working THIS turn — not "something is pending."**
+DJ pushed back when I ended with `🟡 — working` right after I'd finished my action and was just *waiting* on an external thing (a Render deploy building on its own, a key I'd already set, a subagent I'll passively check later). If my turn is DONE and the ball is out of my hands — even if a deploy/CI/other-session task is still running that I'll verify later — it is **🟢 OVER** (channel open, DJ can talk to me). Use 🟡 ONLY while I'm mid-task and will keep producing without DJ in this same stretch. "Waiting on X" = OVER, not working. When in doubt: am I about to do more right now, or am I idle? Idle = OVER.
 
 `<Role>` is the session's role from the roster — Lead / Specialists / Web / Portal (see
 [[project_agent_mail_channel]]).
