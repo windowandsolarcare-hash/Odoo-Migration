@@ -1,5 +1,6 @@
 # Saunders Printing (NBHOF) — memory index
 
+- [project_mail_watchers_two_mailboxes.md](project_mail_watchers_two_mailboxes.md) — ★ THE 3 MAIL WATCHERS READ 2 DIFFERENT MAILBOXES: Paywatch=windowandsolarcare@gmail.com; NBHOF+Zoo=dan@scenicartprint.com (the ORIGINAL, upstream of forwarding). All select('INBOX') → archiving blinds them SILENTLY; Zoo live watcher is UNSEEN-only → marking read blinds it too. NEVER filter/archive/mark-read dan@scenicartprint.com. Organize only the forwarded copies in windowandsolarcare@gmail.com. Customers Zelle to CHASE not Ally.
 - [project_nbhof_new_inductee_box_labeling.md](project_nbhof_new_inductee_box_labeling.md) — ★ ANNUAL COMMITMENT (promised to Ben Hatton 2026-08-04): FIRST new-inductee plaque postcard order each year ships with NO sample card on the outside (confidential plaque art); re-orders unchanged; banding stays. Fires late June/early July.
 - [project_booking_portal_display_rules.md](project_booking_portal_display_rules.md) — Customer booking portal (wscare.pro/c/{token}, booking.py /api/me + static/booking/index.html) display rules (DJ 2026-07-04): "recent visits" =…
 - [project_calendar_job_move_postworkiz.md](project_calendar_job_move_postworkiz.md) — POST-WORKIZ feature (parked, not started): move REAL jobs block-by-block on the calendar (drag / tap→Move).
