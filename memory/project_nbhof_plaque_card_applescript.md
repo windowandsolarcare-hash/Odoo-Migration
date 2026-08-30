@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-30T00:13:05.346Z
+  modified: 2026-08-30T01:23:50.426Z
 ---
 
 **Project (started 2026-08-29): automate DJ's NBHOF plaque-card BACK-copy update in QuarkXPress via AppleScript.** DJ works this on his **Mac** (Mac Pro 2012); AppleScript is Mac-only, so Lead WRITES the script, DJ RUNS it in Script Editor / `osascript`, iterate. Lead can't test (Lead is on the Windows Surface).
@@ -63,6 +63,8 @@ metadata:
 NEXT: probe how Quark 9 exposes fonts-used + picture-link status on an open doc, then wire #3–#5 detection (and automate #3 if safe). #1–#2 are ready to build into the batch now.
 
 **🛑🛑 NEVER USE `save document` IN QUARK 9 APPLESCRIPT — IT DELETED DJ's FILE (2026-08-29).** `save document N` on an open doc consistently errors **-49 "File … already open"**, and worse: the failed save **DESTROYS the source file** (Quark does a delete-original-then-rename save; on the -49 it deletes the original and never completes). This DELETED the freshly-rebuilt `C34260.qxd` (Mantle) and possibly `C34263.qxd` (DiMaggio). DJ had a backup — recovered. **HARD RULE: the automation must be READ-ONLY on the source `.qxd` files — open (read) → edit IN MEMORY → export to the separate PO folder. NO `save`, EVER.** Not saving is fine functionally: the export captures the in-memory edits (that's what prints), and the script re-applies the date every run regardless of what's on disk, so the source never needs writing. (`close … saving no` is safe — it only closes the window, never deletes — but prefer leaving docs open / minimal.) This is a governing safety rule for this whole project.
+
+**✅ SAFE VERSIONING PATTERN — validated 2026-08-29 (replaces the dangerous save).** DJ's design: keep the original untouched, archive each print run as its own file. **`save document N in file <versioned HFS path>` (Save-As to a NEW, not-open path) WORKS with NO -49 and PRESERVES the source** (tested on /tmp copies: "Save-As ran OK / temp source still there: yes / version created: yes"). So the flow is: open ORIGINAL (read) → edit date+copyright in memory → `save document N in file <verHFS>` (Save-As) → export. The original `<cardNum>.qxd` is NEVER overwritten (Save-As writes a different filename); the -49/delete bug only happens saving OVER the same open file. **Versioned filename = `<cardNum>_<MMYY>.qxd`** (DJ: readable w/ underscore, e.g. September 2026 → `C34260_0926.qxd`), saved in the SAME folder as the original. The original-finder must match the exact `<cardNum>.qxd` (exclude the `*_NNNN.qxd` versions). Post-check: `test -f` the original to confirm it survived.
 
 **BUILD PLAN (incremental, since Quark 9.5.4 can't be tested by Lead):** (1) find+open one card by number [TEST scaffold]; (2) read/show the two text boxes' current text; (3) do the two replacements + save; (4) create output folder + export via "zoo separate files" (likely GUI-scripted — DJ to screenshot the export dialog when we reach it); (5) batch over the PO's full card-number list (pulled from the Odoo invoice lines), NO per-card prompt. App name to `tell`: "QuarkXPress".
 
