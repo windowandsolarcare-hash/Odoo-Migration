@@ -299,6 +299,16 @@ When updating SubStatus via the API, the body MUST include the parent Status="Pe
 
 ## GITHUB DEPLOYMENT WORKFLOW
 
+### 🔎 GATE 0 — FETCH BEFORE YOU **READ**, NOT JUST BEFORE YOU PUSH (added 2026-08-30)
+
+**The fetch-first rule below is NOT only a deploy rule. It applies to reading, reviewing, QC, answering a question, and planning.** Your local clone is a snapshot taken at session start and it never updates itself — with 5 sessions committing to main all day it is stale within HOURS, not days. **Before answering ANY question about what the app currently does, or reviewing any file: `git fetch origin main && git reset --hard origin/main` (2 seconds), or read via the GitHub Contents API. Never `grep` the clone and report the result as current behavior.**
+
+A stale PUSH destroys work loudly and `safe_deploy.py` guards it. A stale READ produces a confident wrong answer with **nothing to catch it** — no error, no log line, no diff. That is the more common failure and it has no automated guard, only this habit.
+
+**★ And when DJ reports something you cannot find, YOUR SOURCE IS WRONG — re-fetch before contradicting him.** DJ describing a button he presses daily is primary evidence; the container's filesystem is a cache. Never write "what you may be remembering" about DJ's own live system without fetching first. **Real incident 2026-08-30:** cloud Lead grepped an 8-day-old clone, told DJ the "Run NBHOF Auto" button didn't exist and that he was misremembering — it had been built that same day by another session. See [[feedback_cloud_clone_stale_verify_from_github]].
+
+---
+
 ### 🚫 MANDATORY PRE-PUSH GATES — NO EXCEPTIONS, EVERY FILE, EVERY PUSH
 
 These two are not optional and not "for big files." They are why regressions keep happening (e.g. the Jun-8 stale push that dropped 1,377 lines from field.html, the Apr-30 push that dropped 2,277). Run BOTH before every push:
