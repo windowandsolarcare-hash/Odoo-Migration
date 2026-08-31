@@ -1,6 +1,6 @@
 ---
 name: feedback_cloud_push_size_limit
-description: "★ STANDING RULE for CLOUD sessions: you cannot push a file bigger than roughly 60-100 KB. The GitHub MCP Contents API takes the file's ENTIRE contents inline in one tool call, which exceeds a single message for big files — the push truncates and silently corrupts live code. This is what truncated AGENT_MAIL.md to one entry on 2026-08-27. Never attempt AGENT_MAIL.md (423 KB), dashboard.py (735 KB), field.html, v2_field.html (264 KB). Hand those to a session with gh. AND: when re-emitting ANY file, read it to EOF and diff after pushing — a partial Read silently drops the tail."
+description: "★ SCOPE CORRECTED 2026-08-30: this ceiling belongs to ONE write path (MCP create_or_update_file, inline file text) — NOT to cloud sessions. git push to a branch + PR + squash-merge has NO size limit and is proven (92 KB v2_command.html, PR #2). Original rule below still governs any Contents-API push: The GitHub MCP Contents API takes the file's ENTIRE contents inline in one tool call, which exceeds a single message for big files — the push truncates and silently corrupts live code. This is what truncated AGENT_MAIL.md to one entry on 2026-08-27. Never attempt AGENT_MAIL.md (423 KB), dashboard.py (735 KB), field.html, v2_field.html (264 KB). Hand those to a session with gh. AND: when re-emitting ANY file, read it to EOF and diff after pushing — a partial Read silently drops the tail."
 metadata:
   node_type: memory
   type: feedback
@@ -8,6 +8,39 @@ metadata:
 ---
 
 **Discovered 2026-08-28 (Specialists, cloud) while shipping the Card-at-Door page.**
+
+---
+
+## ★ SCOPE CORRECTION 2026-08-30 (cloud Lead) — READ THIS BEFORE APPLYING THE RULE BELOW
+
+**Everything below is accurate about the MCP Contents-API path. It is NOT a property of cloud
+sessions, and the "hand it to a session with `gh`" / "NEVER post to AGENT_MAIL.md" conclusions are
+too strong.** There is a second write path with no size limit at all:
+
+**`git push` a branch → `mcp__github__create_pull_request` → `mcp__github__merge_pull_request`.**
+
+- Git-over-HTTPS is **not** blocked from cloud (only `api.github.com` REST is). The `main` ruleset
+  protects `main`, not every ref — so pushing a feature branch works, and the PR merge lands it on main.
+- **File bytes never pass through the model.** Git sends a packfile; you edit the file on disk with a
+  script. That is the same property that makes the local `gh api | base64` recipe safe. So the
+  truncation failure mode below **cannot occur on this path** — 445 KB behaves exactly like 4 KB.
+- **Proven 2026-08-30:** this cloud session pushed `static/owner/v2_command.html` at **94,256 bytes**
+  — inside the "60–100 KB" band called a wall below — plus `scheduler.py` (51 KB) in the same commit
+  (PR #2, `15fba33`), then PR #4 and PR #5. All landed byte-clean.
+
+**So:** `AGENT_MAIL.md` (445 KB) **IS postable from a cloud session** — append to it with a script
+(never read it into context), push the branch, verify the diff is purely additive (`git diff
+--numstat` must show `+N  0`), then merge. Rule 4 below ("NEVER post to AGENT_MAIL.md from a cloud
+session") is superseded for the git path; it still stands for any Contents-API push.
+
+**Use the Contents API only for genuinely small files** (a few KB) where one call beats four.
+
+Root cause of the over-broad rule: the 2026-08-27 truncation was real, but only one write path was
+ever tested, and its failure was generalized to the whole session type. See
+[[feedback_verify_limits_before_declaring]] — this is the exact pattern that memory exists to stop.
+
+---
+
 
 **The limit.** A cloud Claude Code session has no `gh` CLI, so its only write path is the GitHub MCP
 `create_or_update_file`, whose `content` is **inline file text** ([[feedback_mcp_push_content_is_inline]]).
