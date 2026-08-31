@@ -22,6 +22,32 @@ three obvious routes are unavailable, and the third is the one to use:
    the project rule exactly: **Contents API = allowed by the main ruleset; `git push` = rejected.**
    Load it with `ToolSearch` `select:mcp__github__create_or_update_file` first.
 
+## ★ CORRECTION 2026-08-30 — there IS a cheap write path: branch → PR → squash-merge
+
+The claim above that "`git push` = rejected" is **true only for `main`**. It was never tested against
+a feature branch, and the untested half is the useful half:
+
+- **`git push origin HEAD:refs/heads/<branch>` WORKS from a cloud session.** Git-over-HTTPS is not
+  blocked by the proxy (only `api.github.com` REST is), and the ruleset protects `main` — not every ref.
+- So the cheap route to `main` is: **commit locally → `git push` the branch →
+  `mcp__github__create_pull_request` → `mcp__github__merge_pull_request` (squash).** Land it on main,
+  branch auto-deletes, history stays clean.
+- **This costs DIFF-sized tokens, not FILE-sized.** For a 22 KB index file that is ~200 tokens instead
+  of ~6,000. For `AGENT_MAIL.md` (~26k tokens per Contents PUT) the saving is enormous — which is
+  exactly why cloud sessions were told to avoid mail posting. That constraint is largely lifted.
+- It fully satisfies DJ's fleet requirement below: the change lands **on `main`**, which is what
+  every session reads. A PR is a transport mechanism, not a parking spot — nothing sits on a branch.
+
+**Use Contents API (`create_or_update_file`) for small files** (a few KB — one memory file, a short
+doc); it is one call instead of four. **Use branch → PR → merge for anything large**, or for a
+multi-file change that should land as one commit.
+
+Verified 2026-08-30: PR #2 (`15fba33`, v2_command.html + scheduler.py) and PR #4 (`3e6028c`, memory).
+Two mechanics worth knowing: `--force-with-lease` fails with *"stale info"* when the remote branch does
+not exist yet (just push normally), and after a squash-merge deletes the branch, re-pushing the same
+branch name needs a plain push, not a force. See [[feedback_verify_limits_before_declaring]] — this
+whole correction exists because a limit was declared from one failed method without testing the others.
+
 ## How to apply
 
 - **Reading** is cheap and does NOT need MCP: the repos are cloned on disk at `/home/user/<repo>`, and
@@ -38,6 +64,8 @@ three obvious routes are unavailable, and the third is the one to use:
   roughly 26k tokens PER WRITE. Budget for it: batch mail entries rather than posting one at a time,
   and prefer touching small files. This is why a cloud session should not be the one doing routine
   high-frequency mail posting if a local session is available.
+  **↑ Largely superseded — see the CORRECTION above: branch → PR → merge costs diff-sized tokens,
+  so a large file no longer has to pass through context at all.**
 - The `safe_deploy.py` regression guard is also local-only (`C:\Users\dj\safe_deploy.py`). A cloud
   session must enforce the pre-push gates BY HAND: fetch live first, and compare line counts against
   `origin/main` before any large-file write. The 2026-04-30 stale-push incident (2,277 lines lost)

@@ -1,0 +1,123 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom' xmlns:apps='http://schemas.google.com/apps/2006'>
+  <title>W&amp;SC Mail Filters</title>
+
+  <!-- ===================================================================
+       ⚠ DO NOT EVER ARCHIVE PAYMENT MAIL.
+       specialist_paywatch.py does M.select('INBOX') and searches
+       (FROM "venmo@venmo.com" OR "no.reply.alerts@chase.com" SINCE -3d).
+       It reads the INBOX ONLY. Archiving those senders makes the payment
+       watcher blind - silently. No error, no log; payments just stop
+       getting recorded and jobs never close out.
+       Marking them READ is safe (it does not use UNSEEN).
+       =================================================================== -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>Money - PAYWATCH SENDERS - never archive, never spam</title>
+    <content></content>
+    <apps:property name='from' value='(venmo@venmo.com OR no.reply.alerts@chase.com)'/>
+    <apps:property name='label' value='Money/Payments'/>
+    <apps:property name='shouldNeverSpam' value='true'/>
+    <apps:property name='shouldAlwaysMarkAsImportant' value='true'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Money - banks, Stripe, QuickBooks - never archived</title>
+    <content></content>
+    <apps:property name='from' value='(transfers.ally.com OR billpay.ally.com OR alerts.ally.com OR alertsp@chase.com OR notifications@stripe.com OR quickbooks.intuit.com OR intuit.com OR zellepay.com)'/>
+    <apps:property name='label' value='Money'/>
+    <apps:property name='shouldNeverSpam' value='true'/>
+  </entry>
+
+  <!-- ============ NOISE: label, skip inbox, mark read. Nothing is deleted. ============ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>Noise - Neighborhood (Nextdoor)</title>
+    <content></content>
+    <apps:property name='from' value='nextdoor.com'/>
+    <apps:property name='label' value='Noise/Neighborhood'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Noise - Social (Facebook, Reddit)</title>
+    <content></content>
+    <apps:property name='from' value='(facebookmail.com OR redditmail.com)'/>
+    <apps:property name='label' value='Noise/Social'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Noise - Shopping and promos</title>
+    <content></content>
+    <apps:property name='from' value='(store-news@amazon.com OR e-offers.dominos.com OR my.pizzahut.com OR em.tommybahama.com OR emails.thanx.com OR info.cotopaxi.com OR email.etsy.com OR eml.walgreens.com OR em.samsclub.com OR email.theparkingspot.com OR info15.citi.com OR email.extraspace.com OR ppatour.com)'/>
+    <apps:property name='label' value='Noise/Shopping'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Noise - News digests</title>
+    <content></content>
+    <apps:property name='from' value='(reply.desertsun.com OR reply.usatoday.com)'/>
+    <apps:property name='label' value='Noise/News'/>
+    <apps:property name='shouldArchive' value='true'/>
+    <apps:property name='shouldMarkAsRead' value='true'/>
+  </entry>
+
+  <!-- ============ BUSINESS ROUTING by original recipient (survives forwarding).
+       Label only - nothing archived. Each excludes known-noise senders so
+       Nextdoor does not pollute a business label. ============ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>Saunders Printing - dan@scenicartprint.com</title>
+    <content></content>
+    <apps:property name='hasTheWord' value='to:dan@scenicartprint.com -from:(nextdoor.com OR facebookmail.com OR redditmail.com OR amazon.com OR dominos.com OR pizzahut.com OR tommybahama.com OR thanx.com OR cotopaxi.com OR etsy.com OR walgreens.com OR samsclub.com OR theparkingspot.com OR desertsun.com OR usatoday.com OR citi.com OR extraspace.com OR ppatour.com)'/>
+    <apps:property name='label' value='Saunders'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Cheryl - cheryl@scenicartprint.com</title>
+    <content></content>
+    <apps:property name='hasTheWord' value='to:cheryl@scenicartprint.com -from:(nextdoor.com OR facebookmail.com OR redditmail.com OR amazon.com OR dominos.com OR pizzahut.com OR tommybahama.com OR thanx.com OR cotopaxi.com OR etsy.com OR walgreens.com OR samsclub.com OR theparkingspot.com OR desertsun.com OR usatoday.com OR citi.com OR extraspace.com OR ppatour.com)'/>
+    <apps:property name='label' value='Cheryl'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Window and Solar Care - dj@mirrokoat.com + windowandsolarcare@gmail.com</title>
+    <content></content>
+    <apps:property name='hasTheWord' value='to:(dj@mirrokoat.com OR windowandsolarcare@gmail.com) -from:(nextdoor.com OR facebookmail.com OR redditmail.com OR amazon.com OR dominos.com OR pizzahut.com OR tommybahama.com OR thanx.com OR cotopaxi.com OR etsy.com OR walgreens.com OR samsclub.com OR theparkingspot.com OR desertsun.com OR usatoday.com OR citi.com OR extraspace.com OR ppatour.com)'/>
+    <apps:property name='label' value='WSC'/>
+  </entry>
+
+  <!-- ============ NAMED SOURCES worth their own label ============ -->
+
+  <entry>
+    <category term='filter'></category>
+    <title>WSC - listing and review platforms</title>
+    <content></content>
+    <apps:property name='from' value='(businessprofile-noreply@google.com OR notify.yelp.com)'/>
+    <apps:property name='label' value='WSC/Listings'/>
+  </entry>
+
+  <entry>
+    <category term='filter'></category>
+    <title>Saunders - NBHOF and Zoo Printing</title>
+    <content></content>
+    <apps:property name='from' value='(baseballhall.org OR contact@zooprinting.com OR zooprinting.com)'/>
+    <apps:property name='label' value='Saunders/NBHOF'/>
+    <apps:property name='shouldNeverSpam' value='true'/>
+  </entry>
+
+</feed>
