@@ -12,6 +12,8 @@
 
 - [project_command_conf_pills_cached.md](project_command_conf_pills_cached.md) — Command Center CONFIRMED/Accepted/Ack pills were blank 7-10s on every login (in-memory _CONF/_SCHED/_ACK reset on load; jobs render cache-first). Now cached in localStorage wsc_cc_states + hydrated synchronously → pills instant on login. v2_command.html only. 2026-08-11.
 
+- [project_command_confirm_ribbon.md](project_command_confirm_ribbon.md) — ★ Command Center cards now have THREE confirm states (green CONFIRMED / amber ⏳ SENT—NO REPLY / red ⚠️ NOT SENT, red gated to within CONFIRM_LEAD_DAYS). api_sched_states() exposes `awaiting` from wsc.reminders.awaiting. ALSO: documents the REAL unfixed build_batch gap — a job added to a day AFTER its confirm batch was built never gets a confirmation text (only DJ noticing covers it).
+
 - [project_status_scheduled_now_confirms.md](project_status_scheduled_now_confirms.md) — Setting job Status → on-schedule state (Scheduled/Send Confirmation/Next Appt) now auto-confirms the SO (draft→sale) in brain.py /api/brain/job, so it appears on the schedule. Create-from-scratch = draft by design; duplicate "Create & Schedule" = confirmed. Fixes invisible Scheduled drafts (Van). 2026-08-11.
 
 - [project_maint_stacked_message.md](project_maint_stacked_message.md) — Maint heads-up rebuilt to DJ's STACKED format (When/Service/Where/Tech) + "confirm it works" CTA (dropped "nothing you need to do"). reminders.py MAINT_TEMPLATE + _maint_row (adds service/where/time); calfeed.py /appt page = 2-col facts, one screen, kept calendar/confirm/reschedule/cancel. Live 2026-08-07.

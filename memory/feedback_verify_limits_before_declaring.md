@@ -1,3 +1,11 @@
+---
+name: feedback_verify_limits_before_declaring
+description: "\"I can't do X\" is a factual claim and needs evidence, exactly like a field name does. TEST the actual path before declaring anything blocked, unavailable or too expensive. If one method failed, name the METHOD, not the capability."
+metadata:
+  node_type: memory
+  type: feedback
+---
+
 # Never declare a limitation from a non-exhaustive check
 
 **Type:** feedback · **Date:** 2026-08-30 · **Session:** cloud Lead · **Raised by:** DJ (3x in one day)
