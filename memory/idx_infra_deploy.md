@@ -2,6 +2,8 @@
 
 - [feedback_cloud_clone_stale_verify_from_github.md](feedback_cloud_clone_stale_verify_from_github.md) — ★ FETCH BEFORE YOU READ, not just before you push: a session's clone is a session-start snapshot, stale within HOURS with 5 sessions on main. A stale read = confident wrong answer with NO guard. And when DJ reports something you can't find, YOUR source is wrong — re-fetch before contradicting him (2026-08-30: told DJ the Run NBHOF Auto button didn't exist; built that day).
 
+- [feedback_verify_limits_before_declaring.md](feedback_verify_limits_before_declaring.md) — ★ "I can't do X" needs EVIDENCE, same as a field name does. TEST the path before declaring anything blocked/unavailable/too large. Name the METHOD that failed, not the capability ("REST 403s at the proxy" ≠ "writes are blocked"). 3 failures in one day 2026-08-30 — DJ nearly granted access he didn't need to grant.
+
 - [project_odoo_rpc_429_retry.md](project_odoo_rpc_429_retry.md) — ★ Odoo JSON-RPC 200-with-no-`error` = SUCCESS even if `result` absent (VOID methods like mail.mail.send omit it). Never bare res['result'] → do res.get('result'). Was the Saunders preview 500 (send WAS working; UI lied). shared/odoo.py fixed dd5ccdf; +429/5xx retry. Owner-side routers/owner/shared.py may need same.
 - [project_silent_lie_swallowed_reads.md](project_silent_lie_swallowed_reads.md) — RULE: `except: return []` on a read that FEEDS A PAGE is a silent lie if empty renders as plausible-but-false (429 gave a real customer an empty service history). Raise + degrade honestly; soften only where empty==failed to the viewer. Also: KeyError:'result' (error checked first) ≠ masked Odoo error; check fix didn't postdate the logs.
 
