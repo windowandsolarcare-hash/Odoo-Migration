@@ -102,7 +102,7 @@
 
 - [project_memory_mirror_secret_scanning.md](project_memory_mirror_secret_scanning.md) — GitHub secret-scanning BLOCKS memory files with live secrets; redact to placeholders (real value in Render env) before mirroring; never write live tokens into notes.
 
-- [project_cloud_session_env_limits.md](project_cloud_session_env_limits.md) — Cloud CC sessions: NO gh CLI (use GitHub MCP); outbound net is GitHub-only by default (app/Odoo 403) — open env network allowlist to verify live or run Operator-cloud.
+- [project_cloud_session_env_limits.md](project_cloud_session_env_limits.md) — Cloud CC sessions: NO gh CLI (use GitHub MCP). ★ Net allowlist on our Default env IS OPEN (re-verified live 2026-08-31: app/Odoo/api.render.com all answer) — cloud CAN verify by content. Test before claiming otherwise.
 - [project_cloud_lead_write_path.md](project_cloud_lead_write_path.md) — ★ CLOUD sessions: no `gh` CLI + api.github.com egress-BLOCKED (403). WRITE = MCP `create_or_update_file` (Contents PUT to main); READ = on-disk clone + `git fetch origin main`. safe_deploy.py absent — gate by hand.
 - [feedback_mcp_push_content_is_inline.md](feedback_mcp_push_content_is_inline.md) — MCP `create_or_update_file`'s `content` is the FILE TEXT inline, NOT a path — passing a path silently commits a tiny placeholder over the real file.
 - [project_design_canvas_save_slow_after_long_turn.md](project_design_canvas_save_slow_after_long_turn.md) — Design-canvas Artifact saves hang for MINUTES when they trail a long tool-heavy turn; issued alone ~8-14s. Publish as its own step; kill a hang at ~60s and re-issue.
