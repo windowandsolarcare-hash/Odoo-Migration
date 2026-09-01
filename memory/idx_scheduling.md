@@ -1,5 +1,6 @@
 # Scheduling & Command Center — memory index
 
+- [project_maint_advance_status_is_truth.md](project_maint_advance_status_is_truth.md) — ★ Workiz STATUS = was the customer told. 'Next Appointment - Text' = ACKNOWLEDGED even with no reply (they forget); 'Submitted' = nobody knows the job exists. Don't trust wsc.maint.advance.* (Aug-2026 phrase backfill wrote bogus 'ok').
 - [project_offer_link_resolver.md](project_offer_link_resolver.md) — Slot-offer customer booking-link half (Lead 2026-08-17): make_token carries offer_id; /book/api/offer/{get,book,decline} in booking.py. Token secret server-side → Reserve mints link via booking.make_token. Customer /book/c page render still TODO.
 
 - [project_slot_offers_reserve_design.md](project_slot_offers_reserve_design.md) — ★ DJ's LOCKED design for pending offers (don't offer a slot twice): Reserve BUTTON bolted onto the existing shared scheduling picker (not a new screen) + booking link, 3 editable slots (manual override wins, conflict=soft warn), 48h expiry, NO AI text parsing. slot_offers.py store. Not built — contract pending lead. 2026-08-15.
