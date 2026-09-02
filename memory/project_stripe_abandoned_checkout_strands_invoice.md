@@ -5,7 +5,13 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 44a83d54-0213-43e9-adfe-064ef69f5445
+  modified: 2026-09-02T23:24:03.622Z
 ---
+
+**★ 2026-09-02 — RE-VERIFIED AGAINST LIVE dashboard.py — the "FIXED #1 / draft-until-success" claim below is STALE.** In the live code the Charge-at-Door flow is served by **`dashboard.py`** (`/api/stripe/create_checkout`, which shadows payments.py), and it **STILL posts the invoice (draft → `action_post`) BEFORE creating the Stripe session** — posting is NOT deferred to `/success`. So an abandoned-after-tip checkout again leaves a **posted + unpaid** invoice with no `account.payment`.
+- **The real gap: payment is recorded in Odoo ONLY by the `/api/stripe/success` browser redirect — there is NO server-side Stripe webhook.** If the customer pays but never lands on `/success` (tab closed, signal lost, redirect blocked), Stripe captures the money and Odoo shows `not_paid` + no payment. **Exactly the 2026-09-02 Robert Hollenbeck $150 case** (Visa charge `ch_3U9T0rImQWeVzsL91R0rYmtV` succeeded, Odoo never recorded it). See [[project_stripe_payments_not_reconciled_to_odoo]].
+- **Durable fix = a Stripe webhook** (record the Odoo payment server-side, idempotently). Spec: `3_Documentation/STRIPE_WEBHOOK_FIX_BRIEF.md` (app repo), handed to Specialists 2026-09-02.
+- Related: door flow passes `door=1` → forces `payment_method_types=['card']` to suppress Link/Apple/Google Pay after the 8/26 wrong-card incident (Link charged Vincent Russo for Bob Lis's job). Success records to **journal 7**, not the Credit Card journal (20).
 
 # Stripe abandoned-checkout leaves a stranded posted invoice (found 2026-06-09)
 
