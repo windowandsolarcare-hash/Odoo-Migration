@@ -19,4 +19,5 @@
 - [project_workers_comp_shopping.md](project_workers_comp_shopping.md) — ACTIVE: shopping workers' comp b/c hiring David Osuna (PT tech, ~$33,280 payroll).
 - [project_wsc_llc_formation.md](project_wsc_llc_formation.md) — W&SC is now a CA LLC (entity B20260293155, Articles filed 6/23/2026, approved 6/25 via CA SOS bizfile).
 - [project_zoo_printing_automation.md](project_zoo_printing_automation.md) — Zoo Printing automation (APPROVED, build pending retail email).
+- [project_zoo_estimate_form_prefill.md](project_zoo_estimate_form_prefill.md) — PARKED by DJ 2026-08-30. Prefilling Zoo's Custom Estimate form. ★ Business constants DJ confirmed: quantity ALWAYS 1000, trim note + comments ALWAYS the same text, VERSIONS is the ONLY variable. Chrome tab must be found BY URL across all windows (a dump came back as the Claude.ai UI). A Saunders-app button CANNOT do this — cross-origin; bookmarklet or Mac app only. Selectors UNVERIFIED.
 - [session_jun14_saunders_printing.md](session_jun14_saunders_printing.md) — 2026-06-14 full Saunders Printing build: Zoo email automation (zoo_watcher), one-tap invoice send (SA 1335) + render (SA 1336), per-card…
