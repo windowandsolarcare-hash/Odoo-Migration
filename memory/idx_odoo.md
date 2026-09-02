@@ -1,5 +1,7 @@
 # Odoo quirks & fields — memory index
 
+- [project_stripe_payments_not_reconciled_to_odoo.md](project_stripe_payments_not_reconciled_to_odoo.md) — Stripe card charge can succeed but NOT reconcile to Odoo (invoice stays not_paid, no account.payment). Find it by amount+date, NOT name/email (billing name misspelled, email=business email). Key: Drive Saunders Vault + C:\Users\dj\_stripe_key_val.txt.
+
 - [project_money_decision_allowlist.md](project_money_decision_allowlist.md) — Any "does customer owe?" / Pay-now / auto-charge decision MUST allowlist owed states (`payment_state IN ('not_paid','partial') AND residual>0`), never denylist — a denylist fails OPEN and billed already-paid Blair. Same shape as the company_id fail-open.
 
 - [project_shared_address_dedupe.md](project_shared_address_dedupe.md) — shared/addresses.py = the ONE place "same address" is decided (Workiz dup properties). DISPLAY-only, never merge Odoo records. Validated on all 1,539 records: zero false merges.
@@ -19,6 +21,7 @@
 - [project_frequency_service_architecture.md](project_frequency_service_architecture.md) — Frequency+Type-of-Service live on SO / property / contact. WORKIZ=master; property+SO mirror down (Phase 4). Property=reliable value; SA955 rolls SO→property. Display now falls back SO→property (so_full 4069bbb) so header never shows false "Unknown". res.partner has NO 'mobile' field.
 
 - [project_accounting_master_plan.md](project_accounting_master_plan.md) — READ FIRST for any accounting work. Strategy (QB accurate thru 2024 → Odoo forward, opening balance bridges to reality).
+- [project_awp_vendor_setup.md](project_awp_vendor_setup.md) — Active Window Products in Odoo: vendor 26936, Customer ID 55145, Resale tax-exempt fiscal position, 33 frame products imported, AWP Order…
 - [project_awp_vendor_setup.md](project_awp_vendor_setup.md) — Active Window Products in Odoo: vendor 26936, Customer ID 55145, Resale tax-exempt, 33 frame products imported, order emails go to BOTH Jaime +…
 - [project_categorize_bank_line_mechanic.md](project_categorize_bank_line_mechanic.md) — How-to mechanics: categorize bank line (re-point suspense line), retire dup (reverse w/ ORIGINAL date — date-bug!), re-point payment (doesn't…
 - [project_hiring_video_interview.md](project_hiring_video_interview.md) — Hiring VIDEO interview cockpit (2026-06-17): live during call.
