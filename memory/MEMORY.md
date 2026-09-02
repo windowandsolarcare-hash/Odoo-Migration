@@ -1,22 +1,22 @@
 # Memory Index (TOC)
 
-Detail lives in topic files. This index is sharded by domain — open the sub-index for the area you're working in, or `Grep` the memory dir. 534 topic memories across 11 domains + 65 standing rules.
+Detail lives in topic files. This index is sharded by domain — open the sub-index for the area you're working in, or `Grep` the memory dir. 290 topic memories across 11 domains + 47 standing rules.
 
 > **Maintaining this index (read before adding a memory):** put the new one-line hook in the matching `idx_<domain>.md` — NOT here. Keep hooks ≤~145 chars (detail goes in the topic file). Only touch THIS file to add a `feedback_*` standing rule or a brand-new domain shard. This keeps MEMORY.md small enough to fully load every session (the whole reason it's sharded — restructured 2026-07-10 from one 147 KB flat list that only ~1/6 loaded). Re-shard script: `scratchpad/reindex_memory.py`; full pre-split backup: `MEMORY_full_backup_2026-07-10.md`.
 
 ## Domain sub-indexes
 
-- [Field app (field.html / job detail)](idx_field_app.md) — 55 — `idx_field_app.md`
-- [Scheduling & Command Center](idx_scheduling.md) — 76 — `idx_scheduling.md`
-- [Outreach / reactivation / CRM](idx_outreach_crm.md) — 77 — `idx_outreach_crm.md`
-- [My Day & tasks](idx_myday.md) — 30 — `idx_myday.md`
-- [Vault / Notes / Drive](idx_vault_notes.md) — 37 — `idx_vault_notes.md`
-- [Odoo quirks & fields](idx_odoo.md) — 34 — `idx_odoo.md`
-- [Workiz / phases / sync](idx_workiz_sync.md) — 52 — `idx_workiz_sync.md`
-- [Infra / deploy / GitHub / Render](idx_infra_deploy.md) — 85 — `idx_infra_deploy.md`
-- [Saunders Printing (NBHOF)](idx_saunders_printing.md) — 18 — `idx_saunders_printing.md`
-- [Business & personal](idx_business.md) — 28 — `idx_business.md`
-- [Misc](idx_misc.md) — 44 — `idx_misc.md`
+- [Field app (field.html / job detail)](idx_field_app.md) — 28 — `idx_field_app.md`
+- [Scheduling & Command Center](idx_scheduling.md) — 35 — `idx_scheduling.md`
+- [Outreach / reactivation / CRM](idx_outreach_crm.md) — 33 — `idx_outreach_crm.md`
+- [My Day & tasks](idx_myday.md) — 10 — `idx_myday.md`
+- [Vault / Notes / Drive](idx_vault_notes.md) — 28 — `idx_vault_notes.md`
+- [Odoo quirks & fields](idx_odoo.md) — 19 — `idx_odoo.md`
+- [Workiz / phases / sync](idx_workiz_sync.md) — 35 — `idx_workiz_sync.md`
+- [Infra / deploy / GitHub / Render](idx_infra_deploy.md) — 47 — `idx_infra_deploy.md`
+- [Saunders Printing (NBHOF)](idx_saunders_printing.md) — 17 — `idx_saunders_printing.md`
+- [Business & personal](idx_business.md) — 14 — `idx_business.md`
+- [Misc](idx_misc.md) — 24 — `idx_misc.md`
 
 ## ★ Standing rules (how DJ wants me to work) — always honor
 
@@ -44,7 +44,6 @@ Detail lives in topic files. This index is sharded by domain — open the sub-in
 - [feedback_field_html_js_syntax_check.md](feedback_field_html_js_syntax_check.md) — ALWAYS run node --check on field.html JS before pushing.
 - [feedback_field_readability_sunlight.md](feedback_field_readability_sunlight.md) — DJ has limited vision + works outdoors in bright sun → ALL field/owner UI must be large-text + high-contrast with a genuinely sunlight-readable…
 - [feedback_gh_push_empty_file_guard.md](feedback_gh_push_empty_file_guard.md) — Before any raw gh api PUT, verify b64 length (<1000 → abort) — a missing/empty local file silently pushes EMPTY and crashes app boot (new_job.py…
-- [feedback_cloud_push_size_limit.md](feedback_cloud_push_size_limit.md) — ★ CLOUD sessions CANNOT push a file over ~60-100KB (MCP content is inline = one message). Truncation silently corrupts live code, unrecoverable from cloud. This truncated AGENT_MAIL.md (423KB) on 08-27. Design the change into a NEW small file; hand big files to a `gh` session.
 - [feedback_github_deploy_from_bash.md](feedback_github_deploy_from_bash.md) — GitHub deployment from Claude Code requires powershell -Command wrapper, not raw bash/Python
 - [feedback_github_deploy_python_fallback.md](feedback_github_deploy_python_fallback.md) — When bash+powershell base64 returns "Problems parsing JSON" HTTP 400, switch to Python (base64.b64encode + json.dump).
 - [feedback_github_deployment_bash.md](feedback_github_deployment_bash.md) — CANONICAL: Use bash + base64 + temp file for GitHub deployments.
@@ -84,6 +83,7 @@ Detail lives in topic files. This index is sharded by domain — open the sub-in
 - [feedback_status_update_format.md](feedback_status_update_format.md) — When DJ asks for a "status update"/"what's open"/"update me": condensed recap of just the last ~3-4 hrs, grouped Shipped / Waiting-on-you / Open. Not long-term, not how-solved detail.
 - [feedback_spoken_friendly_responses.md](feedback_spoken_friendly_responses.md) — DJ has his phone READ replies aloud while working, so default to a PLAIN spoken-friendly style: short sentences, no bold/tables/symbols/emoji…
 - [feedback_test_like_real_app_before_delivering.md](feedback_test_like_real_app_before_delivering.md) — When building an app that mimics a known product (Vault=Evernote), TEST it against that product's core behaviors…
+- [feedback_verify_limits_before_declaring.md](feedback_verify_limits_before_declaring.md) — Before telling DJ "I can't do X" (esp. cloud claiming it can't reach app/Odoo), TEST the call first — don't declare a limit from a stale doc. (Cloud-network claim was false 3× before anyone tested.)
 - [feedback_use_sonnet_for_routine.md](feedback_use_sonnet_for_routine.md) — Model choice: OPUS for Render-app edits + accounting structure (regression/financial risk);
 - [feedback_workiz_no_job_all.md](feedback_workiz_no_job_all.md) — NEVER use Workiz job/all/ endpoint. DJ's explicit rule (2026-05-04).
 - [feedback_saunders_printing_never_send.md](feedback_saunders_printing_never_send.md) — NEVER send any Saunders Printing invoice/email without DJ explicitly approving (a prior session sent to a vendor early).
