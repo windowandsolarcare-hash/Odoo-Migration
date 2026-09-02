@@ -106,6 +106,15 @@ So DJ no longer has to nudge "mail," each session watches its OWN mailbox. **At 
 
 ---
 
+## 💳 PAYMENT LOOKUP — "did X pay / how did X pay?" — READ BEFORE ANSWERING
+
+**Never answer a payment question from Odoo alone.** Two documented gaps make Odoo show "unpaid" when the customer actually paid by card. Answering "not paid" without checking Stripe = a WRONG answer (happened 2026-09-02 with Robert Hollenbeck, who had in fact paid $150 by Visa — Stripe charge succeeded, never reconciled to Odoo).
+
+1. **Odoo first, but trust `payment_state` — not just `account.payment`.** Migration-era paid invoices have payment_state='paid'/'in_payment' with ZERO account.payment records (reconciled by bank entry). See `project_paid_without_payment_record`.
+2. **If Odoo shows not_paid / no payment record → CHECK STRIPE before concluding "unpaid."** A Stripe card charge can SUCCEED without reconciling to Odoo (success-webhook / abandoned-checkout gap). Search Stripe by **AMOUNT + DATE** (`GET /v1/charges?created[gte]=<epoch>`), NOT by name/email — the billing name may be misspelled and billing email = the BUSINESS email (windowandsolarcare@gmail.com), not the customer's. See `project_stripe_payments_not_reconciled_to_odoo` + `project_stripe_abandoned_checkout_strands_invoice`.
+3. **Stripe access, fastest first:** (a) **Stripe MCP** `mcp__stripe__*` — configured in `C:\Users\dj\.claude\mcp.json`; if its tools aren't loaded this session, it needs a Claude Code restart to activate. (b) Else the live key is in Google Drive **Saunders Vault** → doc "Stripe" (and local `C:\Users\dj\_stripe_key_val.txt`). **Never paste the key in chat or commit it to the repo** (GitHub secret-scanning blocks it — see `project_memory_mirror_secret_scanning`; redact secret SHAPES to placeholders in any memory note).
+4. **A succeeded Stripe charge with no Odoo payment = a reconciliation gap (money-touching).** Surface to DJ; have **Operator** record the card payment against the invoice (journal: Credit Card, id=20). Likely systemic — flag Specialists to check for other unrecorded card payments.
+
 ## KEY VOCABULARY
 
 **"The schedule"** = the Render field assistant daily job list (`wsc-field-assistant.onrender.com`). Gate: SO must have `state in ['sale', 'done']` AND `date_order` = that day. **Submitted jobs are NOT on the schedule** — Phase 3 creates them as draft quotations. A job lands on the schedule when Workiz status is one of: Scheduled / Send Confirmation - Text / Next Appointment - Text / Next Appointment 2 - Text — Phase 4 confirms the SO at that point.
