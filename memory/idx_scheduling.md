@@ -1,6 +1,5 @@
 # Scheduling & Command Center — memory index
 
-- [project_maint_advance_status_is_truth.md](project_maint_advance_status_is_truth.md) — ★ Workiz STATUS = was the customer told. 'Next Appointment - Text' = ACKNOWLEDGED even with no reply (they forget); 'Submitted' = nobody knows the job exists. Don't trust wsc.maint.advance.* (Aug-2026 phrase backfill wrote bogus 'ok').
 - [project_offer_link_resolver.md](project_offer_link_resolver.md) — Slot-offer customer booking-link half (Lead 2026-08-17): make_token carries offer_id; /book/api/offer/{get,book,decline} in booking.py. Token secret server-side → Reserve mints link via booking.make_token. Customer /book/c page render still TODO.
 
 - [project_slot_offers_reserve_design.md](project_slot_offers_reserve_design.md) — ★ DJ's LOCKED design for pending offers (don't offer a slot twice): Reserve BUTTON bolted onto the existing shared scheduling picker (not a new screen) + booking link, 3 editable slots (manual override wins, conflict=soft warn), 48h expiry, NO AI text parsing. slot_offers.py store. Not built — contract pending lead. 2026-08-15.
@@ -12,8 +11,6 @@
 - [project_send_acknowledgement_button.md](project_send_acknowledgement_button.md) — v2_field.html "📩 Send acknowledgement" button sends Stage-0 maint heads-up (branded calendar / I'll-be-there page) per job. Reuses /api/maint/advance/send (now supports send:false preview + edited message) + send_maint_advance(body=). Distinct from Send confirmation. 2026-08-11.
 
 - [project_command_conf_pills_cached.md](project_command_conf_pills_cached.md) — Command Center CONFIRMED/Accepted/Ack pills were blank 7-10s on every login (in-memory _CONF/_SCHED/_ACK reset on load; jobs render cache-first). Now cached in localStorage wsc_cc_states + hydrated synchronously → pills instant on login. v2_command.html only. 2026-08-11.
-
-- [project_command_confirm_ribbon.md](project_command_confirm_ribbon.md) — ★ Command Center cards now have THREE confirm states (green CONFIRMED / amber ⏳ SENT—NO REPLY / red ⚠️ NOT SENT, red gated to within CONFIRM_LEAD_DAYS). api_sched_states() exposes `awaiting` from wsc.reminders.awaiting. ALSO: documents the REAL unfixed build_batch gap — a job added to a day AFTER its confirm batch was built never gets a confirmation text (only DJ noticing covers it).
 
 - [project_status_scheduled_now_confirms.md](project_status_scheduled_now_confirms.md) — Setting job Status → on-schedule state (Scheduled/Send Confirmation/Next Appt) now auto-confirms the SO (draft→sale) in brain.py /api/brain/job, so it appears on the schedule. Create-from-scratch = draft by design; duplicate "Create & Schedule" = confirmed. Fixes invisible Scheduled drafts (Van). 2026-08-11.
 
@@ -100,3 +97,5 @@
 - [project_blower_banner_gutter.md](project_blower_banner_gutter.md) — Command Center "bring the blower" banner pops when TODAY has a gutter job (job_type OR gutter line item; calendar_jobs `gutter` flag). Dismissable per-so_id via localStorage wsc_blower_cleared.
 
 - [project_card_at_door_wrongcard_incident.md](project_card_at_door_wrongcard_incident.md) — 2026-08-26: door-charge (hosted Checkout on DJ phone) let Stripe Link charge a PREVIOUS customer (Vincent Russo) $200 for Bob Lis SO 264956; refunded. Build the Elements card-at-door page (P0); no webhook = Stripe is source of truth.
+
+- [project_job_seed_shared_copier.md](project_job_seed_shared_copier.md) — job_seed.py is the ONE shared copier for BOTH link-booking seed (booking.api_request) + Duplicate button (dashboard.api_duplicate_job). Never write a second copier. Gate seeds from PROPERTY master not SO snapshot; property_id=None = duplicate's byte-identical behaviour.
