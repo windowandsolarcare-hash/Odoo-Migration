@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-02T21:46:50.936Z
+  modified: 2026-09-03T19:10:59.953Z
 ---
 
 **`routers/owner/job_seed.py`** (shipped 2026-09-02, per `3_Documentation/JOB_SEEDING_SPEC.md`) is the single shared copier that carries pricing/gate/service forward onto a new job. Two callers, one implementation — **do NOT write a second copier** (CLAUDE.md rule 9; two copies of pricing logic drift and the unwatched one goes stale).
@@ -19,5 +19,7 @@ metadata:
 **Callers:**
 - `routers/booking.py` `api_request` — KNOWN customers only (`if pid`), whole seed wrapped in try/except so a seed failure NEVER breaks a booking (job lands unseeded = old behaviour). Posts provenance chatter (💲 carried / ⚠ >12mo / "priced from scratch"), appends `| seeded from <name> (<date>)` to `x_studio_creation_log`. Job stays **Submitted**; nothing auto-confirms/invoices/charges.
 - `routers/owner/dashboard.py` `api_duplicate_job` (~line 7695) — refactored to `vals.update(seed_values_from(so_id)['vals'])` with property_id=None. It's a daily-use button; the extract is byte-identical (rules 10+11).
+
+**TIP lines are excluded from the seed** (added 2026-09-03, DJ-approved): `seed_values_from`'s line-copy loop skips a line whose LINE name OR PRODUCT name is exactly `'tip'` (lowercased/trimmed — exact, never substring, so a real product containing 'tip' survives). Discounts and all other lines are kept. Because this is the shared copier, the **Duplicate job** button also no longer carries tips.
 
 Estimator numbers from wscare.pro are OUT of scope — they're what the customer was shown, recorded as untrusted chatter, never merged into seeded lines. Related: [[feedback_reuse_canonical_endpoint]], [[feedback_question_when_big_picture_wrong]].
