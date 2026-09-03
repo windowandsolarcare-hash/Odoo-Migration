@@ -1,9 +1,5 @@
 # Infra / deploy / GitHub / Render — memory index
 
-- [feedback_cloud_clone_stale_verify_from_github.md](feedback_cloud_clone_stale_verify_from_github.md) — ★ FETCH BEFORE YOU READ, not just before you push: a session's clone is a session-start snapshot, stale within HOURS with 5 sessions on main. A stale read = confident wrong answer with NO guard. And when DJ reports something you can't find, YOUR source is wrong — re-fetch before contradicting him (2026-08-30: told DJ the Run NBHOF Auto button didn't exist; built that day).
-
-- [feedback_verify_limits_before_declaring.md](feedback_verify_limits_before_declaring.md) — ★ "I can't do X" needs EVIDENCE, same as a field name does. TEST the path before declaring anything blocked/unavailable/too large. Name the METHOD that failed, not the capability ("REST 403s at the proxy" ≠ "writes are blocked"). 3 failures in one day 2026-08-30 — DJ nearly granted access he didn't need to grant.
-
 - [project_odoo_rpc_429_retry.md](project_odoo_rpc_429_retry.md) — ★ Odoo JSON-RPC 200-with-no-`error` = SUCCESS even if `result` absent (VOID methods like mail.mail.send omit it). Never bare res['result'] → do res.get('result'). Was the Saunders preview 500 (send WAS working; UI lied). shared/odoo.py fixed dd5ccdf; +429/5xx retry. Owner-side routers/owner/shared.py may need same.
 - [project_silent_lie_swallowed_reads.md](project_silent_lie_swallowed_reads.md) — RULE: `except: return []` on a read that FEEDS A PAGE is a silent lie if empty renders as plausible-but-false (429 gave a real customer an empty service history). Raise + degrade honestly; soften only where empty==failed to the viewer. Also: KeyError:'result' (error checked first) ≠ masked Odoo error; check fix didn't postdate the logs.
 
@@ -102,7 +98,7 @@
 
 - [project_memory_mirror_secret_scanning.md](project_memory_mirror_secret_scanning.md) — GitHub secret-scanning BLOCKS memory files with live secrets; redact to placeholders (real value in Render env) before mirroring; never write live tokens into notes.
 
-- [project_cloud_session_env_limits.md](project_cloud_session_env_limits.md) — Cloud CC sessions: NO gh CLI (use GitHub MCP). ★ Net allowlist on our Default env IS OPEN (re-verified live 2026-08-31: app/Odoo/api.render.com all answer) — cloud CAN verify by content. Test before claiming otherwise.
+- [project_cloud_session_env_limits.md](project_cloud_session_env_limits.md) — Cloud CC sessions: NO gh CLI (use GitHub MCP); outbound net is GitHub-only by default (app/Odoo 403) — open env network allowlist to verify live or run Operator-cloud.
 - [project_cloud_lead_write_path.md](project_cloud_lead_write_path.md) — ★ CLOUD sessions: no `gh` CLI + api.github.com egress-BLOCKED (403). WRITE = MCP `create_or_update_file` (Contents PUT to main); READ = on-disk clone + `git fetch origin main`. safe_deploy.py absent — gate by hand.
 - [feedback_mcp_push_content_is_inline.md](feedback_mcp_push_content_is_inline.md) — MCP `create_or_update_file`'s `content` is the FILE TEXT inline, NOT a path — passing a path silently commits a tiny placeholder over the real file.
 - [project_design_canvas_save_slow_after_long_turn.md](project_design_canvas_save_slow_after_long_turn.md) — Design-canvas Artifact saves hang for MINUTES when they trail a long tool-heavy turn; issued alone ~8-14s. Publish as its own step; kill a hang at ~60s and re-issue.
@@ -110,3 +106,4 @@
 - [project_daily_sync_zapier_survivor.md](project_daily_sync_zapier_survivor.md) — The 4am PT "WSC Daily Sync" report emails survive in a ZAPIER zap even though app-side sync is fully retired — the zap runs its own copy. Only DJ can turn it off, in Zapier.
 - [project_payment_link_nameerror.md](project_payment_link_nameerror.md) — /api/stripe/payment_link threw NameError '_force_lines_deliverable' for any job with NO existing invoice — killed Send Stripe Link + Charge at Door. Fixed 2026-08-13 (import from field.py).
 - [project_stripe_routes_live_in_dashboard.md](project_stripe_routes_live_in_dashboard.md) — ★ LIVE Stripe pay routes (/api/stripe/payment_link,/tip_page,/create_checkout) are served by dashboard.py, NOT payments.py — payments.py copies are route-shadowed dead twins. Edit dashboard.py; verify by content.
+- [project_wsc_domain_cutover.md](project_wsc_domain_cutover.md) — ★ windowandsolarcare.com → Odoo site cutover: Odoo `website.domain` unset makes every canonical point at odoo.com (set it AT cutover); real WP slugs (/pricing_main, /on-line-scheduling, /cleaning_services/*) — the guessed ones 404; phone now 760-334-5355.
