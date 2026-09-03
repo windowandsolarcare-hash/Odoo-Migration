@@ -1,5 +1,7 @@
 # Scheduling & Command Center — memory index
 
+- [project_two_night_before_reminder_tracks.md](project_two_night_before_reminder_tracks.md) — reminders.py has TWO night-before builders (plain eve + maintenance eve); the maint one (gated on advance ok/sent, honors backfilled ok) can surface instead & drop regular confirmed jobs (Gayle-not-Fred). Editable per-person; can send per-SO.
+
 - [project_offer_link_resolver.md](project_offer_link_resolver.md) — Slot-offer customer booking-link half (Lead 2026-08-17): make_token carries offer_id; /book/api/offer/{get,book,decline} in booking.py. Token secret server-side → Reserve mints link via booking.make_token. Customer /book/c page render still TODO.
 
 - [project_slot_offers_reserve_design.md](project_slot_offers_reserve_design.md) — ★ DJ's LOCKED design for pending offers (don't offer a slot twice): Reserve BUTTON bolted onto the existing shared scheduling picker (not a new screen) + booking link, 3 editable slots (manual override wins, conflict=soft warn), 48h expiry, NO AI text parsing. slot_offers.py store. Not built — contract pending lead. 2026-08-15.
