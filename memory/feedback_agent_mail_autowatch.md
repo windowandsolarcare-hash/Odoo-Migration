@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-08-25T13:51:44.267Z
+  modified: 2026-09-03T14:02:09.072Z
 ---
 
 **DJ 2026-08-17: stop making DJ type "mail."** Each Claude Code session self-watches its own mailbox, and DJ's phone is pinged only when HE is needed.
@@ -19,6 +19,6 @@ metadata:
 
 **Why:** removes DJ from the relay — sessions ping each other automatically; DJ only gets a phone push when a decision needs him (and PushNotification returns "not sent" when he's actively in the terminal — that's correct, no double-notify). **Caveat:** CronCreate is session-local (dies on session exit, auto-expires 7 days) → must re-arm every session start; a 24/7 version would live in the Render app (not built). Protocol doc: `3_Documentation/AGENT_MAIL_PROTOCOL.md`. Also in CLAUDE.md AGENT MAIL section. See [[project_agent_mail_channel]] [[feedback_agent_mail]].
 
-**Interval = 15 min (NOT 7)** per DJ's 2026-08-22 cost decision to reduce usage; offset the minute per session. Corrected 2026-08-24 after a stray 7-min instruction. Use the Contents-API **blob** sha for the baseline, never the commit sha.
+**Interval = 20 min** per DJ's 2026-09-03 decision to further cut usage (was 15, was 7). Use `*/20` but OFFSET your minute per session so they don't all fire at once: Lead `3,23,43`, Specialists `8,28,48`, Web `13,33,53`, Portal `18,38,58`, Operator `1,21,41` (only if Operator watching — see below), Design `6,26,46`. Use the Contents-API **blob** sha for the baseline, never the commit sha.
 
 **Operator does NOT check AGENT_MAIL autonomously — AT ALL** (DJ clarified 2026-08-25): no watcher cron AND NOT at session start. Operator reads mail ONLY when DJ explicitly nudges it. Lead still reaches Operator by POSTING a `→ Operator` message to mail, but that message sits parked until DJ nudges Operator to look. Operator is purely DJ's hands, directed by DJ. Any "arm your watcher / check the mail" fleet note NEVER applies to Operator.
