@@ -1,5 +1,7 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_endpoint_map.md](project_endpoint_map.md) — ★ Canonical route map at 3_Documentation/ENDPOINT_MAP.md (auto-gen AST sweep). FIRST stop to find any endpoint: LIVE-vs-DEAD(shadow), method, full path, file:line, what-it-does, auth — no code-reading. ~98 dead-twin collisions listed (dashboard.py shadows payments/timeclock/hemet/etc). Snapshot — regen after route changes; verify post-snapshot adds vs live.
+
 - [project_website_cutover_dns.md](project_website_cutover_dns.md) — Website cutover 2026-09-03: windowandsolarcare.com → Odoo site. DreamHost site DEACTIVATED (DNS-Only, reversible); www CNAME → window-solar-care.odoo.com LIVE+propagated (verified Cloudflare+Google DoH). TODO: DJ clicks Odoo Verify→SSL; apex→www; Web flips canonical; DreamHost AutoPay card expired.
 
 - [project_twilio_a2p_registration_facts.md](project_twilio_a2p_registration_facts.md) — Twilio A2P 10DLC ALL green (verified live 2026-09-03): brand/campaign/customer-profile Verified/Approved, number 760-334-5355 attached, entity "Window & Solar Care LLC" EIN 42-3461012. Cutover-SAFE (no /terms URL on file; opt-in /free-quote/ 301s). DO NOT edit (re-vetting risk). SIDs inside.
