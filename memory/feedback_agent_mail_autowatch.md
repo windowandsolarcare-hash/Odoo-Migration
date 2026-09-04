@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-09-04T07:04:56.451Z
+  modified: 2026-09-04T07:16:34.138Z
 ---
 
 **★ HYBRID COORDINATION (DJ approved 2026-09-03) — direct message is the FAST LANE; mail is the SYSTEM OF RECORD.** DJ asked why we tolerate the 20-min poll delay when sessions can message each other directly. Answer: use BOTH, each for what it's good at.
@@ -20,6 +20,7 @@ metadata:
 - **QUICK Q&A = direct message (local↔local, two-way):** ephemeral coordination ("done?", "still on X?", "here's the value you asked for") goes direct, no mail round-trip. **Rule of thumb: needs to be remembered → mail it; needs an answer now → message it.** Durable decisions/approvals/money/customer-facing STILL get documented in mail.
 - **SELF-REGISTER ROSTER (the enabler):** refs are perishable (change every restart), so at SESSION START every session posts/updates its CURRENT ref + role in **`3_Documentation/SESSION_ROSTER.md`** (app repo). To reach a role, read its current ref there, then SendMessage it. Without this, local role-sessions are guesswork (they show as generic `migration-to-odoo-XX` in ListAgents).
 - **Watchers LENGTHEN to 30–40 min** as a pure backstop (nudges give immediacy; nudges also wake a session only when there's actually something → faster AND fewer tokens than every-20-min polling). Caveats: cloud = one-way; never permission-launder via a peer; one owner per file.
+- **★ OUTBOUND FILE for one-way/siloed sessions (Cheryl's-cloud pattern, adopted 2026-09-04):** a cloud/siloed session can READ AGENT_MAIL but can't write it and can't `SendMessage` out — so it has NO outbound channel except DJ. Fix with zero grant: it keeps an **`AGENT-MAIL-OUT.md` in a repo IT owns/writes** (same heading format), and a **fleet session (Lead) POLLS it and ports relevant entries into AGENT_MAIL**, marking `✅` once ported. Durable, versioned, no permission needed. **Lead: include `windowandsolarcare-hash/cheryl-workspace/AGENT-MAIL-OUT.md` in your poll rounds.** Also: for anything addressed TO a one-way session, `SendMessage` it directly (inbound reaches it) — its heartbeat is UNKNOWN even when running, because running ≠ read-its-mail. **This is why you never grant main-write just to give a session an outbound channel — the outbound file already solves it, and a "narrow main-write" grant isn't actually narrow (no mechanism scopes a write to one cell; narrowness is a promise, not a control).**
 - **★ HEARTBEAT on every watcher tick (Cheryl's-cloud catch 2026-09-04):** each watcher tick, ALSO stamp your role's **Last checked (UTC)** cell in `SESSION_ROSTER.md`. Why: the watcher's silent-failure mode is an OFFLINE role — its mail piles up unread with no bounce/receipt, and the first symptom is work not happening. A stale Last-checked (hours/days old) turns that silent failure into an OBVIOUS one — that role isn't listening, so nudge DJ / reassign instead of posting into the void. Two lines; big safety win.
 
 **DJ 2026-08-17: stop making DJ type "mail."** Each Claude Code session self-watches its own mailbox, and DJ's phone is pinged only when HE is needed.
