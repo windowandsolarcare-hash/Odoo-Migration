@@ -101,3 +101,5 @@
 - [project_card_at_door_wrongcard_incident.md](project_card_at_door_wrongcard_incident.md) — 2026-08-26: door-charge (hosted Checkout on DJ phone) let Stripe Link charge a PREVIOUS customer (Vincent Russo) $200 for Bob Lis SO 264956; refunded. Build the Elements card-at-door page (P0); no webhook = Stripe is source of truth.
 
 - [project_job_seed_shared_copier.md](project_job_seed_shared_copier.md) — job_seed.py is the ONE shared copier for BOTH link-booking seed (booking.api_request) + Duplicate button (dashboard.api_duplicate_job). Never write a second copier. Gate seeds from PROPERTY master not SO snapshot; property_id=None = duplicate's byte-identical behaviour.
+
+- [project_cheryl_hud_v1.md](project_cheryl_hud_v1.md) — Cheryl's HUD (/cheryl/hud) = additive per-viewer layer over the SAME wsc.feed.items store; feed.list_items_for_viewer/ack_for_viewer + audience/viewers (DJ byte-identical); v2_hud.html reused via FEED_BASE/HUD_EXTRAS; session carries p. Go-live gates: data in wsc.decisions.2026, AUTH_ENFORCE=1, DJ login row.
