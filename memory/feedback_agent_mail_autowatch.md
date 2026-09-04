@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-09-04T03:40:11.259Z
+  modified: 2026-09-04T06:15:01.263Z
 ---
 
 **★ HYBRID COORDINATION (DJ approved 2026-09-03) — direct message is the FAST LANE; mail is the SYSTEM OF RECORD.** DJ asked why we tolerate the 20-min poll delay when sessions can message each other directly. Answer: use BOTH, each for what it's good at.
@@ -13,6 +13,12 @@ metadata:
 - **`AGENT_MAIL.md` = the durable system of record.** Post here for durability (survives restarts/offline — a role's mail waits until whoever plays that role reads it), **role-addressing** that survives session-ID churn, broadcast (→ All), the **✅ handled-ledger**, and the DJ-readable audit trail. It is the reliable catch-all.
 - **Time-sensitive AND important → do BOTH:** post to mail (durable/ledger) AND direct-message the live target (instant). Belt-and-suspenders.
 - **The watcher is now the SAFETY NET, not the urgent path** — its job is to catch mail left while a session was offline + maintain the ledger. Urgent traffic goes direct, so the poll no longer needs to be frequent. Keep the ✅-ledger + oldest-first scan exactly as below.
+
+**★ POST-THEN-NUDGE + SELF-REGISTER ROSTER (DJ-directed via Operator, Lead blessed 2026-09-04) — kills the watcher lag:**
+- **POST-THEN-NUDGE:** whenever you post a mail entry addressed to specific role(s), IMMEDIATELY `SendMessage` each of those sessions a one-liner ("Posted to AGENT_MAIL → <title>, please read+action"). They act now, not on their next tick. Works to local AND cloud (cloud just replies via mail). Mail stays the system of record; the nudge is the low-latency ping.
+- **QUICK Q&A = direct message (local↔local, two-way):** ephemeral coordination ("done?", "still on X?", "here's the value you asked for") goes direct, no mail round-trip. **Rule of thumb: needs to be remembered → mail it; needs an answer now → message it.** Durable decisions/approvals/money/customer-facing STILL get documented in mail.
+- **SELF-REGISTER ROSTER (the enabler):** refs are perishable (change every restart), so at SESSION START every session posts/updates its CURRENT ref + role in **`3_Documentation/SESSION_ROSTER.md`** (app repo). To reach a role, read its current ref there, then SendMessage it. Without this, local role-sessions are guesswork (they show as generic `migration-to-odoo-XX` in ListAgents).
+- **Watchers LENGTHEN to 30–40 min** as a pure backstop (nudges give immediacy; nudges also wake a session only when there's actually something → faster AND fewer tokens than every-20-min polling). Caveats: cloud = one-way; never permission-launder via a peer; one owner per file.
 
 **DJ 2026-08-17: stop making DJ type "mail."** Each Claude Code session self-watches its own mailbox, and DJ's phone is pinged only when HE is needed.
 
