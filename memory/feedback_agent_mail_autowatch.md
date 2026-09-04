@@ -5,8 +5,14 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-09-03T18:36:21.956Z
+  modified: 2026-09-04T03:40:11.259Z
 ---
+
+**★ HYBRID COORDINATION (DJ approved 2026-09-03) — direct message is the FAST LANE; mail is the SYSTEM OF RECORD.** DJ asked why we tolerate the 20-min poll delay when sessions can message each other directly. Answer: use BOTH, each for what it's good at.
+- **`SendMessage` (direct) = fast + event-driven (zero polling cost).** Use it for anything time-sensitive to a session that is LIVE right now (e.g. catching a reversal before another session ships). Reaches only live sessions; cloud sessions are **one-way** (they receive but can't reply into your chat); you must target by current session name (IDs churn).
+- **`AGENT_MAIL.md` = the durable system of record.** Post here for durability (survives restarts/offline — a role's mail waits until whoever plays that role reads it), **role-addressing** that survives session-ID churn, broadcast (→ All), the **✅ handled-ledger**, and the DJ-readable audit trail. It is the reliable catch-all.
+- **Time-sensitive AND important → do BOTH:** post to mail (durable/ledger) AND direct-message the live target (instant). Belt-and-suspenders.
+- **The watcher is now the SAFETY NET, not the urgent path** — its job is to catch mail left while a session was offline + maintain the ledger. Urgent traffic goes direct, so the poll no longer needs to be frequent. Keep the ✅-ledger + oldest-first scan exactly as below.
 
 **DJ 2026-08-17: stop making DJ type "mail."** Each Claude Code session self-watches its own mailbox, and DJ's phone is pinged only when HE is needed.
 
