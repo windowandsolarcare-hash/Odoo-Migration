@@ -63,6 +63,13 @@ These rules exist because they have been broken before. Each one caused a real p
 
 ## AGENT MAIL — CROSS-SESSION MESSAGES (DJ approved 2026-07-26)
 
+### ★ HYBRID protocol (DJ approved 2026-09-03) — direct message = FAST LANE, mail = SYSTEM OF RECORD
+DJ asked why we wait on a 20-min poll when sessions can message each other directly. Both, each for its strength:
+- **`SendMessage` (direct)** — instant + event-driven (no polling cost). Use for anything **time-sensitive to a LIVE session** (e.g. catching a reversal before another session ships). Only reaches live sessions; **cloud sessions are one-way** (receive, can't reply back); target by current session name (IDs churn).
+- **`AGENT_MAIL.md` (the file)** — the **durable system of record**: survives restarts/offline (role's mail waits until whoever plays that role reads it), **role-addressed** (survives session-ID churn), broadcastable (→ All), carries the **✅ handled-ledger**, DJ-readable audit trail. Reliable catch-all.
+- **Time-sensitive AND important → do BOTH** (direct for speed + mail for durability/ledger).
+- **The watcher is now the SAFETY NET** (catch offline mail + keep the ledger), not the urgent path — so it no longer needs to poll often. Full detail: memory [[feedback_agent_mail_autowatch]].
+
 Two Claude Code sessions work this project (a lead session and a specialists/PM session).
 **At session start AND after finishing any task, read `3_Documentation/AGENT_MAIL.md` in the
 saunders-render-app REPO** (fetch via gh api — it lives there because both sessions read that
