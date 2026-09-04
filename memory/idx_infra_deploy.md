@@ -1,5 +1,7 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_website_cutover_dns.md](project_website_cutover_dns.md) — Website cutover 2026-09-03: windowandsolarcare.com → Odoo site. DreamHost site DEACTIVATED (DNS-Only, reversible); www CNAME → window-solar-care.odoo.com LIVE+propagated (verified Cloudflare+Google DoH). TODO: DJ clicks Odoo Verify→SSL; apex→www; Web flips canonical; DreamHost AutoPay card expired.
+
 - [project_twilio_a2p_registration_facts.md](project_twilio_a2p_registration_facts.md) — Twilio A2P 10DLC ALL green (verified live 2026-09-03): brand/campaign/customer-profile Verified/Approved, number 760-334-5355 attached, entity "Window & Solar Care LLC" EIN 42-3461012. Cutover-SAFE (no /terms URL on file; opt-in /free-quote/ 301s). DO NOT edit (re-vetting risk). SIDs inside.
 
 - [project_odoo_rpc_429_retry.md](project_odoo_rpc_429_retry.md) — ★ Odoo JSON-RPC 200-with-no-`error` = SUCCESS even if `result` absent (VOID methods like mail.mail.send omit it). Never bare res['result'] → do res.get('result'). Was the Saunders preview 500 (send WAS working; UI lied). shared/odoo.py fixed dd5ccdf; +429/5xx retry. Owner-side routers/owner/shared.py may need same.
