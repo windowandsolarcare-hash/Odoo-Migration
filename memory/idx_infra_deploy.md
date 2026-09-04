@@ -1,5 +1,6 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_operator_playbook.md](project_operator_playbook.md) — ★ Operator execution cheat-sheet: proven app-endpoint recipes (reschedule, job/lines, offers/reserve, confirm card, photos, new customer+job, inbox, feed cards, myday, vault), common product IDs, HUD deep-link patterns, gotchas. Execute from here, don't rediscover.
 - [project_endpoint_map.md](project_endpoint_map.md) — ★ Canonical route map at 3_Documentation/ENDPOINT_MAP.md (auto-gen AST sweep). FIRST stop to find any endpoint: LIVE-vs-DEAD(shadow), method, full path, file:line, what-it-does, auth — no code-reading. ~98 dead-twin collisions listed (dashboard.py shadows payments/timeclock/hemet/etc). Snapshot — regen after route changes; verify post-snapshot adds vs live.
 
 - [project_website_cutover_dns.md](project_website_cutover_dns.md) — Website cutover 2026-09-03: windowandsolarcare.com → Odoo site. DreamHost site DEACTIVATED (DNS-Only, reversible); www CNAME → window-solar-care.odoo.com LIVE+propagated (verified Cloudflare+Google DoH). TODO: DJ clicks Odoo Verify→SSL; apex→www; Web flips canonical; DreamHost AutoPay card expired.
