@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-09-04T06:15:01.263Z
+  modified: 2026-09-04T06:19:09.691Z
 ---
 
 **★ HYBRID COORDINATION (DJ approved 2026-09-03) — direct message is the FAST LANE; mail is the SYSTEM OF RECORD.** DJ asked why we tolerate the 20-min poll delay when sessions can message each other directly. Answer: use BOTH, each for what it's good at.
@@ -16,6 +16,7 @@ metadata:
 
 **★ POST-THEN-NUDGE + SELF-REGISTER ROSTER (DJ-directed via Operator, Lead blessed 2026-09-04) — kills the watcher lag:**
 - **POST-THEN-NUDGE:** whenever you post a mail entry addressed to specific role(s), IMMEDIATELY `SendMessage` each of those sessions a one-liner ("Posted to AGENT_MAIL → <title>, please read+action"). They act now, not on their next tick. Works to local AND cloud (cloud just replies via mail). Mail stays the system of record; the nudge is the low-latency ping.
+- **★ ANNOUNCE THE NUDGE IN YOUR VISIBLE REPLY (DJ 2026-09-04):** the `SendMessage` tool result goes to the SENDER, not reliably to DJ's screen — but your typed reply IS shown to him. So whenever you nudge/message another session, **state it in your visible reply** ("nudged Specialists," "messaged Lead"), ideally near your end-of-turn sign-off. This lets DJ, watching a session wrap up, confirm the handoff happened and wasn't forgotten — visible, trusted, documented in both chat and mail. A silent cross-session send is a miss.
 - **QUICK Q&A = direct message (local↔local, two-way):** ephemeral coordination ("done?", "still on X?", "here's the value you asked for") goes direct, no mail round-trip. **Rule of thumb: needs to be remembered → mail it; needs an answer now → message it.** Durable decisions/approvals/money/customer-facing STILL get documented in mail.
 - **SELF-REGISTER ROSTER (the enabler):** refs are perishable (change every restart), so at SESSION START every session posts/updates its CURRENT ref + role in **`3_Documentation/SESSION_ROSTER.md`** (app repo). To reach a role, read its current ref there, then SendMessage it. Without this, local role-sessions are guesswork (they show as generic `migration-to-odoo-XX` in ListAgents).
 - **Watchers LENGTHEN to 30–40 min** as a pure backstop (nudges give immediacy; nudges also wake a session only when there's actually something → faster AND fewer tokens than every-20-min polling). Caveats: cloud = one-way; never permission-launder via a peer; one owner per file.
