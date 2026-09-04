@@ -1,5 +1,7 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_twilio_a2p_registration_facts.md](project_twilio_a2p_registration_facts.md) — Twilio A2P 10DLC ALL green (verified live 2026-09-03): brand/campaign/customer-profile Verified/Approved, number 760-334-5355 attached, entity "Window & Solar Care LLC" EIN 42-3461012. Cutover-SAFE (no /terms URL on file; opt-in /free-quote/ 301s). DO NOT edit (re-vetting risk). SIDs inside.
+
 - [project_odoo_rpc_429_retry.md](project_odoo_rpc_429_retry.md) — ★ Odoo JSON-RPC 200-with-no-`error` = SUCCESS even if `result` absent (VOID methods like mail.mail.send omit it). Never bare res['result'] → do res.get('result'). Was the Saunders preview 500 (send WAS working; UI lied). shared/odoo.py fixed dd5ccdf; +429/5xx retry. Owner-side routers/owner/shared.py may need same.
 - [project_silent_lie_swallowed_reads.md](project_silent_lie_swallowed_reads.md) — RULE: `except: return []` on a read that FEEDS A PAGE is a silent lie if empty renders as plausible-but-false (429 gave a real customer an empty service history). Raise + degrade honestly; soften only where empty==failed to the viewer. Also: KeyError:'result' (error checked first) ≠ masked Odoo error; check fix didn't postdate the logs.
 
