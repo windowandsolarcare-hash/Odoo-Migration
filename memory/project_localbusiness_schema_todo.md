@@ -5,10 +5,12 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 62c57f62-79c0-4d47-9f2b-7e07e9e7d677
-  modified: 2026-09-04T01:50:02.508Z
+  modified: 2026-09-04T03:14:01.526Z
 ---
 
-**DJ 2026-09-03 (note to discuss):** the marketing site currently has **no LocalBusiness structured data** — the hidden schema.org JSON-LD `<head>` block that tells Google the business name, phone, hours, service area, and services in machine-readable form. It's a cheap one-time add and it reinforces the Google Business Profile.
+**★ CORRECTED 2026-09-03 (Web verified live):** the site ALREADY emits LocalBusiness JSON-LD — the home page has a `<script type="application/ld+json">` `"@type":"HomeAndConstructionBusiness"` with `"name":"Window & Solar Care"` (correct trade name). So this is NOT "no schema" — the ONLY gap is it lacks a **`legalName`** key. The task is **adding one field** (`"legalName":"Window & Solar Care LLC"`), not building schema from scratch. (Original note below assumed no schema existed — that was wrong.)
+
+**DJ 2026-09-03 (original note):** thought the marketing site had **no LocalBusiness structured data** — the hidden schema.org JSON-LD `<head>` block. It's a cheap one-time add and it reinforces the Google Business Profile. (Superseded by the correction above — schema exists, just needs legalName.)
 
 **What it is:** a `<script type="application/ld+json">` LocalBusiness (or HomeAndConstructionBusiness) object in the page head — `name`, `telephone`, `address`/`areaServed` (Hemet + Desert), `openingHours`, `url`, `sameAs` (GBP/Yelp), and a `hasOfferCatalog`/service list. Google reads it to corroborate the profile; it does NOT replace the GBP itself.
 
