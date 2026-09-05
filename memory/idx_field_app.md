@@ -1,5 +1,7 @@
 # Field app (field.html / job detail) — memory index
 
+- [project_voice_tool_add_pattern.md](project_voice_tool_add_pattern.md) — ★ How to add a WRITE voice tool to dashboard.py /ask: 4 sites (schema, execute in execute_write_tool, preview, WRITE_TOOLS) + wire to canonical endpoint via extracted SYNC core (run_agent is sync-in-async-loop → no asyncio.run). QC deterministically via POST /owner/execute (no LLM). /ask body key='input'. Batch 1 = quote_to_current_job/maint_set_time/send_confirmation/send_job_photos.
+
 - [project_voice_reschedule_tool.md](project_voice_reschedule_tool.md) — Voice reschedule_job WRITE tool (dashboard.py, confirm-gated) moves a job by voice via scheduler.schedule_odoo_so; NO Workiz. Postpone/dup/cancel/new-job still app-only. Preceded by the dead-Workiz 401 guard.
 
 - [project_voice_ask_lives_in_dashboard.md](project_voice_ask_lives_in_dashboard.md) — ★ LIVE voice /owner/ask = dashboard.py (shadows field.py's dead twin; dashboard registers first). Edit dashboard.py for ANY voice-assistant change. field.py edits = no effect.
@@ -63,6 +65,3 @@
 - [project_shared_text_thread_component.md](project_shared_text_thread_component.md) — wsc_thread.js (WSCThread) = shared Texts modal; put reply/text actions HERE so they appear everywhere. Now has ✨Claude rewrite (/api/ai/rewrite). Inbox composer still a partial duplicate (unify later).
 - [2nd contact + recipient picker](project_second_contact_and_recipient_picker.md) — x_studio_secondary_phone/_name on the PERSON; "who to text" picker in _openSendBox (opts.recipients, always-show >=1, validated `to` override); edit person-level fields via so_full + brain_job cust_ maps (_CUST_PERSON).
 - [project_maint_confirm_ack_attribution.md](project_maint_confirm_ack_attribution.md) — Maint ACK+CONFIRM tracks attribute WHO (customer vs Dan/tech) + WHEN. reminders.py appt_confirm branches on source; new CONFIRM_BY_KEY (customer|manual) at all confirm set-sites; sched/state returns confirmed_by+when; v2_field ack-pill + confirm banner show by-Dan vs by-customer + PT timestamp. Same set: pill reorder + journal date fix (today_pt).
-- [project_gate_pricing_snapshot_model.md](project_gate_pricing_snapshot_model.md) — Gate-code/pricing snapshot model: SO snapshot = the value the day of THAT job (editable); property master = most-current (read-only). ⚠ the roll-up-on-invoice is NOT wired yet.
-- [project_zelle_request_endpoint.md](project_zelle_request_endpoint.md) — POST /api/job/zelle_request — itemized Venmo/Zelle request text from a field job (services + total + Zelle handle + pay-page link); preview→send via messaging.send; arms paywatch.
-- [project_send_invoice_plan.md](project_send_invoice_plan.md) — Send-invoice-to-customer plan: pay-link + email EXISTS, text = small add, PDF = the hard part (Odoo 19 locks PDF render over the API — use account.move.send / native send wizard).
