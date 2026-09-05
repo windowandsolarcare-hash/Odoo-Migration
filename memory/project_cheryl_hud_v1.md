@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-04T22:27:03.512Z
+  modified: 2026-09-05T00:22:17.980Z
 ---
 
 Cheryl's HUD v1 shipped + end-to-end verified 2026-09-04 (spec: `3_Documentation/WSC-CHERYL-HUD-SPEC.md`; contract: `FEED_CONTRACT_V2_LIVELIST.md`). A SECOND viewer (Cheryl, role `cheryl`) reads the SAME `wsc.feed.items` store as DJ, entirely ADDITIVELY — DJ's HUD is byte-identical (the §1 hard rule).
@@ -22,5 +22,7 @@ Cheryl's HUD v1 shipped + end-to-end verified 2026-09-04 (spec: `3_Documentation
 1. **DATA:** Cheryl's-cloud must populate `wsc.decisions.2026` with `questions[]`/`surfaces[]` or her 2 cards stay empty (0 items = correct, not a bug).
 2. **★ SILO ENFORCEMENT:** the guard (`authz._role_allowed`: cheryl→/cheryl only) is code-correct but `AUTH_ENFORCE` is OFF (monitor mode) — a cheryl session STILL reaches `/owner` today. "Her login only reaches her screens" is FALSE until `AUTH_ENFORCE=1`. Pairs with [[project_workiz_retirement]]-era auth soak.
 3. **HER LOGIN + OLD-ACCESS CLOSE:** DJ creates her real cheryl-role `res.partner` (or reconcile to one login with her Library identity). Minting a login does NOT revoke existing owner sessions (stateless 180-day HMAC, no revocation) — closing needs SESSION_SECRET rotation or logging out her devices. Also `_SECRET = SESSION_SECRET or ODOO_API_KEY or 'wsc-dev'` → set SESSION_SECRET explicitly (decouples from the Odoo key; rotating that key logs everyone out).
+
+**`/cheryl/library` (silo Library, shipped 2026-09-04):** Cheryl (partner **23243**, role `cheryl`, PIN set — she ALREADY had a full login; supersedes the "no login" access-finding) actively uses the shared Dan↔Cheryl Library (`ir.config_parameter dclib.data`, `by` tags author). Under AUTH_ENFORCE, `/owner/library` must block her, so `/cheryl/library` mirrors it: `routers/cheryl/library.py` **delegates every route to the existing `routers/owner/library.py` handlers** via `router.add_api_route(path, owner_lib.fn, methods=[...])` (zero logic duplication), mounted at prefix `/cheryl` in main.py. The page `static/owner/library.html` **self-detects its base from the URL** — `var LIB_BASE = location.pathname.indexOf('/cheryl/')===0 ? '/cheryl' : '/owner'` and forces `me='cheryl'` on the cheryl path (picker disabled) — so DJ's `/owner/library` is byte-identical and no per-serve injection is needed. This is the reusable "give role X a silo view of an owner page" pattern: path-based page param + route-delegating sub-router. `_role_allowed` already gates cheryl to `/cheryl/*`.
 
 Concurrency (DJ-raised): the app runs a SINGLE uvicorn worker + `numInstances=1`, so feed.py's `threading.Lock` + `submit_item`'s add-by-id merge already serialize all card writes (both Operators write via `/api/feed/submit`). True CAS on the blob is only needed if the web service is ever scaled >1 worker/instance. See [[feedback_verify_limits_before_declaring]].
