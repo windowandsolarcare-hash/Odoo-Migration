@@ -20,6 +20,7 @@ Detail lives in topic files. This index is sharded by domain — open the sub-in
 
 ## ★ Standing rules (how DJ wants me to work) — always honor
 
+- [feedback_dj_operating_instincts.md](feedback_dj_operating_instincts.md) — ★ DJ's INSTINCTS every Operator must absorb — the caressing of WORDS (warm, personal, ONE push not two, no pressure, sound like Dan), DATES (batch by geography, honor customer constraints, tight slot set), ACTIONS (2 quote types, review-then-send always, tap-to-book, price TBD till seen, one-pass). The judgment layer, not the mechanics.
 - [feedback_operator_followup_verify.md](feedback_operator_followup_verify.md) — ★ When Operator addresses something with an expected OUTCOME (offer→booked? confirm→replied? reply→responded? move→landed?), set a CONCRETE scheduled follow-up (CronCreate one-shot) to VERIFY it — NEVER a vague "I'll keep an eye out" (those silently fail; DJ's been burned).
 - [feedback_activity_notes_self_contained.md](feedback_activity_notes_self_contained.md) — Activity notes: embed memory content (no link), but anything with a real URL (Workiz/Odoo/Calendly/GitHub/etc) MUST be a proper <a href> anchor.
 - [feedback_agent_handoff_via_doc.md](feedback_agent_handoff_via_doc.md) — Agent handoffs: ALL instructions go in a doc (3_Documentation/*_BRIEF.md); DJ gets only a 1-2 sentence paste paragraph with the doc path.
