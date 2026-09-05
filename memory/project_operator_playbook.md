@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a2c61606-e81d-478f-b7ff-3a0b8fb045a8
-  modified: 2026-09-05T07:14:50.255Z
+  modified: 2026-09-05T07:44:10.672Z
 ---
 
 Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; only read code for something not listed. First stop for any endpoint = [[project_endpoint_map]].
@@ -35,6 +35,8 @@ Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; onl
 **Common product IDs:** 103 Outside Windows And Screens · 141 Windows In & Out - Full Service · 90 Garage Door Windows Cleaned-No Cut Outs · 98 Lights and Ceiling Fan Cleaned · 99 Mirrors Cleaned · 634 Quote ($0 placeholder) · 100 Miscellaneous · 2 Tip.
 
 **HUD deep-links:** confirm (routes through confirm machinery + auto-clears): `/static/owner/v2_inbox.html?open=<pid>&confirm_so=<so>&draft=<urlenc>`. Plain prefill: same without `confirm_so`. Job detail: `/static/owner/v2_field.html?open_so=<so>`. (`open=` path applies the draft; `?c=` does NOT.) Card ids: `operator:confirm:<so>` / `:offer:<so>` / `:photos:<so>` / `:reply:<so>`.
+
+**★ MAINT-ADVANCE TIGHTENING (2026-09-05, learned the hard way):** NEVER use `/api/schedule/reschedule` to tighten a maintenance-advance (Submitted, in-pile) job's time — reschedule AUTO-PROMOTES Submitted→Scheduled/sale, dropping it off `_maint_pending_rows()` and marking it confirmed BEFORE the customer was contacted (double-message risk). Use the dedicated **`POST /owner/api/maint/advance/set_time {so_id,date,time}`** (Submitted-only guard, keeps it in the pile) to tighten maint times. reschedule is only for real (confirmed/to-be-confirmed) jobs. Rule: understand a mover's side effects before batch-acting.
 
 **GOTCHAS:** ASCII-only in curl `-d` (em-dash 0x97 → UTF-8 500). Python file writes use `C:/Users/dj/…` not `/c/Users/…`. `/tmp` doesn't persist across Bash calls → use `/c/Users/dj/`. feed/submit reusing an id keeps old 'seen' status → delete+new id to force 'new'. reschedule auto-un-confirms so the 4-day re-fires for the new date. Confirm flow (Path-B, live 2026-09-04): confirm card `confirm_so` → Send → state='sent' + arm reply + 4-day skip (no double-text) + card auto-clears.
 
