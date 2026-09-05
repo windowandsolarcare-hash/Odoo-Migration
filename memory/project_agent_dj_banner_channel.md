@@ -1,0 +1,19 @@
+---
+name: project_agent_dj_banner_channel
+description: "The in-app needs-you BANNER is the agent-session→DJ communication channel (reliable replacement for flaky push), NOT a view of the business feed; tap → summary+question modal, DJ answers inline, reply clears it."
+metadata:
+  node_type: memory
+  type: project
+  originSessionId: 62c57f62-79c0-4d47-9f2b-7e07e9e7d677
+  modified: 2026-09-05T07:25:00.595Z
+---
+
+**DJ's design for the in-app "needs-you" flashing banner (stated 2026-09-05, corrected the first build).** The banner across the top of the 4 screens DJ lives in (Command Center, v2_field job detail, HUD, v2_inbox) is **the channel for a Claude SESSION to reach DJ in-app when it needs him** — the reliable in-app tier of the notify policy ([[feedback_notify_dj_channels]]), replacing the unreliable PushNotification. It is **NOT** a view of the business feed.
+
+**The correction:** the first build (Operator blueprint, master queue #1) wired the banner to feed.py's top needs-you ITEM, so it showed a HUD BUSINESS card ("Past-due jobs to collect"). DJ: *"that is a hud item. not really looking for hud items on banner. this is a way for agent sessions to communicate with me when needed."* Business "needs-you" cards belong on the HUD; the banner lights up ONLY for agent-session alerts.
+
+**Non-negotiables DJ stated:**
+1. **Summary + the question, not a session hunt.** DJ: *"need to be dropped where I can find a summary and the question. don't want to hunt through a session to find details. details will be there if I need them and have time."* Tap the banner → a lightweight modal (over his current screen, respect the top:36px clock-in bar) showing the SUMMARY headline + the QUESTION prominently + a reply box (Yes/No quick buttons when applicable), with DETAILS collapsed behind an expander. He never opens a Claude session to know what's being asked.
+2. **Answering clears it.** DJ: *"the session who put up the banner clears the banner once they get a reply from me."* DJ replies → alert status flips 'answered' → drops off the banner immediately (his part done). The posting session then consumes the reply and marks 'handled'. X/dismiss remains for FYI-only alerts.
+
+**Architecture (blessed, unified with notify_dj = master #6):** ONE source, two surfaces. Store `ir.config_parameter wsc.dj.alerts` = JSON list {id, from_role, summary, question, details?, action_href?, ts, status:open|answered|handled|dismissed, reply?} (rule-4 clean, threading.Lock, endpoint-only writes). Router `routers/owner/notify.py` (feature-namespaced to avoid route-shadowing): **POST /owner/api/notify_dj** (write; uses a **NOTIFY_SECRET header** so fleet server-sessions can post under AUTH_ENFORCE=1 — GET/act stay owner-cookie since DJ's browser is owner-authed), **GET /owner/api/dj_alerts** (banner reads open, newest-first; count+expand when >1), **POST /owner/api/dj_alerts/act** {id, dismiss|handled}, **POST /owner/api/dj_alerts/reply** {id, reply}. The BANNER = `v2_needsyou_banner.js` repointed OFF feed.py ONTO /owner/api/dj_alerts (top:36px, flash, prefers-reduced-motion). The TEXT half of notify_dj reads/writes the SAME store (SMS to DJ_PHONE_NUMBER env when he's away). **Fleet watcher addition:** each session checks its own answered alerts (GET dj_alerts?mine&status=answered) on its tick, acts, marks handled — that closes DJ's reply loop. Built by Specialists (a1). See [[project_cheryl_workspace_hud_pattern]] (the HUD is the business-feed surface; this banner is the agent-comms surface — keep them separate).
