@@ -118,3 +118,4 @@
 - [project_endpoint_map_generator.md](project_endpoint_map_generator.md) — ENDPOINT_MAP AST generator COMMITTED at saunders-render-app 3_Documentation/gen_endpoint_map.py; regen = `python 3_Documentation/gen_endpoint_map.py <root>` after git reset; Audit = cadence-backstop, shipping session regens on push.
 
 - [project_auth_enforce_operator_gap.md](project_auth_enforce_operator_gap.md) — AUTH_ENFORCE=1 401s the Operator (headless no-cookie /owner ops); rolled back 2026-09-04. Operator needs a real auth path (programmatic owner login->cookie) BEFORE enforcement. Soak no-cookie bucket hides real callers.
+- [project_operator_login.md](project_operator_login.md) — Dedicated "Operator" owner-login (res.partner 27204 + key file _operator_owner_login.json) lets the headless Operator auth /owner/* calls so AUTH_ENFORCE=1 can be re-enabled. Login->wsc_session cookie->send on every call, re-login on 401. Verified 2026-09-05.
