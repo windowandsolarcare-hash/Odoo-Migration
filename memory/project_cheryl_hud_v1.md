@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-05T00:22:17.980Z
+  modified: 2026-09-05T01:13:41.139Z
 ---
 
 Cheryl's HUD v1 shipped + end-to-end verified 2026-09-04 (spec: `3_Documentation/WSC-CHERYL-HUD-SPEC.md`; contract: `FEED_CONTRACT_V2_LIVELIST.md`). A SECOND viewer (Cheryl, role `cheryl`) reads the SAME `wsc.feed.items` store as DJ, entirely ADDITIVELY — DJ's HUD is byte-identical (the §1 hard rule).
@@ -17,6 +17,8 @@ Cheryl's HUD v1 shipped + end-to-end verified 2026-09-04 (spec: `3_Documentation
 **Session carries the partner id:** `authz.make_session(name, role, pid=None)` adds optional `p` to the token (backward-compatible; old 180-day cookies still verify). `auth.py` login passes `user.get("id")`. Verified live: a cheryl login yields `{'r':'cheryl','p':<id>}`.
 
 **Renderer REUSE, not fork (§7):** `static/owner/v2_hud.html` was parameterized with two globals near the top of its inline script: `var FEED_BASE=(window.WSC_FEED_BASE||'/owner')` and `var HUD_EXTRAS=(window.WSC_HUD_EXTRAS!==false)`. All ~11 feed calls use `FEED_BASE+'/api/feed/...'`; the 2 DJ-only calls (`/owner/api/lead/daily_status`, `/owner/api/library/hud_seen`) are gated behind `HUD_EXTRAS`. DJ's page injects NEITHER global → defaults → byte-identical network calls. `routers/cheryl/hud.py` serves the SAME file with `<script>window.WSC_FEED_BASE='/cheryl';window.WSC_HUD_EXTRAS=false;</script>` injected before the first `<script`, plus `/cheryl/api/feed/list`+`/live_list`+`/ack` (registered in main.py after `cheryl_clients`, distinct paths so no shadowing).
+
+**★ GO-LIVE STATUS (2026-09-04): flipped AUTH_ENFORCE=1, then ROLLED BACK same day — it 401'd the Operator.** The silo is DEFERRED until the Operator has a real auth path; Cheryl's side is fully ready to re-enable with one flip. See [[project_auth_enforce_operator_gap]].
 
 **★ GO-LIVE GATES (v1 code done, but NOT usable-by-Cheryl until):**
 1. **DATA:** Cheryl's-cloud must populate `wsc.decisions.2026` with `questions[]`/`surfaces[]` or her 2 cards stay empty (0 items = correct, not a bug).
