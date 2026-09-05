@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a2c61606-e81d-478f-b7ff-3a0b8fb045a8
-  modified: 2026-09-05T07:44:10.672Z
+  modified: 2026-09-05T08:21:55.135Z
 ---
 
 Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; only read code for something not listed. First stop for any endpoint = [[project_endpoint_map]].
@@ -19,6 +19,7 @@ Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; onl
 - Products: `GET /owner/api/intake/products` (set price explicitly)
 - Create job (Submitted draft): `POST /owner/api/intake/create-job {contact_id,property_id,date_pt:"YYYY-MM-DD HH:MM:SS",lines:[{product_id,name,qty,price}],job_type,tech_name}` → {so_id,so_name}
 - Reschedule / move / promote: `POST /owner/api/schedule/reschedule {so_id,date:"YYYY-MM-DD",time:"HH:MM"}` — moves + promotes Submitted→Scheduled + AUTO-clears confirm state; sends nothing.
+- Push quote to CURRENT job (on-the-spot "accepted", LIVE+QC'd 2026-09-05): `POST /owner/api/quote/accept_to_job {so_id,mode:'in_out'|'outside',difficulty,counts}` → sets the quoted line + job_type on a $0/placeholder job (date_order preserved). ★ REFUSES a job that already has real >$0 lines ("already has $X in priced lines"). Confirm-gated button in v2_quote ("✅ Accepted — put price on this job"). NEVER run on a real linked job as a test (it's a live price on a real customer) — QC only on throwaway SOs.
 - Change service line/price: `POST /owner/api/job/lines {so_id,lines:[{product_id,name,qty,price}]}` — REPLACES all lines (send existing + new); safe on confirmed jobs. Does NOT change the `x_studio_...job_type` label (no endpoint for that field).
 - Confirm preview msg: `POST /owner/api/schedule/confirm_preview {so_id}`. Confirm/reschedule LINK: `POST /owner/api/sched/launch {so_id,mode:'confirm',send:false}` → {link} (`wscare.pro/book/sched/<tok>?c=1`).
 - Slot offer (tap-to-book): `POST /owner/api/offers/reserve {so_id,partner_id,name,slots_pt:[{date,time},...]}` → {offer_id, link `wscare.pro/c/<tok>`}. Clear: `POST /owner/api/offers/clear {offer_id}`. Send: `POST /owner/api/offers/send {offer_id,body}` (or send the link via inbox).
