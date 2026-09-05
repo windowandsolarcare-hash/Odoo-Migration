@@ -1,5 +1,7 @@
 # Scheduling & Command Center — memory index
 
+- [project_lessons_referral_scheduling.md](project_lessons_referral_scheduling.md) — Jim/Robert + Linnea took too many iterations: front-load the customer's constraints (read thread + ONE clarifying Q) BEFORE booking (don't book-then-rebook); search line-item DESCRIPTIONS for past add-ons (Linnea's 3 lights hid under "Mirrors Cleaned"); verify weekdays with a date calc; run the whole referral play in ONE pass; calibrate pitch/slots with DJ up front.
+
 - [project_two_night_before_reminder_tracks.md](project_two_night_before_reminder_tracks.md) — reminders.py has TWO night-before builders (plain eve + maintenance eve); the maint one (gated on advance ok/sent, honors backfilled ok) can surface instead & drop regular confirmed jobs (Gayle-not-Fred). Editable per-person; can send per-SO.
 
 - [project_offer_link_resolver.md](project_offer_link_resolver.md) — Slot-offer customer booking-link half (Lead 2026-08-17): make_token carries offer_id; /book/api/offer/{get,book,decline} in booking.py. Token secret server-side → Reserve mints link via booking.make_token. Customer /book/c page render still TODO.
