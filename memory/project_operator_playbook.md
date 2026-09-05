@@ -5,12 +5,12 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a2c61606-e81d-478f-b7ff-3a0b8fb045a8
-  modified: 2026-09-05T08:21:55.135Z
+  modified: 2026-09-05T14:47:17.387Z
 ---
 
 Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; only read code for something not listed. First stop for any endpoint = [[project_endpoint_map]].
 
-**Base:** app `https://wsc-field-assistant.onrender.com`, owner routes under `/owner`, JSON bodies, curl/requests server-side. Auth: a DEDICATED Operator owner login now EXISTS (set up 2026-09-05). Login file `C:/Users/dj/_operator_owner_login.json` = {name:"Operator", pin:4-digit}. Flow: `POST /api/login {"name":"operator","pin":<pin>}` → capture the `wsc_session` cookie (curl `-c /c/Users/dj/_operator_cookies.txt`), then send it on EVERY /owner/* call (curl `-b /c/Users/dj/_operator_cookies.txt`); on any 401, re-login + retry. Verified end-to-end (role "owner", /owner calls 200). AUTH_ENFORCE is currently 0 (rolled back) so the cookie isn't strictly required yet, but INCLUDE it so nothing breaks when enforcement returns. PT = UTC-7 (summer); `date_order` = job START in UTC (15:00 UTC = 8am PT). **SO NAME ≠ Odoo id** — app endpoints need the Odoo record id (`so_id`); resolve name→id via Odoo search. Odoo read-only key in `/c/Users/dj/_odoo_key_val.txt` (the old odoo_lookup.py key is DEAD); url `window-solar-care.odoo.com`, db `window-solar-care`, uid 2. Customer searches: `company_id in [1, False]`.
+**Base:** app `https://wsc-field-assistant.onrender.com`, owner routes under `/owner`, JSON bodies, curl/requests server-side. Auth: a DEDICATED Operator owner login now EXISTS (set up 2026-09-05). Login file `C:/Users/dj/_operator_owner_login.json` = {name:"Operator", pin:4-digit}. Flow: `POST /api/login {"name":"operator","pin":<pin>}` → capture the `wsc_session` cookie (curl `-c /c/Users/dj/_operator_cookies.txt`), then send it on EVERY /owner/* call (curl `-b /c/Users/dj/_operator_cookies.txt`); on any 401, re-login + retry. Verified end-to-end (role "owner", /owner calls 200). ★ AUTH_ENFORCE=1 is NOW LIVE (go-live 2026-09-05) — the cookie is REQUIRED on every /owner call; a no-cookie call = 401. Probe passed under enforcement (login→owner, /owner+cookie→200). Always send `-b /c/Users/dj/_operator_cookies.txt`; on a 401, re-login and retry. PT = UTC-7 (summer); `date_order` = job START in UTC (15:00 UTC = 8am PT). **SO NAME ≠ Odoo id** — app endpoints need the Odoo record id (`so_id`); resolve name→id via Odoo search. Odoo read-only key in `/c/Users/dj/_odoo_key_val.txt` (the old odoo_lookup.py key is DEAD); url `window-solar-care.odoo.com`, db `window-solar-care`, uid 2. Customer searches: `company_id in [1, False]`.
 
 **RECIPES (endpoint | body):**
 - Find customer: `GET /owner/api/intake/search?q=<name|phone>`
