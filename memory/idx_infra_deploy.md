@@ -1,5 +1,6 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_operator_plays.md](project_operator_plays.md) — DJ's spoken "plays" (v1 blessed 2026-09-05): referral / quote in|out / photos / move / confirm day / who responded → each runs a whole Operator flow in one pass with numbered one-tap clarifying Qs. Maps 1:1 to future Render-Claude voice tools.
 - [project_operator_playbook.md](project_operator_playbook.md) — ★ Operator execution cheat-sheet: proven app-endpoint recipes (reschedule, job/lines, offers/reserve, confirm card, photos, new customer+job, inbox, feed cards, myday, vault), common product IDs, HUD deep-link patterns, gotchas. Execute from here, don't rediscover.
 - [project_endpoint_map.md](project_endpoint_map.md) — ★ Canonical route map at 3_Documentation/ENDPOINT_MAP.md (auto-gen AST sweep). FIRST stop to find any endpoint: LIVE-vs-DEAD(shadow), method, full path, file:line, what-it-does, auth — no code-reading. ~98 dead-twin collisions listed (dashboard.py shadows payments/timeclock/hemet/etc). Snapshot — regen after route changes; verify post-snapshot adds vs live.
 
