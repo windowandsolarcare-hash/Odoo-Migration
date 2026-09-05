@@ -20,6 +20,7 @@ Detail lives in topic files. This index is sharded by domain — open the sub-in
 
 ## ★ Standing rules (how DJ wants me to work) — always honor
 
+- [feedback_operator_followup_verify.md](feedback_operator_followup_verify.md) — ★ When Operator addresses something with an expected OUTCOME (offer→booked? confirm→replied? reply→responded? move→landed?), set a CONCRETE scheduled follow-up (CronCreate one-shot) to VERIFY it — NEVER a vague "I'll keep an eye out" (those silently fail; DJ's been burned).
 - [feedback_activity_notes_self_contained.md](feedback_activity_notes_self_contained.md) — Activity notes: embed memory content (no link), but anything with a real URL (Workiz/Odoo/Calendly/GitHub/etc) MUST be a proper <a href> anchor.
 - [feedback_agent_handoff_via_doc.md](feedback_agent_handoff_via_doc.md) — Agent handoffs: ALL instructions go in a doc (3_Documentation/*_BRIEF.md); DJ gets only a 1-2 sentence paste paragraph with the doc path.
 - [project_agent_mail_channel.md](project_agent_mail_channel.md) — ★ Lead↔specialists comms = 3_Documentation/AGENT_MAIL.md (app repo). DJ's one-word "mail" = go read it. Read at session start + after each task; write there, not through DJ.
