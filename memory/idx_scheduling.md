@@ -1,6 +1,7 @@
 # Scheduling & Command Center — memory index
 
 - [project_customer_cadences.md](project_customer_cadences.md) — Per-service cadences for multi-service customers (hand-correct until engine ships): Nick Conway solar 2mo + windows 4mo (combo every 4mo, solar-only between); Norman Woodel windows monthly + panels every 3mo. Anchor to CITY_WEEKDAYS.
+- [project_cadence_engine.md](project_cadence_engine.md) — ★ Per-service cadence ENGINE (new_job.py, opt-in wsc.cadence.<pid>): one-visit-per-completion (nearest+co-due within 14d → Combination) + merge safety net; no config = single-freq unchanged. Entry POST /owner/api/maint/spawn_next. GOTCHA: rank_days best.time isn't %H:%M (dt_pt fell back to now → jobs dated today) — QC assert DATES not just composition. Built+QC'd 2026-09-06, gated on Lead+DJ before real run.
 
 - [project_gcal_event_deeplink.md](project_gcal_event_deeplink.md) — Calendar "Open in GCal": Google iCal export leaves URL empty for normal events → build link yourself: event?eid=base64url('<eventId> <calendarId>'), eventId=UID minus @google.com, calendarId from feed /ical/<id>/. Also unescape iCal \, \; \n. dashboard.py /api/gcal_events (NOT calendar.py). Commit d8df08f.
 
