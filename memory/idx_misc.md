@@ -1,6 +1,7 @@
 # Misc — memory index
 
 - [project_odoo_200_not_success.md](project_odoo_200_not_success.md) — On Odoo, HTTP 200 ≠ success: denied attachments serve placeholder.png (200), broken /terms serves an error page (200). Verify permission/route/access changes by response CONTENT (bytes/content-type), never status alone.
+- [project_401_not_route_exists.md](project_401_not_route_exists.md) — ★ On the Render app under AUTH_ENFORCE=1, a 401 proves NOTHING about a route (auth middleware answers before routing; a made-up path 401s too). Verify a route is built by CONTENT with a real cookie, never status. Sibling of 200≠success. Caught 2026-09-06 (both Lead + Cheryl-cloud fell for it re /cheryl/library).
 - [project_company_filter_fails_open.md](project_company_filter_fails_open.md) — ★ SECURITY: company_id FAILS OPEN (W&SC customers mostly False) → enforce `company_id in [1,False]` at the RESOLVER/chokepoint, never per-caller, never bare "≠ me". Real portal leak (Saunders customer on W&SC portal) 2026-08-19. Backs CLAUDE.md rule 8.
 
 - [project_thumbtack_automation.md](project_thumbtack_automation.md) — Thumbtack lead automation: Thumbtack HAS a partner-gated Pro API (OAuth2, webhook leads + two-way messaging → reply in-thread, no phone/A2P). Quick win = built-in auto-responder set up via computer-use when DJ's at desk. API access = must apply, solo-pro eligibility TBD. Parked.
