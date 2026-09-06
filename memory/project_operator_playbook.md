@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a2c61606-e81d-478f-b7ff-3a0b8fb045a8
-  modified: 2026-09-05T14:47:17.387Z
+  modified: 2026-09-06T06:40:16.729Z
 ---
 
 Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; only read code for something not listed. First stop for any endpoint = [[project_endpoint_map]].
@@ -32,6 +32,8 @@ Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; onl
 - Card-at-door payment: `POST /owner/api/carddoor/record {payment_intent,invoice_id,so_id}` (idempotent).
 - My Day: add `POST /owner/api/myday/add {title,date,time,pinned,note}`; update `/owner/api/myday/update {id,...}`; attach `/owner/api/myday/attach {task_id,filename,content_type,data(b64)}`.
 - Vault: search `GET /owner/api/vault/search?q=`; upload `POST /owner/api/notes/upload_file` (multipart: file, category, tags) — Reference folder = `category=Reference` (it's Quick Notes/Reference); read doc text `GET /owner/api/notes/{id}/text`.
+
+**★ ANCHOR DAYS (CITY_WEEKDAYS in scheduler.py = single source of truth; ref WSC-ANCHOR-DAYS.md; Mon=0):** Hemet/Menifee/Banning/Beaumont = **Tue** [1]; Indio/La Quinta = **Wed** [2]; Indian Wells/Cathedral City = **Wed/Thu** [2,3]; Palm Desert = **Thu** [3]; Rancho Mirage = **Thu/Fri** [3,4]; Palm Springs = **Fri** [4]. Batch/schedule a job on its city's anchor day. NEVER quote a service day from anywhere but this table.
 
 **Common product IDs:** 103 Outside Windows And Screens · 141 Windows In & Out - Full Service · 90 Garage Door Windows Cleaned-No Cut Outs · 98 Lights and Ceiling Fan Cleaned · 99 Mirrors Cleaned · 634 Quote ($0 placeholder) · 100 Miscellaneous · 2 Tip.
 
