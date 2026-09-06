@@ -5,12 +5,12 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 62c57f62-79c0-4d47-9f2b-7e07e9e7d677
-  modified: 2026-09-06T08:45:49.313Z
+  modified: 2026-09-06T08:54:05.779Z
 ---
 
 **DJ's design direction for the workspace's next phase (2026-09-06), after touring the built pieces.** Five threads:
 
-1. **PROJECTS (pillar 4) — BUILD IT NOW, don't wait for Cheryl.** ★ DJ CORRECTED the earlier "parked pending Cheryl" rule: *"all I said was Cheryl will LIVE this. She still needs it built by us, then she can tweak or change it."* So the fleet BUILDS the projects/PM layer; Cheryl adjusts after — it is NOT wait-for-Cheryl. (Supersedes the "get Cheryl in a session before building the PM layer" framing in [[project_cheryl_workspace_next_phase_brief]]/earlier notes.) Base it on a solid PM: DJ referenced **"my goals app"** as a solid project manager (OPEN: is it one of our screens or a 3rd-party app? — Lead confirming with DJ). It's MISSING **task dependencies** and **more views — Gantt especially.** So projects = a real PM with dependencies + multiple views (Gantt/timeline/board), not a task list.
+1. **PROJECTS (pillar 4) — BUILD IT NOW, don't wait for Cheryl.** ★ DJ CORRECTED the earlier "parked pending Cheryl" rule: *"all I said was Cheryl will LIVE this. She still needs it built by us, then she can tweak or change it."* So the fleet BUILDS the projects/PM layer; Cheryl adjusts after — it is NOT wait-for-Cheryl. (Supersedes the "get Cheryl in a session before building the PM layer" framing in [[project_cheryl_workspace_next_phase_brief]]/earlier notes.) Base it on a solid PM: DJ's **"goals app" = OUR OWN ERP app** (RESOLVED 2026-09-06): `routers/owner/goals.py` + `static/owner/v2_goals.html` (🎯 on the v2 launcher), backed by Odoo **project.project/project.task** — "Goal Board: goals → milestones → tasks → WOOP obstacles" + capacity/slot awareness (`/api/goals/day_capacity`, `next_slots`, `overloaded_days`). So the projects pillar = **EXTEND Goals** (app-code = Specialists), NOT from scratch. DJ's two gaps: **task dependencies** and **more views — Gantt especially** (+ board/timeline = the graphical direction). ★ Goals is project.task-backed and the **task-surface pillar was also "a view of project.task"** — so projects + tasks are ONE project-data spine surfaced through Goals extended, design them together, not two builds.
 
 2. **IDEAS — "ok, not great," needs work.** Reframe **mission-first**: a mission/vision at the top; ideas LADDER UP from it / build toward it, not a flat pile.
 
