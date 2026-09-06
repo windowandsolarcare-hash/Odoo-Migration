@@ -1,5 +1,7 @@
 # Scheduling & Command Center — memory index
 
+- [project_cheryl_plan_views_sync.md](project_cheryl_plan_views_sync.md) — /cheryl/plan serves Cheryl-cloud's Gantt/board/ladder renderer (her artifact FRAGMENT plan-views.html from cheryl-workspace@claude/cheryl-idea-organizer-yzv19x → static/cheryl/plan-views.html, wrapped-at-serve by cheryl/hud.cheryl_plan, same-origin). On her "sync": re-pull the fragment + redeploy (node-check her JS; never fork). Reads goals.py /cheryl/api/view/plan|ideas.
+
 - [project_customer_cadences.md](project_customer_cadences.md) — Per-service cadences for multi-service customers (hand-correct until engine ships): Nick Conway solar 2mo + windows 4mo (combo every 4mo, solar-only between); Norman Woodel windows monthly + panels every 3mo. Anchor to CITY_WEEKDAYS.
 - [project_cadence_engine.md](project_cadence_engine.md) — ★ Per-service cadence ENGINE (new_job.py, opt-in wsc.cadence.<pid>): one-visit-per-completion (nearest+co-due within 14d → Combination) + merge safety net; no config = single-freq unchanged. Entry POST /owner/api/maint/spawn_next. GOTCHA: rank_days best.time isn't %H:%M (dt_pt fell back to now → jobs dated today) — QC assert DATES not just composition. Built+QC'd 2026-09-06, gated on Lead+DJ before real run.
 
