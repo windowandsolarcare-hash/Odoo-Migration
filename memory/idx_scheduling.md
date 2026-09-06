@@ -1,5 +1,7 @@
 # Scheduling & Command Center — memory index
 
+- [project_customer_cadences.md](project_customer_cadences.md) — Per-service cadences for multi-service customers (hand-correct until engine ships): Nick Conway solar 2mo + windows 4mo (combo every 4mo, solar-only between); Norman Woodel windows monthly + panels every 3mo. Anchor to CITY_WEEKDAYS.
+
 - [project_gcal_event_deeplink.md](project_gcal_event_deeplink.md) — Calendar "Open in GCal": Google iCal export leaves URL empty for normal events → build link yourself: event?eid=base64url('<eventId> <calendarId>'), eventId=UID minus @google.com, calendarId from feed /ical/<id>/. Also unescape iCal \, \; \n. dashboard.py /api/gcal_events (NOT calendar.py). Commit d8df08f.
 
 - [project_lessons_referral_scheduling.md](project_lessons_referral_scheduling.md) — Jim/Robert + Linnea took too many iterations: front-load the customer's constraints (read thread + ONE clarifying Q) BEFORE booking (don't book-then-rebook); search line-item DESCRIPTIONS for past add-ons (Linnea's 3 lights hid under "Mirrors Cleaned"); verify weekdays with a date calc; run the whole referral play in ONE pass; calibrate pitch/slots with DJ up front.
