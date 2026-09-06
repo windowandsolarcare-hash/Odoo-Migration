@@ -1,6 +1,7 @@
 # Misc — memory index
 
 - [project_odoo_200_not_success.md](project_odoo_200_not_success.md) — On Odoo, HTTP 200 ≠ success: denied attachments serve placeholder.png (200), broken /terms serves an error page (200). Verify permission/route/access changes by response CONTENT (bytes/content-type), never status alone.
+- [project_writeback_not_proof_computed_field.md](project_writeback_not_proof_computed_field.md) — ★ write(v)→read v back does NOT prove an Odoo field is writable: a compute+store=True field accepts+persists a write until a dependency recomputes over it (e.g. project.task.progress off allocated_hours=`hours`). Prove via ir.model.fields `compute`, or write→change-dependency→re-read. If computed, use a separate x_ field. 3rd verification-insufficiency gotcha. Caught 2026-09-06.
 - [project_401_not_route_exists.md](project_401_not_route_exists.md) — ★ On the Render app under AUTH_ENFORCE=1, a 401 proves NOTHING about a route (auth middleware answers before routing; a made-up path 401s too). Verify a route is built by CONTENT with a real cookie, never status. Sibling of 200≠success. Caught 2026-09-06 (both Lead + Cheryl-cloud fell for it re /cheryl/library).
 - [project_company_filter_fails_open.md](project_company_filter_fails_open.md) — ★ SECURITY: company_id FAILS OPEN (W&SC customers mostly False) → enforce `company_id in [1,False]` at the RESOLVER/chokepoint, never per-caller, never bare "≠ me". Real portal leak (Saunders customer on W&SC portal) 2026-08-19. Backs CLAUDE.md rule 8.
 
