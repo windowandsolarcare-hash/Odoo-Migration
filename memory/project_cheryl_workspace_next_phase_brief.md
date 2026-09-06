@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 62c57f62-79c0-4d47-9f2b-7e07e9e7d677
-  modified: 2026-09-06T08:54:05.779Z
+  modified: 2026-09-06T09:00:16.596Z
 ---
 
 **DJ's design direction for the workspace's next phase (2026-09-06), after touring the built pieces.** Five threads:
@@ -19,5 +19,7 @@ metadata:
 4. **★ THE HEADLINE THEME — GRAPHICAL, NOT LISTS.** DJ: *"lots of what we do are lists which is ok... wish we could introduce something cooler or fancier than sorted/filtered lists. something graphical... need something that organizes outside of a list."* So the workspace needs a VISUAL/SPATIAL organizing metaphor (boards/canvas/map/timeline/graph — not rows), ideas especially. This is the biggest single direction.
 
 5. **APP-STAGE — DJ greenlit the server-side move.** *"need to move this along to app stage."* The workspace graduates from standalone published artifacts to REAL APP SCREENS (Specialists builds server-side). Design targets server-side.
+
+★ **PILLAR→EXISTING-APP MAPPING + "EXTEND, DON'T REBUILD" (DJ 2026-09-06, sharpened).** The pillars ALREADY live in DJ's ERP apps — this de-scopes the "server-side move" (they're already app screens): **Projects → Goals app (goals.py)**; **Ideas → the Ideas app (ideas.py)**; **★ Comms → ALSO the Ideas app** — its group CHAT is the comms surface (the Idea Board is a chat→decaying board). DJ: *"start with those apps' code and modify it to do what we want. Why build from scratch unless you can do it better — which you might."* So DEFAULT = MODIFY the existing apps (goals.py + ideas.py), NOT rebuild; a targeted rebuild of a piece only if it's structurally in the way, not merely missing a feature (Lead recommends extend — matches Cheryl-cloud's "two task stores is the failure we've fought all year," and rebuilding Goals would lose its capacity model that reads real paying-job calendar). ideas.py is **Specialists' exclusive file**. So Phase-2 = extend goals.py (deps+Gantt) + ideas.py (mission-first ideas + about-something comms) + the shared **links/relationships layer** (Cheryl-cloud's Phase-2 plan: one blob {from,to,kind: blocks/part_of/about/realises}, every view a rendering; canvas rejected for phone — every view degrades to a list on phone; the Goals capacity-aware Gantt = the differentiated view). BLOCKERS on DJ: approve the plan, the canvas call, and **write a MISSION paragraph** (none exists; the ideas ladder needs it). Full plan: cheryl-workspace WSC-WORKSPACE-PHASE-2-PLAN.md.
 
 **How to apply:** Lead routed this to Cheryl's cloud as a DESIGN BRIEF — draft a PLAN (deps+Gantt+views projects, mission-first ideas, in-app documented comms, and above all the graphical organizing model, all targeting app-stage), calling out Specialists (server-side) vs Cheryl's-cloud design + a recommended order. **DJ approves the plan before anyone builds.** See [[project_cheryl_workspace_hud_pattern]] (HUD front door), [[project_agent_dj_banner_channel]], [[project_idea_board]] (the current list-based Idea Board this reworks).
