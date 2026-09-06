@@ -8,6 +8,21 @@ metadata:
   modified: 2026-09-05T01:13:27.264Z
 ---
 
+## ★ STATUS SUPERSEDED 2026-09-06 — ENFORCEMENT IS BACK ON AND THE OPERATOR IS COVERED
+
+**Do not plan work off the status line below.** `AUTH_ENFORCE=1` was RESTORED on 2026-09-05 with the
+Operator authenticating by cookie (`POST /api/login` → `wsc_session` on its `/owner/*` calls — Lead's
+"cleanest" option below, which is the one that got built). Verified live 2026-09-06 by cloud Lead:
+no-cookie `GET /owner/whoami` → **401**, `/healthz` → **200**, and the Operator has been running ops
+since. The Cheryl silo is enforced.
+
+The rollback narrative below is accurate HISTORY for 2026-09-04 and the LESSON is still the point of
+this file — keep reading it for that. Only the "currently rolled back / deferred to a weekday" status
+is wrong. A companion trap to know before you smoke-test any of this:
+[[project_401_not_route_exists]] — under enforcement a 401 proves nothing about whether a route exists.
+
+---
+
 **Flipping `AUTH_ENFORCE=1` breaks the Operator, and must NOT be done until the Operator has real auth.** (Rolled back 2026-09-04, same day it was turned on.)
 
 **What happened:** the Cheryl-silo go-live set `AUTH_ENFORCE=1` (Render env). It correctly walled Cheryl to `/cheryl/*` (verified: cheryl session got 401 on `/owner/*`, 200 on `/cheryl/*`). **But it also 401'd the OPERATOR out of every `/owner/*` op** (scheduling, cards, offers, payments — DJ's live ops hands). Lead rolled it back to `AUTH_ENFORCE=0` (merge-safe via Render MCP `update_environment_variables`, ~2-3 min) — fully reversible, no lasting harm.
