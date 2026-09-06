@@ -5,16 +5,16 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 62c57f62-79c0-4d47-9f2b-7e07e9e7d677
-  modified: 2026-09-06T16:39:07.278Z
+  modified: 2026-09-06T16:42:38.221Z
 ---
 
 **Write-then-read-back is NOT proof an Odoo field is durably writable.** Caught 2026-09-06 (Cheryl's cloud, on `project.task.progress`): a field declared `compute=... store=True` (a computed *stored* field, especially with an inverse) will ACCEPT a `write()` and PERSIST it — a read immediately after returns the value you wrote — **right up until any dependency changes and Odoo recomputes straight over the top.** So `write(75) → read 75.0` distinguishes nothing; the value silently reverts later, invisible to the test because nothing has recomputed at read time.
 
 **The concrete trap that prompted this:** stock `project.task.progress` is commonly `fields.Float(compute='_compute_progress_hours', store=True)` off `effective_hours` + `allocated_hours` — and `allocated_hours` is the same field the plan payload exposes as `hours`. So a manual "progress" write would revert the moment a timesheet is logged or hours are edited — a user taps a stage and watches it snap back a day later.
 
-**The tests that ACTUALLY prove writability (both cheap):**
-1. Read the field definition — `ir.model.fields` where `model='project.task'` and `name='progress'` → is there a non-empty `compute`? If yes, it's computed; a plain write is not durable.
-2. Or: write a value → **change a dependency** on the same record (e.g. `allocated_hours`, or log a timesheet) → re-read. If it moved, it's computed.
+**The tests that ACTUALLY prove writability:**
+1. ★ THE DEFINITIVE ONE (behavioral): write a value → **change a dependency** on the same record (e.g. `allocated_hours`, or log a timesheet) → re-read. If it moved, it recomputes and a manual write is not durable.
+2. Read the field definition — `ir.model.fields` for `compute` — is a WEAKER check and can give a FALSE NEGATIVE: verified 2026-09-06 that `project.task.progress` reported `compute=false, store=true` yet STILL recomputed to `effective_hours/allocated_hours` on an hours change (an override/inverse/onchange not surfaced as `compute`). So `compute=false` does NOT clear a field — only the behavioral test #1 does. Use the field-def read to CONFIRM a suspicion, never to rule it out.
 
 **If the field IS computed:** don't fight it — write the manual value to a **separate stored field** (a custom `x_` field), point the endpoint/read at that instead. The UI doesn't change, only which field is touched.
 
