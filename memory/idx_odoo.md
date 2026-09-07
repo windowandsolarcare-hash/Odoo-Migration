@@ -47,3 +47,5 @@
 - [SO partner_id is the PROPERTY](project_so_partner_id_is_property.md) — ★ a job/SO partner_id is the property child (record_category=Property), NOT the person; person = parent_id. activeJob.partner_id is the property. intake endpoint now walks property→person.
 
 - [project_odoo_api_key_rotated_2026-08-22.md](project_odoo_api_key_rotated_2026-08-22.md) — Odoo API key ROTATED 2026-08-22; old key 7e92… is DEAD (Access Denied); new key in Render env ODOO_API_KEY + local file, never committed.
+
+- [project_customer_edit_endpoint.md](project_customer_edit_endpoint.md) — POST /owner/api/customer/edit (brain.py) = CANONICAL customer field edit (name/phone/email/street/city/zip): whitelist-only, refuses non-W&SC (company_id not in [1,False]), chatter audit-log. Operator/voice use THIS, never raw res.partner write.
