@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a2c61606-e81d-478f-b7ff-3a0b8fb045a8
-  modified: 2026-09-07T02:40:28.458Z
+  modified: 2026-09-07T07:02:51.869Z
 ---
 
 Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; only read code for something not listed. First stop for any endpoint = [[project_endpoint_map]].
@@ -15,6 +15,7 @@ Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; onl
 **RECIPES (endpoint | body):**
 - Find customer: `GET /owner/api/intake/search?q=<name|phone>`
 - New contact: `POST /owner/api/intake/contact {first_name,last_name,phone,email,street,city,zip}` → {id}
+- ★ EDIT a customer (rename / phone / email / address change): `POST /owner/api/customer/edit {partner_id, name?, phone?, email?, street?, city?, zip?}` — live+QC'd 2026-09-07. Whitelist-only fields, W&SC-guarded (won't touch Cheryl/Saunders), audit-logs each change to the partner's chatter. Works on Contact OR Property partner. USE THIS for any customer name/phone/email/address correction (death→widow, marriage, new number, typo) — no more routing raw res.partner writes to Specialists.
 - New property: `POST /owner/api/intake/property {contact_id,street,city,zip,gate_code,ok_to_text,has_window}` → {id}
 - Products: `GET /owner/api/intake/products` (set price explicitly)
 - Create job (Submitted draft): `POST /owner/api/intake/create-job {contact_id,property_id,date_pt:"YYYY-MM-DD HH:MM:SS",lines:[{product_id,name,qty,price}],job_type,tech_name}` → {so_id,so_name}
