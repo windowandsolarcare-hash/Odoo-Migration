@@ -115,3 +115,4 @@
 
 - [project_job_type_autoderive.md](project_job_type_autoderive.md) — job_type auto-derives from line mix in /owner/api/job/lines (conservative, never clobbers hand-picked; 2+ PRIMARY=Combination) + set_job_type alias; values data-driven (windows-only=Windows Inside & Outside Plus Screens).
 - [project_feed_badge_chokepoint.md](project_feed_badge_chokepoint.md) — feed card badge MUST be numeric (string like REPLY 500s whole HUD); read-side _badge_int + producer-side self-heal at submit_item chokepoint (coerce int, stray label→pill).
+- [project_maint_headsup_ack_combo.md](project_maint_headsup_ack_combo.md) — maint heads-ups: confirm→ACK wording (MAINT_TEMPLATE), combo rows show still-a-combo? prompt w/ per-service Drop, spawn falls back to prior Done job lines for legacy 0-line jobs + never copies Tips. Backfill of 4 jobs escalated to DJ (prior lines contradict single-service).
