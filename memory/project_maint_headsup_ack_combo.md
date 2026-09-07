@@ -1,0 +1,19 @@
+---
+name: project_maint_headsup_ack_combo
+description: "Maintenance heads-ups (Stage-0 maint_advance): reworded from CONFIRM to ACKNOWLEDGMENT wording (MAINT_TEMPLATE); review rows carry lines+is_combo so combo cards show a 'still a combo this visit?' prompt with per-service Drop (calls /owner/api/job/lines); and spawn copies prior-Done-job lines when the completed job is a legacy 0-line job + never copies Tips."
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
+  modified: 2026-09-07T06:53:57.981Z
+---
+
+**Built 2026-09-06 (DJ's 4 maintenance directives from his heads-up review). Files: new_job.py + reminders.py + static/owner/v2_maint_advance.html.**
+
+**(1) Prior-job line fallback + no-Tip (new_job.py `create_next_maintenance_so`).** It already copied lines from the completed job; the gap was DJ's root cause — a **legacy Workiz-era completed job has ZERO lines**, so the spawn inherits nothing and prints its profile job_type label ('Combination of Services') over no lines. Fix: when the completed job has no priced lines, fall back to the most recent prior **`x_studio_x_studio_workiz_status='Done'`** job for the SAME property (partner_shipping_id or partner_id) that has lines. Also: a **Tip** (product_id 2 / name 'tip') is now filtered from BOTH the primary copy and the fallback — a one-time gratuity must never preload onto a recurring job. Cadence path (`_create_cadence_next`) builds lines from config, unaffected.
+
+**(4) ACK not CONFIRM (reminders.py `MAINT_TEMPLATE`).** The Stage-0 maint heads-up flow was ALREADY ack-framed internally (state 'ok'=acknowledged, `/api/maint/mark_ack`, "Send acknowledgement" box, OK/YES replies register as ack). Only the customer text still read like a confirm ("Please tap to confirm it works for you — or pick a different day"). Reworded to an acknowledgment: *"Just a heads-up so it's on your calendar — I've got you scheduled and I'll be there. If you need a different day, tap here: {link}"*. **The Stage-1 3–4-day `MAINT_CONFIRM_TEMPLATE` ("just confirming… Reply YES") was LEFT AS-IS** (DJ only flagged the heads-up; confirmations stay for new/non-maint jobs). Exact wording is a DJ-blessable default — sends are approval-gated + editable per-send.
+
+**(3) "Still a combo?" prompt (reminders.py + v2_maint_advance.html).** `_maint_pending_rows` now calls `_attach_combo_info(rows)` — ONE batched `sale.order.line` read — attaching `lines`[{id,product_id,name,qty,price}] + `is_combo` (2+ distinct PRIMARY services via `_maint_line_primary_cat`: windows/solar/gutter/pressure; add-ons like tip/screens don't count). `/api/maint/advance/review` returns them. On a combo row the review page shows an amber "Combo — both services this visit? Customers often want the 2nd only once a year" prompt with each service + a **Drop** button → `dropLine()` POSTs the KEPT lines to `/owner/api/job/lines` then `load()`s (so body + the auto-derived job_type refresh) before Send.
+
+**(2) Backfill the 4 zero-line jobs — ESCALATED to DJ, NOT executed.** Art Martel 17497, Caroline Graham 17502, Dick Palomba 17284, Mark Seiler 17481. **★ Read-only analysis CONTRADICTED DJ's "only Seiler is a combo, rest single-service":** all four's prior completed jobs are Windows **+ Solar** combos; Seiler's prior has 4 lines (Windows+Solar+Screens-New×6+Screen Repair) not 2; Caroline's prior has a Tip; Dick's solar line is qty 39 × $5. Writing billing lines on 4 real customers against DJ's own stated expectation would be wrong → surfaced to DJ (PushNotification + → DJ mail) for the exact recurring lines per customer; Operator to set via /owner/api/job/lines (auto-derive fixes labels). Do NOT execute until DJ rules. See [[project_job_type_autoderive]] (auto-derive that fixes the label once lines exist) and [[feedback_dj_operating_instincts]] (surface discrepancies, don't paper over).
