@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a2c61606-e81d-478f-b7ff-3a0b8fb045a8
-  modified: 2026-09-06T06:40:16.729Z
+  modified: 2026-09-07T02:40:28.458Z
 ---
 
 Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; only read code for something not listed. First stop for any endpoint = [[project_endpoint_map]].
@@ -28,7 +28,8 @@ Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; onl
 - Board: `GET /owner/api/calendar_jobs?start=YYYY-MM-DD&end=YYYY-MM-DD` → days{date:[jobs]}.
 - Route-best slots: `GET /owner/api/scheduler/so-suggest?so_id=&window=&ordering=route|soon` → {best,options}.
 - Confirm state: `GET /owner/api/sched/state?so_id=` → {state:none|sent|accepted,confirmed}.
-- HUD card: `POST /owner/api/feed/submit {item:{id,kind:'attention',source:'operator',title(≤80),why_now(≤400),urgency:'today',badge,action:{label,href},created(ISO),expires}}`. Delete `POST /owner/api/feed/delete {id}`. List `GET /owner/api/feed/list`.
+- HUD card: `POST /owner/api/feed/submit {item:{id,kind:'attention',source:'operator',title(≤80),why_now(≤400),urgency:'today',badge,action:{label,href},created(ISO),expires}}`. Delete `POST /owner/api/feed/delete {id}`. List `GET /owner/api/feed/list`. ★ **`badge` MUST be numeric (an int count) or OMITTED — NEVER a text label.** A string badge (e.g. "REPLY") 500'd the whole feed list on 2026-09-06 (the counts rollup does `int(badge)`); the renderer has no text slot for it anyway. Now self-heals at write (coerced to int, string kept as `pill`) but DON'T rely on that — just omit badge unless it's a real number. See [[project_feed_badge_chokepoint]].
+- Set job type label: `POST /owner/api/job/set_job_type {so_id, job_type}` (validated single-field write; alias of set_service). ★ NOTE: `POST /owner/api/job/lines` now AUTO-DERIVES the job_type label from the resulting line mix (shipped 2026-09-07, brain.py) — conservative: 2+ primary services→'Combination of Services'; a Combination collapsed to one service→that service; empty→derived; never clobbers a hand-picked single-service label; add-ons (cobweb) never force Combination. So after a drop/change the label self-corrects — usually no manual set_job_type needed. Windows-only single-line maps to **'Windows Inside & Outside Plus Screens'** (data-driven). Primary services = windows/solar/gutter/pressure; cobweb = add-on. See [[project_customer_cadences]].
 - Card-at-door payment: `POST /owner/api/carddoor/record {payment_intent,invoice_id,so_id}` (idempotent).
 - My Day: add `POST /owner/api/myday/add {title,date,time,pinned,note}`; update `/owner/api/myday/update {id,...}`; attach `/owner/api/myday/attach {task_id,filename,content_type,data(b64)}`.
 - Vault: search `GET /owner/api/vault/search?q=`; upload `POST /owner/api/notes/upload_file` (multipart: file, category, tags) — Reference folder = `category=Reference` (it's Quick Notes/Reference); read doc text `GET /owner/api/notes/{id}/text`.
