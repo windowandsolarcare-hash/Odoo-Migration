@@ -5,10 +5,10 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-06T16:46:11.177Z
+  modified: 2026-09-07T02:01:36.444Z
 ---
 
-**Built 2026-09-06 (Phase-2 #1).** DJ/Cheryl open the three project views (timeline/Gantt, board, ladder) at **`/cheryl/plan`** — a real Render app route (NOT a claude.ai artifact: an artifact origin's CSP blocks the live `/cheryl/api/view/*` fetch; served same-origin under /cheryl, her `canFetch()` does the real fetch).
+**Built 2026-09-06 (Phase-2 #1); synced 2026-09-06 to a "TODAY" front door.** Current version (48,768 bytes) opens on a **Today** tab (tabs Today → Timeline → Board → Ladder; bare `/cheryl/plan` lands on Today; deep links `?view=time|board|ladder`). DJ/Cheryl open the project views at **`/cheryl/plan`** — a real Render app route (NOT a claude.ai artifact: an artifact origin's CSP blocks the live `/cheryl/api/view/*` fetch; served same-origin under /cheryl, her `canFetch()` does the real fetch).
 
 **How it's wired:**
 - Her renderer is an **artifact-style FRAGMENT** (no doctype/html/head/body) named `plan-views.html`, authored in repo **cheryl-workspace**, branch **`claude/cheryl-idea-organizer-yzv19x`** (root). The exact serve-wrapper is in a comment block at the TOP of the file.
