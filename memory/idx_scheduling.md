@@ -112,3 +112,6 @@
 - [project_job_seed_shared_copier.md](project_job_seed_shared_copier.md) — job_seed.py is the ONE shared copier for BOTH link-booking seed (booking.api_request) + Duplicate button (dashboard.api_duplicate_job). Never write a second copier. Gate seeds from PROPERTY master not SO snapshot; property_id=None = duplicate's byte-identical behaviour.
 
 - [project_cheryl_hud_v1.md](project_cheryl_hud_v1.md) — Cheryl's HUD (/cheryl/hud) = additive per-viewer layer over the SAME wsc.feed.items store; feed.list_items_for_viewer/ack_for_viewer + audience/viewers (DJ byte-identical); v2_hud.html reused via FEED_BASE/HUD_EXTRAS; session carries p. Go-live gates: data in wsc.decisions.2026, AUTH_ENFORCE=1, DJ login row.
+
+- [project_job_type_autoderive.md](project_job_type_autoderive.md) — job_type auto-derives from line mix in /owner/api/job/lines (conservative, never clobbers hand-picked; 2+ PRIMARY=Combination) + set_job_type alias; values data-driven (windows-only=Windows Inside & Outside Plus Screens).
+- [project_feed_badge_chokepoint.md](project_feed_badge_chokepoint.md) — feed card badge MUST be numeric (string like REPLY 500s whole HUD); read-side _badge_int + producer-side self-heal at submit_item chokepoint (coerce int, stray label→pill).
