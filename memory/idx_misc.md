@@ -1,5 +1,7 @@
 # Misc — memory index
 
+- [project_branded_receipt_page.md](project_branded_receipt_page.md) — ★ Payment receipts must be W&SC-BRANDED (our hosted /receipt/{token} page, texted via Twilio), NOT Stripe's pay.stripe.com receipt. Governing: Stripe = last-mile card processor ONLY; before/after is ours + our-branded. Card page already ours; receipt was the leftover. Routed to Specialists 2026-09-08.
+
 - [project_odoo_200_not_success.md](project_odoo_200_not_success.md) — On Odoo, HTTP 200 ≠ success: denied attachments serve placeholder.png (200), broken /terms serves an error page (200). Verify permission/route/access changes by response CONTENT (bytes/content-type), never status alone.
 - [project_writeback_not_proof_computed_field.md](project_writeback_not_proof_computed_field.md) — ★ write(v)→read v back does NOT prove an Odoo field is writable: a compute+store=True field accepts+persists a write until a dependency recomputes over it (e.g. project.task.progress off allocated_hours=`hours`). Prove via ir.model.fields `compute`, or write→change-dependency→re-read. If computed, use a separate x_ field. 3rd verification-insufficiency gotcha. Caught 2026-09-06.
 - [project_401_not_route_exists.md](project_401_not_route_exists.md) — ★ On the Render app under AUTH_ENFORCE=1, a 401 proves NOTHING about a route (auth middleware answers before routing; a made-up path 401s too). Verify a route is built by CONTENT with a real cookie, never status. Sibling of 200≠success. Caught 2026-09-06 (both Lead + Cheryl-cloud fell for it re /cheryl/library).
