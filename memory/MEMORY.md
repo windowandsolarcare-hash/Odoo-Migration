@@ -90,3 +90,4 @@ Detail lives in topic files. This index is sharded by domain — open the sub-in
 - [feedback_use_sonnet_for_routine.md](feedback_use_sonnet_for_routine.md) — Model choice: OPUS for Render-app edits + accounting structure (regression/financial risk);
 - [feedback_workiz_no_job_all.md](feedback_workiz_no_job_all.md) — NEVER use Workiz job/all/ endpoint. DJ's explicit rule (2026-05-04).
 - [feedback_saunders_printing_never_send.md](feedback_saunders_printing_never_send.md) — NEVER send any Saunders Printing invoice/email without DJ explicitly approving (a prior session sent to a vendor early).
+- [feedback_auditor_user_perspective_gapfinder.md](feedback_auditor_user_perspective_gapfinder.md) — ★ Auditor's standing role = USER-perspective gap-finder: USES the app as a real person, hunts what the PLAN missed (edit/delete/edge cases/missing Add) — the gap Lead's plan-QC + Specialists' build-to-plan can't catch. Run an Auditor user-walk before calling user-facing work done.
