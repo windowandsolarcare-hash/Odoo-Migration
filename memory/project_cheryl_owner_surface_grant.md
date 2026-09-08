@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-08T20:49:56.338Z
+  modified: 2026-09-08T20:55:49.496Z
 ---
 
 **Built 2026-09-08. DJ ruled (governance, firm): he will open MORE of his W&SC owner/ERP surfaces to Cheryl over time — the workspace is NOT permanently walled off — so cheryl-role access must be a REPEATABLE named-surface grant, NOT a bespoke hole each time.** First grant: WSC Hiring (/owner/hiring) + HR (/owner/hr), which Cheryl actively helps run.
@@ -22,4 +22,4 @@ metadata:
 
 **SECURITY (DJ's guardrails held):** path-scoped — cheryl STILL 401s on every other /owner/* (dashboard, customers, voice, payments…); each handler's own **company_id** fails-open scoping is untouched (W&SC data only; no other-company data lives under these paths); **★ NEVER add `/owner/v2_apps`** (the owner launcher = the full owner app list — Cheryl must not see it). Verified on live: anonymous (no cookie) hits /owner/hiring + /owner/hr → 401 (grant is COOKIE-scoped, not public). Positive path (cheryl reaches + FUNCTIONS) + boundary probes = Lead's cheryl-cookie QC (a Specialists session can't mint a cheryl cookie — see [[feedback_verify_limits_before_declaring]]).
 
-**Follow-up (not blocking access):** make the Hiring/HR pages' "home" link + owner chrome context-aware for cheryl (home → /cheryl/, hide the owner launcher) so her nav is clean — same pattern as [[project_cheryl_ideas_delegation]]'s ideas.html base-detection.
+**Follow-up — DONE 2026-09-08 (context-aware nav):** the Cheryl home tiles now open Hiring/HR with a **`#cheryl` hash** (openWSCHiring→`/owner/hiring#cheryl`, openWSCHR→`/owner/hr#cheryl`; the hr.html stub forwards the hash). On `#cheryl`: **hiring.html** points its Back link → /cheryl/ and SKIPS loading the owner chrome (clockin-bar, pwa-track/GPS, ql_panel owner quick-launcher — all served from PUBLIC /static, so they'd otherwise render for her); **v2_hr.html** does NOT load the owner launcher `v2_apps.js` and its home → /cheryl/. DJ's own open (no hash, from his launcher) keeps full owner chrome — no regression. Signal is the hash (explicit per-navigation, not stale localStorage); neither page uses hash routing so it stays stable. (Chrome scripts load from `/static/owner/*.js` = PUBLIC, NOT 401'd — that's why gating was needed, not automatic.)
