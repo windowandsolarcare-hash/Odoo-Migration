@@ -1,5 +1,7 @@
 # Vault / Notes / Drive — memory index
 
+- [project_vault_shortcuts_vs_saved.md](project_vault_shortcuts_vs_saved.md) — ★ DJ Vault model: SHORTCUTS (Evernote word; "Reference" unintuitive) = instant quick-access FACTS (account info/addresses), front-and-center + the fast-search target + PRIVATE-by-default (not shared w/ Cheryl); vs JUST-SAVED docs. Phase-2 home leads with Shortcuts.
+
 - [project_voicemail_to_vault.md](project_voicemail_to_vault.md) — Voicemail .amr → Vault: Android Share → "Saunders Vault" Drive folder (=VAULT_ROOT_ID) drops raw .amr; pull bytes via /api/vault/file?id=, ffmpeg amr→mp3, LOCAL Whisper transcribe, upload mp3+transcript Doc to Voicemails folder. Auto server-pipeline = pending build (DJ "yes to all" 2026-08-06).
 
 - [project_inputs_notedoc_drops_text.md](project_inputs_notedoc_drops_text.md) — Inputs /api/capture "Note/doc" saved only the AI-extracted note fragment (dropped "Quechan Casino Resort"). Fixed: document route uses raw text. Note titling = user's first line (verbatim body), AI picks folder+tags only. Notes save to Google Drive, NOT Odoo.
