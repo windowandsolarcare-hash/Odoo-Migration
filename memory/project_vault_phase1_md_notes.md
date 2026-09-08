@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-08T21:25:57.428Z
+  modified: 2026-09-08T23:22:10.051Z
 ---
 
 **Built 2026-09-08 (DJ greenlit the rework; Lead approved the approach + 5 conditions). The heart of the Vault overhaul: kill the destructive save + no-checkboxes trust-killers ([[project_vault_overhaul_spec]] V4 + Decision 1).** Approach doc: `3_Documentation/VAULT_PHASE1_APPROACH.md` (app repo).
@@ -22,6 +22,7 @@ metadata:
 **Frontend (v2_vault.html) — hybrid editor, CSP-safe, dependency-free:**
 - **VIEW** renders the markdown (tiny hand-rolled `mdRender`: headings/bold/italic/bullets/links) large+high-contrast; **checkbox lines = real tappable rows** (`.mdck`) → tap flips `[ ]`↔`[x]` in-memory (optimistic, instant) + a **debounced (800ms) safe-save**. **EDIT (✎)** = the raw-markdown `<textarea>` → Save. Empty note opens straight into edit.
 - **Condition 1 (XSS):** `_mdEsc()` escapes `< > &` BEFORE `_mdInline` formatting — pasted `<script>`/HTML renders as literal text, never executes. Links restricted to `http(s)`.
+- **★ FORMATTING TOOLBAR (added 2026-09-08 — DJ usability gap: he couldn't discover checkboxes behind raw markdown; "don't understand how to use checkboxes or any other formatting").** Edit mode has a button row above the textarea: **☑ Checkbox** (headline — inserts `- [ ]`), • List (`- `), B (wraps `**bold**`), H (`## `) — insert-at-cursor helpers (`_fmtLinePrefix`/`_fmtWrap`), Evernote-style so DJ NEVER types markdown syntax. Shows only in md edit mode. ★ Do NOT remove it — DJ can't hand-type md; the toolbar is how checkboxes (his #1 must-have) are reachable. Disambiguated from the more-row **⚡ Tasks** (the action-item EXTRACTOR, `orgExtractTasks`) which he'd mistaken for it.
 - **Condition 2 (fail-graceful, rule 13):** on save FAILURE (dead OAuth / no signal) the note is queued to `localStorage['wsc_md_pending']` keyed by id + shows "Not saved — will retry ⚠"; `flushPendingMdSaves()` retries on next load; `_orgMdFlush()` flushes a pending toggle on close. No silent loss.
 - **Coexistence:** `openEditor` branches doc/md/file — existing **Google-Doc notes open in the CURRENT textarea + current `/update` save, UNCHANGED**. `noteRow`, `isNoteItem`, `openNoteEntry`, and `_createAndEdit` are all md-aware (kind='note' / is_mdnote route to the editor; a pasted-URL create stays kind='doc').
 
