@@ -1,5 +1,7 @@
 # Vault / Notes / Drive — memory index
 
+- [project_vault_sharing_model.md](project_vault_sharing_model.md) — ★ Vault P3 sharing (DJ 2026-09-08): per-note SCALABLE recipient sharing — pick from a growing people-list (Cheryl now, employees future) + share-all; PRIVATE by default; shortcuts always-private. Approach-first to Specialists.
+
 - [project_vault_shortcuts_vs_saved.md](project_vault_shortcuts_vs_saved.md) — ★ DJ Vault model: SHORTCUTS (Evernote word; "Reference" unintuitive) = instant quick-access FACTS (account info/addresses), front-and-center + the fast-search target + PRIVATE-by-default (not shared w/ Cheryl); vs JUST-SAVED docs. Phase-2 home leads with Shortcuts.
 
 - [project_voicemail_to_vault.md](project_voicemail_to_vault.md) — Voicemail .amr → Vault: Android Share → "Saunders Vault" Drive folder (=VAULT_ROOT_ID) drops raw .amr; pull bytes via /api/vault/file?id=, ffmpeg amr→mp3, LOCAL Whisper transcribe, upload mp3+transcript Doc to Voicemails folder. Auto server-pipeline = pending build (DJ "yes to all" 2026-08-06).
