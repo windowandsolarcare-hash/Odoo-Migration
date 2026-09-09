@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-09T08:08:29.879Z
+  modified: 2026-09-09T08:30:00.722Z
 ---
 
 The **Memory Pillar** (spec `3_Documentation/MEMORY_PILLAR_BUILD_SPEC.md`, distill prompt `3_Documentation/MEETING_DISTILL_PROMPT.md`) captures DJ+Cheryl working meetings and turns them into queryable memory. Phase 1 shipped 2026-09-09 (Specialists, Lead-driven overnight build). All in repo `windowandsolarcare-hash/saunders-render-app`, deployed, Render boot-verified.
@@ -30,4 +30,9 @@ The **Memory Pillar** (spec `3_Documentation/MEMORY_PILLAR_BUILD_SPEC.md`, disti
 
 Also that day: killed hardcoded retired-Workiz token at `provenance.py:24` → `os.environ.get('WORKIZ_TOKEN','')`.
 
-**Pending:** Phase 2/3 simple-CRUD stores (campaigns/content/sops fuller UIs) if prioritized. See [[project_workiz_retirement]].
+**Phase 2 + 3 (shipped same day 2026-09-09, Lead-QC'd):** the simple stores (campaigns/content/sops/reference/forecast/roadmap) are served by ONE generic pair in memory_store.py — `GET /api/memory/list/{store}` (allowlisted; `?channel`/`?status`/`?order`/`?limit`; campaigns enriched at query-time with derived `hit_ratio`=responses/sent_count + `cost_per_response`=cost/responses) and `POST /api/memory/add/{store}` (at-source capture). Built ONE generic pair not 6 (rule 9). v2_memory.html Registers row is **config-driven** — a `REGISTERS` JS object (one entry per store: icon/label/order/title/empty/add.fields/card) drives the chip, read cards, AND the Add form; adding a register = one config entry, no new code path.
+- **Roadmap (§4.5) = extend-vs-new resolved:** KEPT `wsc.memory.roadmap` as the ranked-backlog MIDDLE tier because neither ideas.py (Idea Board = brainstorm chat + Claude idea cards = ideation/upstream) nor goals.py (Goal Board on Odoo-native project.project→milestone→task + capacity = committed/scheduled/downstream) holds a lightweight ranked backlog. Lifecycle: idea → ranked backlog → committed goal. `POST /api/memory/roadmap/promote` commits an item to a Goal by REUSING goals.py's `_goal_tag_id()`+`_esc()`+project.project create (no duplicate creation logic) and writes `goal_project_id` back (LINK, not copy). The distiller's open_questions→roadmap is correct.
+- **Financials pointer (§5-pointers) = Odoo-only v1** (Lead's call): `GET /api/memory/financials?year=` → `sales_ytd` = posted customer invoices net of credit notes, UNTAXED revenue, company 1. direct_costs/fixed_sa = null (NOT bucketed in-app; QuickBooks MCP is **session-only, unreachable from Render server code** — app-side QB would need QBO REST creds in Render env, a documented later add like Postgres). Odoo totals may be partial if the QB→Odoo migration is incomplete (a DJ data-completeness question).
+- **Break-even** = `GET /api/memory/breakeven?fixed_monthly=&margin_rate=&working_days=` pure math (NOT stored; inputs passed in). Surfaced in v2_memory.html's new **💵 Numbers** view (Sales YTD card + break-even calculator).
+
+See [[project_workiz_retirement]] and [[feedback_reuse_canonical_endpoint]].
