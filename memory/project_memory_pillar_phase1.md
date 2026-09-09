@@ -1,0 +1,33 @@
+---
+name: project_memory_pillar_phase1
+description: "Memory Pillar Phase 1 — meeting-capture pipeline + Decisions/Facts store + Ask surface; files, endpoints, storage model, run-token hardening. Built 2026-09-09."
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
+  modified: 2026-09-09T08:08:29.879Z
+---
+
+The **Memory Pillar** (spec `3_Documentation/MEMORY_PILLAR_BUILD_SPEC.md`, distill prompt `3_Documentation/MEETING_DISTILL_PROMPT.md`) captures DJ+Cheryl working meetings and turns them into queryable memory. Phase 1 shipped 2026-09-09 (Specialists, Lead-driven overnight build). All in repo `windowandsolarcare-hash/saunders-render-app`, deployed, Render boot-verified.
+
+**Storage model (NO new Odoo models — hard limit):** one `ir.config_parameter` JSON document per store, namespaced `wsc.memory.<store>`, behind ONE DAL `routers/owner/memory_store.py`. Stores: `decisions`, `meetings`, plus `campaigns/content/sops/roadmap/reference`. Every record carries `id`/`company_id` (=1, W&SC-scoped)/`created_at`/`source_link`. Artifacts (audio/transcript/minutes) live in Google Drive (Vault/Meetings/<meeting_id>/); records just hold a `source_link`. Mirrors the ideas.py `_load/_save` + reload-before-write concurrency idiom. Upgrade path = swap DAL to Render Postgres if JSON outgrows; not now.
+
+**DAL functions:** `mem_get(store,filters,company_id=1)`, `mem_put` (upsert by id, reload-before-write), `mem_update`, `mem_supersede(store,prior_id,new)` (sets `supersedes=prior_id`), `mem_current_by_topic(store,topic)` → (current, history) where current = the record in the supersede chain nothing else supersedes (newest by effective_date/created_at). `record_decision(topic,statement,...)` supersedes any existing record for that topic (latest-wins chain). `log_meeting(meeting_id,patch)` = idempotent upsert with meeting_id AS the record id.
+
+**Endpoints (all `/owner`-prefixed, owner-cookie auth):**
+- `GET /api/memory/decision?topic=<key>` → current + full history; `?q=<text>` → current decision per matching topic.
+- `POST /api/memory/decision` → record/supersede {topic,statement,...}.
+- `GET /api/memory/meetings` (?meeting_id / ?attendee / ?limit).
+- `POST /api/meeting/chunk` (meeting_id,idx,audio) → one chunk as `ir.attachment` named `wscmtg:<mid>:<idx6>`, idempotent overwrite.
+- `POST /api/meeting/finalize` (meeting_id,attendees,date) → idempotent per mid; logs status=processing; kicks `_process_meeting` thread.
+- `GET /api/meeting/status?meeting_id=` → pipeline status.
+
+**Pipeline (`routers/owner/meeting.py`, background thread):** gather chunks → **audio→Drive BEFORE transcription** (failure never loses recording) → transcribe (REUSE OpenAI whisper-1 via `myday._vm_whisper`; >24MB → bundled imageio-ffmpeg `-f segment -segment_time 1200 -c copy` webm slices, transcribe each, concat) → transcript→Drive → delete chunks → distill (Claude Sonnet CLAUDE_MODEL, Lead's `_DISTILL_SYS` prompt + KNOWN_TOPICS = current statement per topic so it MERGES/supersedes not duplicates, strict-JSON out) → `_file_distribution` (decisions→record_decision; action_items→project.task proj 25 + x_owner {dj/dan:3, cheryl:23243} + meeting record; campaigns/content/sops/roadmap/reference→mem_put; open_questions→roadmap; minutes→Drive) → status=filed → `notify.push_dj` review card. Any failed step keeps audio + pushes a "needs a look" card. `*/10` APScheduler cron `retry_stuck_meetings` = safety net.
+
+**★ Concurrency hardening (run-token + heartbeat, added same day per Lead QC):** `_process_meeting` claims a fresh `run_token` (uuid) at entry and heartbeats `last_progress_at` at every stage; before each status write / the filing step it re-checks `_token_ok(mid,token)` and ABORTS if a newer run took over. `retry_stuck_meetings` only re-kicks when `last_progress_at` (NOT started_at) is stale >10min — a slow-but-alive run is left alone; a re-kick claims a new token so the old run aborts at its next checkpoint. `_file_distribution` early-returns if the meeting already has `filed_at` → idempotent, the cron race / any manual re-run can't double-create decisions or tasks. (Residual: the token claim is not a true CAS — a sub-second simultaneous double-claim is theoretically possible, but the cron only fires on a >10min-stale heartbeat so the window is practically closed. Revisit if moved to Postgres.)
+
+**UI:** `static/owner/v2_meeting.html` (recorder: MediaRecorder opus, 60s chunks, localStorage meeting_id+idx resume, double-tap/45s-timeout/retry/requeue guards, Stop→finalize→poll) and `static/owner/v2_memory.html` (Ask surface: free-text decision search, What-changed/Waiting-on-me/Meetings chips, supersede-history expander, `?meeting=<mid>` review deep-link). Launcher tiles 🎙️ Meeting Recorder + 🧠 Memory added to `v2_apps.js` (both fav).
+
+Also that day: killed hardcoded retired-Workiz token at `provenance.py:24` → `os.environ.get('WORKIZ_TOKEN','')`.
+
+**Pending:** Phase 2/3 simple-CRUD stores (campaigns/content/sops fuller UIs) if prioritized. See [[project_workiz_retirement]].
