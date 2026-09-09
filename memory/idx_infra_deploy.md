@@ -1,5 +1,7 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_meeting_pipeline_restart_resilience.md](project_meeting_pipeline_restart_resilience.md) — ★ In-worker background jobs (meeting transcription) die on EVERY Render worker restart, and EVERY main commit — incl. AGENT_MAIL.md + SESSION_ROSTER.md doc commits — autodeploys→restarts. DJ's 1st real meeting stuck 40min from fleet doc-commit churn. Emergency play = FULL commit freeze (direct-msg, not mail). Fixes: Render Ignored Paths=3_Documentation/** (root kill, DJ-set), + heartbeat-during-transcribe + resumable transcript-checkpoint (chunk-delete moved to file success). 2026-09-09.
+
 - [project_render_coalesces_rapid_pushes.md](project_render_coalesces_rapid_pushes.md) — ★ Render autoDeploy COALESCES a burst of rapid Contents-API pushes and may NEVER deploy the TIP commit (burned 2026-09-09: main.py include never went live → cookie'd 404 while healthz stayed 200). Verify the tip commit has a LIVE deploy via list_deploys, or trigger_deploy. healthz 200 ≠ new code live.
 
 - [project_operator_plays.md](project_operator_plays.md) — DJ's spoken "plays" (v1 blessed 2026-09-05): referral / quote in|out / photos / move / confirm day / who responded → each runs a whole Operator flow in one pass with numbered one-tap clarifying Qs. Maps 1:1 to future Render-Claude voice tools.
