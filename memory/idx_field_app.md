@@ -1,5 +1,7 @@
 # Field app (field.html / job detail) — memory index
 
+- [project_memory_pillar_phase1.md](project_memory_pillar_phase1.md) — ★ Memory Pillar P1 (built 2026-09-09): meeting recorder→chunk→finalize→bg pipeline (whisper-1+ffmpeg-seg→Claude distill w/ KNOWN_TOPICS merge)→auto-file to wsc.memory.<store> JSON via memory_store.py DAL + Ask surface. Files: meeting.py, memory_store.py, v2_meeting.html, v2_memory.html. Run-token+heartbeat guard = idempotent, no cron double-file. NO new Odoo models.
+
 - [project_voice_tool_add_pattern.md](project_voice_tool_add_pattern.md) — ★ How to add a WRITE voice tool to dashboard.py /ask: 4 sites (schema, execute in execute_write_tool, preview, WRITE_TOOLS) + wire to canonical endpoint via extracted SYNC core (run_agent is sync-in-async-loop → no asyncio.run). QC deterministically via POST /owner/execute (no LLM). /ask body key='input'. Batch 1 = quote_to_current_job/maint_set_time/send_confirmation/send_job_photos.
 
 - [project_voice_reschedule_tool.md](project_voice_reschedule_tool.md) — Voice reschedule_job WRITE tool (dashboard.py, confirm-gated) moves a job by voice via scheduler.schedule_odoo_so; NO Workiz. Postpone/dup/cancel/new-job still app-only. Preceded by the dead-Workiz 401 guard.
