@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a2c61606-e81d-478f-b7ff-3a0b8fb045a8
-  modified: 2026-09-08T14:39:09.189Z
+  modified: 2026-09-09T23:47:34.227Z
 ---
 
 Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; only read code for something not listed. First stop for any endpoint = [[project_endpoint_map]].
@@ -23,6 +23,7 @@ Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; onl
 - Push quote to CURRENT job (on-the-spot "accepted", LIVE+QC'd 2026-09-05): `POST /owner/api/quote/accept_to_job {so_id,mode:'in_out'|'outside',difficulty,counts}` → sets the quoted line + job_type on a $0/placeholder job (date_order preserved). ★ REFUSES a job that already has real >$0 lines ("already has $X in priced lines"). Confirm-gated button in v2_quote ("✅ Accepted — put price on this job"). NEVER run on a real linked job as a test (it's a live price on a real customer) — QC only on throwaway SOs.
 - Change service line/price: `POST /owner/api/job/lines {so_id,lines:[{product_id,name,qty,price}]}` — REPLACES all lines (send existing + new); safe on confirmed jobs. Does NOT change the `x_studio_...job_type` label (no endpoint for that field).
 - Confirm preview msg: `POST /owner/api/schedule/confirm_preview {so_id}`. Confirm/reschedule LINK: `POST /owner/api/sched/launch {so_id,mode:'confirm',send:false}` → {link} (`wscare.pro/book/sched/<tok>?c=1`).
+- ★ **ACK vs CONFIRM — 10-DAY GATE (DJ 2026-09-08, reminders.py):** a job **>10 days out → send an ACKNOWLEDGMENT** ("we've got you down for <date>", no tap-to-confirm link — don't ask them to confirm a job weeks/months out); a job **≤10 days out → send the CONFIRMATION** (tap-to-confirm). Either way the real tap-to-confirm auto-fires **~4 days before** (`CONFIRM_LEAD_DAYS=4`), and the system auto-upgrades an ack→confirm if it'd send inside 10 days. **So for a far-out job DON'T build a confirm card / don't `mark_confirmed` — that locks it "confirmed" early and suppresses the 4-day auto-confirm.** Burned on Wayne Geringer (Oct 15 job, ~36 days out, wrongly confirmed early) 2026-09-09. Ack endpoint = `POST /owner/api/maint/mark_ack {so_id, on:true}` (on:false rolls back). Confirm = `POST /owner/api/sched/mark_confirmed {so_id}` (≤10-day only). NOTE the two confirm keys are separate subsystems: `wsc.reminders.confirmed.<so>` (mark_confirmed / customer link) vs `wsc.maint.confirmed.<so>` + maint state 'ok' (mark_ack) — downgrading confirmed→ack cleanly is a reminders-subsystem nuance (route to Specialists if needed). See [[feedback_dj_operating_instincts]].
 - Slot offer (tap-to-book): `POST /owner/api/offers/reserve {so_id,partner_id,name,slots_pt:[{date,time},...]}` → {offer_id, link `wscare.pro/c/<tok>`}. Clear: `POST /owner/api/offers/clear {offer_id}`. Send: `POST /owner/api/offers/send {offer_id,body}` (or send the link via inbox).
 - Job photos: `GET /owner/api/job_photos?so_id=` (count). Select+send lives in v2_field job detail → `POST /owner/api/job/photos_send {so_id,send,att_ids}`.
 - Inbox: `GET /owner/api/inbox/list?filter=active`; thread `GET /owner/api/inbox/thread?c=<phone_norm>` (thread_by_partner often returns empty — use ?c= with the phone).
