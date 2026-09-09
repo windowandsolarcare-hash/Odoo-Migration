@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-09T08:30:00.722Z
+  modified: 2026-09-09T08:51:35.295Z
 ---
 
 The **Memory Pillar** (spec `3_Documentation/MEMORY_PILLAR_BUILD_SPEC.md`, distill prompt `3_Documentation/MEETING_DISTILL_PROMPT.md`) captures DJ+Cheryl working meetings and turns them into queryable memory. Phase 1 shipped 2026-09-09 (Specialists, Lead-driven overnight build). All in repo `windowandsolarcare-hash/saunders-render-app`, deployed, Render boot-verified.
@@ -34,5 +34,9 @@ Also that day: killed hardcoded retired-Workiz token at `provenance.py:24` → `
 - **Roadmap (§4.5) = extend-vs-new resolved:** KEPT `wsc.memory.roadmap` as the ranked-backlog MIDDLE tier because neither ideas.py (Idea Board = brainstorm chat + Claude idea cards = ideation/upstream) nor goals.py (Goal Board on Odoo-native project.project→milestone→task + capacity = committed/scheduled/downstream) holds a lightweight ranked backlog. Lifecycle: idea → ranked backlog → committed goal. `POST /api/memory/roadmap/promote` commits an item to a Goal by REUSING goals.py's `_goal_tag_id()`+`_esc()`+project.project create (no duplicate creation logic) and writes `goal_project_id` back (LINK, not copy). The distiller's open_questions→roadmap is correct.
 - **Financials pointer (§5-pointers) = Odoo-only v1** (Lead's call): `GET /api/memory/financials?year=` → `sales_ytd` = posted customer invoices net of credit notes, UNTAXED revenue, company 1. direct_costs/fixed_sa = null (NOT bucketed in-app; QuickBooks MCP is **session-only, unreachable from Render server code** — app-side QB would need QBO REST creds in Render env, a documented later add like Postgres). Odoo totals may be partial if the QB→Odoo migration is incomplete (a DJ data-completeness question).
 - **Break-even** = `GET /api/memory/breakeven?fixed_monthly=&margin_rate=&working_days=` pure math (NOT stored; inputs passed in). Surfaced in v2_memory.html's new **💵 Numbers** view (Sales YTD card + break-even calculator).
+
+**Cross-store Ask (added 2026-09-09 from Audit's user-walk, Lead-QC'd):** the Ask box was decisions-only — so a natural question about a register fact (e.g. "EDDM interval", which lives in the campaigns store) dead-ended (the retrieval-trust failure the pillar exists to prevent). Fixed with `GET /api/memory/ask?q=` — searches the CURRENT decision per topic AND every register store (campaigns/content/roadmap/sops/reference/forecast) across all human-meaningful fields, returns hits **labeled by store**, UI reuses the existing per-store cards (decCard + REGISTERS[store].card) under an uppercase store label. Query is **TOKENIZED** (whitespace-split, de-duped) and each record scored by DISTINCT-token matches (≥1 returns; ranked by score desc then recency) — so multi-word questions work (whole-phrase substring matching dead-ended them; e.g. "EDDM interval" now matches a campaign on "eddm", and a decision saying "EDDM interval is 3 months" scores 2 and ranks top). Search skips id/company_id/created_at/supersedes/links/derived fields. `doAsk` points here (own 'ask' view); the **What-changed** chip still uses the old decisions-only `/api/memory/decision?q`. The Registers chip row was renamed **"Also tracked:"** (plainer than "Registers").
+
+**Deferred polish (logged, not built):** #3 — pre-fill the break-even calculator's fixed-costs + margin from Odoo/QuickBooks instead of hand-typing (the financials pointer is Odoo-only in v1; QB is session-only).
 
 See [[project_workiz_retirement]] and [[feedback_reuse_canonical_endpoint]].
