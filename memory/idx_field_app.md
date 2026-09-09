@@ -1,5 +1,7 @@
 # Field app (field.html / job detail) — memory index
 
+- [project_pointerup_open_ghost_click.md](project_pointerup_open_ghost_click.md) — ★ Opening a sheet/modal from a pointerup handler behind a full-screen backdrop SELF-CLOSES on touch (synthesized ghost-click hits the backdrop → its tap-to-close fires = "flash"). Guard: openedAt=Date.now() in open() + `if(Date.now()-openedAt<400) return;` first in the backdrop click handler + e.preventDefault() in the tap branch. (Cheryl FAB regression 2026-09-09.)
+
 - [project_memory_pillar_phase1.md](project_memory_pillar_phase1.md) — ★ Memory Pillar P1 (built 2026-09-09): meeting recorder→chunk→finalize→bg pipeline (whisper-1+ffmpeg-seg→Claude distill w/ KNOWN_TOPICS merge)→auto-file to wsc.memory.<store> JSON via memory_store.py DAL + Ask surface. Files: meeting.py, memory_store.py, v2_meeting.html, v2_memory.html. Run-token+heartbeat guard = idempotent, no cron double-file. NO new Odoo models.
 
 - [project_voice_tool_add_pattern.md](project_voice_tool_add_pattern.md) — ★ How to add a WRITE voice tool to dashboard.py /ask: 4 sites (schema, execute in execute_write_tool, preview, WRITE_TOOLS) + wire to canonical endpoint via extracted SYNC core (run_agent is sync-in-async-loop → no asyncio.run). QC deterministically via POST /owner/execute (no LLM). /ask body key='input'. Batch 1 = quote_to_current_job/maint_set_time/send_confirmation/send_job_photos.
