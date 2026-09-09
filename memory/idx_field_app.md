@@ -1,5 +1,7 @@
 # Field app (field.html / job detail) — memory index
 
+- [project_ask_box_live_pointers.md](project_ask_box_live_pointers.md) — ★ Memory Ask box answers money/customer/history Qs from LIVE Odoo via memory_pointers.py (keyword/intent map → reused analytics/dashboard fns; "⚡ Live — from Odoo" card above stored hits). QB retired=Odoo authoritative. Net-profit=operating-margin-BEFORE-labor (payroll unbooked in Odoo — DJ finding). Lesson: wrong field/model in a handler behind ask_pointer's try/except = silent live=none (whos_due: x_studio_next_job_date is res.partner not sale.order). Built 2026-09-09.
+
 - [project_pointerup_open_ghost_click.md](project_pointerup_open_ghost_click.md) — ★ Opening a sheet/modal from a pointerup handler behind a full-screen backdrop SELF-CLOSES on touch (synthesized ghost-click hits the backdrop → its tap-to-close fires = "flash"). Guard: openedAt=Date.now() in open() + `if(Date.now()-openedAt<400) return;` first in the backdrop click handler + e.preventDefault() in the tap branch. (Cheryl FAB regression 2026-09-09.)
 
 - [project_memory_pillar_phase1.md](project_memory_pillar_phase1.md) — ★ Memory Pillar P1 (built 2026-09-09): meeting recorder→chunk→finalize→bg pipeline (whisper-1+ffmpeg-seg→Claude distill w/ KNOWN_TOPICS merge)→auto-file to wsc.memory.<store> JSON via memory_store.py DAL + Ask surface. Files: meeting.py, memory_store.py, v2_meeting.html, v2_memory.html. Run-token+heartbeat guard = idempotent, no cron double-file. NO new Odoo models.
