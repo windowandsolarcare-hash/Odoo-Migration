@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-09T08:51:35.295Z
+  modified: 2026-09-09T13:31:45.827Z
 ---
 
 The **Memory Pillar** (spec `3_Documentation/MEMORY_PILLAR_BUILD_SPEC.md`, distill prompt `3_Documentation/MEETING_DISTILL_PROMPT.md`) captures DJ+Cheryl working meetings and turns them into queryable memory. Phase 1 shipped 2026-09-09 (Specialists, Lead-driven overnight build). All in repo `windowandsolarcare-hash/saunders-render-app`, deployed, Render boot-verified.
@@ -39,4 +39,6 @@ Also that day: killed hardcoded retired-Workiz token at `provenance.py:24` → `
 
 **Deferred polish (logged, not built):** #3 — pre-fill the break-even calculator's fixed-costs + margin from Odoo/QuickBooks instead of hand-typing (the financials pointer is Odoo-only in v1; QB is session-only).
 
-See [[project_workiz_retirement]] and [[feedback_reuse_canonical_endpoint]].
+**On Cheryl's workspace (2026-09-09, DJ-directed, Lead cheryl-cookie-QC'd):** Meeting Recorder + Memory are now on Cheryl's home (`static/cheryl/index.html`, "The Cheryl App" group, tagged Shared) AND her FAB (`static/cheryl/launcher.js`), linking the owner static shells `/static/owner/v2_meeting.html` + `v2_memory.html` (static is public). Cheryl-role API access = extended the repeatable grant: `CHERYL_GRANTED_OWNER` in `routers/authz.py` += EXACTLY `/owner/api/meeting` + `/owner/api/memory` (two boundary-matched prefixes — NOT a bare `/owner`/`/owner/api`; the `path==p or startswith(p+'/')` match keeps them from over-granting, verified: `/owner/api/memoryx` etc. → 401, other owner tools → 401). DJ knowingly accepted Cheryl sees ALL memory content incl. pay/hiring/financial decisions (shared workspace — don't relitigate; see [[feedback_dj_owns_cheryl_erp_access]]). Known later polish (noted, not built): those owner pages carry owner chrome (an owner launcher Cheryl can't use) — a cheryl-scoped chrome is deferred, same as the Hiring/HR direct-open pattern.
+
+See [[project_workiz_retirement]], [[feedback_reuse_canonical_endpoint]], and [[feedback_dj_owns_cheryl_erp_access]].
