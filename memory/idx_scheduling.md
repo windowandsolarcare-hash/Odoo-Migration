@@ -1,5 +1,7 @@
 # Scheduling & Command Center — memory index
 
+- [project_sched_same_day_sibling_confirm.md](project_sched_same_day_sibling_confirm.md) — ★ Self-schedule confirm/move/request cover a customer's WHOLE same-day set (house+condo), not one. booking._sched_siblings(c): group by PARENT contact (not property) + same PT day + AWAITING-gate (reminders.awaiting_so_ids); token SO always in; size-1 = byte-equivalent. All 3 paths (b1 confirm-all/b2 move-all→sched_confirm, choice-3→sched_request) loop it; ONE consolidated HUD card. Built 2026-09-09.
+
 - [project_cheryl_plan_views_sync.md](project_cheryl_plan_views_sync.md) — /cheryl/plan serves Cheryl-cloud's Gantt/board/ladder renderer (her artifact FRAGMENT plan-views.html from cheryl-workspace@claude/cheryl-idea-organizer-yzv19x → static/cheryl/plan-views.html, wrapped-at-serve by cheryl/hud.cheryl_plan, same-origin). On her "sync": re-pull the fragment + redeploy (node-check her JS; never fork). Reads goals.py /cheryl/api/view/plan|ideas.
 
 - [project_customer_cadences.md](project_customer_cadences.md) — Per-service cadences for multi-service customers (hand-correct until engine ships): Nick Conway solar 2mo + windows 4mo (combo every 4mo, solar-only between); Norman Woodel windows monthly + panels every 3mo. Anchor to CITY_WEEKDAYS.
