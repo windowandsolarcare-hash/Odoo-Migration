@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-09T23:46:42.951Z
+  modified: 2026-09-10T03:50:44.184Z
 ---
 
 DJ-directed feature shipped + Lead-QC-passed 2026-09-09 (repo saunders-render-app). Two related builds in one deploy (tip d580530).
@@ -21,5 +21,7 @@ DJ-directed feature shipped + Lead-QC-passed 2026-09-09 (repo saunders-render-ap
 **4) Command Center HUD tile** (`static/owner/v2_home.html`): WORK array idx 6, rose `.t-rose`, goes `.hot` when >0 (added 6 to the hot set in setWork), count from `/owner/api/cheryl_dan/hud`, href `v2_myday.html#cheryl_dan`.
 
 **5) DJ reassign-back:** `goals.task_update` now accepts `owner:'cheryl'|'dan'` → writes x_owner (so the My Day section/HUD can kick a task back to Cheryl).
+
+**Meeting action items now use this mechanism (DJ-chosen 2026-09-10):** `meeting.py _file_distribution` stamps each action item with the "Cheryl & Dan" tag + `x_myday_type='task'` (+ existing x_owner from `a['owner']` via `_OWNER_PID` dj/dan=3/cheryl=23243, + project_id=25, + due). Before, items had project_id=25 + x_owner but NO user_ids/tag/type, so they matched NEITHER My Day feed (classic needs user_ids=[2]; the 2b section needs the tag) → orphaned (filed, shown only on the meeting review card). Now DJ items (x_owner=3) surface in his 🤝 section, Cheryl/unassigned in her /cheryl Tasks screen. (The 2b section keys on tag+x_owner=3, NOT user_ids — that's the whole reason the old filing was invisible.)
 
 **view_plan role-by-mount-prefix fix** (`goals.py`, DJ-decided "safe fix"): the SAME `view_plan` is served at BOTH `/owner/api/view/plan` (owner_goals.router) AND `/cheryl/api/view/plan` (cheryl_hud.py `add_api_route`). Role signal = **`request.url.path.startswith('/cheryl')`** → `_build_view_plan(..., cheryl_only=True)` sets gids=[] + days=[] → Cheryl's Plan is EMPTY (she owns no goals; project.project has no owner field) = clean "No projects yet", which ALSO ended the old sample-data fallback. `/owner` unchanged with DJ's full goals. NO goals deleted/unlinked. This mount-prefix role check is a reusable pattern for any endpoint shared across /owner and /cheryl. See [[feedback_reuse_canonical_endpoint]], [[feedback_never_send_dj_to_odoo]], [[project_cheryl_plan_views_sync]].
