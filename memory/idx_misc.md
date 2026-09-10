@@ -1,5 +1,7 @@
 # Misc — memory index
 
+- [project_meeting_distill_maxtokens_and_recovery.md](project_meeting_distill_maxtokens_and_recovery.md) — Meeting pipeline: distill failed on a dense meeting (max_tokens=4000 truncation hidden by silent except); transcript+audio always safe (checkpoints); how to diagnose+re-kick a stuck meeting; screensaver→"you you you" wake-lock fix. 2026-09-10.
+
 - [project_branded_receipt_page.md](project_branded_receipt_page.md) — ★ Payment receipts must be W&SC-BRANDED (our hosted /receipt/{token} page, texted via Twilio), NOT Stripe's pay.stripe.com receipt. Governing: Stripe = last-mile card processor ONLY; before/after is ours + our-branded. Card page already ours; receipt was the leftover. Routed to Specialists 2026-09-08.
 
 - [project_odoo_200_not_success.md](project_odoo_200_not_success.md) — On Odoo, HTTP 200 ≠ success: denied attachments serve placeholder.png (200), broken /terms serves an error page (200). Verify permission/route/access changes by response CONTENT (bytes/content-type), never status alone.
