@@ -1,0 +1,15 @@
+---
+name: project_thumbtack_lead_webhook
+description: "Thumbtack lead webhook → live app. Phase 1 (log-first endpoint) SHIPPED; Phase 2 (parse→crm.lead→surface) PENDING DJ's Test lead. Endpoint/secret/raw-log facts."
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
+  modified: 2026-09-11T00:40:26.282Z
+---
+
+**Why:** Workiz died 2026-08-03 but Thumbtack still pushes DJ's leads to that dead integration (most of his business is Thumbtack) → leads bleeding into a hole. Fix = capture leads via Thumbtack's native webhook (Thumbtack → Apps → Webhooks → Create webhook; **Leads only**, one-way, additive — no need to remove the dead Workiz first). Full brief: `3_Documentation/THUMBTACK_WEBHOOK_BRIEF.md`. Lead payload has customer NAME + PHONE only (NO email — Thumbtack policy) → match res.partner on PHONE.
+
+**Phase 1 — LOG-FIRST (SHIPPED 2026-09-10, tips 66f5418+e8bc43a):** new file **`routers/thumbtack.py`**, registered in main.py with NO prefix → `POST /webhooks/thumbtack/<secret>`. PUBLIC by design (Thumbtack can't hold a login cookie) — the path is OUTSIDE authz PROTECTED_PREFIXES ('/owner','/tech','/cheryl') so the gate lets it through, and it's feature-namespaced (route-shadow rule). The `<secret>` segment IS the auth: must equal ir.config_parameter **`wsc.thumbtack.webhook_secret`** (40-char, stored there + local `/c/Users/dj/_thumbtack_secret.txt`; full URL in `/c/Users/dj/_thumbtack_url.txt`). Wrong/missing secret → 404 (endpoint hidden). Returns 200 fast (Thumbtack retries any non-200). It LOGS the raw payload to a ring buffer **`wsc.thumbtack.raw_log`** (ir.config_parameter, last 30, readable via Odoo RPC) + print()s — creates NO records yet. Test-lead detection = `_looks_like_test` (best-effort until the real shape is known). VERIFIED live end-to-end (correct secret→200, test:true; wrong→404; payload captured). ★ Secret/URL is NOT in AGENT_MAIL (that commits to GitHub) — relay to DJ via direct message/file only.
+
+**Phase 2 — PENDING DJ's Test lead (needs the real payload shape):** sequence = DJ registers the URL in Thumbtack + hits "Test this webhook" → I read `wsc.thumbtack.raw_log` for the real field names → THEN build in `routers/thumbtack.py`: parse name/phone/service/leadID/timestamp; res.partner match by PHONE (`company_id in [1, False]` per CLAUDE.md rule 8); create if new (company 1) else link (repeat customer); create **crm.lead** (company 1, tag/source "Thumbtack", stage new-lead, description=job details) with bidirectional partner↔lead link ([[feedback_bidirectional_creation_links]]); **idempotency keyed on the Thumbtack lead id** (redelivery/retry must not dupe); detect + skip test leads (no real records); SURFACE to DJ (lead/reactivation inbox + My Day task + notify — leads were invisible in dead Workiz, surfacing is the whole point). Return 200 fast. See [[feedback_never_send_dj_to_odoo]], [[project_new_order_parked_surfacing]]. Workiz-integration removal on Thumbtack is separate/low-pri (no self-serve disconnect; webhook is additive so not a blocker).
