@@ -1,6 +1,6 @@
 # Memory Index (TOC)
 
-Detail lives in topic files. Sharded by domain — open the matching `idx_<domain>.md` or `Grep` the memory dir. 290 topic memories / 11 domains + 84 standing rules.
+Detail lives in topic files. Sharded by domain — open the matching `idx_<domain>.md` or `Grep` the memory dir. 288 topic memories / 11 domains + 82 standing rules.
 
 > **Maintaining:** new hooks go in the matching `idx_<domain>.md`, NOT here. Touch THIS file only for a `feedback_*` standing rule or a new domain shard — keep it <17 KB so it fully loads every session (≈24.4 KB hard cap). Re-shard: `scratchpad/reindex_memory.py`.
 
@@ -28,7 +28,6 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_activity_notes_self_contained.md](feedback_activity_notes_self_contained.md) — Activity notes: embed memory content; any real URL must be a proper <a href> anchor.
 - [feedback_agent_handoff_via_doc.md](feedback_agent_handoff_via_doc.md) — Agent handoffs: instructions in a doc (3_Documentation/*_BRIEF.md); DJ gets a 1–2 sentence paste + the path.
 - [project_agent_mail_channel.md](project_agent_mail_channel.md) — ★ Cross-session comms = 3_Documentation/AGENT_MAIL.md (app repo). DJ's "mail" = go read it. Read at start + after each task; write there.
-- [feedback_agent_mail.md](feedback_agent_mail.md) — Read AGENT_MAIL.md at session start + after every task; write cross-session msgs there. Decisions still via DJ.
 - [feedback_lead_roster_restamp.md](feedback_lead_roster_restamp.md) — ★ Lead MUST re-stamp its SESSION_ROSTER row (ref+UTC) at start, every tick, + a heartbeat cron — a churned ref once left a DEAD Lead address.
 - [feedback_agent_mail_autowatch.md](feedback_agent_mail_autowatch.md) — ★ At session start arm a mail-watcher cron (offset minute; check CronList) so the session self-checks AGENT_MAIL. Session-local, re-arm each start.
 - [feedback_render_design_before_presenting.md](feedback_render_design_before_presenting.md) — ★ Never present a math-built design: render to PNG, LOOK, send the IMAGE. Never hardcode a session ref in a heartbeat.
@@ -83,7 +82,6 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_render_claude_number_options.md](feedback_render_claude_number_options.md) — Render Claude presents choices as a NUMBERED list (DJ replies with a number — he's on a phone).
 - [feedback_render_cron_autodeploy.md](feedback_render_cron_autodeploy.md) — Render cron autoDeploy=yes fires on every push → duplicate emails.
 - [feedback_render_env_var_patch_not_put.md](feedback_render_env_var_patch_not_put.md) — NEVER PUT Render env-vars (wipes unspecified). POST per-var, or fetch+merge+PUT the full list.
-- [feedback_render_put_env_vars.md](feedback_render_put_env_vars.md) — CRITICAL: Render PUT /env-vars wipes ALL vars. GET→merge→PUT the full list.
 - [feedback_report_gray_lines.md](feedback_report_gray_lines.md) — Every emailed P&L/financial report needs a light-gray line under every line item (phone readability).
 - [feedback_route_work_to_claude_code.md](feedback_route_work_to_claude_code.md) — Default ALL work to Claude Code (flat Max sub, no marginal $).
 - [feedback_mirror_memory_to_github.md](feedback_mirror_memory_to_github.md) — ★ Writing/editing ANY memory → also mirror to Odoo-Migration/memory/<name> via gh api Contents PUT (fetch sha first). Never git push (main protected).
