@@ -1,5 +1,7 @@
 # My Day & tasks — memory index
 
+- [project_cheryl_dan_shared_tasks.md](project_cheryl_dan_shared_tasks.md) — Cheryl & Dan shared-task stream + Plan role-fix (2026-09-09): x_owner Cheryl=23243/Dan=3, "Cheryl & Dan" tag id 27 = durable identity; Cheryl Tasks edit/delete(soft)/reassign (IDOR _her_domain); My Day kind='cheryl_dan' own section; /owner/api/cheryl_dan/hud tile; view_plan role-aware by `request.url.path.startswith('/cheryl')` → empty for Cheryl (no goals deleted).
+
 - [project_snooze_dark_readability.md](project_snooze_dark_readability.md) — Shared WSCSnooze (v2_snooze.js) rows were invisible on dark pages (light --ink on white). Fixed: translucent grey row/date-input bg instead of var(--surface-2). Lesson: overlay components can't assume host's theme tokens are consistent.
 
 - [project_hud_feed_ordering.md](project_hud_feed_ordering.md) — HUD card order = urgency → dollars → NEWEST-first within band (feed.py two-pass stable sort). New cards surface at TOP of their group. DJ chose 2026-08-05; do NOT revert to oldest-first.
@@ -34,3 +36,5 @@
 - [project_workhours_capacity_model.md](project_workhours_capacity_model.md) — Work-hours model: per-day available hours (weekly default Mon-Fri 6h/wknd 0 + date overrides in ir.config_parameter) replaces flat 8h/40h across ALL capacity math. Standalone v2_workhours.html + goals.py _day_cap/_week_cap/capacity_settings. 2026-07-24.
 - [project_goal_target_date_phaseA.md](project_goal_target_date_phaseA.md) — Goals Phase A: goal "Hit by" target date (custom field x_goal_target_date on project.project, id 21374) + milestones/tasks past it flagged ⚠ + warn-on-save guardrail. Phase B (hand-set milestone order + neighbor-date checks) next. 2026-07-24.
 - [project_goal_layer3_bump.md](project_goal_layer3_bump.md) — Layer 3 must-do bump: "must happen this day" toggle → if day >8h, list movable to-dos/goal work (goals.py /day_items, jobs excluded) + bump ONE to its next open day (/reschedule_task). Single-level, DJ picks (2026-07-24).
+
+- [project_myday_task_creators.md](project_myday_task_creators.md) — TWO My Day creators: /api/myday/add (canonical rich) + /api/todos/create (note→promote when dated); share myday_deadline_utc. My Day needs user_ids=[DJ] AND (project_id=False OR pinned OR dated-goal); user_ids=[] = never surfaces (the todos/create field-mismatch bug).
