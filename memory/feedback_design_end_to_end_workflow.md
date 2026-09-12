@@ -38,6 +38,18 @@ then get its id with the Drive MCP (`search_files`, `title contains '...'`) and 
 `https://drive.google.com/file/d/<id>/view`. It's his own Drive, so no sharing step is needed and it
 opens on the phone. This is the default delivery path for every design deliverable now.
 
+### ★ NEVER OVERWRITE A PROOF — give every revision a NEW filename (DJ 2026-09-12, "exactly what I wanted")
+Google Drive keeps serving the **cached thumbnail** of an overwritten PNG. PDFs re-render their
+preview straight away; PNGs do not. So after a copy revision DJ opened the proof, saw the OLD
+headline, and reasonably concluded "the proof is wrong copy, the Zoo file is right" — when in fact
+both were built from the same artboard in the same run and never disagreed. Only the *picture of the
+proof* was stale.
+
+**So: proofs get a revision number in the filename — `...-PROOF-r4.png` — never an overwrite.**
+New file, new id, new preview, nothing to fight. It also leaves DJ a trail of revisions he can flip
+back through, which he wants. Press PDFs can still overwrite (their previews refresh), but keeping a
+revision on those too costs nothing.
+
 The piece's archive folder is
 `G:\My Drive\Window & Solar Care — Design\2026\<piece>` with `1 SOURCE`, `2 MASTER`,
 `3 PRINT READY — what goes to Zoo`, `4 PROOFS — with guide lines`. Put things where they belong and
