@@ -5,10 +5,14 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-12T13:41:18.695Z
+  modified: 2026-09-12T13:53:32.088Z
 ---
 
 **Built 2026-09-12** (DJ: "in cheryl app, make a tile or someway Cheryl can talk to Cheryl's cloud"). Brief: `3_Documentation/CHERYL_ASSISTANT_BRIEF.md`.
+
+## ★ FINAL STATE (DJ 2026-09-12): the tile links OUT to her cloud Claude session
+After trying cloud-relay then in-app, DJ chose the simplest: the 💬 "Talk to Claude" tile **links straight out of the app to her claude.ai/code session** (`https://claude.ai/code/session_018w4ShGpSjQ6swSGeyE7big`), opening in a new tab (`target="_blank" rel="noopener"`; launcher.js uses an `ext:true` tile flag → the render adds target/rel). Subtitle: "Dump an idea, ask for a change, or start something new". Lives in BOTH `static/cheryl/launcher.js` (FAB) and `static/cheryl/index.html` (home grid). She "drops into" her real cloud session (full tools + continuity) instead of an in-app chat.
+- **The in-app assistant below is now DORMANT (not deleted — no approval to remove working code).** The page `/cheryl/assistant`, the endpoints, the store, and the main.py 45s sweep all still exist and work, but nothing links to them, so the sweep gets no new inbound. It's a ready fallback if DJ ever wants the in-app path back. Everything from "Pieces" down describes that dormant system.
 
 ## Architecture — IN-APP responder (the app answers her itself)
 Cheryl types in-app → message stored in a durable thread (status 'new') → **an in-app APScheduler sweep** (`main.py` `_scheduled_cheryl_assistant`, interval 45s, max_instances=1) calls `assistant.respond_new_messages()` → for each 'new' message it calls Claude (shared client, CLAUDE_MODEL, pinned anthropic 0.122) with a Cheryl system prompt + the thread history (collapsed to valid alternating turns) → appends `{role:'claude'}` + marks the message 'answered'. Her app polls the thread (12s) and shows it. Texting-with-a-delay.
