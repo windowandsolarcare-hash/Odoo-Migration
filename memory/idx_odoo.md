@@ -49,3 +49,5 @@
 - [project_odoo_api_key_rotated_2026-08-22.md](project_odoo_api_key_rotated_2026-08-22.md) — Odoo API key ROTATED 2026-08-22; old key 7e92… is DEAD (Access Denied); new key in Render env ODOO_API_KEY + local file, never committed.
 
 - [project_customer_edit_endpoint.md](project_customer_edit_endpoint.md) — POST /owner/api/customer/edit (brain.py) = CANONICAL customer field edit (name/phone/email/street/city/zip): whitelist-only, refuses non-W&SC (company_id not in [1,False]), chatter audit-log. Operator/voice use THIS, never raw res.partner write.
+
+- [project_res_partner_no_mobile_field.md](project_res_partner_no_mobile_field.md) — res.partner has NO `mobile` field here (writing it 500s). Secondary phone = x_studio_x_studio_second_phone (the one sms.py inbound matcher searches, ~65 pop) or x_studio_secondary_phone (spouse/2nd-contact + x_studio_secondary_name).
