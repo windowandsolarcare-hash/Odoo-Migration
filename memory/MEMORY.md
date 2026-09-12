@@ -1,106 +1,106 @@
 # Memory Index (TOC)
 
-Detail lives in topic files. This index is sharded by domain — open the sub-index for the area you're working in, or `Grep` the memory dir. 290 topic memories across 11 domains + 47 standing rules.
+Detail lives in topic files. Sharded by domain — open the matching `idx_<domain>.md` or `Grep` the memory dir. 290 topic memories / 11 domains + 84 standing rules.
 
-> **Maintaining this index (read before adding a memory):** put the new one-line hook in the matching `idx_<domain>.md` — NOT here. Keep hooks ≤~145 chars (detail goes in the topic file). Only touch THIS file to add a `feedback_*` standing rule or a brand-new domain shard. This keeps MEMORY.md small enough to fully load every session (the whole reason it's sharded — restructured 2026-07-10 from one 147 KB flat list that only ~1/6 loaded). Re-shard script: `scratchpad/reindex_memory.py`; full pre-split backup: `MEMORY_full_backup_2026-07-10.md`.
+> **Maintaining:** new hooks go in the matching `idx_<domain>.md`, NOT here. Touch THIS file only for a `feedback_*` standing rule or a new domain shard — keep it <17 KB so it fully loads every session (≈24.4 KB hard cap). Re-shard: `scratchpad/reindex_memory.py`.
 
 ## Domain sub-indexes
 
-- [Field app (field.html / job detail)](idx_field_app.md) — 28 — `idx_field_app.md`
-- [Scheduling & Command Center](idx_scheduling.md) — 35 — `idx_scheduling.md`
-- [Outreach / reactivation / CRM](idx_outreach_crm.md) — 33 — `idx_outreach_crm.md`
-- [My Day & tasks](idx_myday.md) — 10 — `idx_myday.md`
-- [Vault / Notes / Drive](idx_vault_notes.md) — 28 — `idx_vault_notes.md`
-- [Odoo quirks & fields](idx_odoo.md) — 19 — `idx_odoo.md`
-- [Workiz / phases / sync](idx_workiz_sync.md) — 35 — `idx_workiz_sync.md`
-- [Infra / deploy / GitHub / Render](idx_infra_deploy.md) — 47 — `idx_infra_deploy.md`
-- [Saunders Printing (NBHOF)](idx_saunders_printing.md) — 17 — `idx_saunders_printing.md`
-- [Business & personal](idx_business.md) — 14 — `idx_business.md`
-- [Misc](idx_misc.md) — 24 — `idx_misc.md`
+- [Field app (field.html / job detail)](idx_field_app.md) — 28
+- [Scheduling & Command Center](idx_scheduling.md) — 35
+- [Outreach / reactivation / CRM](idx_outreach_crm.md) — 33
+- [My Day & tasks](idx_myday.md) — 10
+- [Vault / Notes / Drive](idx_vault_notes.md) — 28
+- [Odoo quirks & fields](idx_odoo.md) — 19
+- [Workiz / phases / sync](idx_workiz_sync.md) — 35
+- [Infra / deploy / GitHub / Render](idx_infra_deploy.md) — 47
+- [Saunders Printing (NBHOF)](idx_saunders_printing.md) — 17
+- [Business & personal](idx_business.md) — 14
+- [Misc](idx_misc.md) — 24
 
 ## ★ Standing rules (how DJ wants me to work) — always honor
 
-- [feedback_notify_dj_channels.md](feedback_notify_dj_channels.md) — Reaching DJ: PushNotification = FYI default but harness-FLAKY (don't assume it landed); TEXT (SMS) = when a session needs DJ's INPUT (can't-miss). Cell 951-972-6946 (/c/Users/dj/dj_cell.txt / env DJ_PHONE_NUMBER). No text-DJ endpoint yet — build requested to Lead.
-- [feedback_raise_bar_on_dj_alerts.md](feedback_raise_bar_on_dj_alerts.md) — ★ DJ standing rule (2026-09-09): reach DJ ONLY when REALLY needed — otherwise MAKE THE CALL yourself. Raise the bar on →DJ mail + needs-you alerts; default to decide-and-proceed (park nice-to-haves), escalate only true blockers / DJ-only calls; cross-stream → Lead.
-- [feedback_alert_dj_when_input_needed.md](feedback_alert_dj_when_input_needed.md) — ★ DJ 2026-09-09: when a session genuinely NEEDS his input (a decision awaiting his pick+submit), ALERT him (needs-you banner / HUD card / text) — never pose a question then wait silently. Pairs with raise-the-bar (rarely involve him; when you DO, make it visible not a silent stall) + keep working meanwhile.
-- [feedback_dj_operating_instincts.md](feedback_dj_operating_instincts.md) — ★ DJ's INSTINCTS every Operator must absorb — the caressing of WORDS (warm, personal, ONE push not two, no pressure, sound like Dan), DATES (batch by geography, honor customer constraints, tight slot set), ACTIONS (2 quote types, review-then-send always, tap-to-book, price TBD till seen, one-pass). The judgment layer, not the mechanics.
-- [feedback_operator_followup_verify.md](feedback_operator_followup_verify.md) — ★ When Operator addresses something with an expected OUTCOME (offer→booked? confirm→replied? reply→responded? move→landed?), set a CONCRETE scheduled follow-up (CronCreate one-shot) to VERIFY it — NEVER a vague "I'll keep an eye out" (those silently fail; DJ's been burned).
-- [feedback_activity_notes_self_contained.md](feedback_activity_notes_self_contained.md) — Activity notes: embed memory content (no link), but anything with a real URL (Workiz/Odoo/Calendly/GitHub/etc) MUST be a proper <a href> anchor.
-- [feedback_agent_handoff_via_doc.md](feedback_agent_handoff_via_doc.md) — Agent handoffs: ALL instructions go in a doc (3_Documentation/*_BRIEF.md); DJ gets only a 1-2 sentence paste paragraph with the doc path.
-- [project_agent_mail_channel.md](project_agent_mail_channel.md) — ★ Lead↔specialists comms = 3_Documentation/AGENT_MAIL.md (app repo). DJ's one-word "mail" = go read it. Read at session start + after each task; write there, not through DJ.
-- [feedback_agent_mail.md](feedback_agent_mail.md) — Read 3_Documentation/AGENT_MAIL.md at session start + after every task; write cross-session messages THERE. DJ's nudge = "mail". Decisions still via DJ.
-- [feedback_lead_roster_restamp.md](feedback_lead_roster_restamp.md) — ★ (DJ 2026-09-10) Lead MUST re-stamp its SESSION_ROSTER row (current ListAgents ref + UTC) at session start, on every watcher tick, + via a roster-heartbeat cron (armed each start). Lead's watcher prompts don't re-stamp like other roles' → a churned ref left a DEAD Lead address → sessions couldn't nudge Lead.
-- [feedback_agent_mail_autowatch.md](feedback_agent_mail_autowatch.md) — ★ At SESSION START arm a CronCreate 20-min mail-watcher (offset your minute; if not already, check CronList) so the session self-checks AGENT_MAIL — no manual "mail" nudge. PushNotification DJ only for → DJ entries; push immediately when you post one. Session-local, re-arm each start.
-- [feedback_render_design_before_presenting.md](feedback_render_design_before_presenting.md) — ★ Never present a design built by math alone: render it to a PNG (headless Chrome, `--window-size` = artboard px = true 300 DPI), LOOK at it, and send DJ the IMAGE — canvas publishes often never reach him. Also: never hardcode a session ref in a heartbeat.
-- [project_eddm_mailing_rules.md](project_eddm_mailing_rules.md) — ★★ EDDM: W&SC size is **9 x 6.5 in** (Zoo's EDDM size). A 9x6 is NOT EDDM-Retail eligible (must exceed 11.5in long / 6-1/8in high / 1/4in thick). Address block must sit in the TOP HALF. Indicia wording/size/placement. Design owns these rules.
-- [project_wsc_print_build_pipeline.md](project_wsc_print_build_pipeline.md) — `_design_build.py`: .dc.html → guide proofs + Zoo CMYK press PDFs. 2775x2025 artboard, SWOP separation, registration crop marks, TrimBox/BleedBox; verified by reading the PDF back.
-- [feedback_design_end_to_end_workflow.md](feedback_design_end_to_end_workflow.md) — ★ DJ says "design X" → Design does it all → hand back ONE **Google Drive link** per piece (file cards + canvas publishes don't reach his phone). Dev proofs carry trim/safe guide lines; "I need my Zoo files" = drop guides, ship clean CMYK PDFs.
-- [feedback_over_status_line.md](feedback_over_status_line.md) — ★ END EVERY REPLY with a status line: `🟢 <Role> — OVER` when idle/open, `🟡 <Role> — working` when not. Watcher ticks included.
-- [feedback_repeat_portal_link_every_save.md](feedback_repeat_portal_link_every_save.md) — ★ EVERY "Portal — OVER" sign-off (incl. watcher ticks) must carry the picker link as a markdown [text](url) anchor — bare/backticked URLs don't tap on his phone.
-- [feedback_always_paste_preview_link.md](feedback_always_paste_preview_link.md) — ALWAYS paste the clickable URL when referencing anything DJ must open (preview/artifact/report) — every message, not just the first. He's on a phone.
-- [feedback_api_keys_via_file.md](feedback_api_keys_via_file.md) — When I need an API key, DJ puts it in a dedicated FILE and tells me the path — NEVER paste in chat (he pasted his Render + live Stripe keys…
+- [feedback_notify_dj_channels.md](feedback_notify_dj_channels.md) — Reach DJ: PushNotification=FYI (flaky, don't assume delivered); TEXT/SMS=when INPUT needed (can't-miss). Cell in /c/Users/dj/dj_cell.txt.
+- [feedback_raise_bar_on_dj_alerts.md](feedback_raise_bar_on_dj_alerts.md) — ★ Reach DJ ONLY when REALLY needed; else decide-and-proceed (park nice-to-haves), escalate only true blockers/DJ-only; cross-stream→Lead.
+- [feedback_alert_dj_when_input_needed.md](feedback_alert_dj_when_input_needed.md) — ★ When DJ's input is genuinely needed, ALERT him (banner/HUD/text) — never ask then wait silently; keep working meanwhile.
+- [feedback_dj_operating_instincts.md](feedback_dj_operating_instincts.md) — ★ DJ's instincts: WORDS warm/personal/one-push; DATES batch-by-geography, tight slots; ACTIONS 2 quote types, review-then-send, tap-to-book, price-TBD-till-seen, one-pass.
+- [feedback_operator_followup_verify.md](feedback_operator_followup_verify.md) — ★ Operator: any action with an expected OUTCOME gets a CONCRETE scheduled follow-up (CronCreate one-shot) to VERIFY — never a vague "I'll watch for it".
+- [feedback_activity_notes_self_contained.md](feedback_activity_notes_self_contained.md) — Activity notes: embed memory content; any real URL must be a proper <a href> anchor.
+- [feedback_agent_handoff_via_doc.md](feedback_agent_handoff_via_doc.md) — Agent handoffs: instructions in a doc (3_Documentation/*_BRIEF.md); DJ gets a 1–2 sentence paste + the path.
+- [project_agent_mail_channel.md](project_agent_mail_channel.md) — ★ Cross-session comms = 3_Documentation/AGENT_MAIL.md (app repo). DJ's "mail" = go read it. Read at start + after each task; write there.
+- [feedback_agent_mail.md](feedback_agent_mail.md) — Read AGENT_MAIL.md at session start + after every task; write cross-session msgs there. Decisions still via DJ.
+- [feedback_lead_roster_restamp.md](feedback_lead_roster_restamp.md) — ★ Lead MUST re-stamp its SESSION_ROSTER row (ref+UTC) at start, every tick, + a heartbeat cron — a churned ref once left a DEAD Lead address.
+- [feedback_agent_mail_autowatch.md](feedback_agent_mail_autowatch.md) — ★ At session start arm a mail-watcher cron (offset minute; check CronList) so the session self-checks AGENT_MAIL. Session-local, re-arm each start.
+- [feedback_render_design_before_presenting.md](feedback_render_design_before_presenting.md) — ★ Never present a math-built design: render to PNG, LOOK, send the IMAGE. Never hardcode a session ref in a heartbeat.
+- [project_eddm_mailing_rules.md](project_eddm_mailing_rules.md) — ★★ EDDM: W&SC size 9×6.5 in (Zoo EDDM). 9×6 NOT eligible. Address block TOP HALF. Indicia rules. Design owns.
+- [project_wsc_print_build_pipeline.md](project_wsc_print_build_pipeline.md) — `_design_build.py`: .dc.html → guide proofs + Zoo CMYK press PDFs (2775×2025, SWOP, crop marks, TrimBox/BleedBox).
+- [feedback_design_end_to_end_workflow.md](feedback_design_end_to_end_workflow.md) — ★ "design X" → Design does it all → hand back ONE Google Drive link per piece. Dev proofs carry trim/safe guides; "my Zoo files" = clean CMYK PDFs, no guides.
+- [feedback_over_status_line.md](feedback_over_status_line.md) — ★ END EVERY REPLY with a status line: `🟢 <Role> — OVER` idle / `🟡 <Role> — working`. Watcher ticks included.
+- [feedback_repeat_portal_link_every_save.md](feedback_repeat_portal_link_every_save.md) — ★ Every "Portal — OVER" sign-off carries the picker link as a markdown [text](url) anchor — bare URLs don't tap on his phone.
+- [feedback_always_paste_preview_link.md](feedback_always_paste_preview_link.md) — ALWAYS paste the clickable URL for anything DJ must open — every message, not just the first. He's on a phone.
+- [feedback_api_keys_via_file.md](feedback_api_keys_via_file.md) — API keys: DJ puts them in a dedicated FILE + tells me the path — NEVER paste in chat.
 - [feedback_bash_tmp_not_persistent.md](feedback_bash_tmp_not_persistent.md) — /tmp resets between Bash calls. Pipe gh download→python edit→save to /c/Users/dj/ in ONE call.
-- [feedback_bidirectional_creation_links.md](feedback_bidirectional_creation_links.md) — STANDING RULE (DJ 2026-07-06): anytime ANYTHING creates something, build BOTH-direction tappable links (origin↔created), not just a provenance…
-- [feedback_brand_dark_blue_accents.md](feedback_brand_dark_blue_accents.md) — DJ loves DARK BLUE accents (#1e5aa8) on generated docs/PDFs/UI — make it the default brand accent (blue, not plum).
-- [feedback_call_opens_dialer_never_dials.md](feedback_call_opens_dialer_never_dials.md) — STANDING RULE: no Call button may dial on tap; every Call opens v2_dialer.html PREFILLED (?to=/?name=/?partner_id=). Only the dialer's own Dial button posts /owner/voice/dial. DJ misfires taps + must dial on the business line.
-- [feedback_chatter_format.md](feedback_chatter_format.md) — All chatter message_post calls must use pipe-separated plain text — no HTML tags (Odoo escapes them in both server actions and Zapier JSON-RPC)
-- [feedback_company_name_no_a.md](feedback_company_name_no_a.md) — Company name is "Window & Solar Care" — folder has "A" prefix but that is NOT part of the brand name.
-- [feedback_confirmation_policy.md](feedback_confirmation_policy.md) — When to ask DJ for confirmation vs. just act (routine tasks: never ask;
-- [feedback_disable_pull_to_refresh.md](feedback_disable_pull_to_refresh.md) — BANNED: mobile pull-to-refresh on every page (it reloads the SPA + wipes state — DJ hates it).
-- [feedback_done_jobs_definition.md](feedback_done_jobs_definition.md) — "Done jobs" always = x_studio_x_studio_workiz_status = 'Done' on sale.order.
-- [feedback_wsc_email_from_domain.md](feedback_wsc_email_from_domain.md) — CRITICAL: W&SC customer emails MUST set email_from='windowandsolarcare@gmail.com' — Odoo has 2 send servers (W&SC + Saunders dan@scenicartprint.com), routes by from-match; a blank/wrong from leaks out under scenicartprint.com.
-- [feedback_email_draft_first_always.md](feedback_email_draft_first_always.md) — ALWAYS prepare emails as Gmail DRAFTS for DJ to review + send himself — NEVER send directly via SMTP, even if he says "yes/send" to a "want me…
-- [feedback_email_via_odoo.md](feedback_email_via_odoo.md) — Always send emails via Odoo mail.mail JSON-RPC — Gmail MCP can only draft, not send
-- [feedback_field_html_js_syntax_check.md](feedback_field_html_js_syntax_check.md) — ALWAYS run node --check on field.html JS before pushing.
-- [feedback_field_readability_sunlight.md](feedback_field_readability_sunlight.md) — DJ has limited vision + works outdoors in bright sun → ALL field/owner UI must be large-text + high-contrast with a genuinely sunlight-readable…
-- [feedback_gh_push_empty_file_guard.md](feedback_gh_push_empty_file_guard.md) — Before any raw gh api PUT, verify b64 length (<1000 → abort) — a missing/empty local file silently pushes EMPTY and crashes app boot (new_job.py…
-- [feedback_github_deploy_from_bash.md](feedback_github_deploy_from_bash.md) — GitHub deployment from Claude Code requires powershell -Command wrapper, not raw bash/Python
-- [feedback_github_deploy_python_fallback.md](feedback_github_deploy_python_fallback.md) — When bash+powershell base64 returns "Problems parsing JSON" HTTP 400, switch to Python (base64.b64encode + json.dump).
-- [feedback_github_deployment_bash.md](feedback_github_deployment_bash.md) — CANONICAL: Use bash + base64 + temp file for GitHub deployments.
-- [feedback_hist_modal_activejob_null.md](feedback_hist_modal_activejob_null.md) — Never setTimeout-clear activeJob after openNoteModal() — submitNote() checks it first and silently fails.
-- [feedback_ios_date_input_appearance.md](feedback_ios_date_input_appearance.md) — iOS bug: a styled <input type=date> with -webkit-appearance:none won't open/change.
-- [feedback_local_vs_deployed_drift.md](feedback_local_vs_deployed_drift.md) — 2026-04-27: Local Saunders Render App copy can lag deployed.
-- [feedback_multiagent_collision_field_html.md](feedback_multiagent_collision_field_html.md) — Real 2-agent collision on field.html: a small card-wrapper change got silently reverted by a bigger concurrent push (the line-count guard misses…
-- [feedback_never_send_dj_to_odoo.md](feedback_never_send_dj_to_odoo.md) — ★ GOVERNING: DJ/users NEVER touch Odoo (backend DB, invisible). The Render app is THE UI; every field needs a Render pathway. "Go into Odoo" = a bug to fix, never an answer.
-- [feedback_assistant_use_app_workflow_not_raw_api.md](feedback_assistant_use_app_workflow_not_raw_api.md) — ★ GOVERNING: when DJ asks me AS ASSISTANT to DO an op with an app workflow (create customer/job, schedule, send, pay), CALL the app's own endpoints (same routes the phone uses) — never raw Odoo writes, which bypass scheduling logic/naming/defaults/confirmation. Raw RPC only for read/diagnosis/cleanup. No computer-use needed — call the HTTP endpoints.
-- [feedback_never_remove_working_code.md](feedback_never_remove_working_code.md) — NEVER comment out or delete existing working code without DJ's explicit approval — adding is fine, removing requires asking first
-- [feedback_no_guessing_on_fields.md](feedback_no_guessing_on_fields.md) — NEVER guess Odoo field names. Verify in CLAUDE.md, memory files, or query Odoo first.
-- [feedback_no_mutating_smoketest_payroll.md](feedback_no_mutating_smoketest_payroll.md) — Never POST a mutating payroll endpoint to test it exists — use Render deploy status / read-only routes.
-- [feedback_no_re_listing.md](feedback_no_re_listing.md) — Don't re-print tables/lists/buckets across turns. Write to a working file (typically 4_Reference_Data/), reference by name, keep chat terse.
-- [feedback_odoo_verify_content_not_status.md](feedback_odoo_verify_content_not_status.md) — ★ On Odoo HTTP 200 ≠ success (denied /web/image serves placeholder.png 200; reserved routes serve an error page 200). Verify by CONTENT, never status alone.
-- [feedback_odoo_html_field_colors.md](feedback_odoo_html_field_colors.md) — How to create colored status indicators using HTML field type + Bootstrap classes (text-success/text-danger/text-warning).
-- [feedback_odoo_reserved_variable_names.md](feedback_odoo_reserved_variable_names.md) — NEVER use response or result as variable names in Odoo 19 server actions — they are reserved eval context vars (causes Response object crash)
-- [feedback_odoo_rpc_write_pattern.md](feedback_odoo_rpc_write_pattern.md) — READ before writing any odoo_rpc write() call. vals dict must be INSIDE args list: [[id], {vals}] — NOT as 4th kwarg arg.
-- [feedback_ported_means_twilio.md](feedback_ported_means_twilio.md) — "ported"/"ported numbers" ALWAYS = Twilio ported phone numbers (never a generic 'port the data over' concept). Reactivation is TEXT via Workiz until ported.
-- [feedback_planning_constraints.md](feedback_planning_constraints.md) — Filter ALL architecture suggestions through 4 constraints: no new Odoo seats, no custom models, one Odoo instance, must scale across businesses
-- [feedback_proactive_inefficiency_capture.md](feedback_proactive_inefficiency_capture.md) — I own responsibility to recognize trial-and-error patterns and save solutions immediately — no asking DJ, no waiting for end of session.
-- [feedback_python_patch_escaping.md](feedback_python_patch_escaping.md) — NEVER use '\\n' in Python patch replacement strings — embeds actual newlines → SyntaxError.
-- [feedback_regression_guard_pushes.md](feedback_regression_guard_pushes.md) — READ before any push to dashboard.py or other large files.
-- [feedback_push_compare_and_swap.md](feedback_push_compare_and_swap.md) — PUT with the sha you READ the file at, never a fresh one — concurrent change 409s instead of silently clobbering. The durable multi-session clobber fix.
-- [feedback_question_when_big_picture_wrong.md](feedback_question_when_big_picture_wrong.md) — ★ MOST IMPORTANT judgment rule: repetition across files = STOP and ASK, don't grind. When a task's shape looks structurally wrong (same edit in N places), ask DJ before executing — don't mechanically duplicate NOR unilaterally refactor working code. (34-launcher incident.)
-- [feedback_reuse_canonical_endpoint.md](feedback_reuse_canonical_endpoint.md) — Don't duplicate existing logic for a new UI entry point — call the canonical endpoint (extend it if missing something), so there's ONE place to maintain.
-- [feedback_removing_element_leaves_dangling_ref.md](feedback_removing_element_leaves_dangling_ref.md) — Removing an HTML element but leaving a JS getElementById('X').prop ref crashes init → whole app stuck/error screen.
-- [feedback_render_claude_number_options.md](feedback_render_claude_number_options.md) — Render Claude must ALWAYS present choices as a NUMBERED list (customers/services/statuses) so DJ replies with a number — he's on a phone, won't…
-- [feedback_render_cron_autodeploy.md](feedback_render_cron_autodeploy.md) — Render cron autoDeploy=yes fires on every commit push → duplicate emails.
-- [feedback_render_env_var_patch_not_put.md](feedback_render_env_var_patch_not_put.md) — NEVER PUT Render env-vars (wipes all unspecified keys). Use POST per-var or fetch+merge+PUT.
-- [feedback_render_put_env_vars.md](feedback_render_put_env_vars.md) — CRITICAL: Render PUT /env-vars wipes ALL vars. Always GET first, merge, then PUT full list.
-- [feedback_report_gray_lines.md](feedback_report_gray_lines.md) — Every P&L/financial report emailed to DJ needs a light-gray line under EVERY line item (phone readability).
-- [feedback_route_work_to_claude_code.md](feedback_route_work_to_claude_code.md) — Default ALL work to Claude Code (me = flat Max sub, no marginal $).
-- [feedback_mirror_memory_to_github.md](feedback_mirror_memory_to_github.md) — ★ When you write/edit ANY memory, ALSO mirror it to GitHub Odoo-Migration/memory/<name> via `gh api` Contents PUT (fetch sha first) — NEVER git push (main is protected). In addition to the SHARED_MEMORY dual-write.
-- [feedback_save_filter.md](feedback_save_filter.md) — DJ wants auto-saves (no slash command). Filter SHARED_MEMORY writes — only runtime-relevant facts go there;
-- [feedback_script_insertion_anchor.md](feedback_script_insertion_anchor.md) — Never use rfind('</script>') — finds last external script tag.
-- [feedback_send_email_with_attachment.md](feedback_send_email_with_attachment.md) — Full pattern for sending email + PDF attachment via Odoo JSON-RPC.
-- [feedback_status_update_format.md](feedback_status_update_format.md) — When DJ asks for a "status update"/"what's open"/"update me": condensed recap of just the last ~3-4 hrs, grouped Shipped / Waiting-on-you / Open. Not long-term, not how-solved detail.
-- [feedback_spoken_friendly_responses.md](feedback_spoken_friendly_responses.md) — DJ has his phone READ replies aloud while working, so default to a PLAIN spoken-friendly style: short sentences, no bold/tables/symbols/emoji…
-- [feedback_test_like_real_app_before_delivering.md](feedback_test_like_real_app_before_delivering.md) — When building an app that mimics a known product (Vault=Evernote), TEST it against that product's core behaviors…
-- [feedback_verify_limits_before_declaring.md](feedback_verify_limits_before_declaring.md) — Before telling DJ "I can't do X" (esp. cloud claiming it can't reach app/Odoo), TEST the call first — don't declare a limit from a stale doc. (Cloud-network claim was false 3× before anyone tested.)
-- [feedback_use_sonnet_for_routine.md](feedback_use_sonnet_for_routine.md) — Model choice: OPUS for Render-app edits + accounting structure (regression/financial risk);
-- [feedback_workiz_no_job_all.md](feedback_workiz_no_job_all.md) — NEVER use Workiz job/all/ endpoint. DJ's explicit rule (2026-05-04).
-- [feedback_saunders_printing_never_send.md](feedback_saunders_printing_never_send.md) — NEVER send any Saunders Printing invoice/email without DJ explicitly approving (a prior session sent to a vendor early).
-- [feedback_auditor_user_perspective_gapfinder.md](feedback_auditor_user_perspective_gapfinder.md) — ★ Auditor's standing role = USER-perspective gap-finder: USES the app as a real person, hunts what the PLAN missed (edit/delete/edge cases/missing Add) — the gap Lead's plan-QC + Specialists' build-to-plan can't catch. Run an Auditor user-walk before calling user-facing work done.
-- [feedback_dj_owns_cheryl_erp_access.md](feedback_dj_owns_cheryl_erp_access.md) — ★ GOVERNANCE (DJ 2026-09-08): DJ progressively grants Cheryl access to more of his OWNER/ERP surfaces + data as HE chooses — workspace NOT permanently walled off. Surface a privacy/scope concern ONCE for DJ to decide; once decided, do NOT relitigate (repeated resistance = obstruction). First grants: HR + WSC Hiring. company_id fails-open protections still hold.
-- [feedback_drop_link_table.md](feedback_drop_link_table.md) — ★ (DJ 2026-09-09) DROP the end-of-reply full link TABLE (it fed Cheryl's "too many interfaces" confusion). Keep ONE relevant clickable link + the OVER status line; kill the menu of many.
-- [feedback_hud_cards_live_not_inbox.md](feedback_hud_cards_live_not_inbox.md) — ★ (DJ 2026-09-11) HUD/status cards must be LIVE-DERIVED from current data every render (a dashboard), NEVER a stored inbox that goes stale; a done/rescheduled job falls out of the live query on its own. Persist only STATUS, layered onto live rows. (maint "next service" stale-card bug — done Jim Leal + rescheduled Bill lingered.)
-- [feedback_escalate_to_dj_sparingly.md](feedback_escalate_to_dj_sparingly.md) — ★ (DJ 2026-09-09) Only reach out to DJ (→DJ mail / PushNotification / "needs you" alert / in-chat Q) when it's REALLY needed (only-he-can-decide / money / customer-facing / hard-blocked); otherwise MAKE THE CALL yourself and report in one line. Higher bar than "ask DJ directly" — each interruption has a cost.
-- [feedback_check_endpoint_map_first.md](feedback_check_endpoint_map_first.md) — ★ (DJ 2026-09-12) For ANY endpoint lookup/build/review/answer, CHECK 3_Documentation/ENDPOINT_MAP.md (app repo) FIRST — canonical auto-generated route inventory (method, path, LIVE-vs-DEAD shadow, file:line, auth) — instead of re-reading router code. Keep it CURRENT: CLAUDE.md pre-push regen gate + durable Render backstop. We built it then filed it — this makes it a LIVING reference. [[project_endpoint_map]]
-- [feedback_durable_watcher_not_session_cron.md](feedback_durable_watcher_not_session_cron.md) — ★ (DJ 2026-09-12) Durable/must-always-run background work goes in a SERVER-SIDE Render watcher (APScheduler), NEVER a session CronCreate cron (7-day expiry + dies on session exit = accident waiting to happen). Session crons ONLY for a live session's OWN presence (heartbeat/mail-watcher — die with the session + self-re-arm on restart). Unavoidable session cron for durable work MUST have a re-arm safeguard; never let one silently expire. [[feedback_check_endpoint_map_first]]
+- [feedback_bidirectional_creation_links.md](feedback_bidirectional_creation_links.md) — Anything that CREATES something builds BOTH-direction tappable links (origin↔created).
+- [feedback_brand_dark_blue_accents.md](feedback_brand_dark_blue_accents.md) — DJ loves DARK BLUE accents (#1e5aa8) on docs/PDFs/UI — default brand accent (blue, not plum).
+- [feedback_call_opens_dialer_never_dials.md](feedback_call_opens_dialer_never_dials.md) — No Call button dials on tap; every Call opens v2_dialer.html PREFILLED. Only the dialer's Dial button posts /owner/voice/dial.
+- [feedback_chatter_format.md](feedback_chatter_format.md) — chatter message_post = pipe-separated PLAIN text, no HTML tags (Odoo escapes them).
+- [feedback_company_name_no_a.md](feedback_company_name_no_a.md) — Brand = "Window & Solar Care" — the folder's "A" prefix is NOT part of the name.
+- [feedback_confirmation_policy.md](feedback_confirmation_policy.md) — When to ask DJ vs act: routine never ask; only irreversible/destructive/visible-to-others.
+- [feedback_disable_pull_to_refresh.md](feedback_disable_pull_to_refresh.md) — BANNED: mobile pull-to-refresh (reloads the SPA + wipes state).
+- [feedback_done_jobs_definition.md](feedback_done_jobs_definition.md) — "Done jobs" = x_studio_x_studio_workiz_status='Done' on sale.order.
+- [feedback_wsc_email_from_domain.md](feedback_wsc_email_from_domain.md) — CRITICAL: W&SC emails set email_from='windowandsolarcare@gmail.com' — Odoo routes by from-match; blank/wrong leaks under scenicartprint.com.
+- [feedback_email_draft_first_always.md](feedback_email_draft_first_always.md) — ALWAYS prepare emails as Gmail DRAFTS for DJ to send himself — never SMTP-send directly, even on "yes/send".
+- [feedback_email_via_odoo.md](feedback_email_via_odoo.md) — Send emails via Odoo mail.mail JSON-RPC — Gmail MCP only drafts.
+- [feedback_field_html_js_syntax_check.md](feedback_field_html_js_syntax_check.md) — ALWAYS `node --check` field.html JS before pushing.
+- [feedback_field_readability_sunlight.md](feedback_field_readability_sunlight.md) — DJ has limited vision + works in bright sun → all field/owner UI large-text, high-contrast, sunlight-readable.
+- [feedback_gh_push_empty_file_guard.md](feedback_gh_push_empty_file_guard.md) — Before any raw gh api PUT, verify b64 len (<1000→abort) — an empty push crashes app boot.
+- [feedback_github_deploy_from_bash.md](feedback_github_deploy_from_bash.md) — GitHub deploy from Claude Code needs a `powershell -Command` wrapper, not raw bash/Python.
+- [feedback_github_deploy_python_fallback.md](feedback_github_deploy_python_fallback.md) — If bash+powershell base64 gives "Problems parsing JSON" 400, switch to Python (base64.b64encode + json.dump).
+- [feedback_github_deployment_bash.md](feedback_github_deployment_bash.md) — CANONICAL: bash + base64 + temp file for GitHub deploys.
+- [feedback_hist_modal_activejob_null.md](feedback_hist_modal_activejob_null.md) — Never setTimeout-clear activeJob after openNoteModal() — submitNote() checks it first, silently fails.
+- [feedback_ios_date_input_appearance.md](feedback_ios_date_input_appearance.md) — iOS: a styled <input type=date> with -webkit-appearance:none won't open/change.
+- [feedback_local_vs_deployed_drift.md](feedback_local_vs_deployed_drift.md) — The local Saunders Render App copy can lag deployed — fetch the live file before a push.
+- [feedback_multiagent_collision_field_html.md](feedback_multiagent_collision_field_html.md) — Real 2-agent field.html collision: a small change reverted by a bigger concurrent push (the line-count guard misses it).
+- [feedback_never_send_dj_to_odoo.md](feedback_never_send_dj_to_odoo.md) — ★ GOVERNING: DJ/users NEVER touch Odoo. The Render app is THE UI; every field needs a Render pathway. "Go into Odoo" = a bug.
+- [feedback_assistant_use_app_workflow_not_raw_api.md](feedback_assistant_use_app_workflow_not_raw_api.md) — ★ GOVERNING: DO ops via the app's OWN endpoints, never raw Odoo writes (they bypass logic/naming/defaults). Raw RPC only for read/diagnosis/cleanup.
+- [feedback_never_remove_working_code.md](feedback_never_remove_working_code.md) — NEVER comment out/delete working code without DJ's explicit OK — adding is fine.
+- [feedback_no_guessing_on_fields.md](feedback_no_guessing_on_fields.md) — NEVER guess Odoo field names — verify in CLAUDE.md/memory, or query Odoo first.
+- [feedback_no_mutating_smoketest_payroll.md](feedback_no_mutating_smoketest_payroll.md) — Never POST a mutating payroll endpoint to test it exists — use deploy status / read-only routes.
+- [feedback_no_re_listing.md](feedback_no_re_listing.md) — Don't re-print tables/lists across turns. Write to a working file (4_Reference_Data/), reference by name.
+- [feedback_odoo_verify_content_not_status.md](feedback_odoo_verify_content_not_status.md) — ★ Odoo HTTP 200 ≠ success (denied serves placeholder/error page at 200). Verify by CONTENT, not status.
+- [feedback_odoo_html_field_colors.md](feedback_odoo_html_field_colors.md) — Colored status indicators = HTML field type + Bootstrap classes (text-success/danger/warning).
+- [feedback_odoo_reserved_variable_names.md](feedback_odoo_reserved_variable_names.md) — NEVER name a var `response`/`result` in Odoo 19 server actions — reserved eval vars (Response crash).
+- [feedback_odoo_rpc_write_pattern.md](feedback_odoo_rpc_write_pattern.md) — odoo_rpc write(): vals dict INSIDE the args list — [[id],{vals}] — not a 4th kwarg.
+- [feedback_ported_means_twilio.md](feedback_ported_means_twilio.md) — "ported"/"ported numbers" = Twilio ported phone numbers (not a generic "port the data over").
+- [feedback_planning_constraints.md](feedback_planning_constraints.md) — Filter all architecture through 4 constraints: no new Odoo seats, no custom models, one Odoo instance, must scale across businesses.
+- [feedback_proactive_inefficiency_capture.md](feedback_proactive_inefficiency_capture.md) — I own catching trial-and-error patterns + saving the fix immediately — no asking, no waiting.
+- [feedback_python_patch_escaping.md](feedback_python_patch_escaping.md) — NEVER use '\\n' in Python patch replacement strings — embeds real newlines → SyntaxError.
+- [feedback_regression_guard_pushes.md](feedback_regression_guard_pushes.md) — READ before any push to dashboard.py / large files (stale-overwrite guard).
+- [feedback_push_compare_and_swap.md](feedback_push_compare_and_swap.md) — PUT with the sha you READ at, never a fresh one — concurrent change 409s instead of clobbering.
+- [feedback_question_when_big_picture_wrong.md](feedback_question_when_big_picture_wrong.md) — ★ TOP judgment rule: repetition across files = STOP and ASK. Don't mechanically duplicate NOR unilaterally refactor working code (34-launcher incident).
+- [feedback_reuse_canonical_endpoint.md](feedback_reuse_canonical_endpoint.md) — Don't duplicate logic for a new UI entry — call the canonical endpoint (extend if needed).
+- [feedback_removing_element_leaves_dangling_ref.md](feedback_removing_element_leaves_dangling_ref.md) — Removing an HTML element but leaving a JS getElementById('X').prop ref crashes init.
+- [feedback_render_claude_number_options.md](feedback_render_claude_number_options.md) — Render Claude presents choices as a NUMBERED list (DJ replies with a number — he's on a phone).
+- [feedback_render_cron_autodeploy.md](feedback_render_cron_autodeploy.md) — Render cron autoDeploy=yes fires on every push → duplicate emails.
+- [feedback_render_env_var_patch_not_put.md](feedback_render_env_var_patch_not_put.md) — NEVER PUT Render env-vars (wipes unspecified). POST per-var, or fetch+merge+PUT the full list.
+- [feedback_render_put_env_vars.md](feedback_render_put_env_vars.md) — CRITICAL: Render PUT /env-vars wipes ALL vars. GET→merge→PUT the full list.
+- [feedback_report_gray_lines.md](feedback_report_gray_lines.md) — Every emailed P&L/financial report needs a light-gray line under every line item (phone readability).
+- [feedback_route_work_to_claude_code.md](feedback_route_work_to_claude_code.md) — Default ALL work to Claude Code (flat Max sub, no marginal $).
+- [feedback_mirror_memory_to_github.md](feedback_mirror_memory_to_github.md) — ★ Writing/editing ANY memory → also mirror to Odoo-Migration/memory/<name> via gh api Contents PUT (fetch sha first). Never git push (main protected).
+- [feedback_save_filter.md](feedback_save_filter.md) — DJ wants auto-saves (no slash command). Filter SHARED_MEMORY writes to runtime-relevant facts only.
+- [feedback_script_insertion_anchor.md](feedback_script_insertion_anchor.md) — Never rfind('</script>') — it hits the last external script tag.
+- [feedback_send_email_with_attachment.md](feedback_send_email_with_attachment.md) — Pattern for sending email + PDF attachment via Odoo JSON-RPC.
+- [feedback_status_update_format.md](feedback_status_update_format.md) — "status update"/"what's open" = condensed last-~3–4 hr recap grouped Shipped / Waiting-on-you / Open.
+- [feedback_spoken_friendly_responses.md](feedback_spoken_friendly_responses.md) — DJ has replies read aloud → default PLAIN spoken style: short sentences, no bold/tables/symbols.
+- [feedback_test_like_real_app_before_delivering.md](feedback_test_like_real_app_before_delivering.md) — An app mimicking a known product (Vault=Evernote): TEST against that product's core behaviors before delivering.
+- [feedback_verify_limits_before_declaring.md](feedback_verify_limits_before_declaring.md) — Before telling DJ "I can't do X" (esp. cloud reach), TEST the call first — don't declare a limit from a stale doc.
+- [feedback_use_sonnet_for_routine.md](feedback_use_sonnet_for_routine.md) — Model: OPUS for Render-app edits + accounting (regression/financial risk); Sonnet for routine.
+- [feedback_workiz_no_job_all.md](feedback_workiz_no_job_all.md) — NEVER use the Workiz job/all/ endpoint (DJ's rule).
+- [feedback_saunders_printing_never_send.md](feedback_saunders_printing_never_send.md) — NEVER send any Saunders Printing invoice/email without DJ's explicit OK.
+- [feedback_auditor_user_perspective_gapfinder.md](feedback_auditor_user_perspective_gapfinder.md) — ★ Auditor = USER-perspective gap-finder: uses the app as a real person, hunts what the PLAN missed (edit/delete/edge/missing Add). Run before calling user-facing work done.
+- [feedback_dj_owns_cheryl_erp_access.md](feedback_dj_owns_cheryl_erp_access.md) — ★ GOVERNANCE: DJ progressively grants Cheryl more owner/ERP access as HE chooses. Surface a scope concern ONCE, don't relitigate. company_id fails-open holds.
+- [feedback_drop_link_table.md](feedback_drop_link_table.md) — ★ DROP the end-of-reply link TABLE (fed Cheryl's "too many interfaces"). Keep ONE relevant link + the OVER line.
+- [feedback_hud_cards_live_not_inbox.md](feedback_hud_cards_live_not_inbox.md) — ★ HUD/status cards must be LIVE-DERIVED every render (a dashboard), never a stored inbox that goes stale. Persist only STATUS.
+- [feedback_escalate_to_dj_sparingly.md](feedback_escalate_to_dj_sparingly.md) — ★ Reach DJ only when REALLY needed (only-he-can-decide/money/customer-facing/blocked); else make the call + report in one line.
+- [feedback_check_endpoint_map_first.md](feedback_check_endpoint_map_first.md) — ★ Any endpoint lookup/build/review → CHECK 3_Documentation/ENDPOINT_MAP.md FIRST (method/path/LIVE-vs-DEAD/file:line/auth), not router code. Kept living by push-gate + backstop.
+- [feedback_durable_watcher_not_session_cron.md](feedback_durable_watcher_not_session_cron.md) — ★ Durable must-always-run work = SERVER-SIDE Render APScheduler, NEVER a session cron (7-day expiry + dies on exit). Session crons only for a session's own presence (heartbeat/mail-watcher; self-re-arm).
