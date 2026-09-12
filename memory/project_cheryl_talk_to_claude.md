@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-12T07:33:49.016Z
+  modified: 2026-09-12T07:37:35.063Z
 ---
 
 **Built 2026-09-12** (DJ: "in cheryl app, make a tile or someway Cheryl can talk to Cheryl's cloud"). Brief: `3_Documentation/CHERYL_ASSISTANT_BRIEF.md`.
@@ -25,6 +25,6 @@ Cheryl types in-app → message stored in a durable thread → **Cheryl's-cloud*
 - **Responder:** Cheryl's-cloud arms its own watcher (GET inbox → act → POST reply, with `X-Notify-Secret: <NOTIFY_SECRET>`). No app files. Cadence ~5 min while up.
 
 ## Auth (the key gotcha)
-`/cheryl/*` is HARD cookie-gated (main.py `_authz_gate`, role-desync fix). The responder has NO cheryl cookie, so `inbox` + `reply` are added to **authz.py `PUBLIC_EXACT`** (bypasses the cookie gate) and guarded INSIDE by `NOTIFY_SECRET` (header `x-notify-secret` or `?secret=`) — same server-to-server secret pattern as `notify_dj`. `send`/`thread` stay cookie-gated (Cheryl's browser). Verified live: inbox without the secret → 403 "bad or missing NOTIFY_SECRET" (reachable + guarded, not the cookie 401).
+`/cheryl/*` is HARD cookie-gated (main.py `_authz_gate`, role-desync fix). The responder has NO cheryl cookie, so `inbox` + `reply` are added to **authz.py `PUBLIC_EXACT`** (bypasses the cookie gate) and guarded INSIDE by `NOTIFY_SECRET` (header `x-notify-secret` or `?secret=`). `send`/`thread` stay cookie-gated (Cheryl's browser). Verified live: inbox without the secret → 403 "bad or missing NOTIFY_SECRET" (reachable + guarded, not the cookie 401). **`_secret_ok` is FAIL-CLOSED** (denies when `NOTIFY_SECRET` is unset) — unlike `notify_dj`'s bootstrap-allow — because `reply` WRITES into Cheryl's thread as "Claude" and sits in PUBLIC_EXACT, so a cleared secret must never become an open injection surface (Lead hardening note 2026-09-12). Prod has NOTIFY_SECRET set.
 
 Related: [[feedback_dj_owns_cheryl_erp_access]], [[project_agent_mail_channel]], [[feedback_notify_dj_channels]].
