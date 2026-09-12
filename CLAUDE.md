@@ -102,7 +102,7 @@ So DJ no longer has to nudge "mail," each session watches its OWN mailbox. **At 
 **★ END-OF-TURN "OVER" STATUS (DJ 2026-08-18) — every session, every turn.** So DJ can tell at a glance which sessions are free to talk to (walkie-talkie "over"), the **VERY LAST LINE of every reply** is a status line:
 - Done & idle, ready for DJ → `🟢 <Role> — OVER` (may add a few words, e.g. `🟢 Web — OVER (site done, waiting on your photo pairs)`).
 - Still working / a background task is running / you'll produce more without DJ → `🟡 <Role> — working`.
-`<Role>` ∈ Lead / Specialists / Web / Portal. DJ scans: **🟢 = channel open, reply to me; 🟡 = still working, stand by.** Put it on EVERY reply from now on (including watcher ticks). It is always the last line.
+`<Role>` ∈ Lead / Specialists / Web / Portal / Operator / Design / Audit. DJ scans: **🟢 = channel open, reply to me; 🟡 = still working, stand by.** Put it on EVERY reply from now on (including watcher ticks). It is always the last line.
 
 ---
 
@@ -243,50 +243,9 @@ These are facts confirmed by direct API query. Never infer these from patterns o
 
 ---
 
-## WORKIZ API ACCESS — HOW TO CALL FROM SCRIPTS
+## WORKIZ API — RETIRED (archived)
 
-**Workiz GET calls work directly from anywhere** — local machines, Render, Odoo server actions. No IP restriction. No proxy needed.
-
-**Workiz API URL format:**
-```
-GET:    https://api.workiz.com/api/v1/{TOKEN}/job/get/{UUID}/
-UPDATE: https://api.workiz.com/api/v1/{TOKEN}/job/update/{UUID}/
-DELETE: https://api.workiz.com/api/v1/{TOKEN}/job/delete/{UUID}/
-```
-- Token: `[RETIRED — Workiz dead 2026-08-03]`
-- Auth Secret: `[RETIRED — Workiz dead 2026-08-03]` — needed for POST/UPDATE/DELETE, **NOT for GET**
-- In Odoo server actions: use `requests.get(url)` — `requests` is available in Odoo eval context
-- **Rate limit:** ~30 calls before hitting HTTP 429 — sleep 15-30 seconds between batches
-
----
-
-## WORKIZ API CRITICAL DEFAULTS
-
-These defaults prevent Workiz API validation errors. Always use when field might be empty:
-
-```python
-'type_of_service_2': str(value or 'On Request')     # NOT type_of_service, NOT empty string
-'frequency':         str(value or 'Unknown')          # NOT empty string
-'confirmation_method': str(value or 'Cell Phone')    # NOT empty string
-'JobSource':         str(value or 'Referral')         # NOT "Reactivation"
-'ok_to_text':        str(value or 'Yes')
-```
-
-**Workiz Status vs SubStatus — FUNDAMENTAL:**
-Only **Submitted** and **Done** are true top-level Status values that we use. **Everything else lives under Status="Pending" as a SubStatus** — Scheduled, STOP, Lead, Send Confirmation - Text, Next Appointment - Text, Next Appointment 2 - Text, In Progress, Canceled, all of them.
-ALWAYS filter on SubStatus, not Status.
-When updating SubStatus via the API, the body MUST include the parent Status="Pending" too — otherwise Workiz returns 400 "Could not update sub status with no parent status provided". `workiz_post` in the Render app auto-injects this; if you write Workiz API code in Zapier or Odoo server actions, replicate the rule.
-
-**Workiz API quirks:**
-- ClientId: use numeric (e.g. 1040) not "CL-xxx"
-- JobDateTime: omit entirely for unscheduled jobs
-- All string fields: must be str() — reject None/numbers
-- Job create response: returns list `[{UUID: '...'}]` or HTTP 204
-- Job GET response: `{"data": [{...job...}]}` — job is inside a list. Always parse: `data = raw['data']; job = data[0] if isinstance(data, list) else data`
-- Job GET on deleted job: returns **HTTP 204** (no content), NOT 404. Treat both 204 and 404 as "job is gone"
-- type_of_service_2 is the custom field name (NOT type_of_service)
-
----
+Workiz went dark **2026-08-03**; `api.workiz.com` returns 401 (expected). The full Workiz API access, critical defaults, and Status/SubStatus rules are archived in `z_ARCHIVE_DEPRECATED/WORKIZ_LEGACY.md` — history/reference only, do NOT act on them as current. (The live `x_studio_x_studio_workiz_status` FIELD is unrelated and stays documented in the field table + CRITICAL RULES.)
 
 ## APPROACHES THAT FAILED (DO NOT REPEAT)
 
@@ -563,21 +522,9 @@ Scripts: `2_Testing_Tools/test_create_workiz_job.py`, `test_cleanup_workiz_job.p
 
 ---
 
-## PHASE STATUS
+## PHASE STATUS — RETIRED (archived)
 
-| Phase | Purpose | Trigger | File |
-|---|---|---|---|
-| 1 | Historical Migration | One-time (complete) | N/A |
-| 2 | Reactivation Engine | Odoo Server Action (manual) | ODOO_REACTIVATION_*.py |
-| 2B | STOP Compliance | Workiz → Odoo direct webhook | odoo_webhook_stop_handler.py |
-| 3 | New Job Creation | Workiz webhook → Zapier | zapier_phase3_FLATTENED_FINAL.py |
-| 4 | Job Status Updates | Zapier polling (5 min) | zapier_phase4_FLATTENED_FINAL.py |
-| 5 | Auto Job Scheduling | Phase 6 webhook trigger | zapier_phase5_FLATTENED_FINAL.py |
-| 6 | Payment Sync | Odoo webhook → Zapier | zapier_phase6_FLATTENED_FINAL.py |
-
-**STOP webhook URL:** `https://window-solar-care.odoo.com/web/hook/f64d0bc1-54fd-45a1-b645-0dcae6ae1728`
-
----
+The Zapier Phase 1–6 architecture was the Workiz-era sync (retired 2026-08-03). Archived in `z_ARCHIVE_DEPRECATED/WORKIZ_LEGACY.md`. Odoo is the single source of truth now — see the top "WORKIZ IS RETIRED" section.
 
 ## PAIRED CHANGES — DO BOTH OR NEITHER
 
@@ -590,7 +537,6 @@ These are changes that always require updating TWO places. Missing one breaks so
 | Change the field VOICE assistant (`/owner/ask` — tools, SYSTEM_PROMPT, `_agent_loop`, the voice text-draft tool, Think-hard deep mode) | `routers/owner/dashboard.py` (the LIVE `/ask` — EDIT HERE) | `routers/owner/field.py` (its `/ask` twin is DEAD) | main.py includes dashboard FIRST, so **dashboard.py serves `/owner/ask` and field.py's copy does nothing** (burned 2026-08-19 — a whole voice-tool + deep-mode build landed in field.py with zero effect). Voice-assistant changes go in **dashboard.py**. Note: dashboard.py's `/ask` is still the pre-Workiz-retirement version (live Workiz tools + "WORKIZ FACTS" + an override "WORKIZ RETIRED" block on top); full cleanup pending — do NOT strip the still-live `workiz_status` FIELD in that cleanup. |
 
 **★ Route-shadowing rule (2026-08-19):** two routers registered under the same prefix can define the same path; the one included FIRST in `main.py` wins and the later one is a silent dead twin (hit us on `/api/hemet/*` and `/owner/ask`). Two defenses: (1) before editing OR reviewing any endpoint, confirm which file actually SERVES it (grep the path across the repo; late-registered routers — e.g. portal.py at main.py:292 — are the at-risk profile). (2) When adding a route to a late-registered router, **feature-namespace the path** (`/portal/...`, `/p/...`) instead of a generic one (`/ask`, `/api/job`, `/api/customers`) — collisions only happen on generic paths, so namespacing makes shadowing impossible by construction. **`anthropic` SDK stays pinned at `==0.122.0`** — 0.123/0.124 stamp `tool_use.toolset_name`, which the API 400-rejects (affects every session's Claude calls).
-| ANY field **voice assistant** change (tools, prompt, model routing, `_agent_loop`, `run_agent`) | `routers/owner/dashboard.py` (the LIVE `/ask`) | `routers/owner/field.py` (DEAD twin — do NOT edit for voice) | Both define `@router.post('/ask')`; main.py includes dashboard FIRST under `/owner`, so **dashboard.py serves `/owner/ask`, field.py's twin is shadowed/dead**. Burned hours 2026-08-19 building the voice text tool + deep mode in field.py with zero effect. Edit dashboard.py. See memory `project_voice_ask_lives_in_dashboard.md` |
 
 ---
 
