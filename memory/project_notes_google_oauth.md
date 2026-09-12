@@ -37,7 +37,7 @@ Token dead again. Re-auth'd the same way and it's working: **recreated `C:\Users
 ## To renew the token again if needed (needs DJ's Google login once)
 1. Get `GOOGLE_OAUTH_CLIENT_ID` + `GOOGLE_OAUTH_CLIENT_SECRET` (Render env, or Google Cloud Console OAuth client). get_service does NOT return env var values.
 2. Run an `InstalledAppFlow` (offline access, scope `https://www.googleapis.com/auth/drive`) on DJ's PC → browser consent → prints refresh_token.
-3. Update Render `GOOGLE_OAUTH_REFRESH_TOKEN` — **merge, don't wipe** (Render PUT wipes all unspecified vars — see [[feedback_render_put_env_vars]]).
+3. Update Render `GOOGLE_OAUTH_REFRESH_TOKEN` — **merge, don't wipe** (Render PUT wipes all unspecified vars — see [[feedback_render_env_var_patch_not_put]]).
 4. Publish the OAuth app to Production so it stops expiring.
 
 Photo OCR model 2026-06-11: `create_from_photo` image analysis switched **Haiku → `CLAUDE_MODEL` (Sonnet 4.6)** + strict no-hallucination prompt ("transcribe EXACTLY, [illegible] for unclear, never invent, no narrative"). Haiku was hallucinating handwriting (turned a sticky note into a fake "Dear Richard" letter). `_analyze_note` summary still on Haiku (fine once transcription is faithful).
