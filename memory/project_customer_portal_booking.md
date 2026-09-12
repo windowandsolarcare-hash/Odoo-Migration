@@ -86,7 +86,7 @@ DJ hit a **502 on first load** then it worked on retry, but the **service questi
 ## STILL TODO (Phase 1 polish → Phase 2)
 - DJ to REVIEW THE LOOK (sent both URLs). Swap nothing until he reacts — he cares about professionalism.
 - Decide: customer requests stay `Submitted` review-queue (current) vs auto-confirm. Current = safe default.
-- Set `BOOKING_TOKEN_SECRET` env on Render before circulating links (GET+merge+PUT, never bare PUT — [[feedback_render_put_env_vars]]).
+- Set `BOOKING_TOKEN_SECRET` env on Render before circulating links (GET+merge+PUT, never bare PUT — [[feedback_render_env_var_patch_not_put]]).
 - Confirmation SMS/email on request (Twilio coming / Odoo mail.mail).
 - Wire reactivation SMS to send `/book/c/<token>` (later, parallel to Calendly).
 - Where do new-customer requests surface for DJ? Likely Submitted Jobs page (submitted_jobs.py) since status='Submitted'. Verify they show.
