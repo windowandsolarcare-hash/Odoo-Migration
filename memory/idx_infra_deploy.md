@@ -131,3 +131,5 @@
 - [project_shared_star_import_scoping_gap.md](project_shared_star_import_scoping_gap.md) — A new owner router needing dashboard.py quote calc/constants (QUOTE_DIFFICULTY, _calc_quote_total, QUOTE_PRODUCT_*, _quote_breakdown_text) must LAZY-import from routers.owner.dashboard; `from .shared import *` doesn't surface them (runtime NameError). Functional throwaway QC catches this; py_compile/boot don't.
 
 - [project_v2_schedule_keep_bookmark_stub.md](project_v2_schedule_keep_bookmark_stub.md) — static/owner/v2_schedule.html = KEEP (redirect stub forwarding OLD BOOKMARKS → v2_command.html). Zero code refs but deleting 404s DJs bookmark — a forwarding stub with no code refs isnt auto-dead; check for user-facing URLs first.
+
+- [project_cheryl_pwa.md](project_cheryl_pwa.md) — Cheryl's /cheryl/ app is an installable PWA "Cheryl — WSC" (CJ icon, cheryl.wscare.pro, host-scoped cookie = own login). manifest.webmanifest + with_pwa_head() in routers/cheryl/__init__.py + main.py:352 mimetype; cj-*.png icons are PLACEHOLDERS Design swaps at same paths. New static files 404 until Render redeploys.
