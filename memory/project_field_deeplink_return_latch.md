@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-12T15:53:25.670Z
+  modified: 2026-09-12T16:33:31.696Z
 ---
 
 **Fixed 2026-09-12.** DJ's recurring "a field/job screen drops me in the wrong place and I have to log out/in" bug.
@@ -17,7 +17,9 @@ Both field screens set a window global when opened via a deep-link (`?from=cc` /
 
 These are long-lived SPAs (jobs open/close + "Next Job" swap with NO page reload). The flag was set once and **never cleared**, so after ONE deep-link arrival, EVERY subsequent close/return (`apBack`, `_returnToOrigin`, record-payment, delete, snooze…) blindly called `history.back()` — popping to whatever stale/blank entry was in the browser/bfcache history instead of the current job/schedule. Only a full reload (= log out/in) cleared the window global → "needs relog."
 
-**Fix:** made the flag ONE-SHOT — clear it (`window._backToCC=null` / `window._fromDeep=null`) immediately before the `history.back()` at each read site. So `history.back()` fires only for the single job you actually arrived on from the deep-link; all later returns use the normal close→schedule path. (field.html read sites ~2826/3543; v2_field.html ~1467/1985.)
+**Fix — field.html (V1):** made `_backToCC` ONE-SHOT — clear it before the `history.back()` (read sites ~2826/3543).
+
+**Fix — v2_field.html (V2, the LIVE screen) — SUPERSEDED the one-shot with a DURABLE return target (DJ 2026-09-12):** the one-shot `_fromDeep` was still in-memory, so a webview background→restore / bfcache pageshow / reload left it undefined → close fell THROUGH to v2_field's OWN day-view schedule (narrow cards = DJ's "old schedule") instead of returning to the Command Center — his exact recurring symptom, relog to fix. New fix: at load, WHEN `?open_so` is present, capture `sessionStorage.setItem('v2field_return', document.referrer || '/static/owner/v2_command.html')` **BEFORE** the replaceState that strips `open_so` (the strip removes the only signal we were deep-linked, so capture must precede it). The close/‹Back handler (formerly the `_fromDeep` sites ~1467/1985) now reads that key → `location.href = <target>` + clears it — deterministic, survives reload/bfcache. A DIRECT open of v2_field (no `open_so`) clears `v2field_return` (boot's else) so close correctly reveals the day view (its home). `_fromDeep` removed entirely. Capture is in BOTH open_so blocks (boot ~3979 + the loadField-tail block ~1110); boot runs first (entry at ~4017, before loadField), so it's the real consumer.
 
 ## Secondary: `_openSoDone` in-memory flag (NOT changed — noted)
 Both screens guard the `?open_so` deep-link re-open with in-memory `window._openSoDone` + a `history.replaceState` that strips `open_so` from the URL. Within a page load this prevents the 5-min `setInterval(loadField)` from re-opening the job (the 2026-07-07 "back on the last job / roof-photos" bug). A webview **resurrection that restores the original (unstripped) URL** could re-open it (flag reset + open_so back). **Do NOT "fix" this with a sticky durable (localStorage/sessionStorage by so_id) guard** — each legitimate re-navigation to the same job is a FRESH page load that correctly resets the in-memory flag, and a sticky guard would wrongly BLOCK re-opening the same job in the same session. The replaceState strip + DJ's Reset-app button cover the edge. Left as-is on purpose.
