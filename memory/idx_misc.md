@@ -1,5 +1,9 @@
 # Misc — memory index
 
+- [project_memory_ask_relevance.md](project_memory_ask_relevance.md) — /api/memory/ask firehose fix (2026-09-10): stopwords + IDF weighting (1/(1+doccount)) + require-match + cap 8 in memory_store.ask() → 'canva' query 59→3, right card #1. Part 2 (Haiku answer-synthesis, answer-don't-list) PENDING.
+
+- [project_meeting_distill_truncation_and_rekick.md](project_meeting_distill_truncation_and_rekick.md) — Meeting distill failed on a dense hour = max_tokens=4000 truncation hidden by silent except. Fix: escalating 8k/16k cap + retry + (dict,err) return + reference[] rule. RE-KICK a stuck/errored meeting cookie-free: flip wsc.memory.meetings record status→'distilling' + stale last_progress_at → */10 cron resumes from wsc.memory.mtg_transcript.<mid> checkpoint.
+
 - [project_meeting_distill_maxtokens_and_recovery.md](project_meeting_distill_maxtokens_and_recovery.md) — Meeting pipeline: distill failed on a dense meeting (max_tokens=4000 truncation hidden by silent except); transcript+audio always safe (checkpoints); how to diagnose+re-kick a stuck meeting; screensaver→"you you you" wake-lock fix. 2026-09-10.
 
 - [project_branded_receipt_page.md](project_branded_receipt_page.md) — ★ Payment receipts must be W&SC-BRANDED (our hosted /receipt/{token} page, texted via Twilio), NOT Stripe's pay.stripe.com receipt. Governing: Stripe = last-mile card processor ONLY; before/after is ours + our-branded. Card page already ours; receipt was the leftover. Routed to Specialists 2026-09-08.
@@ -66,3 +70,5 @@
 - [project_branded_receipt.md](project_branded_receipt.md) — AS-BUILT of the W&SC-branded receipt: public /receipt/{token} (receipt.py, calfeed so-token), wsc.receipt.<so_id> snapshot at record, /api/carddoor/receipt texts/emails OUR link (Stripe receipt_email dropped), Text-first paid affordance, "…, LLC" legal footer line.
 - [project_cheryl_home_groups.md](project_cheryl_home_groups.md) — Cheryl home (static/cheryl/index.html) = 3 labeled groups (The Cheryl App / Real Estate / Personal); TWO SEPARATE Documents tiles (W&SC-Vault vs real-estate) — never merge; FAB launcher APPS array must mirror the order.
 - [project_cheryl_owner_surface_grant.md](project_cheryl_owner_surface_grant.md) — REPEATABLE cheryl-role grant to a W&SC OWNER surface: add prefix to CHERYL_GRANTED_OWNER in authz.py (boundary-matched, no delegation). First: /owner/hiring + /owner/hr. NEVER grant /owner/v2_apps. Path-scoped; company_id untouched.
+
+- [project_cheryl_talk_to_claude.md](project_cheryl_talk_to_claude.md) — Cheryl "Talk to Claude" (/cheryl/assistant) = async relay to Cheryl's-cloud. routers/cheryl/assistant.py; store wsc.cheryl.assistant.thread; send/thread cookie-gated, inbox/reply NOTIFY_SECRET-guarded (authz PUBLIC_EXACT).
