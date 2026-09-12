@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 44fd339a-14fd-42e2-adef-f1ae97081400
-  modified: 2026-07-27T06:26:28.480Z
+  modified: 2026-09-12T18:48:46.354Z
 ---
 
 **Canonical inter-agent channel (DJ approved 2026-07-26):** `3_Documentation/AGENT_MAIL.md` in the **saunders-render-app** repo (both sessions read that repo). An older copy in the local Odoo-Migration `3_Documentation/` is now just a pointer to this one.
@@ -17,6 +17,9 @@ metadata:
 - Newest entries on TOP. Entry format: `## <date> <time> · FROM <lead|specialists> — <one-line subject>` then a short body.
 - Mark an entry `**HANDLED <date>**` (on top of its body) when done; don't delete same-day; prune handled entries older than ~a week.
 - **Decisions still go through DJ** — the file carries INFORMATION, not approvals. I am "specialists"; the other is "lead."
+- **Long content goes in its own doc** (`*_BRIEF.md` / `*_STATUS.md`); the mail entry just points to it — don't paste long text into the mail file.
+
+**Why (merged from the former `feedback_agent_mail`, 2026-09-12):** before this, DJ was ferrying paragraphs between sessions on his phone; docs carry content ([[feedback_agent_handoff_via_doc]]) but sessions couldn't ping each other — the mail file + the one-word "mail" nudge reduces DJ's role to **doorbell + decider**.
 
 **Related lead-facing docs (same repo 3_Documentation/):** `SHARED_MEMORY.md` (loaded at session start), `BILLING_SPECIALIST_STATUS.md` (billing handoff + the lead's answers), `HUD_BADGES_SPEC.md` (badge + unsnooze spec). The lead writes BACK into these too (e.g. lead added a "Lead's answers" section to BILLING_SPECIALIST_STATUS.md) — so treat them as two-way, re-read before assuming they're only mine.
 
