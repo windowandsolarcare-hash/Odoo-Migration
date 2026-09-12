@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-12T18:12:20.590Z
+  modified: 2026-09-12T18:29:33.515Z
 ---
 
 **Built 2026-09-12 (staged, "B": Command Center → job detail in-place, kill the "Field Day" page-jump).** Scope doc: `3_Documentation/JOB_DETAIL_INPLACE_SCOPE.md`; gate-1 inventory: `JOB_DETAIL_INPLACE_GATE1_INVENTORY.md`.
@@ -25,8 +25,8 @@ metadata:
 - Stale mirror: the read-only clone drifts behind your OWN mid-session pushes — re-fetch live before editing (the inbox pagination was nearly clobbered this way).
 
 ## Status / remaining
-- Gates 2a (carve), 2b (ctx seam, v2_field identical), 3 (iframe overlay behind ?inplace=1) = LIVE + QC-passed (2a/2b) / awaiting Gate-4 QC (3).
-- **Gate 4** (Lead + Auditor): full money/timer/photos walk from `v2_command.html?inplace=1` before cutover.
+- Gates 2a (carve), 2b (ctx seam, v2_field identical), 3 (iframe overlay behind ?inplace=1) = LIVE + QC-passed.
+- **Gate 4** (Lead + Auditor user-walk) = DONE. Auditor confirmed the close-mid-POST double-charge is GUARDED (server `_execute_payment` idempotency dashboard.py:4787 + panel re-checks on reopen) — NOT a gap. 3 fixes shipped 2026-09-12: (1) ★ CONFIRMED — `_showStripePaidUI` (Stripe poll/resume paid branch) now calls `_jdctx().onPaid(so_id)` in inplace mode → posts `wsc-jd-paid` → CC refreshes (was only `wsc-jd-close`, leaving CC stale-unpaid after a card payment); guarded `if(c.inplace && c.onPaid)` so v2_field-direct is byte-unchanged. (2) v2_command `updateClockBar` appends `· ⏱ <m>m` for a running `wsc_timer` (survives overlay close, 30s self-refresh, refreshes on close). (3) `_jdOpenOverlay` pushState dedupe (push only on a genuine open, not a re-tap while open). node --check clean, additive only. Awaiting Lead re-verify of the Stripe-paid→wsc-jd-paid path.
 - **Gate 5** (cutover): make in-place the default (drop the ?inplace=1 gate on rowTap); then v2_field's inline panel markup/CSS could be retired (optional "pure single-DOM" pass). Legacy V1 field.html + ql_panel retirement is separate.
 
 Related: [[project_field_deeplink_return_latch]], [[feedback_never_remove_working_code]].
