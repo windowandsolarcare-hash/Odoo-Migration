@@ -1,5 +1,7 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [reference_domain_dns_hosting_map.md](reference_domain_dns_hosting_map.md) — ★ WHERE EACH DOMAIN LIVES: wscare.pro = Cloudflare DNS → Render app (subdomains like cheryl.wscare.pro = Cloudflare + Render); windowandsolarcare.com + scenicartprint.com = DreamHost; www.windowandsolarcare.com = CNAME → Odoo. Check before touching any domain/DNS/SSL so you use the right panel.
+
 - [project_fleet_stale_watchdog.md](project_fleet_stale_watchdog.md) — zero-token APScheduler watchdog (main.py, every 3h): reads LIVE SESSION_ROSTER via GitHub Contents API (on-disk 3_Documentation/* is FROZEN — Build-Filter ignored paths don't redeploy), flags roles >4h stale (excl Cheryl's-cloud), push_dj banner once per fresh→stale (de-dupe wsc.fleet.watchdog), no SMS.
 
 - [project_auth_role_model_cheryl_isolation.md](project_auth_role_model_cheryl_isolation.md) — authz.py session/role model: roles owner/tech/cheryl, make_session {n,r,p}, pid owner=3/Cheryl=23243, AUTH_ENFORCE is ON, login at / + /api/login. /cheryl is cheryl-role-only (owner no longer opens it) — isolation fix 2026-09-10: owner session on /cheryl rendered Cheryl UI under p=3; guard redirects non-cheryl → /owner/ or /.
