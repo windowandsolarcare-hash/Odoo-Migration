@@ -23,6 +23,7 @@
 - [project_voice_inbound_plan.md](project_voice_inbound_plan.md) — Phase 2 INBOUND CALLS on Twilio (after Workiz port; voice needs NO A2P).
 - [project_website_wpforms_email_down.md](project_website_wpforms_email_down.md) — windowandsolarcare.com form email was DEAD (WP Mail SMTP Gmail mailer = invalid_grant) → quote-lead notifications never delivered (admin email…
 - [reference_brand_logo.md](reference_brand_logo.md) — Official W&SC logo file (PNG 500×235, white bg, tagline).
+- [reference_wsc_brand_artwork_location.md](reference_wsc_brand_artwork_location.md) — WHERE the W&SC logo + full artwork library live on disk: ...\A Window and Solar Care\Website\Logo\ (Logo-Org.png = transparent master) + parent Website\ (Solar/Windows/Gutter/Van/People/etc). One logo mirrored in repo 4_Reference_Data/brand/. Design's canonical brand assets; go here before re-searching the disk.
 - [reference_cheryl_email.md](reference_cheryl_email.md) — Cheryl Johnson's email = cjcherylcj@gmail.com — send EVERYTHING to her there from now on (DJ, 2026-06-25).
 - [reference_daniel_saunders_iv.md](reference_daniel_saunders_iv.md) — Daniel "Danny" Saunders IV = DJ's SON, part-time employee (since Jan 2023, 25-30 hrs/wk, ~$2,100/mo payroll since ~mid-Apr 2026) AND tenant…
 - [reference_recurring_paid_services.md](reference_recurring_paid_services.md) — Recurring services DJ pays for (Gmail audit 2026-07-04): ~$1,929/mo total but ~$1,490 personal (mortgage/insurance/storage);
