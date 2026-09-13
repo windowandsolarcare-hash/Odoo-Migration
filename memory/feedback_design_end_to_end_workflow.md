@@ -38,6 +38,21 @@ then get its id with the Drive MCP (`search_files`, `title contains '...'`) and 
 `https://drive.google.com/file/d/<id>/view`. It's his own Drive, so no sharing step is needed and it
 opens on the phone. This is the default delivery path for every design deliverable now.
 
+### * "PUSHED" IS NOT "LIVE" — verify an app asset at the ORIGIN, not at GitHub (2026-09-12)
+Shipping the CJ icon, I confirmed the push by re-reading the **GitHub Contents API** and seeing my new
+byte counts. That proves the repo took the file. It does NOT prove the app is serving it — Render needs
+roughly **two minutes to redeploy**, and in that window the origin was still handing out the old
+placeholder (8305 b where mine was 19612 b). Lead checked during exactly that gap and saw the stale
+asset. Not a cache (`cf-cache-status: DYNAMIC`), just deploy lag.
+
+**So for anything shipped into the running app: after pushing, fetch the LIVE URL and compare bytes
+before saying it is live.** This is the fleet's verify-by-content rule with one extra turn of the screw —
+verify at the right PLACE. The source of truth and the thing users touch are two different systems.
+
+**Related, for PWA icons specifically:** an already-installed PWA caches its icon. A user who installed
+while a placeholder was live must remove and re-add the app to pick up the new one; a fresh install gets
+it straight away. Say this up front when shipping an icon — otherwise it reads as a broken deploy.
+
 ### ★ NEVER OVERWRITE A PROOF — give every revision a NEW filename (DJ 2026-09-12, "exactly what I wanted")
 Google Drive keeps serving the **cached thumbnail** of an overwritten PNG. PDFs re-render their
 preview straight away; PNGs do not. So after a copy revision DJ opened the proof, saw the OLD
