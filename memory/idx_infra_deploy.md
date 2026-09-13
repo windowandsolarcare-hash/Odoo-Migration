@@ -135,3 +135,5 @@
 - [project_v2_schedule_keep_bookmark_stub.md](project_v2_schedule_keep_bookmark_stub.md) — static/owner/v2_schedule.html = KEEP (redirect stub forwarding OLD BOOKMARKS → v2_command.html). Zero code refs but deleting 404s DJs bookmark — a forwarding stub with no code refs isnt auto-dead; check for user-facing URLs first.
 
 - [project_cheryl_pwa.md](project_cheryl_pwa.md) — Cheryl's /cheryl/ app is an installable PWA "Cheryl — WSC" (CJ icon, cheryl.wscare.pro, host-scoped cookie = own login). manifest.webmanifest + with_pwa_head() in routers/cheryl/__init__.py + main.py:352 mimetype; cj-*.png icons are PLACEHOLDERS Design swaps at same paths. New static files 404 until Render redeploys.
+
+- [feedback_windows_tools_need_C_paths.md](feedback_windows_tools_need_C_paths.md) — Git-Bash shells out to NATIVE Windows tools: PowerShell/Windows-python cant read MSYS /c/ paths (empty b64 / FileNotFoundError) — pass them C:/ paths; only bash builtins take /c/.
