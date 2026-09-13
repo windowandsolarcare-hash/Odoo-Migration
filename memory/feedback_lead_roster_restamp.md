@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 7a4f4487-5a08-47dc-8b9b-7761235acbe9
-  modified: 2026-09-10T14:40:22.014Z
+  modified: 2026-09-13T04:32:07.731Z
 ---
 
 **DJ 2026-09-10: "sessions can't nudge you. find out why and fix."**
@@ -18,5 +18,9 @@ metadata:
 3. **On EVERY watcher tick** (mail watcher + Cheryl outbound watcher), ALSO re-stamp the Lead row — even though the injected watcher prompt doesn't ask for it. Those ticks fire from DJ's side so they survive your restarts → they're the reliable heartbeat; fold the re-stamp in.
 
 **Systemic fix worth doing (DJ's call):** add a one-line "re-stamp your SESSION_ROSTER Lead row (current ListAgents ref + UTC)" step to the Lead **watcher prompt** itself (the mail + Cheryl-outbound watchers DJ's automation sends), matching what the other roles' watchers already do — that makes self-heal guaranteed rather than reliant on this memory being loaded.
+
+**★ ADDENDUM 2026-09-13 — a stale roster row has TWO causes; and never hardcode a ref in a heartbeat (learned hard by Design):**
+- **Two causes of a stale row:** (a) session DEAD, or (b) session ALIVE but its watcher/heartbeat cron is DEAD (killed, or `CronList` returns "No scheduled jobs"). Both look identical on the roster. Diagnose with BOTH `ListAgents` (is the session a live peer?) **and** `CronList` on that role (is its heartbeat armed?). Design ran alive for 11h with a dead watcher → roster went stale → the fleet stale-watchdog correctly flagged it (it was NOT a false alarm). So do NOT "suppress the watchdog if the peer is alive in ListAgents" — that would hide the real dead-watcher case; instead the watchdog should say "roster stale — the session may be alive with a dead watcher; CronList that role + re-arm if empty," and route to **Lead, not DJ** (DJ shouldn't adjudicate fleet health — no "type your answer" card at him).
+- **NEVER hardcode the session ref in a heartbeat prompt.** Design's heartbeat carried a literal old ref (`4cb02f`) while the real ref had churned (`ba5f85`), so it stamped a FRESH timestamp on a DEAD address for days — looked perfectly healthy, was unreachable. Every heartbeat MUST read the current ref from `ListAgents` each tick, never a baked-in literal. (Same failure family as [[feedback_render_design_before_presenting]]'s "never hardcode a session ref in a heartbeat.")
 
 Related: [[project_agent_mail_channel]], [[feedback_agent_mail_autowatch]] (arm watcher at start), [[feedback_push_compare_and_swap]] (roster writes are compare-and-swap). The roster protocol + heartbeat rule live in SESSION_ROSTER.md's header.
