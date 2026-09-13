@@ -44,6 +44,27 @@ Front A's headline box was 1800 px for a line measuring ~1750. A tiny render-wid
 2150. **Leave real slack around a headline that must hold one line**, and compare a re-render to the
 approved artwork before shipping it.
 
+## * THE LOGO — what the master is, and the tagline rule (settled 2026-09-12 with Lead)
+- **Master: `<Documents>\Business\A Window and Solar Care\Website\Logo\Logo-Org.png` — 2700 x 1110
+  RGBA, transparent, NO tagline.** This is the real master and it is plenty for print.
+- **There is NO vector logo and there probably never was one.** Lead searched local disk and Google
+  Drive: no W&SC `.ai` / `.eps` / `.svg` anywhere. The mark has *photographic* fills (water droplets
+  in WINDOW, solar-panel texture in SOLAR), so it was almost certainly built as a raster. Do not keep
+  hunting for a vector, and do not tell DJ to "get the vector from the designer" as if one exists —
+  Lead has asked him once whether a layered original survives.
+- *** TAGLINE = LIVE TYPE, not artwork.** Every `Logo-Org-and-Tag-*` raster maxes out at **500 x 251**,
+  which prints visibly soft in the thin tagline strokes at any real size. The standing solution is the
+  sharp 2700px logo with **"We don't just Clean, We Care!"** set as live type beneath it, CENTRED under
+  the logo (DJ 2026-09-12: centred, not right-justified), brand blue `#1e5aa8`, italic.
+- **! DEAD-NUMBER LANDMINE.** `Logo\Logo-Web-Site-Header*.png` (4095 x 820 — the LARGEST logo files in
+  the folder, so the tempting ones) have the **RETIRED toll-free (855) 245-2273** baked into the
+  artwork. Current number is **760-334-5355**. Never place a Header logo on anything. Lead left a
+  `_READ-ME-BRAND-WARNINGS.txt` in that folder; files were not renamed because the live site may
+  reference them.
+- **Full image library:** `...\A Window and Solar Care\Website\` — Logo, Solar, Windows, Gutter,
+  Pressure Washing, Van, People, House, Screens, Squeege, Water Drops, Room, Equipment, Dan, Coupon,
+  Pricing, Care Program, Stock Images. Use these canonical W&SC assets before generating anything new.
+
 ## Where things live
 Working files: `design/view-ad/` (`Main.dc.html` = Front A, `FrontB.dc.html`, `Back.dc.html`,
 `canvas.json`, `view.jpg`, `wsc-logo.png`, `_source/` originals, `PRINT/`, `PROOF/`).
