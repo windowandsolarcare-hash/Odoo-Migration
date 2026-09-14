@@ -137,3 +137,5 @@
 - [project_cheryl_pwa.md](project_cheryl_pwa.md) — Cheryl's /cheryl/ app is an installable PWA "Cheryl — WSC" (CJ icon, cheryl.wscare.pro, host-scoped cookie = own login). manifest.webmanifest + with_pwa_head() in routers/cheryl/__init__.py + main.py:352 mimetype; cj-*.png icons are PLACEHOLDERS Design swaps at same paths. New static files 404 until Render redeploys.
 
 - [feedback_windows_tools_need_C_paths.md](feedback_windows_tools_need_C_paths.md) — Git-Bash shells out to NATIVE Windows tools: PowerShell/Windows-python cant read MSYS /c/ paths (empty b64 / FileNotFoundError) — pass them C:/ paths; only bash builtins take /c/.
+
+- [project_windows_python_msys_path_gotcha.md](project_windows_python_msys_path_gotcha.md) — ★ This box's python3 is WINDOWS Python: `open('/c/Users/dj/...')` inside `python3 -c` throws FileNotFoundError (read AND write) — bash redirects to /c/ work, python opening them does not. Keep /c/ I/O in bash, feed python via stdin→stdout; guard empty pushes.
