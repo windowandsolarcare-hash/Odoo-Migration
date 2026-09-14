@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 62c57f62-79c0-4d47-9f2b-7e07e9e7d677
-  modified: 2026-09-08T16:10:39.444Z
+  modified: 2026-09-14T08:34:14.868Z
 ---
 
 **DJ clarified 2026-09-08, correcting a Lead mistake.** On the Cheryl app home:
@@ -16,4 +16,6 @@ metadata:
 
 **★ Lead's error to not repeat:** on 2026-09-08 Lead (mis)read Audit's "Documents=Our Library" finding and renamed the Library tile → "Documents" + deleted the Documents stub. WRONG — they're different. Reversed: Library stays "Library" (live); Documents is restored as its OWN coming-soon tile until the reworked doc UI ships. Cheryl's-cloud had actually flagged the risk ("if Library and Documents are genuinely different, the answer differs — somebody has to say what's inside each"); DJ then said what's inside each. **Lesson: when a rename/merge hinges on "are these the same thing?", get the human's answer on what's actually inside each BEFORE collapsing two names into one** — the two-front-doors-to-one-subject rule cuts both ways; two names can be two real things.
 
-**How to apply:** Documents tile = own tile, coming-soon, future = reworked-Vault doc UI (a real roadmap piece DJ wants). Library = leave as Library. See [[project_cheryl_workspace_next_phase_brief]], [[feedback_auditor_user_perspective_gapfinder]].
+**★ "Where does Cheryl SAVE a document?" — investigated 2026-09-14 (DJ's question).** Today Cheryl's app has a **Documents** tile (`/cheryl/documents` — docs shared WITH / FROM Dan) and **Our Library** (`/cheryl/library` — shared reference). The ONLY document-CREATE path is `/api/documents/send` (`owner_notes.create_and_share` → Dan pid 3) — i.e. **the only way Cheryl can "save" a document is to SEND it to DJ.** There is **NO private "My Documents" save** for Cheryl (a doc that's just hers, not shared to Dan). That is a genuine gap. Its proper home = the **reworked Vault doc UI** described above, given a Cheryl-scoped private folder (Cheryl-tag / x_owner=23243 isolation, same pattern as her Tasks/Projects) alongside the shared-to-Dan path. Offered to build it; awaiting DJ's go.
+
+**How to apply:** Documents tile = own tile, coming-soon, future = reworked-Vault doc UI (a real roadmap piece DJ wants) + a PRIVATE Cheryl save folder (the missing piece), not only send-to-DJ. Library = leave as Library. Vault engine to reuse: [[project_vault_phase1_md_notes]] / [[project_vault_evernote_drive]]. See [[project_cheryl_workspace_next_phase_brief]], [[feedback_auditor_user_perspective_gapfinder]].
