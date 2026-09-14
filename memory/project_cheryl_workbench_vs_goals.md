@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 7a4f4487-5a08-47dc-8b9b-7761235acbe9
-  modified: 2026-09-13T23:05:24.677Z
+  modified: 2026-09-14T04:50:51.237Z
 ---
 
 **Finding (2026-09-13, from DJ's floating-recorder walkthrough — DJ: "projects being workbench is a struggle... compare to my goals on the ERP side").**
@@ -19,5 +19,7 @@ metadata:
 - "Workbench" is NOT user-visible to Cheryl — only internal (`feed_live.py` `source='workbench'`, `_WORKBENCH_HREF='/cheryl/plan'`) + specs. Her home cards say "Tasks" + "Projects."
 
 **Recommendation given to DJ (his decision):** serve Cheryl a **Cheryl-scoped copy of `v2_goals.html`** (same pattern `hud.py` already uses to reuse `v2_hud.html` via an injected FEED_BASE global), retire `plan-views.html` as her Projects screen, drop the "Workbench" term. Caveat = moderate ADDITIVE work: `v2_goals.html` hardcodes `API='/owner/api/goals'` (:236) so parameterize the API base, and register the goals CRUD suite under `/cheryl` (goals/list,get; milestone/*; task/update; obstacles/save) with Cheryl-tag scoping + IDOR guards like tasks.py. **No schema/data migration.**
+
+**★ DJ APPROVED THE BUILD (2026-09-14)** — brief `3_Documentation/CHERYL_PROJECTS_GOALS_BOARD_BRIEF.md`, handed to Specialists. Final specs: (1) label stays **"Projects"** (not "Goals"); (2) **capacity section COLLAPSED by default** + **DROP "jobs booked"** from her capacity (window-job irrelevant to Cheryl); (3) **NO separate My Day for Cheryl** — the ☀️ sunburst links to **her Tasks app (/cheryl/tasks)**, not v2_myday.html; (4) **a milestone task auto-appears in her Tasks** — create with `owner='cheryl'` (x_owner=23243); `tasks.py _her_domain` already matches `['x_owner','=',pid]` for ANY project, so it surfaces in /cheryl/tasks with no extra plumbing. Wiring: scoped v2_goals.html (inject base like hud.py does for v2_hud; parameterize the hardcoded `API='/owner/api/goals'`), goals CRUD under /cheryl with Cheryl-tag scoping + IDOR guards mirroring tasks.py, reuse create_goal_core(cheryl=True)/create_task_core(owner='cheryl').
 
 Related: [[feedback_recordings_chunk_stream_durable]] (how the recording was captured), [[feedback_dj_owns_cheryl_erp_access]].
