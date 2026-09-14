@@ -1,5 +1,6 @@
 # Misc — memory index
 
+- [project_lead_handoff_2026_09_14.md](project_lead_handoff_2026_09_14.md) — ★ LEAD-TO-LEAD HANDOFF (2026-09-14 13:35 UTC): needs-DJ = CHERYL_CLOUD_SECRET paste + flagship eyeball; SHIPPED = async-feedback sweep 18/19 + unified inbox + Cheryl Projects + Portal watchdog-exclude + QC-reopen#1 closed; PARKED = agent-memory-app, memory document-pill, Vault rework + Cheryl private-doc-save. Fleet-ops state for the incoming Lead. Read first, verify live.
 - [project_memory_ask_relevance.md](project_memory_ask_relevance.md) — /api/memory/ask firehose fix (2026-09-10): stopwords + IDF weighting (1/(1+doccount)) + require-match + cap 8 in memory_store.ask() → 'canva' query 59→3, right card #1. Part 2 (Haiku answer-synthesis, answer-don't-list) PENDING.
 - [project_memory_document_pill_idea.md](project_memory_document_pill_idea.md) — ★ PARKED IDEA (DJ 2026-09-14): memory screen needs a real 📄 document UPLOAD ("document pill") to replace the unintuitive Reference-card 'link' field (just an external-URL hyperlink today, no upload/index), + index uploads so Ask can "show me the document named xxxxx" (Drive OCR → by content later). Reuse ir.attachment + Vault engine; pairs w/ Vault-UI rework + Cheryl private-doc-save gap. NOT approved to build.
 
