@@ -5,12 +5,14 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: a2c61606-e81d-478f-b7ff-3a0b8fb045a8
-  modified: 2026-09-15T20:53:40.026Z
+  modified: 2026-09-15T21:14:13.223Z
 ---
 
 DJ 2026-09-15 (Memory Pillar convo): he learned the brain's records sit on a v1 **JSON-blob backend** (one `ir.config_parameter` JSON document per store, loaded/rewritten whole) rather than a true indexed/relational DB — the "start simple, swap the DAL to Render Postgres later" pattern in `memory_store.py`. His core vision (records, not Vault document-search) DID get built; but the durable, scale-proof STORAGE foundation he pictured is the deferred upgrade, not the current base. He's concerned — and says it's a REPEAT pattern — that the fleet **defaults to the cheap/temporary shortcut** when he asked for a lasting foundation, so the long-term intent gets "lost in translation" (built to the literal ask, not the vision).
 
 **Why:** When DJ frames something as a foundation / his vision, he ASSUMES it's built to last and that "I want X" is understood as intent, not a literal minimal spec. A silent shortcut violates that trust, and he shouldn't have to micromanage implementation to get durability.
+
+**★ DJ's refinement (2026-09-15, same convo):** He is actually FINE with shortcut-first — IF it is (a) SURFACED to him as an explicit choice at the time ("we can do this the quick way or the right way — which?"), and (b) the upgrade/"do it right" is TRACKED OUT IN THE OPEN (a visible tracked item), not buried where only code readers see it. The actual failure on the Memory Pillar was NOT that JSON was chosen — it's that the Postgres "upgrade path" was documented ONLY inside the code docstring, never put in front of DJ. Claude introduced the word "upgrade" (in the code), not DJ — DJ described an index database and got the shortcut silently. So: shortcut is acceptable as a DELIBERATE, VISIBLE, DJ-made decision; it is not acceptable as a silent default with the real plan hidden. **Real-DB cost is NOT the blocker:** the right foundation = a managed Render Postgres (~$7/mo, on the platform the app already runs) — the exact upgrade named in memory_store.py. Not AWS/enterprise money. Odoo Online (SaaS) genuinely can't host new custom tables/models (Studio fields + built-in stores only) — that constraint, plus "get it working now," is why JSON-in-config was used; cost was never the reason.
 
 **How to apply:**
 1. For anything DJ frames as foundational / core / "the vision," do NOT silently pick the minimal-working option. **Surface the shortcut-vs-durable tradeoff** (cost, scale ceiling, upgrade path) and let DJ decide BEFORE building.
