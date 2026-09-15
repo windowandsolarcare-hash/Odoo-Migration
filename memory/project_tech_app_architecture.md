@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-15T01:18:54.367Z
+  modified: 2026-09-15T02:49:08.832Z
 ---
 
 The **Tech App** is a fresh, cohesive sequential field app for technicians (built 2026-09-14, DJ-authorized; brief `3_Documentation/TECH_APP_BUILD_BRIEF.md`). Built from scratch (NOT v2_field with rooms removed) so it doesn't feel bolted-on; it **reuses the proven owner ENDPOINTS**, not the owner screens. Walks the SOP day in order: Start-of-day → Job card → At-the-door → **Assessment** → Do-the-work → End-of-job → Comms → End-of-day.
@@ -18,6 +18,6 @@ The **Tech App** is a fresh, cohesive sequential field app for technicians (buil
 
 **★ Money** = the ONE tech endpoint **`POST /tech/api/record_payment`** (`routers/tech/payments.py`) — maps method→(method,memo) and calls the canonical `routers.owner.payments._stale_so_payment → _execute_payment` (DRY, no dup logic); amount read server-side from the SO. Tech role never touches an `/owner` payment route.
 
-**Care seam** = [[project_wsc_busy_async_feedback_component]]'s sibling `routers/care_store.py` (shared, Specialists owns): Assessment findings (`POST /tech/api/care/item`) + before/after (`POST /tech/api/care/beforeafter`) → the customer PORTAL displays them. partner_id derived server-side from the SO. Photos reuse `POST /owner/api/attachment` (description 'care'/'beforeafter'). Window SOP embedded in Do-the-work via `/tech/sop` + `/tech/sop_pro` (serve the same static/cheryl/sop_windows*.html source, raw).
+**Care seam** = [[project_wsc_busy_async_feedback_component]]'s sibling `routers/care_store.py` (shared, Specialists owns): Assessment findings (`POST /tech/api/care/item`) + before/after (`POST /tech/api/care/beforeafter`) → the customer PORTAL displays them. partner_id derived server-side from the SO. Photos reuse `POST /owner/api/attachment` (description 'care'/'beforeafter'). Window SOP embedded in Do-the-work via `/tech/sop` + `/tech/sop_pro` (serve the same static/cheryl/sop_windows*.html source, raw). `close_item`/`reopen_item` retract a finding (soft, status='closed'). **Prices** resolve at read time from DJ-editable `wsc.care.prices` (ir.config_parameter, by issue) → `price`/`price_note` on the item (null → portal "Price TBD"); never hard-coded; `get_prices`/`set_price` for a fast-follow owner editor.
 
-**HELD / deferred (do NOT build without the ruling):** the **Comms/ETA stage** is HELD pending DJ — `/owner/api/eta` is a customer-facing TEXT SEND and the brief's guardrail is "no customer-facing sends without DJ" (if yes → a scoped `/tech` eta wrapper, not an /owner grant). **inside/outside mode toggle** deferred (v1 single-mode). Future: a tech should see only his ASSIGNED jobs (v1 shows the whole day).
+**Comms/ETA (SHIPPED 2026-09-14, DJ-approved):** `POST /tech/api/eta` (`routers/tech/comms.py`) — FIXED option set only (ontime/m15/m30/m45/m60), preview→send, NO free-text; calls canonical `routers.owner.sms._eta_send` (extracted core; `api_eta` is now a thin wrapper, owner path byte-identical) with `company=True` → text reads "it's Window & Solar Care" (no doubled tail). Tech stays off `/owner/api/eta`. The "arriving around <time>" clock option is DEFERRED (needs the Google Routes API enabled for GOOGLE_API_KEY). **Still deferred:** inside/outside mode toggle (v1 single-mode); a tech seeing only his ASSIGNED jobs (v1 shows the whole day). **Tech app is v1 feature-complete: Start-of-day→Job card→At-the-door→Assessment→Do-the-work→End-of-job→Comms→End-of-day.**
