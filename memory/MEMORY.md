@@ -78,6 +78,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_push_compare_and_swap.md](feedback_push_compare_and_swap.md) — PUT with the sha you READ at, never a fresh one — concurrent change 409s instead of clobbering.
 - [feedback_question_when_big_picture_wrong.md](feedback_question_when_big_picture_wrong.md) — ★ TOP judgment rule: repetition across files = STOP and ASK. Don't mechanically duplicate NOR unilaterally refactor working code (34-launcher incident).
 - [feedback_reuse_canonical_endpoint.md](feedback_reuse_canonical_endpoint.md) — Don't duplicate logic for a new UI entry — call the canonical endpoint (extend if needed).
+- [feedback_reuse_function_follow_full_logic.md](feedback_reuse_function_follow_full_logic.md) — ★ Reusing/keeping ANY existing function = follow its FULL logic, every unique step (never a simplified re-impl). DJ's carefully-built owner flows = reference of truth (Credit RUNS the charge).
 - [feedback_removing_element_leaves_dangling_ref.md](feedback_removing_element_leaves_dangling_ref.md) — Removing an HTML element but leaving a JS getElementById('X').prop ref crashes init.
 - [feedback_render_claude_number_options.md](feedback_render_claude_number_options.md) — Render Claude presents choices as a NUMBERED list (DJ replies with a number — he's on a phone).
 - [feedback_render_cron_autodeploy.md](feedback_render_cron_autodeploy.md) — Render cron autoDeploy=yes fires on every push → duplicate emails.
