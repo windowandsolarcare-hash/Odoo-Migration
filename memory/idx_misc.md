@@ -19,6 +19,7 @@
 
 - [project_portal_link_as_text_ps.md](project_portal_link_as_text_ps.md) — DJ's framing: the portal link is "a P.S. to every text I send someone" — rides the sms.py signature rail, resolved per recipient. Specialists owns sms.py; segment cost is the open question. NOT approved to build.
 
+- [project_portal_care_seam_part_b.md](project_portal_care_seam_part_b.md) — Portal Part B shipped 2026-09-14: paged history, Care/Before-After via care_store (lazy import, photos_sent gate), POST /portal/api/care/decide; real tokens need Render BOOKING_TOKEN_SECRET.
 - [project_customer_portal.md](project_customer_portal.md) — Customer portal = wscare.pro/p/<token>, magic link, no password. portal.py + portal.html (Portal session owns). No-prefix router = public by construction, zero authz edits. Photo link ONLY when `wsc.job.photos_sent.<so_id>` exists.
 
 - [reference_app_ai_prompts.md](reference_app_ai_prompts.md) — Inventory of EVERY AI persona/prompt in the Render app + house philosophy (comprehensive prompt >> many tools; inject facts not fetch-tools; same full prompt on all model tiers). Engine = field.py `_agent_loop` (Haiku→Sonnet, REUSE it). Read before writing/tuning any in-app Claude prompt.
