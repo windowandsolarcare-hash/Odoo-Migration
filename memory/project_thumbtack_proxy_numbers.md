@@ -30,3 +30,12 @@ metadata:
 - Reference: Bob Lis person 27192 / property 27193, proxy `2566454462`. jo raff (2026-09-11) proxy `2566635812`, Yucca Valley 92284, window cleaning.
 
 Related: [[project_thumbtack_lead_webhook]] (Phase 1/2 webhook), [[project_thumbtack_automation]], [[feedback_dj_operating_instincts]] (reply tone).
+
+## ★ THE 3-STEP REPLY WORKFLOW (DJ 2026-09-15, AUTHORITATIVE — put in a note; CHANGES our first-reply flow)
+DJ clarified the correct Thumbtack contact sequence:
+1. **FIRST/INITIAL contact MUST go through THUMBTACK'S OWN APP** (thumbtack.com/pro/messages), NOT our system. ★ WHY (DJ "just learned this"): Thumbtack runs a **RESPONSE TIMER** — a reply sent through OUR system does NOT trigger/satisfy their timer, so Thumbtack keeps nagging "get back to this person." The first **in-app** response is what stops their clock. So on a new lead our app must **NUDGE DJ to respond IN THUMBTACK first** (primary action = "Respond in Thumbtack"), NOT auto-send the first text via our proxy send-path. ★ This CORRECTS the earlier build where the first draft could send via /owner/api/thumbtack/reply — that send does NOT satisfy the TT timer.
+2. **AFTER the initial in-app contact:** DJ can run correspondence through OUR app via the **PROXY** number (messaging.send to the proxy threads back through Thumbtack) — this is where our two-way inbox channel matters.
+3. **THEN convince the customer to give their REAL phone + address** → from that point schedule through our system to the real number (real→primary, proxy→secondary). Everything flows through our system after that.
+
+## ★ THE GAP (DJ 2026-09-15) — webhook fires on the new lead then DIES
+The webhook launches on the NEW LEAD (NegotiationCreated) and there's "no further connection" — verified: 5/5 raw_log entries are NegotiationCreated, ZERO message/reply events; and Ann Cates's reply ("her husband responded") is NOT on our side — it's stranded in the Thumbtack app. DJ expects a TEXT to also reach our app (via the proxy) opening the two-way channel. TO CLOSE: (a) check the TT webhook config (leads-only vs +messages), (b) verify inbound proxy SMS threads into our inbox, (c) build capture of TT MESSAGE events → our inbox (step 2), while step-1 nudges "Respond in Thumbtack." NOTE: "Kate" = **Ann Cates** (surname ≈ "Kate's"), proxy 2566638203, lead 453.
