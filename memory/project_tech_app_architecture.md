@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-15T15:02:16.282Z
+  modified: 2026-09-15T15:09:20.339Z
 ---
 
 The **Tech App** is a fresh, cohesive sequential field app for technicians (built 2026-09-14, DJ-authorized; brief `3_Documentation/TECH_APP_BUILD_BRIEF.md`). Built from scratch (NOT v2_field with rooms removed) so it doesn't feel bolted-on; it **reuses the proven owner ENDPOINTS**, not the owner screens.
@@ -22,6 +22,7 @@ Walks the SOP day in order: Start-of-day → Job card → At-the-door → **Asse
 
 **★ Auth model (rediscovered the hard way — get this right):**
 - Canonical entry = **`/static/tech/app.html`** (PUBLIC via the `/static` prefix — "UI shells, no data"), NOT `/tech/app` (that protected route was removed; the middleware 401s it before the handler = dead-end).
+- ★ **`auth.py` route_map `"tech"` → `/static/tech/app.html`** (fixed 2026-09-15 — was `"/tech/"`, the OLD bolted-on hub `routers/tech/jobs.py`, which sent Danny to the wrong app after login). Post-login the session cookie is set so the shell's `/tech/api/*` calls are authed. The old `/tech/` hub route is still registered (legacy; retire later on DJ's call) — just don't route login to it. This is also the AT PWA `start_url`, so both the browser sign-in and the AT cold-open→sign-in land on the new app.
 - Real front door = the existing **`/login`** (name + PIN → signed **tech-role session cookie**; it stashes `tc_user`={type,name,employeeId} in localStorage). There is NO in-page PIN gate and NO "access_code alone authenticates" — the session cookie is the auth. The app boots by reading `tc_user` (session proxy); absent or any API 401 → redirect to `/login`. `whoami` needs both a session AND an access_code and returns `{user:{employeeId,...}}` — the app skips it, using `tc_user` for identity.
 
 **★ tech role is confined to `/tech` only** (`authz._role_allowed`). Reusing owner endpoints therefore needs a scoped grant: **`TECH_GRANTED_OWNER`** in authz.py (path-boundary matched, mirrors CHERYL_GRANTED_OWNER) — granted exactly: `/owner/api/upcoming`, `/next_job_link`, `/job/append_note`, `/maintenance`, `/attachment`, own clock (`payroll/status`,`clockin_crew`,`clockout_crew`,`break`), job timer (`timer/start`,`timer/stop`,`timer/sessions`). ★ List payroll/timer as EXACT sub-paths, never the greedy parent (payroll-admin + timer records/edit stay owner-only). MONEY is deliberately OFF the grant.
