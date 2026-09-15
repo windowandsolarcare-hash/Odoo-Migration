@@ -1,5 +1,7 @@
 # Odoo quirks & fields — memory index
 
+- [project_odoo_get_param_returns_false_unset.md](project_odoo_get_param_returns_false_unset.md) — ir.config_parameter get_param returns bool `False` (NOT None/'') when a key is UNSET → a default-safe flag must treat False as "unset" or an unset flag misreads as 'false'/OFF. Caught in tech collect-only test mode.
+
 - [project_stripe_payments_not_reconciled_to_odoo.md](project_stripe_payments_not_reconciled_to_odoo.md) — Stripe card charge can succeed but NOT reconcile to Odoo (invoice stays not_paid, no account.payment). Find it by amount+date, NOT name/email (billing name misspelled, email=business email). Key: Drive Saunders Vault + C:\Users\dj\_stripe_key_val.txt.
 
 - [project_money_decision_allowlist.md](project_money_decision_allowlist.md) — Any "does customer owe?" / Pay-now / auto-charge decision MUST allowlist owed states (`payment_state IN ('not_paid','partial') AND residual>0`), never denylist — a denylist fails OPEN and billed already-paid Blair. Same shape as the company_id fail-open.
