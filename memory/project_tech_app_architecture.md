@@ -5,10 +5,16 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-09-15T12:20:24.607Z
+  modified: 2026-09-15T14:02:36.898Z
 ---
 
-The **Tech App** is a fresh, cohesive sequential field app for technicians (built 2026-09-14, DJ-authorized; brief `3_Documentation/TECH_APP_BUILD_BRIEF.md`). Built from scratch (NOT v2_field with rooms removed) so it doesn't feel bolted-on; it **reuses the proven owner ENDPOINTS**, not the owner screens. Walks the SOP day in order: Start-of-day → Job card → At-the-door → **Assessment** → Do-the-work → End-of-job → Comms → End-of-day.
+The **Tech App** is a fresh, cohesive sequential field app for technicians (built 2026-09-14, DJ-authorized; brief `3_Documentation/TECH_APP_BUILD_BRIEF.md`). Built from scratch (NOT v2_field with rooms removed) so it doesn't feel bolted-on; it **reuses the proven owner ENDPOINTS**, not the owner screens.
+
+**★ WALKTHROUGH v2 (2026-09-15, ~35 DJ changes from a dry-run recording — all shipped, Lead-QC'd, doc `3_Documentation/TECH_APP_WALKTHROUGH_CHANGES.md`).** Stage order is now **Start-of-day → Job → ETA(Message) → At-the-door → Assessment → Do-the-work → End-of-job → End-of-day** (ETA moved to right-after-Job = "on the job you're driving TO", per H1). Key additions: Schedule = Today/Tomorrow/Week tabs + rich Command-Center-style cards (job-type edge color + service/freq/TOS/$amount/gate/paid/tags — info only, NOT owner scheduling controls) with times (added `time_pt`+`today` to api_upcoming); non-sticky nav (scroll the whole stage to reach Next); tappable stage pills; header pills (🗓 Schedule + 📖 SOP full-screen overlay) + active customer name; live-incrementing job timer (localStorage-persisted start); E4 work checklist incl "🚪 close the gate"; BEFORE photo → Assessment / AFTER → Do-the-work (pair posts on Save; `_eBefore` persists per-job); "Advance to the next job" resolves next from TODAY's schedule (NOT the retired Workiz next_job_link — removed from tech + from TECH_GRANTED_OWNER) → Maps + opens next Job card; End-of-day shift summary + read-only Approve (can't edit → call DJ) + back-to-schedule. Bugs fixed: "Other" pill (default no-selection), Cash NameError (see [[project_stale_so_payment_execute_payment_import]]). ALL under [[project_tech_app_collect_only_test_mode]].
+
+**★ MONEY endpoints added (2026-09-15, each test-gated + canonical-reuse):** F4 tip = `POST /tech/api/job/add_tip` → adds "Tip" product #2 as a line via `save_job_lines_core` so invoice=base+tip (matches the check; no-stack rebuild). F5 Zelle/Venmo = `POST /tech/api/zelle_request` → delegates to extracted `specialist_billing._zelle_request_core` (owner route now thin) → texts the customer the canonical pay-request (paywatch arms); tapping Zelle/Venmo now REQUESTS (not record-as-received). F3 = client second-confirm on cash. Credit = `/tech/api/carddoor/*` (see credit paragraph). **Owner PRICE EDITOR** (DJ's single price access point, never-send-to-Odoo): `static/owner/v2_prices.html` (launcher "💵 Service Prices") + `routers/owner/prices.py` (`GET /owner/api/products/list`, `POST /owner/api/products/set_price` — non-negative+$100k cap, company[1,False]-guarded write of product.product.list_price). Care-repoint to product list_price is DESIGNED + blessed but HELD for DJ's issue→product map confirm.
+
+Walks the SOP day in order: Start-of-day → Job card → At-the-door → **Assessment** → Do-the-work → End-of-job → Comms → End-of-day.
 
 **★ Auth model (rediscovered the hard way — get this right):**
 - Canonical entry = **`/static/tech/app.html`** (PUBLIC via the `/static` prefix — "UI shells, no data"), NOT `/tech/app` (that protected route was removed; the middleware 401s it before the handler = dead-end).
