@@ -1,5 +1,9 @@
 # Vault / Notes / Drive — memory index
 
+- [project_transcribe_drive_endpoint.md](project_transcribe_drive_endpoint.md) — POST/GET /owner/api/transcribe_drive: transcribe a large Vault/Drive audio file (walkthrough m4a) via the app's OWN Drive creds → normalize→meeting._transcribe→transcript text file next to source. Bypasses the claude.ai 10MB connector cap + local-token expiry. Async+status poll; TRANSCRIBE-ONLY (no distill/memory populate).
+
+- [project_vault_recipient_sharing.md](project_vault_recipient_sharing.md) — Vault sharing→recipient (2026-09-10): _drive_service is ONE OAuth identity → parent-scoped Files.list drops CROSS-OWNER files (DJ-uploaded EIN in a service-acct folder). FIX = authoritative share INDEX `wsc.vault.shares` written by set_share + fetch-by-id (documents_for_recipient index-driven, not folder-scan) + one-time backfill. Files open THROUGH the app (/cheryl/api/documents/{id}/raw, get_media) — app-share ≠ Drive ACL. (Whole-vault-scan 1st pass FAILED.)
+
 - [project_vault_sharing_model.md](project_vault_sharing_model.md) — ★ Vault P3 sharing (DJ 2026-09-08): per-note SCALABLE recipient sharing — pick from a growing people-list (Cheryl now, employees future) + share-all; PRIVATE by default; shortcuts always-private. Approach-first to Specialists.
 
 - [project_vault_shortcuts_vs_saved.md](project_vault_shortcuts_vs_saved.md) — ★ DJ Vault model: SHORTCUTS (Evernote word; "Reference" unintuitive) = instant quick-access FACTS (account info/addresses), front-and-center + the fast-search target + PRIVATE-by-default (not shared w/ Cheryl); vs JUST-SAVED docs. Phase-2 home leads with Shortcuts.
