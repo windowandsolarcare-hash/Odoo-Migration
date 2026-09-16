@@ -139,3 +139,5 @@
 - [feedback_windows_tools_need_C_paths.md](feedback_windows_tools_need_C_paths.md) — Git-Bash shells out to NATIVE Windows tools: PowerShell/Windows-python cant read MSYS /c/ paths (empty b64 / FileNotFoundError) — pass them C:/ paths; only bash builtins take /c/.
 
 - [project_windows_python_msys_path_gotcha.md](project_windows_python_msys_path_gotcha.md) — ★ This box's python3 is WINDOWS Python: `open('/c/Users/dj/...')` inside `python3 -c` throws FileNotFoundError (read AND write) — bash redirects to /c/ work, python opening them does not. Keep /c/ I/O in bash, feed python via stdin→stdout; guard empty pushes.
+
+- [project_cheryl_cloud_secret_rotation.md](project_cheryl_cloud_secret_rotation.md) — CHERYL_CLOUD_SECRET now validated by sha256 HASH in ir.config_parameter (constant-time); rotated via POST /owner/api/cheryl_cloud_secret/rotate (owner-admin, vault-first, SA drive.file). Plaintext only in the Drive vault file.
