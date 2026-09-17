@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 7a4f4487-5a08-47dc-8b9b-7761235acbe9
-  modified: 2026-09-12T18:39:15.428Z
+  modified: 2026-09-17T06:38:23.406Z
 ---
 
 **DJ (2026-09-12), on discovering the ENDPOINT_MAP hourly regen backstop was a session cron:** *"a watcher that expires in 7 days with no ability to restart it… it's an accident waiting to happen. The first go-to has gotta be a good, steady watcher, and that sounds like it needs to come from Render. Worst case, if we set one up within a session, at least set up the ability to reset it every 5-6 days. Just to set one up to expire in 7 days doesn't make sense. We've run into this far too many times."*
@@ -15,5 +15,7 @@ metadata:
 - **Session `CronCreate` crons are last-resort, and ONLY appropriate for things that represent a LIVE SESSION'S OWN presence** — the Lead roster-heartbeat, per-role AGENT_MAIL watchers. Those SHOULD die when the session dies (a dead session must stop heartbeating) and they self-re-arm on the next session start ([[feedback_agent_mail_autowatch]], [[feedback_lead_roster_restamp]]). That's correct use.
 - **NEVER put durable, must-not-lapse work in a session cron.** CronCreate crons auto-expire 7 days from creation, firing does NOT reset that clock, and they die on session exit — so durable work in one silently STOPS with no alert. That's the repeated failure DJ is calling out.
 - **If a session cron is ever the only option for durable work:** it MUST have a re-arm safeguard — re-armed on session restart AND a scheduled re-arm well before the 7-day expiry (e.g. a 5-6 day one-shot that re-creates it). Never rely on the raw 7-day lifetime.
+
+**★ Real incident 2026-09-17 (Web role went silently stale ~31h):** Web's roster row stopped updating 2026-09-15 23:31 while the session stayed ALIVE + idle the whole time — so it "looked up but wasn't stamping," and nothing visibly failed. Root cause: its heartbeat cron (created 2026-09-09) hit the **7-day auto-expiry** and silently stopped; `CronList` came back EMPTY. A session that STAYS ALIVE past 7 days never restarts, so the "self-re-arm on restart" safeguard never fires → the cron lapses mid-life. **Every long-lived session in the fleet has this same 7-day fuse (heartbeats + mail-watchers included).** Diagnostic (put this in the watchdog alert text): a role that's alive-but-stale = **check `CronList`; session crons expire at 7 days** — re-arm fixes it in one step. The durable Render-side fleet-watchdog is the correct backstop precisely because it catches this when the session's own cron can't. Also: my Lead hourly stale-scan was only checking Lead/Audit/Specialists/Portal/Operator — it MUST scan Web + Design too (that omission let Web sit stale a day).
 
 **How to apply:** before creating ANY recurring timer/watcher, ask "must this survive session death + never lapse?" → yes = Render APScheduler. Only "this is this session's own presence signal" justifies a session cron. When you catch durable work sitting in a session cron, migrate it to Render (the endpoint-map regen did exactly this 2026-09-12). See [[feedback_check_endpoint_map_first]] (the map this rule was triggered by) and [[project_endpoint_map]].
