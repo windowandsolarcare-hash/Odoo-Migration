@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: f880d1bb-9267-4822-b2b2-324215c0ff46
-  modified: 2026-09-17T23:01:12.834Z
+  modified: 2026-09-17T23:22:01.278Z
 ---
 
 **Problem (DJ 2026-09-17):** a machine reset/power-loss wipes all local sessions; rebuilding roles by hand is dread work. Worse, after a FULL restart the terminal is empty and `resume` shows sessions with useless auto-titles, so DJ can't tell which is which ("four said audit, two said lead") and has to resume each blind then ask "who are you?". Goal: minimal-input, reset-proof recovery.
@@ -30,6 +30,10 @@ metadata:
 
 **Decisions:** Cloud stays BENCHED — its dealbreaker is one-way comms (can receive, can't SendMessage back; replies lag via mail). Local wins because SendMessage is instant two-way. Lever-1 "hunt live sessions and convert them" retired as too messy. Internet-only outage is already handled by Remote Desktop + `/rc`.
 
-**Status:** DESIGN pilot BUILT 2026-09-17 (roles/DESIGN.md pushed; `/be-design` command created) — PENDING DJ's live test (run `/be-design` in a fresh session, confirm it boots to Design + ends with `Design — OVER` + phone auto-titles "Design"). If good → replicate to Specialists/Operator/Web/Portal/Audit/Lead + build the recovery batch file + optional statusline showing session_name.
+**Status:** DESIGN pilot **VALIDATED 2026-09-17** — DJ ran `claude -n Design` → `/be-design` in a fresh session: phone auto-titled **"Design"** AND it signed off `🟢 Design — OVER`. Fleet directory (ListAgents) also shows it as `Design`. So naming + frozen-first-prompt title + boot pack + OVER handshake all confirmed working.
+
+**★ REFINEMENT (the pilot's first real Q exposed it):** DJ asked the booted Design "who's our printer" — it answered Zoo Printing + all specs correctly but called the EDDM postcard "6×9". Root cause: `DESIGN_SESSION_HANDOFF_BRIEF.md`'s build section still describes the SUPERSEDED 9×6 build (artboard 2775×**1875**); the correct EDDM size is **9×6.5 (2775×2025)** per `project_eddm_mailing_rules` (9×6 fails USPS flat-size 6-1/8" bar → not EDDM-Retail eligible). **PRINCIPLE (bake into every role pack): a boot pack must FORCE-READ the role's critical memories IN FULL at boot — not just list them by name — because a fresh session auto-loads only the memory INDEX (MEMORY.md), not each file's content.** Fix applied to roles/DESIGN.md: mandatory `gh api`-read of `project_eddm_mailing_rules` + `project_wsc_print_build_pipeline`, a top-line "EDDM=9×6.5, memory wins over the brief on size" fact block. Design (live) was direct-messaged to fix its own stale brief.
+
+**Next:** replicate the pattern (incl. force-read-critical-memories) to Specialists/Operator/Web/Portal/Audit/Lead → build the one-click recovery batch file (`wt --title` + `claude --resume <name>` per role) → optional statusline showing session_name.
 
 Links: [[feedback_over_status_line]], [[feedback_lead_roster_restamp]], [[project_agent_mail_channel]], [[feedback_agent_mail_autowatch]], [[feedback_durable_foundation_over_shortcut]].
