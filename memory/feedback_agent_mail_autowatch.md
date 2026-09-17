@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 8aa212a8-bcad-463e-b17d-ebf080940e01
-  modified: 2026-09-08T16:23:07.368Z
+  modified: 2026-09-17T07:40:22.204Z
 ---
 
 **★ HYBRID COORDINATION (DJ approved 2026-09-03) — direct message is the FAST LANE; mail is the SYSTEM OF RECORD.** DJ asked why we tolerate the 20-min poll delay when sessions can message each other directly. Answer: use BOTH, each for what it's good at.
@@ -28,6 +28,8 @@ metadata:
 **How to apply — at SESSION START** (if not already armed — check `CronList` first):
 1. Write the current `AGENT_MAIL.md` commit sha → `/c/Users/dj/agentmail_lastsha_<lead|specialists>.txt` (use YOUR role).
 2. `CronCreate` a recurring HOURLY job (DJ 2026-09-08; was 20-min) whose prompt: reads that baseline, gets the live `AGENT_MAIL.md` blob sha; **if unchanged → produce NO visible output and stop (silent — do NOT print a status/"unchanged" line, DJ 2026-09-08);** if changed → **scan the WHOLE active section for EVERY non-`✅` heading addressed to you** (To ∈ {your role, `Both`, `All`} and From≠you), and **handle them OLDEST-FIRST (bottom-up)** so the furthest-back item is never missed. ★ **Scan ALL unhandled, don't stop at the newest** (DJ 2026-08-18 + reaffirmed 2026-09-03: with several sessions, multiple can push between your 20-min ticks, so an entry meant for you can be BURIED below newer entries for other roles — reading only the top would silently miss it; and with a 20-min gap the pile can be several deep). For each such heading: act + prepend `✅`; if `→ DJ` and not `✅` → `PushNotification` DJ a one-liner (don't edit); else ignore. **The `✅` marker is the ledger — an entry is done only when its addressee marks it `✅`, and ONLY `✅` entries are ever pruned (handled + older than ~a week); NEVER prune an unhandled entry, so the furthest-back survives until handled.** When you push the file back, use **COMPARE-AND-SWAP** (PUT with the blob sha you READ it at; on a 409 re-read + re-apply) so a concurrent push can't clobber a `✅` — see [[feedback_push_compare_and_swap]]. Then write the new live sha back.
+
+**★ SCAN BOTH HEADING FORMATS — don't hard-code one shape (2026-09-17 miss).** AGENT_MAIL entries come in TWO heading styles and your scan MUST catch both: (a) post-then-nudge entries `### [ ] -> Role: subject` (H3 + checkbox), AND (b) dated/system entries `## <ts> - <Sender> -> Role - [subject]` (H2, arrow, **NO checkbox**) — the **Fleet-Watchdog** posts this second style. A too-narrow grep that required `###` + a `□`/`[ ]` checkbox silently MISSED **4 Fleet-Watchdog `-> Lead` stale-role alerts over ~29h** (Web went stale; the watchdog detected it correctly and posted, but Lead's scan never matched the format). Match on the SEMANTICS — any heading line (`##` or `###`) that is NOT `✅`, has an arrow (`→`/`->`) to your role (or All/Both), and is From≠you — not on a specific marker. `Fleet-Watchdog -> Lead` alerts are the highest-value ones to catch (fleet health), so verify your scan matches them.
 3. Whenever YOU post a `→ DJ` entry, `PushNotification` DJ immediately (the "push me for decisions" half).
 
 **★ PushNotification 'not sent' = FALSE NEGATIVE (DJ tested 2026-08-18):** the tool returns "Not sent — terminal is active" but the push STILL reaches DJ's phone (confirmed both while he was in another app AND with the phone locked). So fire it ONCE per `→ DJ` item, do NOT retry, do NOT tell DJ it failed on a 'not sent' — treat as best-effort fire-and-forget that most likely delivered.
