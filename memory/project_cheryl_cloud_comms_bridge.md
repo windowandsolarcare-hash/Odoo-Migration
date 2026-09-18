@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: f880d1bb-9267-4822-b2b2-324215c0ff46
-  modified: 2026-09-17T23:59:42.423Z
+  modified: 2026-09-18T00:21:35.436Z
 ---
 
 DJ 2026-09-17, defining the fleet during the boot-pack build. **The fleet is SEVEN sessions, not six.** The six local roles (Lead, Specialists, Audit, Design, Web, Portal, Operator — that's the local set) PLUS a **7th: "Cheryl's cloud".**
@@ -28,3 +28,8 @@ The whole point of the protocol: **the durable content goes in AGENT_MAIL.md (th
 
 ## Operator endpoints-mandatory (DJ re-stressed same convo)
 Operator (and ANYONE doing ops, incl. Lead) must act via the app's OWN endpoints, NEVER raw Odoo writes — a raw job-create skips job-number/date formatting + the whole logic chain and is silently wrong. **Leads have broken this by adding jobs raw; Operator almost never does.** Baked into the Operator + Lead boot packs. See [[feedback_assistant_use_app_workflow_not_raw_api]], [[project_new_job_via_app_endpoints]].
+
+## ★ CONFIRMED by DJ 2026-09-17 (fleet clarifications)
+- **Specialists codes for Cheryl too.** Cheryl's cloud is NOT a coder — it routes its coding needs to **Specialists**, who owns/handles Cheryl's app code/repo as well as DJ's ERP app. Cheryl's cloud is Cheryl's non-coding, **security/risk-focused** session (analogous to what Operator is for DJ — hands/advisor, not builder); DJ values that it scrutinizes risk/security harder than any other session.
+- **Domains (authoritative):** `windowandsolarcare.com` = the PUBLIC marketing site (Web owns it; everyone sees it). `wscare.pro` = the address of the **Render-hosted app**, whose customer-facing slice is the **customer portal** (branded pages texted via link; Portal owns it, Specialists may also touch it) + owner ERP + Cheryl's app behind login — NOT the marketing site. `scenicartprint.com` = Saunders Printing — currently DOWN as a website (bring-up stalled), used mainly for EMAIL; a separate in-system "Saunders Printing" APP is unrelated to that domain. See [[reference_domain_dns_hosting_map]].
+- **Fleet watcher policy:** **Operator runs NO mail-watcher** (works directly with DJ; reads mail at start + on nudge). **Portal's watcher is ARMED** (2026-09-17 — portal work ramping; no longer on-demand). Other roles run their offset watchers per [[feedback_agent_mail_autowatch]].
