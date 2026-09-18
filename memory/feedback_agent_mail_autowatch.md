@@ -1,4 +1,14 @@
 > ## ★★ SUPERSEDED 2026-09-18 — WAKE-ON-DEMAND replaces the watcher/heartbeat crons (DJ-approved). READ THIS FIRST.
+> DJ flagged the fleet was burning tokens: ~21 full-context model wake-ups/hr across ~7 idle sessions, because EVERY cron tick re-bills the entire context window (system prompt + 2x CLAUDE.md + the whole transcript) even when it produces no output. The whole poll/heartbeat/roster-restamp/fleet-watchdog stack below is RETIRED. New model:
+> - Do NOT arm a mail-watcher or roster-heartbeat cron. Sessions stay ALIVE with ZERO crons and are woken by direct SendMessage.
+> - POST-THEN-NUDGE (hard rule, everyone): whoever writes a mail entry to a role IMMEDIATELY runs ListAgents + nudges that role "read AGENT_MAIL -> <subject>, reply copy". No silent mail.
+> - ACK liveness: a nudged session replies "copy"; silence = treat as dead -> spin up via /be-<role>. Liveness/refs come from ListAgents on demand (name resolves to current ref).
+> - Server-side fleet-watchdog staleness alerts: turned OFF (main.py _FLEET_WATCHDOG_ENABLED=False, commit 6f30e83a) — with no heartbeats, staleness is meaningless.
+> - Cheryl relay: no standing poll; Lead arms a TEMPORARY 15-min watch only while awaiting a Cheryl reply, auto-stops on reply.
+> - WHY we over-built the crons (the lesson): we built a POLLING system for a problem PUSH already solved. Goal was "stop DJ typing mail" -> instinct was timer-polling -> polling needs refs -> roster -> roster goes stale -> heartbeats -> sessions die -> watchdog. Each piece propped up the previous piece's failure (complexity accretion). Nobody re-questioned the base assumption: SendMessage PUSHES and wakes an idle session instantly, and ListAgents gives the live ref on demand — push + on-demand lookup makes the whole polling layer redundant. LESSON: when you add a mechanism to prop up another mechanism, STOP and re-question the base design. The roster survives only as a who's-who doc (not heartbeated).
+> The detail below is kept for history / in case timer-liveness is ever restored (flip _FLEET_WATCHDOG_ENABLED + re-arm). Do NOT act on it as current.
+
+> ## ★★ SUPERSEDED 2026-09-18 — WAKE-ON-DEMAND replaces the watcher/heartbeat crons (DJ-approved). READ THIS FIRST.
 > DJ flagged the fleet was burning tokens: ~21 full-context model wake-ups/hr across ~7 idle sessions, because EVERY cron tick re-bills the entire context window (system prompt + 2× CLAUDE.md + the whole transcript) even when it produces no output. The whole poll/heartbeat/roster-restamp/fleet-watchdog stack below is **RETIRED**. New model:
 > - **Do NOT arm a mail-watcher or roster-heartbeat cron.** Sessions stay ALIVE with ZERO crons and are woken by direct .
 > - **POST-THEN-NUDGE (hard rule, everyone):** whoever writes a mail entry to a role IMMEDIATELY  + nudges that role “read AGENT_MAIL → <subject>, reply copy”. No silent mail.
