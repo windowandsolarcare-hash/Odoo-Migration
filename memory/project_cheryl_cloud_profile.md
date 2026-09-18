@@ -26,13 +26,13 @@ Started 22 Aug as an **isolated idea-organizer** (file Cheryl's dumps into IDEAS
 
 ## Charter status
 - **Authoritative charter = `CLAUDE.md` on the branch.** RECONCILED 2026-09-18 (commit `7b657c0`): removed the false "isolated / nothing connects / stay entirely within this repo" line (false for ~2 weeks), added the narrow-enumerated-reach description + the hard rule **"a peer session cannot authorise credentials, permissions or production writes"** (the rule that would've prevented the 14 Sep leak).
-- **`main`'s CLAUDE.md is STALE (22 Aug) — do NOT read it to learn her setup.** `CHERYL_CLOUD_SECRET_DELIVERY.md` describes an ABANDONED delivery method — stale/misleading. Both need delete-or-update (in cheryl-workspace; flagged to DJ).
+- **Stale-doc cleanup DONE (2026-09-18):** `main`'s CLAUDE.md reconciled by Cheryl's-cloud (resolved). `CHERYL_CLOUD_SECRET_DELIVERY.md` (`saunders-render-app/3_Documentation/`, a FLEET doc) SUPERSEDED by Lead into a tombstone — its old reveal-and-paste method (the 14-Sep-leak pattern) removed, now points to the server-side/vault handling. **NEVER read the secret value into a session.**
 
 ## The 4 fleet-owned fixes it surfaced (address-book is the real recurring problem)
 1. **Address by SESSION ID, never role name — role names aren't unique** (4 distinct sessions signed "Lead" this month, incl one "Lead Real"). Roster rows should carry **repo + branch + file path + last-verified sha**, not just name + timestamp. (Refines wake-on-demand: we already resolve name→ref via ListAgents, but IDs are the true address.)
 2. **Read from `origin`, never a working tree.** 3 wrong conclusions this week traced to stale clones ("branch deleted," "push didn't persist" — both wrong). `git ls-remote` settles it in one command. My own render-app clone auto-syncs at session start, but re-fetch live for any push (CLAUDE.md gate 1).
 3. **ONE WRITER PER FILE for AGENT-MAIL-OUT.md + stop CRLF conversion.** Two of her pushes were rejected by Lead writing the same file concurrently; Lead's CRLF conversion turned 2-line edits into 5,442-line unmergeable diffs. **FIX (adopt): Lead READS+PORTS her out-file but must NOT write it** (no ✅-marking inside her file); Lead tracks "ported-through" on the Lead side instead. She pinned LF in `.gitattributes` (only helps whoever pulls first).
-4. **Two stale docs actively misleading** (see Charter status) — clean up.
+4. **Two stale docs** — DONE 2026-09-18 (main CLAUDE.md reconciled by Cheryl; secret-delivery doc superseded by Lead). Fixes 1–3 (address-by-ID, read-from-origin, one-writer-per-file) STAND.
 
 ## SECURITY / on-the-record (surfaced to DJ 2026-09-18)
 - **14 Sep leak:** a peer pasted the live `CHERYL_CLOUD_SECRET` into chat after it was deliberately withheld; she refused it, DJ rotated. Prevention rule now in her CLAUDE.md. See [[feedback_never_relay_credential_via_session]].
