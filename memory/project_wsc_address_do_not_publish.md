@@ -1,31 +1,41 @@
 ---
 name: project_wsc_address_do_not_publish
-description: "W&SC has no public street address — the Odoo company address is stale and the real one is DJ's home. Never publish it; never put it in schema."
+description: "★ The Palm Desert mailbox on Odoo res.company/invoices is DELIBERATE (privacy) — do NOT 'fix' it. Two distinct addresses: the invoice MAILBOX (private, by design) and the hidden-SAB HOME/registered address (Thousand Palms) — neither goes on any PUBLIC listing (GBP/website/Yelp/directories)."
 metadata: 
   node_type: memory
   type: project
-  originSessionId: 1cb095a1-10e5-4519-903e-c06b100b873a
-  modified: 2026-08-18T15:40:31.962Z
+  originSessionId: a6200401-4a1b-4492-894c-629c161de653
+  modified: 2026-09-18T18:35:42.681Z
 ---
 
-**Window & Solar Care is a service-area business with NO public street address.** Two addresses
-exist and both are wrong to publish:
+**DJ 2026-09-18 (via Lead), correcting a Web verification pass that had flagged the Odoo company
+address as stale:** the Palm Desert address on the invoices is **intentional — leave it alone.**
 
-- `res.company` id 1 carries **41995 Boardwalk Ste. J, Palm Desert** — **STALE / WRONG** (confirmed
-  by Lead 2026-08-18). Do not assert it anywhere. It still prints on that company's invoices; that
-  cleanup is a separate business task, not a website one.
-- DJ's real, current address (the one on the Twilio A2P profile) is **32569 San Miguelito Dr.,
-  Thousand Palms, CA 92276** — but that is **DJ's HOME**. He is a mobile home-services operator
-  with no premises customers visit.
+**Two different W&SC addresses, do not conflate:**
+1. **Invoice / company MAILBOX** = `41995 Boardwalk Ste. J, Palm Desert CA 92211` — DJ's still-active
+   mailbox, stored on **Odoo `res.company` id1** and printed on invoices **ON PURPOSE for privacy**
+   (he does not want customers seeing his home address). Invoices are **private correspondence, NOT
+   a public Google-indexed NAP citation**, so this address there is correct and must **NOT** be
+   "cleaned up" to the Thousand Palms address. This is a recurring "fix" trap — a session sees
+   Palm Desert on the company record, assumes it's the same stale-NAP problem that got the GBP
+   suspended, and tries to change it. **Don't.**
+2. **Registered / operated-from HOME address** = `32569 San Miguelito Dr, Thousand Palms CA 92276`
+   (CA SOS B20260293155, Twilio). This is a **hidden Service-Area-Business (SAB) home address** —
+   it is what the GBP-reinstatement docs (registration + utility bill) must MATCH, but it is
+   **also not published** on the public profile (SAB = service area shown, street hidden).
 
-**Why:** publishing a home address is a privacy and safety downside with no upside. Google fully
-supports service-area businesses that hide their address, so there is no SEO cost either. Asserting
-the *stale* one is worse still — Google cross-checks name/address/phone consistency for local
-ranking, so a wrong address actively hurts.
+**The rule (unchanged by this correction):**
+- **PUBLIC listings** (Google Business Profile, the website, Yelp, MapQuest, Angi, all directories):
+  show name **Window & Solar Care** + phone **760-334-5355** + service area — **no street address**
+  (neither the Palm Desert mailbox nor the Thousand Palms home). A published street was part of what
+  got the profile flagged.
+- **Invoices / private correspondence** (Odoo res.company): the Palm Desert mailbox is fine and
+  intended. Do not flag it, do not route it to Operator as a fix.
 
-**How to apply:** on the public site ([[project_marketing_site_odoo]]) keep it address-less — the
-Contact page says "mobile service business, we come to you" and links the service-area page, and the
-LocalBusiness JSON-LD carries `addressRegion: CA` + `areaServed` cities but **no `streetAddress`**.
-The old WordPress Privacy Policy printed the home address; that line was deliberately dropped when
-the text was carried over (phone + email satisfy the contact requirement). If DJ ever asks for an
-address back, get him to confirm which one first.
+**Why:** without this note, every NAP-audit session re-flags the invoice address as "stale/wrong"
+and burns a cycle (and risks an unwanted Operator write to a money-touching record). It is a
+deliberate privacy design, not drift.
+
+**How to apply:** when auditing NAP, separate PUBLIC surfaces (must be clean/streetless) from the
+PRIVATE invoice record (Palm Desert mailbox = by design). See [[project_gbp_suspension_appeal]],
+[[project_wsc_legal_name]], [[feedback_assistant_use_app_workflow_not_raw_api]].
