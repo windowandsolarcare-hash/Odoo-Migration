@@ -1,5 +1,7 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_session_transcript_persistence.md](project_session_transcript_persistence.md) — ★ Self-spawned fleet sessions inherit CLAUDE_CODE_CHILD_SESSION → transcript saving OFF (unsaved history LOST on exit, no retroactive save, restart = fresh). FIXED 2026-09-18: CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1 in project+home settings.json `env` block + user `setx`. New sessions save; ALREADY-RUNNING ones stay unsaved until restarted — dump valuable context to durable files BEFORE exiting.
+
 - [reference_domain_dns_hosting_map.md](reference_domain_dns_hosting_map.md) — ★ WHERE EACH DOMAIN LIVES: wscare.pro = Cloudflare DNS → Render app (subdomains like cheryl.wscare.pro = Cloudflare + Render); windowandsolarcare.com + scenicartprint.com = DreamHost; www.windowandsolarcare.com = CNAME → Odoo. Check before touching any domain/DNS/SSL so you use the right panel.
 
 - [project_fleet_stale_watchdog.md](project_fleet_stale_watchdog.md) — zero-token APScheduler watchdog (main.py, every 3h): reads LIVE SESSION_ROSTER via GitHub Contents API (on-disk 3_Documentation/* is FROZEN — Build-Filter ignored paths don't redeploy), flags roles >4h stale (excl Cheryl's-cloud), push_dj banner once per fresh→stale (de-dupe wsc.fleet.watchdog), no SMS.
