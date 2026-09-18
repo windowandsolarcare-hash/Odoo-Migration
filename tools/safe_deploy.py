@@ -46,8 +46,7 @@ def gh_api(args, input_file=None):
 def fetch_deployed(repo, path, branch):
     """Return (content_bytes, sha) for the deployed file, or (None, None) if absent."""
     rc, out, err = gh_api([
-        f"repos/{repo}/contents/{path}",
-        "-f", f"ref={branch}",
+        f"repos/{repo}/contents/{path}?ref={branch}",
     ])
     if rc != 0:
         if "Not Found" in (out + err) or "404" in (out + err):
