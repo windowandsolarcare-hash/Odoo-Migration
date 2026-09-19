@@ -147,3 +147,4 @@
 - [project_windows_python_msys_path_gotcha.md](project_windows_python_msys_path_gotcha.md) — ★ This box's python3 is WINDOWS Python: `open('/c/Users/dj/...')` inside `python3 -c` throws FileNotFoundError (read AND write) — bash redirects to /c/ work, python opening them does not. Keep /c/ I/O in bash, feed python via stdin→stdout; guard empty pushes.
 
 - [project_cheryl_cloud_secret_rotation.md](project_cheryl_cloud_secret_rotation.md) — CHERYL_CLOUD_SECRET now validated by sha256 HASH in ir.config_parameter (constant-time); rotated via POST /owner/api/cheryl_cloud_secret/rotate (owner-admin, vault-first, SA drive.file). Plaintext only in the Drive vault file.
+- [project_git_data_api_atomic_multifile_push.md](project_git_data_api_atomic_multifile_push.md) — Git Data API lands many files in ONE commit/deploy on protected main (blobs→tree→commit→refs PATCH); + Windows utf-8 gh-json decode fix.
