@@ -13,6 +13,7 @@ metadata:
 **Why:** DJ 2026-09-18. Operator was routed to "re-send Bob Lis his working $200 card link" and queued it to auto-release at 8am (night-hold). DJ: "I'm surprised Operator or anybody sent that out to Bob. Nothing gets sent out to the customer without going through my HUD, and then I send it out." A queued auto-send is still a send DJ never pressed — same violation.
 
 **How to apply:**
+- **EDITABLE PREVIEW, always (DJ 2026-09-19):** every customer-facing send must present the message in an **editable box DJ can modify, then Send** — NEVER a bare Send / Send-all with no way to change the text. "That should never say send by itself... I always have the ability to modify it in a preview box, then hit send." A send-only card (e.g. the MAINT_CONFIRM 'Confirmations to send' card, A29) is a bug.
 - Any customer-facing send (SMS via messaging/stripe send, email, payment/booking link) → **queue it in DJ's HUD as an approval card**, never `send` directly and never schedule it to auto-fire.
 - This holds **even when DJ says "get the payment" / "send it"** — that authorizes PREPARING it for his HUD, not bypassing his press-send. When in doubt, stage → HUD.
 - Dispatcher lesson: don't route "send X to the customer" as a direct send; route it as "stage X in DJ's HUD for his approval."
