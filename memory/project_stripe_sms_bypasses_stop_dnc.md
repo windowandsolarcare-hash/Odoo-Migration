@@ -1,14 +1,16 @@
 ---
 name: project_stripe_sms_bypasses_stop_dnc
-description: OPEN compliance gap — /stripe/send_sms sends via raw _send_sms and does NOT check STOP/DNC (only quiet-hours); a customer who replied STOP can still get a Stripe payment-link text
+description: FIXED 2026-09-19 (commit 56f14676) — /stripe/send_sms used to send via raw _send_sms (skipping STOP/DNC); now routed through messaging.send so opt-out is enforced. Kept as the record + the "customer SMS must go through messaging.send" rule.
 metadata: 
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-20T00:44:31.993Z
+  modified: 2026-09-20T00:54:29.020Z
 ---
 
-**OPEN compliance gap (found 2026-09-19, Builder-2 A29 survey; fix pending Lead scheduling).** The Stripe payment-link SMS path **bypasses the STOP/DNC opt-out check.**
+**✅ FIXED 2026-09-19 (commit 56f14676, Lead-QC'd).** `api_stripe_send_sms` now routes through `messaging.send(..., kind='payment_link', idem='stripe_sms:{so}:{5min-bucket}')`, which enforces `is_opted_out`(STOP) + `is_do_not_contact` + quiet-hold + threading + comms-log. A STOP'd customer now correctly FAILS with a friendly reason ("Customer opted out (texted STOP) — not sent"), no text. Raw `_send_sms` + manual `_hold` + manual thread-append removed (−25 lines). The record of the original gap + the general rule follows.
+
+**The gap (was):** The Stripe payment-link SMS path **bypassed the STOP/DNC opt-out check.**
 
 - `POST /owner/api/stripe/send_sms` → `api_stripe_send_sms` (routers/owner/payments.py, ~:545) gates ONLY on `messaging.in_quiet_hours()` (manual quiet-hold via `messaging._hold`), then calls **`sms._send_sms(to, body)` directly** (sms.py:54).
 - `_send_sms` is the RAW Twilio egress — it posts straight to the Twilio Messages URL and does **NOT** check opt-out. The STOP/DNC check (`is_opted_out`) lives in **`messaging.send`** (messaging.py:345), which this path SKIPS.
