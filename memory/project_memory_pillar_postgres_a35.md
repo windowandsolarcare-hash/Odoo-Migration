@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-20T03:44:18.029Z
+  modified: 2026-09-20T03:45:52.305Z
 ---
 
 Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL (`ir.config_parameter`, one blob per store) was the §B7 durable-upgrade target — A35 moves it onto **Render Postgres**, A37 first hardens the read path. See [[project_memory_pillar_slice2]].
@@ -39,6 +39,13 @@ Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL 
 ## Known non-blocking follow-ups (A37 QC clean-pass 2026-09-20, logged in BUILD_LOG — do deliberately)
 1. **Double retry stack:** `odoo_rpc` ALREADY does 3×+backoff on 429, and `_load` wraps it in ANOTHER 3× → ~14s worst-case server-side before raising (client aborts at 12s so UX is fine, but a cron on a `_load` path could stall ~14s). Consider dropping `_load`'s INNER retry — but that's REMOVING working retry code, so do it deliberately (DJ-rule 10), not casually.
 2. **False-empty closed only for the 429/read path:** a genuine non-read 500 (a real bug) still returns `{error:...}` with NO `ok` key → the page renders "nothing yet" (loadFailed keys on `ok===false`). Pre-existing; broader hardening (treat any non-ok/errored body as read_failed) is a later item.
+### A36-required / A36-fold (from run_migration QC clean-pass 2026-09-20)
+- **★ A36 REQUIRED before the run:** set `MIG_EXPECT_MIN['decisions']=61` (+ the live meetings count) in memory_store.py — otherwise the integrity floor is inert (0) and can't protect DJ's real data (a 429/short read would migrate empty). Confirm the LIVE Odoo counts immediately before A36 and set the floor to them.
+- `_mig_read_odoo`: `json.loads()` is OUTSIDE the retry `try`, so a malformed value raises a raw JSONDecodeError → endpoint 500 instead of a clean `ABORT_READ_FAILED` verdict. Safety HOLDS (still aborts, migrates no garbage); wrap json.loads in the guard for a clean verdict (very-low-likelihood — blobs are always app-written valid JSON).
+- Multi-store apply is per-upsert autocommit → a mid-loop raw exception leaves EARLIER stores committed = partial migration. Idempotent re-run recovers + Odoo intact (no loss), but note it in the A36 runbook (or wrap the whole apply in one transaction for A36's real data).
+- VERIFY is exact-match (`pg_rows == migrated`) → an A36 RE-run AFTER live writes have landed will false-FAIL. Note in the A36 runbook (run migrate once, before the flip).
+
+### General follow-ups
 3. **★ The 5 DAL importers don't catch MemoryReadError** (meeting.py, voicenote.py, floatnote.py, cheryl/voicenote.py, memory_pointers.py): a 429 during a capture/finalize now surfaces as a raw 500 instead of a silent [] — STRICTLY SAFER (that's the wipe we prevented) but ugly UX. Wrap those capture endpoints for a clean message. (Meeting/voicenote are Specialists' app-code lane — Lead flagged them.)
 
 Related: [[project_memory_pillar_slice2]], [[feedback_durable_foundation_over_shortcut]], [[feedback_odoo_verify_content_not_status]], [[feedback_regression_guard_pushes]], [[feedback_never_remove_working_code]].
