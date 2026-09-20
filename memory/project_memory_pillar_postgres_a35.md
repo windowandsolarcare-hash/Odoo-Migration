@@ -1,0 +1,31 @@
+---
+name: project_memory_pillar_postgres_a35
+description: A35 — Memory Pillar store migrated Odoo ir.config_parameter → Render Postgres (unified mem_records table, MEMORY_DB_URL store-gated flag, staged not flipped) + A37 read-failure/store-wiper fix in _load
+metadata:
+  node_type: memory
+  type: project
+  originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
+  modified: 2026-09-20T03:22:14.118Z
+---
+
+Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL (`ir.config_parameter`, one blob per store) was the §B7 durable-upgrade target — A35 moves it onto **Render Postgres**, A37 first hardens the read path. See [[project_memory_pillar_slice2]].
+
+## A35 — Postgres backend (STAGED, flag-off; commits 39cb84f6 + 684b8969)
+- **ONE unified table `mem_records`** seats BOTH the fleet stores (A35) and DJ's company_id=1 stores (A36, additive — no schema change): `PRIMARY KEY (company_id TEXT, store TEXT, record_id TEXT)`, `data JSONB` (the FULL record = source of truth; every field preserved, incl. the typed company_id — jsonb keeps int `1` vs str `'fleet'` so the Python `mem_get` `==_COMPANY/==_FLEET` filters still work byte-identical after round-trip), promoted `signature`/`status` cols (fleet recall), `created_at`/`updated_at`, and `search_text TEXT GENERATED ALWAYS AS (lower(data::text)) STORED` for /ask.
+- **Indexes:** PK-prefix (company_id,store) list views; partial `(store,signature)`+`(store,status)` WHERE NOT NULL (fleet recall); `(company_id,store,created_at DESC)` recency; **GIN pg_trgm on search_text** for /ask ILIKE — the trgm extension+index are **best-effort** (ensure_schema logs+continues if `CREATE EXTENSION pg_trgm` is refused; /ask falls back to a seq-scan). A migration must never abort on a trgm privilege error.
+- **Flag = env `MEMORY_DB_URL` (present→PG) AND store-gated `_PG_STORES`** (A35 = `{solved_errors, fleet_decisions}`; A36 APPENDS the DJ stores IN THE SAME DEPLOY that migrates their data). `_pg_on(store)=_PG and store in _PG_STORES`. **Why store-gated, not a whole-DAL flip:** flipping every store to PG while only fleet data is migrated would make DJ's company_id=1 pages read EMPTY. Each store flips only once its data is in PG.
+- Helper signatures kept IDENTICAL (`_load/_save/mem_get/mem_put/mem_update/mem_delete`); each guards at top `if _pg_on(store): return _pg_...`, Odoo path below byte-for-byte unchanged. Writes are **row-level** (SELECT→merge→UPSERT / UPDATE / DELETE, `updated_at=now()` explicit on conflict/update), not blob rewrites. New additive helper `mem_prune(store, ids)` for bulk cleanup.
+- **Single long-lived psycopg conn + threading.Lock** (Render conn-cap safe; also kills the lost-update race the blob-reload guard worked around). Race-safe at **numInstances=1** (this service = 1 instance); if ever >1 web instance, move the merge into SQL (`data || %s::jsonb` / `SELECT FOR UPDATE`) — flagged in-code. psycopg imported lazily inside the getter (module import never breaks when the flag's off / pkg absent).
+- **Fail-open, NO split-brain:** when MEMORY_DB_URL is set a `_PG_STORES` store NEVER falls back to Odoo (avoids two backends). A DB blip fails-open WITHIN the PG path — but see A37: reads now RAISE (error≠empty), writes best-effort log-and-continue.
+- **Migration `scripts/migrate_memory_to_pg.py`** — idempotent (ON CONFLICT), zero-loss, leaves Odoo blobs intact as the rollback source. A35 = **empty-start** (survey 2026-09-19: `fleet_decisions`=0 real, `solved_errors`=12 ALL test/noise → exclude all; real captures accrue post-flip). Generic (STORES + EXCLUDE + EXPECT_MIN params) so A36 reuses it. `psycopg[binary]==3.2.3` pinned in requirements.txt (build-verified: resolved on Render).
+- **CUTOVER RUNBOOK (order matters — in the script header):** DB up → RUN MIGRATION FIRST (ensure_schema + copy + VERIFY prints PASS) with MEMORY_DB_URL in the SHELL's env (NOT yet on the service) → THEN set MEMORY_DB_URL on the WEB SERVICE (redeploy) → smoke a recall. Setting the service var before schema exists = app hits a schema-less DB. **Rollback = unset MEMORY_DB_URL** (instant revert; blobs intact). Runs locally (external conn string + Odoo creds) or a Render one-off shell.
+- **NOT FLIPPED.** Gated on Dispatcher confirming the DB is up + Lead QC. A36 (DJ's company_id=1 stores onto the same table) is DJ-confirmed as an additive follow-on.
+
+## A37 — read-failure ≠ empty; the store-wiper (LIVE, commit 8cc1e649, shipped standalone FIRST)
+- **Root cause:** `_load`'s `except: return []` swallowed a transient Odoo **429** → DJ's **61 decisions** rendered as "No decisions recorded yet." Data was always safe.
+- **★ Also a latent STORE-WIPER (not just cosmetic):** `mem_put/mem_update/mem_delete` reload via `_load` right before `_save`. On a 429, `_load`→[] → `_save` then persists []+the-one-record = **the whole store clobbered**. One bad 429-during-a-write from real data loss.
+- **Fix:** `_load` now RETRIES (3× short backoff) the Odoo get_param, then **RAISES `MemoryReadError`** on final failure — a genuinely empty/corrupt value still returns [] (empty stays empty; only a THREW raises). `_pg_load` raises too (error≠empty in the PG path). This fixes BOTH the false-empty render AND the clobber (a failed reload can't `_save` []).
+- **Endpoints:** 16 read/reload endpoints get `except MemoryReadError → {ok:false,error:'read_failed'} 503` (one DRY prepend-only replace_all). The 3 **headless hook endpoints** were NOT in that set → their existing `except → {ok:false} 200` absorbs it = **fail-SOFT** (never crashes a hook). So user-GETs signal read_failed; hooks stay soft — for free.
+- **v2_memory.html:** `loadFailed(d,out)` keys on jget's `{ok:false}`; 6 view branches show "Couldn't load — tap to retry" + **auto-retry ONCE** per navigation, never the "nothing yet" copy.
+
+Related: [[project_memory_pillar_slice2]], [[feedback_durable_foundation_over_shortcut]], [[feedback_odoo_verify_content_not_status]], [[feedback_regression_guard_pushes]].
