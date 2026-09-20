@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-20T03:26:52.072Z
+  modified: 2026-09-20T03:44:18.029Z
 ---
 
 Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL (`ir.config_parameter`, one blob per store) was the §B7 durable-upgrade target — A35 moves it onto **Render Postgres**, A37 first hardens the read path. See [[project_memory_pillar_slice2]].
@@ -27,6 +27,14 @@ Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL 
 - **Fix:** `_load` now RETRIES (3× short backoff) the Odoo get_param, then **RAISES `MemoryReadError`** on final failure — a genuinely empty/corrupt value still returns [] (empty stays empty; only a THREW raises). `_pg_load` raises too (error≠empty in the PG path). This fixes BOTH the false-empty render AND the clobber (a failed reload can't `_save` []).
 - **Endpoints:** 16 read/reload endpoints get `except MemoryReadError → {ok:false,error:'read_failed'} 503` (one DRY prepend-only replace_all). The 3 **headless hook endpoints** were NOT in that set → their existing `except → {ok:false} 200` absorbs it = **fail-SOFT** (never crashes a hook). So user-GETs signal read_failed; hooks stay soft — for free.
 - **v2_memory.html:** `loadFailed(d,out)` keys on jget's `{ok:false}`; 6 view branches show "Couldn't load — tap to retry" + **auto-retry ONCE** per navigation, never the "nothing yet" copy.
+
+## Run mechanism + cutover (built 2026-09-20, commit 2f201891) — secret-safe, session-triggerable
+- **The PG connection string is a SECRET that must stay in Render** ([[feedback_never_relay_credential_via_session]]) — delivered via a Render **`fromDatabase` env binding** (Render injects the string; no session/human ever copies it). NOT pasted into a session shell.
+- **`run_migration(targets, apply=False)`** in memory_store.py = the SHARED core; BOTH the endpoint AND `scripts/migrate_memory_to_pg.py` (thinned to 73 lines) call it (one source of truth). ensure_schema FIRST → guarded Odoo read (retry→raise→ABORT) → EXPECT_MIN floor → exclude rule → row-level UPSERT → VERIFY count==migrated. Returns a report dict.
+- **★ Uses a DEDICATED psycopg conn from `MEMORY_DB_URL_MIGRATE` (or MEMORY_DB_URL), NOT mem_put** — because pre-flip MEMORY_DB_URL is unset so `mem_put` would route to ODOO. The dedicated conn makes "read Odoo, write PG, never write Odoo" a hard guarantee.
+- **`POST /api/memory/admin/migrate`** — `_hook_auth_ok` fail-CLOSED (NOTIFY_SECRET, NOT the DB URL), body `{apply:bool}` default DRY-RUN, returns the VERIFY JSON. Session-triggerable (I POST with the fleet secret).
+- **★ Needs an authz.py entry:** `/owner/api/memory/admin/migrate` in **PUBLIC_EXACT** (cookie-exempt, secret-gated) + the R1 root inventory — EXACTLY like the 3 `/api/memory/hook/{recall,observe,resolve}` lines. Until it lands the endpoint is INERT (owner-cookie gate blocks a no-cookie POST → "auth required", never reaches the secret check) = safe/dormant. (authz.py is shared + R1 auth is landing → the R1/auth owner places it so coverage includes it.)
+- **TWO-VAR CUTOVER** (connect-before-flip, zero pre-schema window — critical for A36): (1) bind `MEMORY_DB_URL_MIGRATE` (fromDatabase; the DAL flag IGNORES this name → app does NOT flip) → (2) POST /admin/migrate{apply:true} (or the CLI one-off) → VERIFY PASS (A35 = 0==0, empty fleet) → (3) bind `MEMORY_DB_URL` (flip) + for A36 deploy the _PG_STORES append → (4) smoke recall. Rollback = remove the MEMORY_DB_URL binding.
 
 ## Known non-blocking follow-ups (A37 QC clean-pass 2026-09-20, logged in BUILD_LOG — do deliberately)
 1. **Double retry stack:** `odoo_rpc` ALREADY does 3×+backoff on 429, and `_load` wraps it in ANOTHER 3× → ~14s worst-case server-side before raising (client aborts at 12s so UX is fine, but a cron on a `_load` path could stall ~14s). Consider dropping `_load`'s INNER retry — but that's REMOVING working retry code, so do it deliberately (DJ-rule 10), not casually.
