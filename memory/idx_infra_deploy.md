@@ -1,5 +1,7 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_memory_pillar_postgres_a35.md](project_memory_pillar_postgres_a35.md) — ★ A35: Memory Pillar store Odoo blob → Render Postgres (unified mem_records table, jsonb data + promoted sig/status, MEMORY_DB_URL STORE-gated flag, row-level writes, single-conn+Lock, idempotent migration + cutover runbook, psycopg[binary]==3.2.3). STAGED/dormant — flip gated on DB-up + Lead QC. + A37: _load retries then RAISES MemoryReadError (error≠empty) — fixes 429-renders-empty AND the reload-before-write STORE-WIPER; 16 endpoints → read_failed, hooks fail-soft, page tap-to-retry.
+
 - [project_session_transcript_persistence.md](project_session_transcript_persistence.md) — ★ Self-spawned fleet sessions inherit CLAUDE_CODE_CHILD_SESSION → transcript saving OFF (unsaved history LOST on exit, no retroactive save, restart = fresh). FIXED 2026-09-18: CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1 in project+home settings.json `env` block + user `setx`. New sessions save; ALREADY-RUNNING ones stay unsaved until restarted — dump valuable context to durable files BEFORE exiting.
 
 - [reference_domain_dns_hosting_map.md](reference_domain_dns_hosting_map.md) — ★ WHERE EACH DOMAIN LIVES: wscare.pro = Cloudflare DNS → Render app (subdomains like cheryl.wscare.pro = Cloudflare + Render); windowandsolarcare.com + scenicartprint.com = DreamHost; www.windowandsolarcare.com = CNAME → Odoo. Check before touching any domain/DNS/SSL so you use the right panel.
