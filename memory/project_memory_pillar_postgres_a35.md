@@ -5,15 +5,17 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-20T08:18:27.421Z
+  modified: 2026-09-20T08:32:07.047Z
 ---
 
 Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL (`ir.config_parameter`, one blob per store) was the §B7 durable-upgrade target — A35 moves it onto **Render Postgres**, A37 first hardens the read path. See [[project_memory_pillar_slice2]].
 
 ## ★ OVERNIGHT CONVERSION PROGRAM (2026-09-20, DJ-authorized autonomous; Lead orchestrates+QC, Builder-2 builds) — migrate the remaining ir.config_parameter stores → PG, one at a time, pure A36 pattern (migrate-first + VERIFY + rollback = revert _PG_STORES append; money never moves; DJ-gates parked).
 - **#1 floatnotes ✓ DONE 2026-09-20** (Deploy 1 `9f4e68d8` migrate-enable → migrate {stores:[floatnotes]} VERIFY 4/4 no-dupes, verified 2 ways → Deploy 2 `d6e7a8c8` flip → smoke green: PG 4/4, row data intact/renderable, app healthy). floatnotes = Cheryl's voice notes (company_id=2, 4 records all status=done). NO env change (MEMORY_DB_URL already set; store not in _PG_STORES until the flip so app read Odoo during migrate). floatnote.py is a DAL IMPORTER (mem_get/mem_put/_load/_save on _STORE='floatnotes') → post-flip a PG write blip surfaces as a raw 500 (deferred "wrap the 5 DAL importers with except-MemoryWriteError→{ok:false}" follow-up; safe as-is).
-- **#2 My Day tasks/todos** — needs a SCOPE-FIRST step (Lead-cued next).
-- Pattern per store: add to MIG_RULES(None)+MIG_EXPECT_MIN(=live count, re-confirm), Deploy 1 (NOT _PG_STORES) → /admin/migrate{apply,stores:[X]} VERIFY pg_rows==count + re-migrate → Deploy 2 (_PG_STORES+=X) → smoke. Check no in-flight writers + a quiet window per store.
+- **#2 voicenotes ✓ DONE 2026-09-20** (Deploy 1 `6b2e5120` → migrate {stores:[voicenotes]} VERIFY 2/2 no-dupes, 2 ways → Deploy 2 `85f80389` flip → smoke green: PG 2/2, transcripts intact, app healthy). voicenote.py DAL twin of floatnote.py (_STORE='voicenotes', company_id=1, 2 records all done). ★ Caveat handled: a retry cron (main.py:660, every 10min) re-queues STUCK voicenotes — re-verified 0-stuck immediately before the flip (no-op) + straggler-catch re-migrate. Same importer-write caveat (voicenote.py write fail → safe-500, deferred importer-wrap).
+- **My Day (was #2 candidate) → PARKED as Odoo-native:** profiled = Odoo `mail.activity` (CRM follow-ups) + `project.task` (personal todos), NO app blob → A36 pattern doesn't apply; record-of-truth stays Odoo. DJ's "never felt right in Odoo" = a separate DAYTIME design build (new PG store + rewrite /api/todos/* + tasks leave Odoo activity UI), not a flip. Surfaced to DJ.
+- **★ OVERNIGHT PROGRAM WRAPPED 2026-09-20 — 2 clean verified wins (floatnotes 4/4 + voicenotes 2/2).** The near-free A36 candidates (stores already on the memory DAL) are now EXHAUSTED. ★ KEY: the near-free FLIP only works for DAL stores (mem_get/mem_put → wsc.memory.<store>). The REMAINING tranche = raw `ir.config_parameter` stores (library/dclib.data, wsc.capacity.overrides, wsc.sched.<so>, booking.requests.pending, slot_offers) + multi-writer feed.py/ideas.py — these are per-store CODE REWRITES on shared hot files (dashboard.py/shared.py) with live/cron writers → a DELIBERATE DAYTIME design pass (design + shared-file serialization + writer-coordination + DJ awake), NOT overnight-auto. booking_requests needs dedupe first (dual-module clobber). notify/wsc.dj.alerts = active writer.
+- Pattern per DAL store: add to MIG_RULES(None)+MIG_EXPECT_MIN(=live count, re-confirm), Deploy 1 (NOT _PG_STORES) → /admin/migrate{apply,stores:[X]} VERIFY pg_rows==count + re-migrate → Deploy 2 (_PG_STORES+=X) → smoke. Check no in-flight writers + a quiet window per store.
 
 ## ★★★ A36 FLIPPED LIVE 2026-09-20 — DJ's company_id=1 stores now on Render Postgres too (Pillar fully on PG)
 The whole Memory Pillar now runs on Render Postgres. A36 = the 8 DJ stores (decisions, meetings, campaigns, content, sops, roadmap, reference, forecast) migrated + flipped. Executed as TWO deploys around a Dispatcher quiet window + DJ hold:
