@@ -5,12 +5,15 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-20T03:45:52.305Z
+  modified: 2026-09-20T05:11:46.808Z
 ---
 
 Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL (`ir.config_parameter`, one blob per store) was the §B7 durable-upgrade target — A35 moves it onto **Render Postgres**, A37 first hardens the read path. See [[project_memory_pillar_slice2]].
 
-## A35 — Postgres backend (STAGED, flag-off; commits 39cb84f6 + 684b8969)
+## ★★ A35 FLIPPED LIVE 2026-09-20 — fleet memory now on Render Postgres
+Cutover executed + both-green verified: (1) Dispatcher bound `MEMORY_DB_URL_MIGRATE` (fromDatabase) → I POST'd `/admin/migrate` dry-run (200, secret OK, solved_errors 26→exclude-all/migrate 0, fleet_decisions 0) → apply=true (ensure_schema created mem_records + indexes clean, VERIFY 0==0 PASS both stores). (2) Dispatcher bound `MEMORY_DB_URL` (flip). (3) SMOKE: `/hook/recall?signature=...` → `{ok:true,record:null}` 200 = the fleet DAL reads PG cleanly (no 500/read_failed). (4) Lead confirmed DJ's `decisions` blob = 61 records, all company_id=1, UNTOUCHED on Odoo (not in _PG_STORES). **solved_errors + fleet_decisions now LIVE on Postgres; DJ's company_id=1 stores stay on Odoo until A36.** Rollback still = remove the MEMORY_DB_URL binding. NEXT: A36 (DJ-gated) = append DJ stores to _PG_STORES + set MIG_EXPECT_MIN{decisions:61, meetings:7} + migrate + flip.
+
+## A35 — Postgres backend (built; commits 39cb84f6 + 684b8969 + 2f201891)
 - **ONE unified table `mem_records`** seats BOTH the fleet stores (A35) and DJ's company_id=1 stores (A36, additive — no schema change): `PRIMARY KEY (company_id TEXT, store TEXT, record_id TEXT)`, `data JSONB` (the FULL record = source of truth; every field preserved, incl. the typed company_id — jsonb keeps int `1` vs str `'fleet'` so the Python `mem_get` `==_COMPANY/==_FLEET` filters still work byte-identical after round-trip), promoted `signature`/`status` cols (fleet recall), `created_at`/`updated_at`, and `search_text TEXT GENERATED ALWAYS AS (lower(data::text)) STORED` for /ask.
 - **Indexes:** PK-prefix (company_id,store) list views; partial `(store,signature)`+`(store,status)` WHERE NOT NULL (fleet recall); `(company_id,store,created_at DESC)` recency; **GIN pg_trgm on search_text** for /ask ILIKE — the trgm extension+index are **best-effort** (ensure_schema logs+continues if `CREATE EXTENSION pg_trgm` is refused; /ask falls back to a seq-scan). A migration must never abort on a trgm privilege error.
 - **Flag = env `MEMORY_DB_URL` (present→PG) AND store-gated `_PG_STORES`** (A35 = `{solved_errors, fleet_decisions}`; A36 APPENDS the DJ stores IN THE SAME DEPLOY that migrates their data). `_pg_on(store)=_PG and store in _PG_STORES`. **Why store-gated, not a whole-DAL flip:** flipping every store to PG while only fleet data is migrated would make DJ's company_id=1 pages read EMPTY. Each store flips only once its data is in PG.
