@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-20T05:20:36.270Z
+  modified: 2026-09-20T05:30:05.922Z
 ---
 
 Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL (`ir.config_parameter`, one blob per store) was the §B7 durable-upgrade target — A35 moves it onto **Render Postgres**, A37 first hardens the read path. See [[project_memory_pillar_slice2]].
@@ -48,7 +48,10 @@ Cutover executed + both-green verified: (1) Dispatcher bound `MEMORY_DB_URL_MIGR
 - Multi-store apply is per-upsert autocommit → a mid-loop raw exception leaves EARLIER stores committed = partial migration. Idempotent re-run recovers + Odoo intact (no loss), but note it in the A36 runbook (or wrap the whole apply in one transaction for A36's real data).
 - VERIFY is exact-match (`pg_rows == migrated`) → an A36 RE-run AFTER live writes have landed will false-FAIL. Note in the A36 runbook (run migrate once, before the flip).
 
-### Known perf item — ask() N+1 read amplifier (found 2026-09-20, PARKED, not a bug)
+### ✅ FIXED 2026-09-20 (commit 05900523) — ask() N+1 de-N+1 + per-store resilience
+Built before A36 (it was a PREREQUISITE — a ~70-read N+1 moved onto the single-conn PG would run as ~70 SERIALIZED PG queries/ask). Added `_current_map(records)` = current-per-topic over an ALREADY-LOADED list, replicating mem_current_by_topic EXACTLY (superseded-set → live → newest effective_date-else-created_at → fallback newest-overall). **Verified IDENTICAL to mem_current_by_topic over DJ's real 61 decisions (59 topics, 2 supersede-chain links): 0 mismatches.** mem_current_by_topic KEPT for single-topic lookups; de-N+1'd only the 3 LOOP-callers: ask() (decisions+fleet_decisions), get_decision + get_fleet_decision q-branches (the last N+1'd on the now-PG fleet store). Reads/ask ~68 → ~9. Per-store resilience: ask() wraps each store read (`_gather`) → one MemoryReadError NOTES the store in `failed[]` + skips it → returns `{ok:true, partial:true, failed:[...]}` (partial real results REPLACE the old {ok:false} for the ask box; VIEW loads keep A37's {ok:false}→retry). v2_memory ask-view renders a non-alarming note ("Showing results from the areas we could reach — couldn't reach: <X>. Tap to retry for the rest"). The old parked note follows for history:
+
+### (history) Known perf item — ask() N+1 read amplifier (found 2026-09-20, now FIXED above)
 `/api/memory/ask` and `get_decision` compute current-per-topic by calling `mem_current_by_topic()` INSIDE a per-topic loop — and `mem_current_by_topic` (memory_store.py:~376) does a FULL `mem_get(store)` (= one `_load` = one Odoo/PG read) EVERY call. `_load` has NO cache. So one ask over DJ's 61 decisions fires ~61 reads for 'decisions' alone + 6 register stores + the fleet N+1 = **~70+ backend reads per ask**. On Odoo (which rate-limits bursts) that's HIGH 429 exposure → the A37 guard correctly returns {ok:false} → DJ sees "tap to retry." Empirically ask() WORKS (Operator's live "portal" query returned a clean cross-store synthesis post-flip) — this is a FREQUENCY amplifier, not a bug; it PRE-dates the flip. **Fix (parked, DJ/Lead's call, good A36-perf-pass candidate): de-N+1** — load each store ONCE, build a `_current_map(records)` in Python (~70 reads → ~8). Optional complement (Lead's idea, tradeoff vs A37 error≠empty): per-store degrade in ask so one store's blip doesn't sink the whole call. Not built — parked unless DJ hits retry repeatedly.
 
 ### General follow-ups
