@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-20T05:11:46.808Z
+  modified: 2026-09-20T05:20:36.270Z
 ---
 
 Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL (`ir.config_parameter`, one blob per store) was the §B7 durable-upgrade target — A35 moves it onto **Render Postgres**, A37 first hardens the read path. See [[project_memory_pillar_slice2]].
@@ -47,6 +47,9 @@ Cutover executed + both-green verified: (1) Dispatcher bound `MEMORY_DB_URL_MIGR
 - `_mig_read_odoo`: `json.loads()` is OUTSIDE the retry `try`, so a malformed value raises a raw JSONDecodeError → endpoint 500 instead of a clean `ABORT_READ_FAILED` verdict. Safety HOLDS (still aborts, migrates no garbage); wrap json.loads in the guard for a clean verdict (very-low-likelihood — blobs are always app-written valid JSON).
 - Multi-store apply is per-upsert autocommit → a mid-loop raw exception leaves EARLIER stores committed = partial migration. Idempotent re-run recovers + Odoo intact (no loss), but note it in the A36 runbook (or wrap the whole apply in one transaction for A36's real data).
 - VERIFY is exact-match (`pg_rows == migrated`) → an A36 RE-run AFTER live writes have landed will false-FAIL. Note in the A36 runbook (run migrate once, before the flip).
+
+### Known perf item — ask() N+1 read amplifier (found 2026-09-20, PARKED, not a bug)
+`/api/memory/ask` and `get_decision` compute current-per-topic by calling `mem_current_by_topic()` INSIDE a per-topic loop — and `mem_current_by_topic` (memory_store.py:~376) does a FULL `mem_get(store)` (= one `_load` = one Odoo/PG read) EVERY call. `_load` has NO cache. So one ask over DJ's 61 decisions fires ~61 reads for 'decisions' alone + 6 register stores + the fleet N+1 = **~70+ backend reads per ask**. On Odoo (which rate-limits bursts) that's HIGH 429 exposure → the A37 guard correctly returns {ok:false} → DJ sees "tap to retry." Empirically ask() WORKS (Operator's live "portal" query returned a clean cross-store synthesis post-flip) — this is a FREQUENCY amplifier, not a bug; it PRE-dates the flip. **Fix (parked, DJ/Lead's call, good A36-perf-pass candidate): de-N+1** — load each store ONCE, build a `_current_map(records)` in Python (~70 reads → ~8). Optional complement (Lead's idea, tradeoff vs A37 error≠empty): per-store degrade in ask so one store's blip doesn't sink the whole call. Not built — parked unless DJ hits retry repeatedly.
 
 ### General follow-ups
 3. **★ The 5 DAL importers don't catch MemoryReadError** (meeting.py, voicenote.py, floatnote.py, cheryl/voicenote.py, memory_pointers.py): a 429 during a capture/finalize now surfaces as a raw 500 instead of a silent [] — STRICTLY SAFER (that's the wipe we prevented) but ugly UX. Wrap those capture endpoints for a clean message. (Meeting/voicenote are Specialists' app-code lane — Lead flagged them.)
