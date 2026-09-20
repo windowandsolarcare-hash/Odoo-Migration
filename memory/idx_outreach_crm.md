@@ -1,5 +1,7 @@
 # Outreach / reactivation / CRM — memory index
 
+- [project_thumbtack_lead_webhook.md](project_thumbtack_lead_webhook.md) — Thumbtack leads → live app (Workiz dead). Phase 1 SHIPPED: POST /webhooks/thumbtack/<secret> (public, secret=ir.config wsc.thumbtack.webhook_secret; logs raw to wsc.thumbtack.raw_log, no records). Phase 2 PENDING DJ Test lead: parse→res.partner match by PHONE→crm.lead(company1,'Thumbtack')→idempotent on lead id→surface. Brief: THUMBTACK_WEBHOOK_BRIEF.md.
+
 - [project_thumbtack_webhook_lead_pipe.md](project_thumbtack_webhook_lead_pipe.md) — Thumbtack has a native FREE one-way webhook (Apps→Manage webhooks) → leads (name+phone, NO email)/msgs/reviews to any URL, additive. Dead Workiz still "Connected" + CANNOT self-disconnect. Spec to pipe TT leads into live app: THUMBTACK_WEBHOOK_BRIEF.md. 2026-09-10.
 
 - [project_anonymous_voicemail_empty_norm.md](project_anonymous_voicemail_empty_norm.md) — Anonymous/blocked VMs keyed under EMPTY norm (''); inbox_status `if not c` guard rejected empty c → Done/Snooze silently failed. Fix: drop `not c`, conv-existence is the real guard. Any inbox endpoint guarding `if not c` mis-rejects the anon bucket. 2026-08-15.
