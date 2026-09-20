@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-20T03:22:14.118Z
+  modified: 2026-09-20T03:26:52.072Z
 ---
 
 Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL (`ir.config_parameter`, one blob per store) was the §B7 durable-upgrade target — A35 moves it onto **Render Postgres**, A37 first hardens the read path. See [[project_memory_pillar_slice2]].
@@ -28,4 +28,9 @@ Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL 
 - **Endpoints:** 16 read/reload endpoints get `except MemoryReadError → {ok:false,error:'read_failed'} 503` (one DRY prepend-only replace_all). The 3 **headless hook endpoints** were NOT in that set → their existing `except → {ok:false} 200` absorbs it = **fail-SOFT** (never crashes a hook). So user-GETs signal read_failed; hooks stay soft — for free.
 - **v2_memory.html:** `loadFailed(d,out)` keys on jget's `{ok:false}`; 6 view branches show "Couldn't load — tap to retry" + **auto-retry ONCE** per navigation, never the "nothing yet" copy.
 
-Related: [[project_memory_pillar_slice2]], [[feedback_durable_foundation_over_shortcut]], [[feedback_odoo_verify_content_not_status]], [[feedback_regression_guard_pushes]].
+## Known non-blocking follow-ups (A37 QC clean-pass 2026-09-20, logged in BUILD_LOG — do deliberately)
+1. **Double retry stack:** `odoo_rpc` ALREADY does 3×+backoff on 429, and `_load` wraps it in ANOTHER 3× → ~14s worst-case server-side before raising (client aborts at 12s so UX is fine, but a cron on a `_load` path could stall ~14s). Consider dropping `_load`'s INNER retry — but that's REMOVING working retry code, so do it deliberately (DJ-rule 10), not casually.
+2. **False-empty closed only for the 429/read path:** a genuine non-read 500 (a real bug) still returns `{error:...}` with NO `ok` key → the page renders "nothing yet" (loadFailed keys on `ok===false`). Pre-existing; broader hardening (treat any non-ok/errored body as read_failed) is a later item.
+3. **★ The 5 DAL importers don't catch MemoryReadError** (meeting.py, voicenote.py, floatnote.py, cheryl/voicenote.py, memory_pointers.py): a 429 during a capture/finalize now surfaces as a raw 500 instead of a silent [] — STRICTLY SAFER (that's the wipe we prevented) but ugly UX. Wrap those capture endpoints for a clean message. (Meeting/voicenote are Specialists' app-code lane — Lead flagged them.)
+
+Related: [[project_memory_pillar_slice2]], [[feedback_durable_foundation_over_shortcut]], [[feedback_odoo_verify_content_not_status]], [[feedback_regression_guard_pushes]], [[feedback_never_remove_working_code]].
