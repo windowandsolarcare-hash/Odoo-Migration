@@ -2,6 +2,8 @@
 
 - [project_odoo_get_param_returns_false_unset.md](project_odoo_get_param_returns_false_unset.md) — ir.config_parameter get_param returns bool `False` (NOT None/'') when a key is UNSET → a default-safe flag must treat False as "unset" or an unset flag misreads as 'false'/OFF. Caught in tech collect-only test mode.
 
+- [project_memory_read_fail_open_phantom_empty.md](project_memory_read_fail_open_phantom_empty.md) — A37 scare: memory_store `_load` `except:return []` swallowed a transient Odoo 429 → DJ's 61 decisions rendered "No decisions yet" = looked like a wipe, data was fine. User-facing reads must distinguish ERROR from EMPTY (retry-state, not "nothing yet") + migration read must retry+verify count>0. Same fail-open family as the money-allowlist.
+
 - [project_stripe_payments_not_reconciled_to_odoo.md](project_stripe_payments_not_reconciled_to_odoo.md) — Stripe card charge can succeed but NOT reconcile to Odoo (invoice stays not_paid, no account.payment). Find it by amount+date, NOT name/email (billing name misspelled, email=business email). Key: Drive Saunders Vault + C:\Users\dj\_stripe_key_val.txt.
 
 - [project_money_decision_allowlist.md](project_money_decision_allowlist.md) — Any "does customer owe?" / Pay-now / auto-charge decision MUST allowlist owed states (`payment_state IN ('not_paid','partial') AND residual>0`), never denylist — a denylist fails OPEN and billed already-paid Blair. Same shape as the company_id fail-open.
