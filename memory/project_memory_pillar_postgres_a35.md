@@ -5,10 +5,18 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-20T05:30:05.922Z
+  modified: 2026-09-20T05:58:28.212Z
 ---
 
 Built by Builder-2, 2026-09-19/20, Lead-QC'd. The Memory Pillar's JSON-blob DAL (`ir.config_parameter`, one blob per store) was the §B7 durable-upgrade target — A35 moves it onto **Render Postgres**, A37 first hardens the read path. See [[project_memory_pillar_slice2]].
+
+## ★★★ A36 FLIPPED LIVE 2026-09-20 — DJ's company_id=1 stores now on Render Postgres too (Pillar fully on PG)
+The whole Memory Pillar now runs on Render Postgres. A36 = the 8 DJ stores (decisions, meetings, campaigns, content, sops, roadmap, reference, forecast) migrated + flipped. Executed as TWO deploys around a Dispatcher quiet window + DJ hold:
+- **Deploy 1 (migrate-enable, ee06f75b → re-pushed 748e7d50 with WRITE-HONESTY):** added the 8 stores to `MIG_RULES` (rule=None) + `MIG_EXPECT_MIN` (floors 61/7/2/2/11/32/26/0), a validated `stores` body-param on `/admin/migrate`, json.loads-into-guard. ★ WRITE-HONESTY (the write-side of A37): the 4 PG write helpers (`_pg_put/_pg_update/_pg_delete/_pg_save`) now RAISE **`MemoryWriteError`** (not swallow) → the 16 memory endpoints return `{ok:false,'write_failed'}` → v2_memory `saveErr()` shows "Save failed — tap to retry". Fleet hooks fail-soft it (no regression); migration path (`_mig_upsert`, own conn) unaffected. NO `_PG_STORES` change in Deploy 1.
+- **RUN (quiet window):** POST `/admin/migrate {apply:true, stores:[8]}` → VERIFY every pg_rows==Odoo count PASS → re-migrate straggler-catch PASS (idempotent, no stragglers) → Lead independently confirmed via direct PG query (rows==distinct_ids, no dupes).
+- **Deploy 2 (THE FLIP, 9b95054d):** `_PG_STORES += the 8 DJ stores`. Live 05:53:15, app healthy.
+- **SMOKE all-green:** READS = PG GROUP BY store all match Odoo (61/7/2/2/11/32/26/0, no dupes); WRITES = Operator's cookie'd `meeting_item_done` set→clear round-trip verified on PG (done null→true→false, updated_at advancing, data intact = `_pg_save` DELETE+reinsert works). Odoo blobs UNTOUCHED = rollback (revert the `_PG_STORES` append).
+- **_pg_save is now on a LIVE human-edit path** (meeting_item_done, delete_store) — it's atomic (transaction) + now RAISES on failure (write-honesty). solved_errors on PG = 2 live fleet observations (post-A35).
 
 ## ★★ A35 FLIPPED LIVE 2026-09-20 — fleet memory now on Render Postgres
 Cutover executed + both-green verified: (1) Dispatcher bound `MEMORY_DB_URL_MIGRATE` (fromDatabase) → I POST'd `/admin/migrate` dry-run (200, secret OK, solved_errors 26→exclude-all/migrate 0, fleet_decisions 0) → apply=true (ensure_schema created mem_records + indexes clean, VERIFY 0==0 PASS both stores). (2) Dispatcher bound `MEMORY_DB_URL` (flip). (3) SMOKE: `/hook/recall?signature=...` → `{ok:true,record:null}` 200 = the fleet DAL reads PG cleanly (no 500/read_failed). (4) Lead confirmed DJ's `decisions` blob = 61 records, all company_id=1, UNTOUCHED on Odoo (not in _PG_STORES). **solved_errors + fleet_decisions now LIVE on Postgres; DJ's company_id=1 stores stay on Odoo until A36.** Rollback still = remove the MEMORY_DB_URL binding. NEXT: A36 (DJ-gated) = append DJ stores to _PG_STORES + set MIG_EXPECT_MIN{decisions:61, meetings:7} + migrate + flip.
