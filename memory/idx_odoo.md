@@ -53,3 +53,4 @@
 - [project_customer_edit_endpoint.md](project_customer_edit_endpoint.md) — POST /owner/api/customer/edit (brain.py) = CANONICAL customer field edit (name/phone/email/street/city/zip): whitelist-only, refuses non-W&SC (company_id not in [1,False]), chatter audit-log. Operator/voice use THIS, never raw res.partner write.
 
 - [project_res_partner_no_mobile_field.md](project_res_partner_no_mobile_field.md) — res.partner has NO `mobile` field here (writing it 500s). Secondary phone = x_studio_x_studio_second_phone (the one sms.py inbound matcher searches, ~65 pop) or x_studio_secondary_phone (spouse/2nd-contact + x_studio_secondary_name).
+- [project_memory_store_load_failopen_looks_like_dataloss.md](project_memory_store_load_failopen_looks_like_dataloss.md) — Memory page "No decisions recorded yet" ≠ data loss: `_load` fails open to [] on any Odoo 429/error. Read the RAW ir.config_parameter blob first; fix = error≠empty + retry; migration must verify count>0.
