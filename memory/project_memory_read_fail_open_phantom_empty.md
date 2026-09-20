@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d847a036-234d-4c73-9eca-62500cfee8a7
-  modified: 2026-09-20T03:08:21.815Z
+  modified: 2026-09-20T03:10:56.924Z
 ---
 
 **Incident A37 (2026-09-19):** DJ's Memory page (v2_memory.html) suddenly showed "No decisions recorded yet" — looked like his decisions store had been wiped (fear was a whole-blob clobber from tonight's stacked deploys + newly-live fleet hooks). **It was NOT data loss.** Raw read of `ir.config_parameter` key `wsc.memory.decisions` = 61 valid-JSON records intact (38.9 KB, all company_id=1, newest 2026-09-18). The read path self-recovered on reload.
@@ -15,6 +15,8 @@ metadata:
 **NOT the cause (ruled out):** company_id filter (records are int 1, `_COMPANY` is int 1 — match; deployed-logic sim returned 59). Not a clobber. Not the fleet hooks — they write DIFFERENT param keys (`wsc.memory.fleet_decisions` / `solved_errors`, company_id='fleet'), never `wsc.memory.decisions`.
 
 **Why:** a read that swallows an error into an empty result is indistinguishable, at the UI, from "you genuinely have nothing" — on a USER'S OWN data that's a false "your data vanished" scare. Fine as fail-open posture for the fleet BYPRODUCT capture (losing one observation on a blip is OK); NOT fine for a user-facing read.
+
+**★ Worse than the read scare — it was a latent STORE-WIPER (Builder-2 finding):** `mem_put`/`mem_update`/`mem_delete` RELOAD via `_load` right before `_save` (the reload-guard idiom). On a transient 429, `_load` returns `[]` → `_save` then persists `[] + the-one-record` = the ENTIRE store clobbered down to a single record. So the fail-open was one bad 429-during-a-write away from actually destroying DJ's decisions, not just mis-rendering them. **RAISING in `_load` (instead of returning [])** fixes BOTH the "nothing yet" read AND removes this write-clobber path. A genuinely-absent param still returns [] normally; only an exception-after-retries raises.
 
 **How to apply — the durable principle (error ≠ empty on user-facing reads):**
 1. `_load` must SIGNAL read-failure distinctly (raise / sentinel), not swallow to [] — callers must tell "threw" from "genuinely empty."
