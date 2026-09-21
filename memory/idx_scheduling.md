@@ -129,3 +129,5 @@
 - [project_feed_submit_item_contract.md](project_feed_submit_item_contract.md) — HUD feed.submit_item validates HARD: kind∈(attention,approval), urgency∈(interrupt,today,glance), action{label,href} REQUIRED on every card; invalid→silently rejected (callers ignore {ok:False}). Custom render = kind=attention + a marker field (e.g. captureform).
 
 - [project_inbox_summary_readmodel_a5.md](project_inbox_summary_readmodel_a5.md) — Inbox list speed (audit#5): per-conv summary projection (wsc.inbox.sum.<norm>) at the _conv_set chokepoint → list reads ~80KB not 2.72MB, ~2.5s→<200ms, byte-identical (diff-test). Pre-warm gotchas: 99s lazy cliff; bulk create()=0.62s; cron endpoints cookie-gated.
+
+- [project_day_off_two_representations.md](project_day_off_two_representations.md) — A day is OFF two ways: capacity override (wsc.capacity.overrides<=0) OR full-day Personal Time SO (jt=Personal Time, partner 23054, x_job_length_min>=480). shared.is_day_off(d,fresh=) unions BOTH = single enforcement point; build_day_plan/rank_days inherit; slot_offers+booking got direct guards. (scheduling #4)
