@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-21T15:40:01.081Z
+  modified: 2026-09-21T23:43:26.484Z
 ---
 
 **Move the inbox CONVERSATION store off Odoo `ir.config_parameter` blobs (`wsc.sms.conv.<norm>` + `wsc.sms.index`, ~196 convs) → Render Postgres**, killing the per-thread-open WAN JSON-RPC hop DJ feels on his phone. Store relocation ONLY (conversation content + threading UNCHANGED). Follows [[feedback_data_location_odoo_vs_postgres]] + the A35/A36 memory-pillar migrate-verify-rollback playbook. Brief: `saunders-render-app/3_Documentation/INBOX_THREAD_POSTGRES_BRIEF.md`.
@@ -30,7 +30,7 @@ metadata:
 
 ## Status (2026-09-21)
 - ✅ M1 CODE: table+DAL+backfill+CLI+admin endpoint (`POST /api/sms/admin/migrate`, NOTIFY_SECRET-gated) pushed, compile-clean, inert. → Lead QC.
-- ⏳ LIVE PARITY RUN gated on infra: (a) PG DB (reuse memory instance), (b) Dispatcher binds SMS_DB_URL_MIGRATE, (c) register sms_store router in main.py + add the endpoint to authz PUBLIC_EXACT (2 shared lines) OR CLI one-off. Then B2 runs dry-run→apply→report PASS.
+- ✅ LIVE BACKFILL DONE + VERIFIED PASS (2026-09-21): DJ bound SMS_DB_URL_MIGRATE (Datastore-URL link to wsc-memory-pillar PG, renamed off Render's DATABASE_URL default) + ran the CLI one-off in the wsc-field-assistant Render shell (I have NO Render shell/one-off tool via MCP → DJ runs it). Result: source_index 260, source_convs 257, missing_conv_blobs 3 (orphaned index entries — norms w/ no conv blob, incl. 2 test 555s; SAFE to skip, "missing"=genuinely absent not a read error since a hard read ABORTS), pg_rows 257, count_parity PASS, spot_content 8/8 PASS. order_divergence 130/257 positions differ BUT first_10 identical = BENIGN (intended last_ts ordering vs the retiring _touch order; actionable top stable; position-count overstates it; NO rank column needed — that'd defeat retiring the index).
 - ⏭ Then Specialists reroute (M2) → cutover flip SMS_DB_URL (M3) → smoke → rollback ready.
 
 Related: [[feedback_data_location_odoo_vs_postgres]], [[feedback_durable_foundation_over_shortcut]], [[feedback_github_deployment_bash]], [[feedback_never_relay_credential_via_session]].
