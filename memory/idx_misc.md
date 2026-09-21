@@ -1,5 +1,7 @@
 # Misc — memory index
 
+- [project_sonnet5_rejects_temperature.md](project_sonnet5_rejects_temperature.md) — ★ API gotcha: model claude-sonnet-5 REJECTS the `temperature` param → 400. Found in Mom's Care compose (drop temperature; determinism via prompt/input-constraint/post-check). W&SC unaffected (sonnet-4-6, no temperature). Sibling of the anthropic==0.122.0 pin.
+
 - [project_momscare_crisis_scan_every_llm_gate.md](project_momscare_crisis_scan_every_llm_gate.md) — ★ Safety-QC lesson: EVERY red-flag/LLM-facing gate runs crisis_scan (self-harm→988) BEFORE scan_text, not just scan_text. Mom's Care assistant shipped w/o crisis_scan (self-harm→med answer, not 988); Cheryl caught it, Lead QC missed it. QC checklist: "crisis_scan wired?"
 
 - [project_momscare_phase2_data_source.md](project_momscare_phase2_data_source.md) — ★ Mom's Care Phase 2 (Care Assistant, kicked off 2026-09-21): licensed-data-source = openFDA + RxNorm ONLY for v1 (free, zero-PHI, zero license Q); DDInter deferred pending non-commercial license; NIH RxNav DDI API is DEAD (Jan 2024). Built ENTIRELY on fictional data (Anita) to the very end — no real-PHI flip. The 5 hard gates (facts-not-recall / zero-PHI / deterministic-pre-model-911 / cite / walled-off) built as CODE. Flag OFF until gates + Cheryl sign-off + DJ.
