@@ -100,3 +100,5 @@
 - [project_stripe_sms_bypasses_stop_dnc.md](project_stripe_sms_bypasses_stop_dnc.md) — ✅ FIXED 2026-09-19 (56f14676): /stripe/send_sms now routes via messaging.send (STOP/DNC enforced) — was raw _send_sms which bypassed opt-out. Rule: customer SMS ALWAYS via messaging.send, never _send_sms directly.
 
 - [project_split_number_thread_merge.md](project_split_number_thread_merge.md) — Inbox keyed per-phone → cell+landline = 2 threads, VM invisible where DJ replies. Fix = display-time merge by shared partner_id>0 (_merge_partner_thread; primary=main phone; unread cleared on all). ★Follow-up: convs missing from wsc.sms.index are invisible in the list.
+
+- [project_inbox_pg_reroute.md](project_inbox_pg_reroute.md) — sms.py conv funnels are FLAG-GATED (sms_store.pg_on()→Render PG DAL, else Odoo); flag-OFF=Odoo unchanged. Phase-1 conv+index only (A41 summary stays Odoo). Write path uses RAISING conv_get/conv_set = clobber-guard. Non-indexed-conv risk resolved by PG derived index. Cutover=bind SMS_DB_URL (DJ-gated).
