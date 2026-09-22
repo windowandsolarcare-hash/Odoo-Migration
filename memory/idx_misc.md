@@ -1,6 +1,6 @@
 # Misc — memory index
 
-- [project_payment_options_zelle_venmo_vision.md](project_payment_options_zelle_venmo_vision.md) — ★ ROADMAP (DJ 2026-09-21, scope AFTER the Venmo journal fix): branded payment page w/ Zelle-vs-Venmo breakout (sections/buttons per method) + outbound payment-request offering both. Inbound method-detection already done. Pairs w/ per-method journal routing (Zelle j19/Venmo j29). Lead scopes + flags Dispatcher.
+- [project_payment_options_zelle_venmo_vision.md](project_payment_options_zelle_venmo_vision.md) — ★ ROADMAP (DJ 2026-09-21, scope AFTER the Venmo journal fix): branded payment page w/ Zelle-vs-Venmo breakout (sections/buttons per method) + outbound payment-request offering both. Inbound method-detection already done. Pairs w/ per-method journal routing (DJ-corrected: Zelle STAYS j6/Chase like a normal deposit, NOT j19; only Venmo→j29). Lead scopes + flags Dispatcher.
 
 - [project_sonnet5_rejects_temperature.md](project_sonnet5_rejects_temperature.md) — ★ API gotcha: model claude-sonnet-5 REJECTS the `temperature` param → 400. Found in Mom's Care compose (drop temperature; determinism via prompt/input-constraint/post-check). W&SC unaffected (sonnet-4-6, no temperature). Sibling of the anthropic==0.122.0 pin.
 
