@@ -235,9 +235,9 @@ These are facts confirmed by direct API query. Never infer these from patterns o
 | account.journal — Chase Checking | id=6, code=BNK1, type=bank | 2026-06-07 | Where checks deposit. Maps to "Check" bucket in reports |
 | account.journal — Check Payments | id=17, code=CHK, type=bank | 2026-06-07 | Also maps to "Check" bucket |
 | account.journal — Cash | id=18, code=CASH, type=cash | 2026-06-07 | Maps to "Cash" bucket |
-| account.journal — Zelle | id=19, code=ZEL, type=bank | 2026-06-07 | ★ CORRECTED 2026-09-21 (DJ): Zelle PAYMENTS deposit straight to CHASE (j6, BNK1) like a normal deposit — they do NOT route to j19. j19 (ZEL) exists but is NOT the Zelle-payment journal. Only VENMO (funds in a separate Venmo account; DJ transfers Venmo→Chase manually) breaks out → its own journal j29 + report bucket. |
+| account.journal — Zelle | id=19, code=ZEL, type=bank | 2026-06-07 | ★ CORRECTED 2026-09-21 (DJ): Zelle PAYMENTS deposit straight to CHASE (j6, BNK1) like a normal deposit — they do NOT route to j19. j19 (ZEL) exists but is NOT the Zelle-payment journal. Only VENMO (separate Venmo account; DJ transfers Venmo→Chase manually) breaks out → its own journal j29 + report bucket. |
 | account.journal — Credit Card | id=20, code=CC, type=bank | 2026-06-07 | Maps to "Credit" bucket |
-| account.journal — Venmo | id=29, code=VENMO, type=bank | 2026-06-07 | Maps to "Other" bucket |
+| account.journal — Venmo | id=29, code=VENMO, type=bank | 2026-06-07 | ★ 2026-09-21 (DJ): Venmo funds sit in a SEPARATE Venmo account → Venmo payments break out to THIS journal (j29) + their OWN report bucket (per-method routing being built by Specialists). (Previously bucketed as "Other".) |
 
 **If you need a format not in this table: make an API call to confirm it. Do not guess.**
 
