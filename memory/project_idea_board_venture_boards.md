@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 11d2c5cb-9040-46fe-b04b-20ac84f0828f
-  modified: 2026-09-22T14:23:27.365Z
+  modified: 2026-09-22T14:52:27.659Z
 ---
 
 **Idea Board Venture Boards (2026-09-22).** DJ+Cheryl wanted both fleet venture brainstorms (R1 "build on what we have" = 51 ideas; R2 "greenfield" = 66) IN the Idea Board so they can read + comment + prioritize together, not only in a private Claude artifact.
@@ -21,6 +21,13 @@ metadata:
 - `POST /api/ideas/seed_ventures` — idempotent per-group loader (body: {group, ventures[]}); REPLACES the group's cards but PRESERVES existing threads matched by `rank`. Core = `_seed_group(d,g,ventures)`.
 - `GET /api/ideas/seed_builtin` — one-tap, secret-free loader: reads the committed `routers/owner/venture_seed.json` (both boards, 51+66) and seeds them. Idempotent + thread-preserving. Owner-cookie gated by the /owner mount.
 - **Auto-seed:** `ideas.html loadBoard()` fires `seed_builtin` ONCE when `IDEA_BASE==='/owner'` AND `groups` is empty — so the boards just appear when DJ opens `/owner/ideas`, no manual step.
+
+## 🔥 Collaborative heat / upvote on ventures (2026-09-22, commit 53074701)
+DJ wanted the same 🔥 heat the working board uses on EACH venture so he + Cheryl upvote favorites while discussing. Added:
+- `POST /api/ideas/card_heat` (id) → reuses `_touch` (+12, cap 100, refresh last-touch), persisted; returns new decayed `eff_heat`. Mirrored into cheryl/ideas.py so Cheryl heats from her silo too.
+- `/api/ideas/group` now returns `eff_heat` per venture.
+- UI: a 🔥 button + heat badge on every venture row (and the card-detail 🔥 is tappable), plus a **Rank / 🔥 Hottest** sort toggle. Rank (#N) stays visible always — heat is the collaborative layer on top. Uses the existing `heatClass` (hot/warm/cold) colors.
+- Same heat DECAYS over time (it's the working-board mechanic) — acceptable as recency-weighted enthusiasm; a re-tap re-warms.
 
 ## ★ Cheryl mirror gotcha (paired change)
 `routers/cheryl/ideas.py` mirrors owner ideas by an EXPLICIT `_ROUTES` list (delegates to owner functions). A new endpoint the board UI calls MUST be added there too or Cheryl 404s. I added `/api/ideas/group` to her list (she needs the read). `seed_builtin`/`seed_ventures` stay owner-only (seeding is DJ's; auto-seed is owner-only) — Cheryl sees the boards once DJ's session has seeded the shared blob, and can comment via the already-mirrored `card_msg`. So **DJ must open the board first**, then Cheryl sees it. Cheryl needs NO new access grant. See [[feedback_never_send_dj_to_odoo]].
