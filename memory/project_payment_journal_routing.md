@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 11d2c5cb-9040-46fe-b04b-20ac84f0828f
-  modified: 2026-09-22T00:36:51.416Z
+  modified: 2026-09-22T00:52:06.709Z
 ---
 
 **Venmo journal routing (2026-09-21, commit 641bc664, DJ-approved + Lead-QC'd).** Fixed: every payment method was hardcoded to `journal_id: 6` (Chase Checking) + memo. DJ: Venmo funds sit in a SEPARATE Venmo account, so a Venmo payment must book to the **VENMO journal (29)**; he manually transfers Venmo→Chase as his own bank entry.
@@ -15,15 +15,19 @@ metadata:
 - **check / cash / zelle / credit → journal 6 (Chase Checking)**, UNCHANGED. DJ confirmed **Zelle drops straight into Chase — NO separate Zelle journal** (do NOT use journal 19, even though the CLAUDE.md constants table historically listed 19=Zelle — that line was wrong for the payment flow; Lead corrected the bible).
 - **★ `payment_method_line_id` is JOURNAL-SPECIFIC** — journal 6's inbound lines are 41/51; journal 29's inbound Manual-Payment is **46**. So venmo must pair (journal 29 + pml 46); reusing a journal-6 pml with journal 29 is invalid. Verify pmls live: `account.payment.method.line` where `journal_id=<id>`, `payment_type='inbound'`.
 
-## The pattern (default-preserving)
+## The pattern (default-preserving) — BELT-AND-SUSPENDERS (commit ef95551e, live 2026-09-22)
+The first fix (641bc664) keyed only on the `method` arg (`_method_journal.get(method,(6,None))`). Lead caught the gap: **2 legacy callers pass `method='cash', memo='Venmo'`** (the `/api/record_venmo_payment` path via `_stale_so_payment` in dashboard.py:10624 + payments.py:1194) → still misrouted to journal 6. So the register sites are now **memo-aware**:
 ```
-_method_journal = {'venmo': (29, 46)}
-_journal_id, _pml_override = _method_journal.get(method, (6, None))
-if _pml_override is not None:
-    pml = _pml_override
-# ...account.payment.register.create: 'journal_id': _journal_id, 'payment_method_line_id': pml
+_is_venmo = (raw_method == 'venmo') or ('venmo' in str(memo or '').lower())
+if _is_venmo:
+    _journal_id, pml = 29, 46
+else:
+    _journal_id = 6   # existing pml unchanged
+# ...register.create: 'journal_id': _journal_id, 'payment_method_line_id': pml
 ```
-Non-venmo → `(6, None)` → journal 6 + the existing pml = byte-identical to before.
+AND the 2 gap callers were changed from `('cash','Venmo')` → `('venmo','Venmo')` (canon). Verified routing table offline: venmo* + cash/Venmo → 29; cash/Cash, cash/Zelle, zelle, check, credit → 6 (byte-identical). Non-venmo path untouched.
+
+**★ BEHAVIOR NOTE (flagged to Lead):** changing the 2 callers to canon `'venmo'` means the manual venmo path now sends the `finalize_payment` "Funds Received" thank-you text (REMOTE-method behavior, idem-deduped — consistent with paywatch). If unwanted, revert JUST the caller args to `'cash'` — the memo-aware belt alone still fixes the journal. Left as-is pending Lead's call.
 
 ## ★ ALL payment-register sites (a future payment change MUST cover every LIVE one)
 LIVE venmo-reachable (all fixed with the pattern):
