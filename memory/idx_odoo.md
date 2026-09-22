@@ -56,3 +56,5 @@
 
 - [project_res_partner_no_mobile_field.md](project_res_partner_no_mobile_field.md) — res.partner has NO `mobile` field here (writing it 500s). Secondary phone = x_studio_x_studio_second_phone (the one sms.py inbound matcher searches, ~65 pop) or x_studio_secondary_phone (spouse/2nd-contact + x_studio_secondary_name).
 - [project_memory_store_load_failopen_looks_like_dataloss.md](project_memory_store_load_failopen_looks_like_dataloss.md) — Memory page "No decisions recorded yet" ≠ data loss: `_load` fails open to [] on any Odoo 429/error. Read the RAW ir.config_parameter blob first; fix = error≠empty + retry; migration must verify count>0.
+
+- [project_payment_journal_routing.md](project_payment_journal_routing.md) — Payment→journal: VENMO→journal 29 (+inbound line 46, memo Venmo, reports "Venmo"); check/cash/zelle/credit→Chase(6) unchanged (Zelle NOT j19). payment_method_line_id is journal-specific. ALL live register sites listed (dashboard _execute_payment/record_check_payment/process_payment_with_sync + tech _METHODS); dead ones skipped. commit 641bc664.
