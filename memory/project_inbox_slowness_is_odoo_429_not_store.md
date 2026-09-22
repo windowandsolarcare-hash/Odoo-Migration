@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d847a036-234d-4c73-9eca-62500cfee8a7
-  modified: 2026-09-22T22:23:17.017Z
+  modified: 2026-09-22T22:53:00.658Z
 ---
 
 # Inbox "slow / Couldn't load" = Odoo 429 rate-limit (upstream), NOT the conversation store
@@ -25,3 +25,9 @@ metadata:
 3. **Graceful 429 handling** in `odoo_rpc` / the summary read: serve stale-cached summaries + short backoff on 429; never hang 14s. A throttle must degrade, not block the field.
 
 **What does NOT fix it:** numInstances=2 / zero-downtime (a 2nd instance hits the same throttled Odoo), the memory-hook runaway-loop work (CPU was healthy — no loop), and the PG conv-pool (revert proved the store isn't the cause). Ties to [[project_store_cutover_smoke_needs_latency_gate.md]] — the sibling lesson from the same incident.
+
+**RESOLUTION (shipped + confirmed 2026-09-22, deploy 6a717cf4, one atomic push shared.py+sms.py+main.py):**
+1. `shared.odoo_rpc` — graceful 429: timeout 20s→5s, **fail-fast on 429** (raise typed `OdooBusy` in ~0ms, NO retry-into-throttle), one 0.5s retry only for transient 5xx/timeout. Stops the threadpool exhaustion (the reason it hung *universally* — sync-`def` inbox endpoints run in FastAPI's bounded ~40-thread pool, and 20s Odoo waits filled it so EVERY request queued).
+2. `sms.py` `_bulk_summaries` — resilient `_SUMS_LASTGOOD` cache: serves **stale-populated** on any Odoo failure (threads still show), never empty/hung.
+3. `main.py` — staggered the ~11 scheduler cron minutes off the `:00` pile-up (WHEN only, never WHAT) to cut the burst that triggered the 429.
+Forced-429 test ALL PASS; real-path post-deploy: inbox/list ~0.15-0.22s (was 13-14s), thread-opens 200 fast, zero 429. DJ confirmed "speed back." **Still-open P2 fast-follow:** the payment-serving twin `dashboard.py:288` odoo_rpc is UNTOUCHED — hardening it needs the read-vs-write split (a payment WRITE under 429 gets bounded-retry + SURFACED error + idempotency, NEVER the read path's silent fail-open, NEVER a premature 5s abort). Money-touching; coordinate with DJ.
