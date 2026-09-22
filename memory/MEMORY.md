@@ -54,6 +54,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_field_html_js_syntax_check.md](feedback_field_html_js_syntax_check.md) — ALWAYS `node --check` field.html JS before pushing.
 - [feedback_field_readability_sunlight.md](feedback_field_readability_sunlight.md) — DJ has limited vision + works in bright sun → all field/owner UI large-text, high-contrast, sunlight-readable.
 - [feedback_gh_push_empty_file_guard.md](feedback_gh_push_empty_file_guard.md) — Before any raw gh api PUT, verify b64 len (<1000→abort) — an empty push crashes app boot.
+- [feedback_compile_gate_before_push.md](feedback_compile_gate_before_push.md) — ★ CHAIN py_compile/node--check into the SAME && as git commit+push — a separate compile line doesn't abort the push, so a syntax error ships + crashes boot (momscare uses git push, not gh api).
 - [feedback_github_deploy_from_bash.md](feedback_github_deploy_from_bash.md) — GitHub deploy from Claude Code needs a `powershell -Command` wrapper, not raw bash/Python.
 - [feedback_github_deploy_python_fallback.md](feedback_github_deploy_python_fallback.md) — If bash+powershell base64 gives "Problems parsing JSON" 400, switch to Python (base64.b64encode + json.dump).
 - [feedback_github_deployment_bash.md](feedback_github_deployment_bash.md) — CANONICAL: bash + base64 + temp file for GitHub deploys.
