@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 11d2c5cb-9040-46fe-b04b-20ac84f0828f
-  modified: 2026-09-22T18:35:02.442Z
+  modified: 2026-09-22T20:26:18.510Z
 ---
 
 **Inbox-triage / "Needs You" card (building 2026-09-22, spec INBOUND_TRIAGE_SPEC.md).** Goal: catch a job-affecting inbound (moved/cancel/reschedule/complaint/urgent) BEFORE the drive (Patty Lindquist texted "moved to N.California" at 6pm, DJ saw it next morning, drove anyway).
@@ -32,4 +32,12 @@ Written + py_compile-clean, NOT pushed because C1 (card creation) must ship WITH
 ## TODO (next focused unit) — the FE (Component 2), then push C1+FE+C3 TOGETHER
 FE = `static/owner/v2_hud.html` `card(row)` (line ~285): add a branch for `it.needs_you` (the block feed_live._needs_you_cards emits). Render up to TWO buttons — [Reply] (always) + [Cancel job]/[Reschedule] (per action_type) — each showing pending or ✓-in-place from needs_you.reply_status/action_status; card stays until BOTH resolved (the live producer omits once _ny_open false) or a whole-card Dismiss. Reply → editable generated reply (fetch on-demand, A34) → Send = inbox_ai/approve (sms.py:2241) → then /api/triage/resolve {sub:reply,disp:done}. Action → confirm → inbox_ai/cancel (2452) / inbox_ai/reschedule (2415) → /api/triage/resolve {sub:action,disp:done}. Per-sub skip + whole-card Dismiss → /api/triage/resolve {sub:card}. Double-tap guards + fetch timeouts (CLAUDE #13). NOTHING auto-fires. Then push sms.py + v2_hud.html together → Lead's 6 gates.
 Resume-note: my built C1+C3 lives in /c/Users/dj/sms_live.py (fetched at sms.py 3102 lines + edits); re-fetch live sms.py first per push-gate, re-apply if needed.
+
+## FE wiring contracts (CONFIRMED 2026-09-22, read from sms.py) — the button handlers
+- Reply: fetch a draft (POST /owner/api/inbox/intent {c} → generated reply) → show editable textarea → Send = POST /owner/api/inbox_ai/approve {c:norm, edited_body:text} → on ok → POST /owner/api/triage/resolve {c:norm, sub:'reply', disp:'done'} → re-render card (reply ✓).
+- Action=cancel: confirm → POST /owner/api/inbox_ai/cancel {c:norm, so_id, edited_body?:courtesy text} → resolve {sub:'action', disp:'done'}.
+- Action=reschedule: needs a DATE+TIME (inbox_ai/reschedule requires {c, so_id, date, time}). Cleanest = open the reschedule day-planner (v2_field.html?open_so=<so_id> or the rs_date/rs_win deep-link) for DJ to pick → after it books, mark resolve {sub:'action', disp:'done'} (or an inline date/time prompt → inbox_ai/reschedule then resolve). Reschedule is the one non-trivial button (picker).
+- Per-sub skip → resolve {sub:'reply'|'action', disp:'dismissed'}. Whole-card Dismiss → resolve {sub:'card'}.
+- All buttons: double-tap guard (disable on tap, re-enable in finally) + fetch timeout (CLAUDE #13). Card re-renders from the persisted card (feed reload) so a mid-approval refresh shows the right ✓ state (server-persisted, gate b). NOTHING auto-fires.
+- Render in v2_hud.html card(row): branch on it.needs_you {norm, reply_status, action_status, action_type, so_id, intent}; two buttons reflecting pending/done/dismissed. STATUS: C1+C3 built (held); FE = next focused unit; then push sms.py + v2_hud.html together for Lead's 6 gates.
 Component 1 (classifier hot-path hook) + the **v2_hud.html front-end**: render the `needs_you` block as TWO buttons ([Reply]→editable draft→inbox_ai/approve; [Cancel job]/[Reschedule] per action_type→inbox_ai/cancel|reschedule), each flips to ✓ IN PLACE, card stays until BOTH resolved (survives refresh — server-persisted); a per-sub skip + whole-card Dismiss → /api/triage/resolve. + Component 3 push. NOTHING auto-fires (every send/cancel/reschedule = DJ's press). Phone edge cases (double-tap guard, timeouts, idempotent). Lead's 6 QC gates. sms.py PG flag-gate stays untouched. See [[project_hud_live_derived_flip]], [[feedback_hud_cards_live_not_inbox]], [[feedback_reuse_canonical_endpoint]].
