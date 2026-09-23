@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 11d2c5cb-9040-46fe-b04b-20ac84f0828f
-  modified: 2026-09-22T23:31:25.177Z
+  modified: 2026-09-23T00:09:18.505Z
 ---
 
 **Inbox re-open = STALE SERVICE WORKER (2026-09-22, commit 92a9f32).** After the server-side Odoo-429 fix ([[project_inbox_odoo_429_threadpool_hang]]) DJ's inbox STILL failed: slow, and selecting a different person "wouldn't pull up" (thread-SWITCH). The log-vs-reality divergence (server logs clean, DJ's phone broken — TWICE) was the clue.
@@ -25,3 +25,4 @@ metadata:
 - **A v2-SPA screen that ships client JS MUST ensure the SW updates** — otherwise a phone strands on a stale bundle and NO server fix reaches it. v2_apps.js now does this for all v2 pages.
 - **"Server 200s but the phone is broken, reopen doesn't fix it, logs ≠ reality" = a service-worker/cache problem** until proven otherwise. Incognito (no SW) is the decisive test.
 - Snappiness after this = the separate per-load Odoo latency → the durable PG-persisted inbox-summaries follow-on (retire the in-proc stopgap), tracked as the SPEED item after FUNCTION was restored.
+- ★ RESOLVED 2026-09-22: DJ on fresh v5 works (device logs: field/job screen ~14 calls + feed all 200). Right after v5 landed he briefly saw the inbox LIST show "Can't reach the server" — that was a TRANSIENT fetch failure during the SW-swap / cold-first-load window (self-healed by the client's 2.5s auto-retry; server confirmed reachable, `inbox_list` can't 500). QUEUED follow-on (not urgent, with the PG-summary speed item): smooth the COLD-first-load + no-localStorage-cache path in v2_inbox.html `loadList` — render a skeleton/"loading…" + a short retry-backoff instead of the hard "Can't reach the server" on a single failed fetch. v5's cache-wipe deliberately CREATES an empty-cache state, so a cold-start blip currently LOOKS like a hard break; that's the polish. (Also tracking: `/owner/api/maintenance/stranded` intermittent 500 @ 23:28 — separate endpoint, Odoo-429-era transient, returned 200 by 00:03; not the inbox.)
