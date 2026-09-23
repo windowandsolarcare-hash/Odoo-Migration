@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 11d2c5cb-9040-46fe-b04b-20ac84f0828f
-  modified: 2026-09-23T00:54:55.007Z
+  modified: 2026-09-23T01:08:22.941Z
 ---
 
 **Inbox outage root cause + fix (2026-09-22, commit 6a717cf4).** DJ's inbox: list slow, tapping ANY thread (Darcella, Nick — universal) hung then "Couldn't load this conversation." The PG cutover was blamed first but the REVERT to the JSON store did NOT fix it → PG ruled out (see [[project_inbox_pg_cutover_latency_regression]]). Real cause:
@@ -34,3 +34,11 @@ The graceful-429 raise (#1) was HALF-done: shared.odoo_rpc now raises `OdooBusy`
 - **HUD renders per-widget** (why the global 503 + SWR is complete): `feed_live.live_cards()` is already per-producer `try/except` ("never raises") → one throttled producer skipped, feed still returns the rest; v2_hud `loadFeed` writes its errbox into `$('feed')` ONLY (tabs/launcher intact); daily_status fetch is try/ok-guarded; dj_alerts is NOT a v2_hud fetch (0 refs). So no single widget's 503 blanks the HUD.
 - **Reusable pattern:** an app-wide "backend temporarily unavailable" signal (OdooBusy) is best mapped to 503 via ONE global exception handler (not N per-caller catches), with last-good SWR on the few hottest read paths. Tests: `force_odoobusy_test.py` (9/9 — handler 503-narrow, happy-path 200, SWR instant-stale + single-flight + cold→[]).
 - Tracked P2: dashboard.py's odoo_rpc raises HTTPStatusError-429 (not OdooBusy) so it bypasses the global handler — fold in later by making dashboard.py's odoo_rpc ALSO raise OdooBusy (money-careful; it serves the payment path).
+
+## Inbox SWR — durable fast-inbox (2026-09-23, commit 6a76411b)
+`inbox_list` (sms.py) also blocked on its per-load Odoo read (index + summaries) under a SLOW-but-succeeding Odoo (429 fails fast via #1, but high-latency Odoo waited up to timeout×calls → ~12s client timeout). Applied the SAME SWR pattern as feed_live, **mutation-aware** so it can't hide a new customer text:
+- The inbox cache version is `_INBOX_MUT:30s-bucket`. New `_INBOX_LASTGOOD[filter]` keeps the last build stamped with the `_INBOX_MUT` it was built at (survives a bucket rollover).
+- On a MISS: if `_INBOX_LASTGOOD[filter].mut == _INBOX_MUT` (miss is ONLY a time-rollover, zero conv writes since) → serve last-good INSTANTLY + single-flight bg refresh (`_INBOX_SWR_REFRESHING` + lock; refresh calls `inbox_list(filter, _force_build=True)`). If `_INBOX_MUT` CHANGED (any conv write) → synchronous rebuild.
+- ★ GATE BY CONSTRUCTION: **`_conv_set` is the SOLE conv-write chokepoint** (sms.py ~267) and bumps `_INBOX_MUT`; `sms_incoming` writes via it. So ANY inbound/status/reply → `_INBOX_MUT++` → `_lg.mut != _mut_now` → SWR bypassed → fresh build → a new text NEVER hides behind stale. SWR serves stale ONLY on a pure time-rollover. (Added a "SOLE CONV-WRITE CHOKEPOINT" comment at `_conv_set` so a future side-write doesn't escape the bump.)
+- ★ BUG the forced-test caught: `_force_build` must bypass the cache-HIT check too (`if (not _force_build) and _c.get('ver')==_ver...`), else the bg refresh no-ops on the version the SWR branch just set. Fixed.
+- Test: `inbox_swr_test.py` (8/8 — stale instant + inbound-busts→new-text-appears + single-flight + never-lose). PG-persisted list projection stays the deeper multi-instance follow-on (in-proc last-good is per-instance).
