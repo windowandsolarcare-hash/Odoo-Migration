@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 11d2c5cb-9040-46fe-b04b-20ac84f0828f
-  modified: 2026-09-22T22:42:51.781Z
+  modified: 2026-09-23T00:54:55.007Z
 ---
 
 **Inbox outage root cause + fix (2026-09-22, commit 6a717cf4).** DJ's inbox: list slow, tapping ANY thread (Darcella, Nick — universal) hung then "Couldn't load this conversation." The PG cutover was blamed first but the REVERT to the JSON store did NOT fix it → PG ruled out (see [[project_inbox_pg_cutover_latency_regression]]). Real cause:
@@ -26,3 +26,11 @@ metadata:
 - **Sync `def` + blocking Odoo httpx on a bounded threadpool = the structural hazard.** The deep fix is async Odoo calls (httpx.AsyncClient / async def) — a separate refactor, noted not done.
 - **HTTP 499 (client-cancel) + CPU idle + no 500s = a HANG (blocked/queued), not a crash.** Look at thread/threadpool + slow-dependency, not CPU.
 - Verify which `odoo_rpc` a path uses before patching (shadowing/duplication trap). Inbox = shared.py.
+
+## Completion — HUD throttle-resilience (2026-09-23, commit e2b67ab)
+The graceful-429 raise (#1) was HALF-done: shared.odoo_rpc now raises `OdooBusy` on 429/unreachable, but uncaught callers (dj_alerts, owntracks, HUD endpoints) then hard-**500**. Auditing all ~70 routers to add try/except = the repetition trap (CLAUDE #9). Completed it centrally instead:
+- **Global handler:** `@app.exception_handler(OdooBusy)` in main.py (`from routers.owner.shared import OdooBusy`) → any uncaught OdooBusy returns a graceful **503 + Retry-After:5** instead of 500, in ONE place. NARROW (only OdooBusy — real bugs still 500). Money-safe: the payment path uses **dashboard.py's OWN odoo_rpc** which raises `HTTPStatusError` (not OdooBusy) → it does NOT hit this handler → payment behavior unchanged. A throttled WRITE fails LOUD as 503 (never silently succeeds). The `OdooBusy` import sits after the routers are loaded (no circular).
+- **feed_live SWR** (feed.py `_assemble_live`): the HUD's `/api/feed/live_list` ran ~18 producer Odoo calls per load → 12s client timeout under a throttle ("Couldn't load the feed"). Split into `_assemble_live` (dispatcher) + `_assemble_live_build` (heavy). Now: fresh hit → cache; **STALE → serve last-good 200 INSTANTLY + refresh in a SINGLE-FLIGHT background thread** (`_LIVE_REFRESHING` set + `_LIVE_REFRESH_LOCK` → one refresh per key, extra stale hits skip spawning = never thread-per-request = REDUCES Odoo pressure under load, never amplifies); cold-start builds once + degrades to `[]` on failure (never 500). The bg thread catches its own OdooBusy.
+- **HUD renders per-widget** (why the global 503 + SWR is complete): `feed_live.live_cards()` is already per-producer `try/except` ("never raises") → one throttled producer skipped, feed still returns the rest; v2_hud `loadFeed` writes its errbox into `$('feed')` ONLY (tabs/launcher intact); daily_status fetch is try/ok-guarded; dj_alerts is NOT a v2_hud fetch (0 refs). So no single widget's 503 blanks the HUD.
+- **Reusable pattern:** an app-wide "backend temporarily unavailable" signal (OdooBusy) is best mapped to 503 via ONE global exception handler (not N per-caller catches), with last-good SWR on the few hottest read paths. Tests: `force_odoobusy_test.py` (9/9 — handler 503-narrow, happy-path 200, SWR instant-stale + single-flight + cold→[]).
+- Tracked P2: dashboard.py's odoo_rpc raises HTTPStatusError-429 (not OdooBusy) so it bypasses the global handler — fold in later by making dashboard.py's odoo_rpc ALSO raise OdooBusy (money-careful; it serves the payment path).
