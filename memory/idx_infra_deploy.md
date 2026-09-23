@@ -171,3 +171,5 @@
 - [project_render_log_filter_no_regex.md](project_render_log_filter_no_regex.md) — ★ Render list_logs: requests are type=app, text filter ignores REGEX → money-check = one plain word per query or it false-greens.
 
 - [project_broad_except_swallows_odoobusy.md](project_broad_except_swallows_odoobusy.md) — ★ A per-endpoint broad `except Exception→500` catches OdooBusy before the global 503 handler → that's the "rerun 500s" under Odoo 429s. Fix: raise/narrow so it propagates, or SWR-wrap with a builder that lets OdooBusy through. Fixed outreach/pipeline + maintenance/stranded (batch-3b).
+
+- [project_nav_telemetry_and_a19_back.md](project_nav_telemetry_and_a19_back.md) — ★ Nav/timing telemetry (nav + slow_api beacons via a TRANSPARENT idempotent window.fetch wrap; prev_page/nav_type cols; owner-gated /nav_stats; v2_apps.js-owned include, 10 stragglers direct incl NO FAB) + A19 shared wscBack cold-default v2_home→v2_hud (one edit fixed 34 Tier-C; history.back kept). SW v9, commit 7f74a217.
