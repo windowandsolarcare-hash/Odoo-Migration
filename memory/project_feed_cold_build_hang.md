@@ -1,0 +1,19 @@
+---
+name: project_feed_cold_build_hang
+description: HUD feed hang root cause + fix — feed_live cold-path did a synchronous ~18-Odoo-call build on EVERY post-mutation load; _LIVE_LASTGOOD survives-bust + hard cap fixed it (commit 540cfe78).
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: 11d2c5cb-9040-46fe-b04b-20ac84f0828f
+  modified: 2026-09-23T16:09:28.300Z
+---
+
+**The DJ-facing HUD/field failure (Sept 2026): `feed/live_list` hung ~25s → "Couldn't load the feed" errbox.** Telemetry caught it live: a beacon `hud_boot:live_list, kind=timeout, elapsed_ms=25552, status=0` (hit the client's 25s jfetch timeout and aborted). `online=true, sw_controlled=true` ruled out the SW-reload theory.
+
+**Root cause (code-validated, NOT a cache-key omission):** `feed.py _assemble_live` (the HUD live projection): a FRESH cache entry (<8s TTL) returns instantly; a STALE entry serves-stale + bg-refresh (SWR, keyed by `(include_done, include_snoozed)` — the key IS correct); but a **COLD** entry (no cache) did a **SYNCHRONOUS `_assemble_live_build` = the ~18 Lane-A producer Odoo calls** (billing detect ~8-10 + first_seen get/set + every producer), which BLOCKS the response. AND `_bust_live_cache()` did a **full `_LIVE_CACHE.clear()` on EVERY feed-store mutation** (the `_save` chokepoint — fires on every ack/seen/snooze/dismiss AND every producer `submit_item`). So every HUD load following ANY feed mutation was COLD → synchronous 18-call build → under an Odoo-slow window it accumulated past the 25s client timeout. SWR only shielded STALE entries; frequent full-busts kept it COLD, and cold = synchronous. (A clean 429 fails-fast to empty via OdooBusy; the 25s hang = Odoo slow-but-not-429, ~1-2s × 18 calls.) This is ALSO the threadpool-starvation source: sync-`def` handlers blocking on slow Odoo occupy uncancellable threadpool threads → static + everything stalls (CPU idle = I/O-blocked).
+
+**Fix (commit 540cfe78, 2026-09-23, forced-test 9/9):** per-key `_LIVE_LASTGOOD` that SURVIVES `_bust_live_cache` (bust RETAINS last-good + clears fresh). `_assemble_live`: fresh→instant; stale→serve+bg-refresh; **BUSTED (cleared but last-good present)→serve last-good instantly + single-flight bg-refresh**; TRUE cold (no last-good, i.e. first-boot/post-deploy)→`_cold_build_capped` (single-flight kick + wait up to `_LIVE_COLD_CAP`=8s, else return last-good/empty — NEVER the 25s hang). MUST-1 single-flight (reuse `_LIVE_REFRESHING` lock → a bust-burst = 1 build, no Odoo amplification); MUST-2 hard cap; MUST-3 idempotency (feed ops = idempotent status writes; nav cards re-fetch fresh + honor `_CAND_MUT`; send-on-approve idem at `messaging.send(already_sent)` — a ~1-2s stale serve can't double-act). Covers BOTH keys → plain (phone) + include_snoozed=1 (desktop v2_hud), so the SERVER fix helps DJ's phone with no client change. In-memory (wiped on deploy → that's why the cap matters); PG-persist last-good is a deferred durability follow-on.
+
+**Bundle propagation:** the phone stayed on a stale bundle because the SW (auth.py `_SW_JS`) is network-first for .js/.html BUT navigations lose a 3.5s race on weak field signal → serve the cached old shell. Fix = bump the SW cache name `wsc-shell-v5`→`v6` (batch-1) → `/sw.js` byte-different → installs → activate wipes v5 → phone re-fetches the instrumented+fixed client (verified: phone 207.212.33.60 fetched wsc_telemetry.js first-ever right after deploy).
+
+**The remaining threadpool hogs** (sync-`def` + synchronous Odoo, no serve-stale) to convert with a SHARED SWR helper (generalize `_assemble_live`): `/owner/api/myday` (~8 calls, worst), `/owner/api/dashboard` (v2_field loadField hits it, TTL-only no-SWR → thundering-herd), calendar_jobs, scheduled_sos, offers/in_window, sched/states, stats/month, blocks_tasks, outreach/nudge. See [[project_billing_candidates_swr_money_gate]] (same SWR family) + [[feedback_verify_collection_and_live_pipe]] (telemetry proved this live).
