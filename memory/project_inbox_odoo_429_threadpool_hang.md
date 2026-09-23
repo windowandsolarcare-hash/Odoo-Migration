@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 11d2c5cb-9040-46fe-b04b-20ac84f0828f
-  modified: 2026-09-23T01:08:22.941Z
+  modified: 2026-09-23T07:34:12.579Z
 ---
 
 **Inbox outage root cause + fix (2026-09-22, commit 6a717cf4).** DJ's inbox: list slow, tapping ANY thread (Darcella, Nick — universal) hung then "Couldn't load this conversation." The PG cutover was blamed first but the REVERT to the JSON store did NOT fix it → PG ruled out (see [[project_inbox_pg_cutover_latency_regression]]). Real cause:
@@ -42,3 +42,12 @@ The graceful-429 raise (#1) was HALF-done: shared.odoo_rpc now raises `OdooBusy`
 - ★ GATE BY CONSTRUCTION: **`_conv_set` is the SOLE conv-write chokepoint** (sms.py ~267) and bumps `_INBOX_MUT`; `sms_incoming` writes via it. So ANY inbound/status/reply → `_INBOX_MUT++` → `_lg.mut != _mut_now` → SWR bypassed → fresh build → a new text NEVER hides behind stale. SWR serves stale ONLY on a pure time-rollover. (Added a "SOLE CONV-WRITE CHOKEPOINT" comment at `_conv_set` so a future side-write doesn't escape the bump.)
 - ★ BUG the forced-test caught: `_force_build` must bypass the cache-HIT check too (`if (not _force_build) and _c.get('ver')==_ver...`), else the bg refresh no-ops on the version the SWR branch just set. Fixed.
 - Test: `inbox_swr_test.py` (8/8 — stale instant + inbound-busts→new-text-appears + single-flight + never-lose). PG-persisted list projection stays the deeper multi-instance follow-on (in-proc last-good is per-instance).
+
+## Thread-open weak-link fix — pagination + per-thread cache (2026-09-23, commit b75eb49c)
+Tapping a name on a WEAK mobile link "took and aired out": `inbox_thread` was an UNCACHED full read that `_merge_partner_thread`'d (multiple conv blobs for split numbers) and returned the FULL conv (up to 300 msgs) = slow server read + LARGE payload that exceeded the client timeout. Fix (3 files):
+- **Paginate `GET /owner/api/inbox/thread?c=&n=&before=`:** `n=0`=ALL (BACK-COMPAT, other callers unchanged); v2_inbox opens with `n=30` → returns the last-N of the MERGED unified thread + `{has_older, older_before}` (small payload lands on a weak link); `&before=<ts>&n=30` → the N msgs older than <ts> (msgs-only) for lazy scroll-up. Server sorts ascending, slices.
+- **Per-thread cache keyed by `last_ts` (NOT `_INBOX_MUT`):** `_THREAD_CACHE[c]={pid,sig,payload}`; `_CONV_TS[norm]`/`_PARTNER_TS[pid]` maintained in `_conv_set` (last_ts = a MESSAGE-change signal → immune to the open-time unread-clear that would pollute an _INBOX_MUT key). Serve the default page instantly iff current sig == cached sig; else rebuild. ★ Airtight never-hide-newest: an inbound on ANY of a partner's split numbers bumps `_PARTNER_TS[pid]` → mismatch → rebuild. ★ CAPTURE-BEFORE-BUILD invariant (Lead): snapshot the sig BEFORE the merge/build → a message landing mid-build (~2-4s) leaves current>cached → next open rebuilds (over-bust), NEVER stale-serves. Also: only `_conv_set` (clear unread) when actually unread (avoids a no-op write that would churn caches).
+- **Graceful:** client thread fetch 25s timeout + "Still loading — tap to retry" (never airs out); older-page prepend PRESERVES scroll (capture scrollHeight before/after, adjust scrollTop) and uses `_renderThreadBubbles` (bubbles only) so ctx/draft aren't clobbered; "⬆ Load earlier" shows iff `has_older` (terminates at top).
+- **Feed cold-load (item 5, v2_hud loadFeed):** 25s timeout + a "Loading feed…" state + auto-retry ONCE before the hard error → a weak-link COLD feed load (full ~18-call build, no last-good yet) degrades instead of flashing "couldn't load the feed" (the intermittent cold-vs-warm symptom).
+- Test: `thread_pagination_test.py` (11/11 — last-N page, cache-hit re-open, unread-no-bust, split-number bust→newest, capture-before-build race, older-page termination, never-lose-to-top). client scroll/ctx = code-verified.
+- ★ dj_alerts is a SEPARATE banner (v2_needsyou_banner.js, 8s abort + cb([]) fail-open + now global-503) → already degrades, not a hang source (skipped).
