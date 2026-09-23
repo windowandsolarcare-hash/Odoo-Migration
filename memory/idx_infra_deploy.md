@@ -169,3 +169,5 @@
 
 - [project_odoo_throttle_resilience_pattern.md](project_odoo_throttle_resilience_pattern.md) — ★ Ride out an Odoo 429: GLOBAL OdooBusy→503 handler in main.py (not N per-file catches — a raised exc across a shared helper needs matching catches/handler or hangs become 500s) + SWR (single-flight bg refresh) for heavy Odoo endpoints (feed_live 18 calls). Payment path unaffected (dashboard.py raises HTTPStatusError). (2026-09-22 commit e2b67ab.)
 - [project_render_log_filter_no_regex.md](project_render_log_filter_no_regex.md) — ★ Render list_logs: requests are type=app, text filter ignores REGEX → money-check = one plain word per query or it false-greens.
+
+- [project_broad_except_swallows_odoobusy.md](project_broad_except_swallows_odoobusy.md) — ★ A per-endpoint broad `except Exception→500` catches OdooBusy before the global 503 handler → that's the "rerun 500s" under Odoo 429s. Fix: raise/narrow so it propagates, or SWR-wrap with a builder that lets OdooBusy through. Fixed outreach/pipeline + maintenance/stranded (batch-3b).
