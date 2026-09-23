@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 11d2c5cb-9040-46fe-b04b-20ac84f0828f
-  modified: 2026-09-23T18:56:08.933Z
+  modified: 2026-09-23T19:11:37.180Z
 ---
 
 **Two client systems shipped together 2026-09-23 (commit 7f74a217, SW cache v9).**
@@ -23,5 +23,6 @@ metadata:
 - ★ 2026-09-23: the cold-load default changed **`v2_home.html` → `v2_hud.html`** (ONE edit fixed all 34 `data-wsc-back=""` Tier-C pages at once — rule-9, avoided 47 near-identical edits). The reported "Back → Field Day day-list" was NOT a hardcoded fallback (zero exist) — it was `history.back()` returning where DJ came from (v2_field no-param IS the live Field Day worklist, complementary to the HUD — kept, not retired; Lead option (a): accept history.back, no special-case).
 - **Stragglers WITHOUT v2_apps.js** (telemetry-only) do NOT get the wscBack handler → a `data-wsc-back` on them is INERT; their INLINE onclick is the live mechanism. Fixed inline: maint_advance/maint_comms (hardcoded v2_home → v2_hud), meeting/memory (bare `history.back()` cold-dead-end → `history.length>1?back():v2_hud`).
 - Deterministic per-page-declared-back (option b) is DEFERRED until the nav telemetry shows real back-landing patterns.
+- ★ GOTCHA (Dispatcher smoke test 2026-09-23): **`history.length>1` is NOT a valid "in-app history exists" guard** — a FRESH browser tab already has `history.length===2` (the new-tab entry + the loaded page), so `history.length>1 ? history.back() : hud` runs history.back() on a cold tab → navigates to Chrome's new-tab = OUT of the app. My straggler fix used this heuristic on v2_meeting + v2_memory (both bugged). The CORRECT cold-back guard is wscBack's **same-origin `document.referrer` check** (`history.length>1 && document.referrer && document.referrer.indexOf(location.origin+'/')===0`). Fix (queued): a tiny shared `static/owner/wsc_back.js` `wscColdBack(fb)` with that referrer check, included on the stragglers that lack v2_apps.js (so they don't re-duplicate/re-break the logic) — rule-9. Never guard "am I mid-app-navigation?" with history.length alone.
 
 Related: [[feedback_question_when_big_picture_wrong]] (the rule-9 "don't grind 47 edits" call), [[feedback_verify_collection_and_live_pipe]] (the authz 401/200/gated-401 live proof), [[project_broad_except_swallows_odoobusy]] (next work: targeted Tier-1).
