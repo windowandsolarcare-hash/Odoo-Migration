@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d847a036-234d-4c73-9eca-62500cfee8a7
-  modified: 2026-09-23T17:50:33.389Z
+  modified: 2026-09-25T15:41:37.495Z
 ---
 
 # A local `except Exception → 500` defeats the global OdooBusy→503 handler
@@ -28,4 +28,10 @@ Verify the sub-functions the builder calls (e.g. `pipeline_counts`, `classify_cu
 ## How to apply
 - **This is a CLASS of bug, likely present in other routers.** Grep for endpoints that do `except Exception` and return a 500-ish `JSONResponse` (or `status_code=500`) — every one of them converts a 429/OdooBusy into a 500 and masks real errors. Inventory worst-first; fix each to let OdooBusy propagate (or handle gracefully / SWR-wrap the hot ones).
 - When adding a new Odoo-calling endpoint, do NOT wrap the whole thing in `except Exception → 500`. Let OdooBusy reach the global handler; catch only the specific errors you can handle.
-- The diagnostic that found it: the throttled OdooBusy/429 log line (`_note_busy` in shared.odoo_rpc) at the exact timestamp of the 500 — a strong reason to keep that logging. Ties to [[project_odoo_throttle_resilience_pattern]] and [[project_static_gates_miss_semantic_placement]]. MIRROR to Odoo-Migration/memory/ pending (held during the deploy/push freeze).
+- The diagnostic that found it: the throttled OdooBusy/429 log line (`_note_busy` in shared.odoo_rpc) at the exact timestamp of the 500 — a strong reason to keep that logging. Ties to [[project_odoo_throttle_resilience_pattern]] and [[project_static_gates_miss_semantic_placement]].
+
+## ★ TWO throttle-exception types (2026-09-25 — corrects the assumption above)
+There are **two different Odoo rpc helpers, and they raise DIFFERENT exceptions on a 429:**
+- `shared.odoo_rpc` raises **`OdooBusy`** → the global `@app.exception_handler(OdooBusy)` → 503 net covers it (unless a local broad-except swallows it first, per above).
+- **`dashboard.odoo_rpc` raises `httpx.HTTPStatusError` on a 429, NOT OdooBusy** → the global 503 net does **NOT** cover it, so a dashboard.py endpoint's broad `except Exception → 500` (or fallback) is the ONLY thing that catches it. Found 2026-09-25 as the root cause of the crew clock-in "Could not load employees — yourself only" (GET /owner/api/payroll/employees, dashboard.py) dropping on a transient 429. Fix used: SWR-wrap (swr() catches ANY exception incl. httpx → serves last-good; cold-miss = 503, never 500).
+- **So for dashboard.py endpoints, "let OdooBusy propagate" is NOT sufficient** — either SWR-wrap (catches httpx too) or catch `httpx.HTTPStatusError` and return 503. Grep dashboard.py for `except Exception`-to-500 on Odoo paths; each is httpx-429-fragile. MIRROR to Odoo-Migration/memory/.
