@@ -121,3 +121,4 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_times_in_pacific.md](feedback_times_in_pacific.md) — ★ Times to DJ = PACIFIC, 12-hour ("7:47 AM"), NEVER UTC. Convert log times before telling him.
 - [feedback_dispatcher_terse_replies.md](feedback_dispatcher_terse_replies.md) — ★ Replies to DJ SHORT (1–3 lines): no step-narration, no repeated status; only results, decisions, problems.
 - [feedback_token_budget_fleet.md](feedback_token_budget_fleet.md) — ★ DJ near weekly limit: no ack msgs, peer msgs ≤5 lines, NO big browser test suites (phone telemetry = free), idle sessions silent.
+- [feedback_deploy_cadence.md](feedback_deploy_cadence.md) — ★ Deploy ~every 3h (event-driven, not nightly); Operator/live-ops blockers EXPEDITE now; keep money-check + no-stacking + no-mid-payment guardrails.
