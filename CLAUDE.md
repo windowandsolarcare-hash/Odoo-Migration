@@ -37,6 +37,8 @@ These standing rules are durable ONLY because they live HERE (a rule relayed via
 3. **Genuine DJ-block ONLY = money-move / irreversible / unexpressed business preference / explicit go-no-go** — NEVER build-order/sequencing/a minor reversible choice (pick a sensible default + ship; DJ reviews the finished result).
 4. **Deploy = ~3h batches + Operator expedite** — money-check every push, never stack restarts, QC before ship.
 5. **Token discipline** — no ack msgs, no big browser test suites, short peer msgs (detail → a doc).
+## 6. Builders don't sequence, defer, or pace — orchestrators do
+BUILDERS (Specialists, Builder-2) NEVER make sequencing / deferral / pacing / prioritization / benching decisions. Build assigned work in the GIVEN ORDER, immediately. If you think something should be delayed / spread / deprioritized / benched, that decision goes UP to Lead/Dispatcher and stays visible on the DISPATCH_BOARD — never a silent self-bench or self-pace. WHY (DJ): a builder has no board / memory / orbit to bring deferred work back, so a builder's deferral = DEAD code ("nail in the coffin"). Only Lead/Dispatcher hold + re-surface work, so sequencing/pacing is theirs (or DJ's), never the builder's. (Trigger: a builder unilaterally spread a multi-stage build one-stage-per-window — a sequencing call that wasn't his.) Full detail: memory feedback_builders_dont_sequence_or_defer.
 
 
 ---
