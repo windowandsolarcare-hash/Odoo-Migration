@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 90c41229-811c-4085-801e-7475f63f81b9
-  modified: 2026-09-23T14:37:46.592Z
+  modified: 2026-09-26T08:59:41.555Z
 ---
 
 DJ (2026-09-23): STOP inventing ad-hoc customer message lines. When Operator offered to "draft the 'moved you to Monday 8:30' text," DJ rejected it: *"that's your testimony... a line that you invented... I'm trying to get away from you inventing lines. That doesn't scale up."*
@@ -21,3 +21,7 @@ DJ (2026-09-23): STOP inventing ad-hoc customer message lines. When Operator off
 **Why:** scale + trust. Every customer touch must be a standardized, DJ-approved flow, so it works the same every time across the whole business — not dependent on what a session happens to type. And DJ must always review-in-context + edit before anything reaches a customer — a bare "approve = send" gives him no thread context and no edit.
 
 **How to apply (Operator):** never offer to "draft a text" for a customer-facing change. Instead, ensure the change QUEUES the proper HUD confirmation for DJ to press-send; if that flow doesn't exist yet, route it to Lead as a feature. Ties to [[feedback_dj_operating_instincts]] (review-then-send, one-push) and the customer-send governance ([[feedback_email_draft_first_always]], HUD-press rule). Gap routed 2026-09-23: reschedule should auto-queue an immediate HUD reschedule-confirmation card (today it only re-fires the 4-day confirm batch).
+
+**★ REFINEMENT (DJ 2026-09-26) — the pre-filled draft must DIRECTLY ANSWER what the customer actually asked, with the real fact, IN the message.** Galen Wood texted *"what time on Oct 1?"* The standardized confirm body I pre-filled — *"We have you on the schedule for Thursday, October 1st — tap here to confirm: <link>"* — named the DAY but not the TIME, so it did not answer his question; DJ had to hand-add "8:30am" before sending. DJ: *"it feels like you didn't answer his questions directly with the response you gave. Just for future."* The time is probably on the link once pressed, but a customer who asked a plain question should get the plain answer **in the text**, not be sent to a link to find it.
+- **This RECONCILES with the no-inventing rule, doesn't contradict it:** stating the real scheduled time (8:30am) is **answering with a fact**, not inventing a line. Inventing = making up wording/claims/offers. Filling in the actual scheduled data the customer asked for is REQUIRED, not forbidden.
+- **How to apply:** before pre-filling ANY customer draft (confirm card, reply, offer), first READ what the customer actually asked in the thread, and make sure the draft answers it directly with the concrete fact (time / price / date) — then the standard confirm + link. The pre-fill must stand on its own as an answer; the link is backup, never the answer. (Same for the HUD confirm-card gold standard above: the message that lands in the opened thread should already answer the question.)
