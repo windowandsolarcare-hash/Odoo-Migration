@@ -27,6 +27,20 @@
 
 ---
 
+
+---
+
+# 🏛 ## ★ FLEET GOVERNANCE (DJ 2026-09-26) — read `3_Documentation/roles/FLEET_GOVERNANCE.md` at boot (mandatory)
+These standing rules are durable ONLY because they live HERE (a rule relayed via AGENT_MAIL/memory alone DIES at spin-up). In brief — full detail in FLEET_GOVERNANCE.md:
+1. **A design doc for DJ-directed work is a BUILD SPEC, not an approval gate** — build + ship reversible work; do NOT hold for a fresh "approve/clarify" round (that's a fake block).
+2. **NEVER idle while UNBLOCKED work is undone** — low-pri = later, never dropped.
+3. **Genuine DJ-block ONLY = money-move / irreversible / unexpressed business preference / explicit go-no-go** — NEVER build-order/sequencing/a minor reversible choice (pick a sensible default + ship; DJ reviews the finished result).
+4. **Deploy = ~3h batches + Operator expedite** — money-check every push, never stack restarts, QC before ship.
+5. **Token discipline** — no ack msgs, no big browser test suites, short peer msgs (detail → a doc).
+
+
+---
+
 ## START HERE
 
 **This file is the single source of truth for new sessions.** CLAUDE_CONTEXT.md and MASTER_PROJECT_CONTEXT.md are deep-reference only — do NOT require reading at session start. Everything critical is in this file.
