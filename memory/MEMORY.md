@@ -81,6 +81,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_proactive_inefficiency_capture.md](feedback_proactive_inefficiency_capture.md) — I own catching trial-and-error patterns + saving the fix immediately — no asking, no waiting.
 - [feedback_python_patch_escaping.md](feedback_python_patch_escaping.md) — NEVER use '\\n' in Python patch replacement strings — embeds real newlines → SyntaxError.
 - [feedback_regression_guard_pushes.md](feedback_regression_guard_pushes.md) — READ before any push to dashboard.py / large files (stale-overwrite guard).
+- [feedback_staged_mirror_stale_base_refetch.md](feedback_staged_mirror_stale_base_refetch.md) — ★ NEVER push a staged review-MIRROR file — it's stale-base (missing anything shipped after it was built → reverts it, e.g. nearly reverted the numInstances guard = double texts). Re-fetch LIVE + re-apply your change + diff-verify at merge; confirm the other guy's tokens survived.
 - [feedback_push_compare_and_swap.md](feedback_push_compare_and_swap.md) — PUT with the sha you READ at, never a fresh one — concurrent change 409s instead of clobbering.
 - [feedback_question_when_big_picture_wrong.md](feedback_question_when_big_picture_wrong.md) — ★ TOP judgment rule: repetition across files = STOP and ASK. Don't mechanically duplicate NOR unilaterally refactor working code (34-launcher incident).
 - [feedback_reuse_canonical_endpoint.md](feedback_reuse_canonical_endpoint.md) — Don't duplicate logic for a new UI entry — call the canonical endpoint (extend if needed).
