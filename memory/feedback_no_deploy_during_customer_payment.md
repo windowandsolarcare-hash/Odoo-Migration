@@ -1,18 +1,17 @@
 ---
 name: feedback_no_deploy_during_customer_payment
-description: "Don't run/stack deploys while a customer is mid-payment — a Render redeploy restarts the app (~60-90s) and the in-flight Pay fetch fails, looking exactly like a broken payment link. Hold deploys during active/imminent customer payment windows; don't stack back-to-back deploys."
+description: "★ RETIRED 2026-09-27 (DJ): the pre-deploy PAYMENT-WINDOW hold is ELIMINATED — moot under numInstances=2 ROLLING deploys (one instance serves while the other restarts → no full-down window → in-flight payments aren't dropped). Only deploy gate now = Lead QC. Do NOT re-apply a deploy-timing payment check. Money-WRITE gates (DRY/review-then-fire/confirm-before-send) are a DIFFERENT concern and STAY."
 metadata:
   node_type: memory
   type: feedback
   originSessionId: d847a036-234d-4c73-9eca-62500cfee8a7
-  modified: 2026-09-19T04:43:49.322Z
+  modified: 2026-09-27T23:18:44.928Z
 ---
 
-**Incident 2026-09-18 (Bob Lis, $200 solar).** Right after the A11 authz fix landed, Bob tapped Pay on his (now-correct) Stripe link and got **"Network error."** It was NOT a code bug — `create_checkout` returns a valid live Stripe URL for his exact params (verified 3/3 stable). Root cause: Specialists ran **4 deploys in ~5 minutes** (Memory-Pillar Slice 1 + the authz seam + ENDPOINT_MAP), each a **~60-90s Render restart**; Bob's Pay fetch landed in one of those restart windows and failed.
+**★ RETIRED 2026-09-27 — do not apply this rule anymore.** DJ killed the pre-deploy payment-window deploy-hold. **Why it's moot:** it existed because a single-instance Render redeploy took the app fully down ~60-90s, so an in-flight customer Pay fetch could land in that window and fail. With **numInstances=2 rolling deploys**, one instance keeps serving while the other restarts — there is no full-down window, so in-flight payments aren't dropped. DJ's words: it was "the door that never opens," and the 2nd instance makes its whole premise moot.
 
-**The lesson (standing rule):**
-- A Render redeploy = the app is down/booting for ~60-90s. **Any in-flight customer fetch during that window fails** and, to the customer, reads as "the link is broken." Highest-stakes on money flows (create_checkout / success / cancel / booking / portal).
-- **When a customer is actively paying — or a card/booking link was just texted and they're expected to tap soon — HOLD deploys until they complete.** Announce a deploy-hold in AGENT_MAIL during an active payment window so no session ships mid-payment.
-- **Don't stack deploys.** Batch code changes and push ONCE; avoid rapid successive deploys generally (each is another restart window + another chance to catch a customer mid-action). Ties to [[feedback_regression_guard_pushes]] (push discipline) and the pre-push gates.
+**What this changes:** the ONLY deploy gate is **Lead QC**. Do NOT hold deploys for "a customer might be mid-payment," and do NOT re-derive that rule from the old Bob Lis incident below.
 
-**How to apply:** before any push, ask "is a customer mid-payment or about to tap a link I just sent?" If yes, wait / coordinate. If you must ship several changes, combine them into one deploy, not four. On a live-money incident, verify the endpoint is stable, then tell the customer to **re-tap the same link** (the transient failure is gone once the app is booted). See [[feedback_render_cron_autodeploy]], [[feedback_regression_guard_pushes]].
+**★ Distinction — what did NOT change (still fully in force):** this retirement drops only the deploy-*TIMING* check. Every gate that guards an actual money/customer **WRITE stays** — DEFAULT-DRY on money mutations, review-then-fire (Credit RUNS the charge), HUD confirm-before-send, payment recording via Operator+app not raw. Those are about not firing an action unreviewed — a different concern from deploy timing. See [[feedback_reuse_function_follow_full_logic]], [[feedback_no_inventing_customer_lines_hud_confirm]].
+
+**Historical (why the rule once existed — 2026-09-18, Bob Lis, $200 solar):** right after an authz fix, Bob tapped Pay and got "Network error." Not a code bug — root cause was 4 deploys in ~5 min, each a ~60-90s single-instance restart; his fetch hit one. That single-instance restart-window risk is what rolling deploys eliminate. Related: [[feedback_deploy_cadence]] (continuous deploy), [[feedback_regression_guard_pushes]].
