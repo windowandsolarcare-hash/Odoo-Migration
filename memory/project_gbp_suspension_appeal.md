@@ -1,6 +1,6 @@
 ---
 name: project_gbp_suspension_appeal
-description: "Google Business Profile SUSPENDED (deceptive content / NAP mismatch). Full history + what was fixed + the appeal open-items. As of 2026-09-09: NOT filed, no action since Sep 4. Appeal linchpin = ONE provable address matching listing + registration + utility bill."
+description: "Google Business Profile SUSPENDED — reason CONFIRMED 'flagged for suspicious activity' (primary source: DJ read the original Google email verbatim, WSC-NAP-CHECKLIST.md §G; the earlier 'deceptive content' was an inference and is WRONG). NAP mismatch is the underlying driver. Full history + what was fixed + the appeal open-items. As of 2026-09-09: NOT filed, no action since Sep 4. Appeal linchpin = ONE provable address matching listing + registration + utility bill."
 metadata:
   node_type: memory
   type: project
@@ -8,7 +8,7 @@ metadata:
   modified: 2026-09-10T00:06:16.864Z
 ---
 
-**Window & Solar Care's Google Business Profile is SUSPENDED for "deceptive content."** Driver = a NAP (Name/Address/Phone) mismatch across the places Google can see — primarily an inconsistent PHONE, compounded by an inconsistent ADDRESS. As of **2026-09-09 the appeal has NOT been filed; no action since 2026-09-04** (DJ confirmed). Investigation/fix work was 2026-09-03/04.
+**Window & Solar Care's Google Business Profile is SUSPENDED — CONFIRMED reason = "flagged for suspicious activity"** (★ CORRECTED 2026-09-26 via Lead/Dispatcher: DJ read the ORIGINAL Google suspension email verbatim; primary source now in WSC-NAP-CHECKLIST.md §G. The earlier "deceptive content" label was our INFERENCE, not what Google said — do not repeat it.) The underlying driver is still a NAP (Name/Address/Phone) mismatch across the places Google can see — primarily an inconsistent PHONE, compounded by an inconsistent ADDRESS. As of **2026-09-09 the appeal has NOT been filed; no action since 2026-09-04** (DJ confirmed). Investigation/fix work was 2026-09-03/04.
 
 **★ Facts from the live Google appeal form (screenshot 2026-09-09, "Request review of suspended profile"):**
 - **Business Profile ID: `13507549370210966`**
@@ -27,7 +27,7 @@ metadata:
 - Website (Odoo) → 760-334-5355, verified live in 10 places, zero old numbers (wsc_shared.py PHONE_DISPLAY/PHONE_TEL + run_build.py/wsc_pages_b.py).
 - App code purged of old 855 number: 22+ occurrences across 7 files (calfeed.py ×9, booking.py ×4 — both customer-facing — dashboard/specialist_billing/voice/hemet/specialist_booking), plus a 2nd-pass gap (hr.py ×2 letterhead, v2_dialer_numbers.html ×1). `sms.py:48` intentionally kept (idempotency matches both). "App is NAP-clean."
 - A2P/SMS "HELP" (Twilio `HelpMessage`) verified CLEAN (Advanced Opt-Out; no number in it).
-- "Cheryl J." testimonial pulled from /reviews (a review from someone connected to the business = the exact "deceptive content" category). ⚠️ if Cheryl J = Cheryl Johnson (partner), NEVER ask her for a Google review. DJ to confirm identity.
+- "Cheryl J." testimonial pulled from /reviews (a review from someone connected to the business — still worth removing for authenticity/NAP hygiene, though NOT "the exact suspension reason": reason is "suspicious activity", see correction above). ⚠️ if Cheryl J = Cheryl Johnson (partner), NEVER ask her for a Google review. DJ to confirm identity.
 
 **★ DECISIONS LOCKED (DJ 2026-09-09):**
 - **Canonical address = DJ's HOME: `32569 San Miguelito Dr, Thousand Palms, CA 92276`** (home-based business). This matches the CA SOS Articles of Organization AND the federal EIN letter.
@@ -56,11 +56,18 @@ Sources: cheryl-workspace `WSC-NAP-CHECKLIST.md` / `MEMORY-AUDIT.md` / `AGENT-MA
 
 **STILL OPEN / WORSE than recorded:**
 - ~~Odoo `res.company` id1 address~~ — **CORRECTED 2026-09-18 (DJ via Lead): this is INTENTIONAL, do NOT flag or "fix" it.** The `41995 Boardwalk Ste. J, Palm Desert CA 92211` on res.company id1 is DJ's still-active MAILBOX, kept ON invoices ON PURPOSE for privacy (he doesn't want customers seeing his hidden-SAB home address). Invoices are private correspondence, NOT a public Google-indexed NAP citation, so a "wrong" address there is fine. See [[project_wsc_address_do_not_publish]]. (NB: the ADDRESS is the only intentional part — the same record's phone 951-972-6946 IS a real fix → should be 760-334-5355; Lead routed it to Operator 2026-09-18.) The NAP rule is unchanged: the mailbox and the hidden home address must be OFF every PUBLIC listing; on invoices is by design.
-- **Yelp** — phone STILL old **(855) 245-2273** (biz page "Updated August 2026"). Service-area shows "Thousand Palms" (no street). PHONE must be corrected on Yelp.
+- **Yelp** — phone was old **(855) 245-2273** at the 2026-09-18 sweep; ★ CORRECTED to **760-334-5355 (DONE)** per Lead/Dispatcher 2026-09-26. Service-area shows "Thousand Palms" (no street).
 - **MapQuest** — dupe **#430179537 STILL LIVE** (Thousand Palms 92276, Yelp-fed). AND a SEPARATE MapQuest listing indexed at **Rancho Mirage, CA 92270** (city conflict). So MapQuest has ≥2 live entries with different cities — more than the "2 dupes" recorded, and the appeal-relevant city inconsistency (Thousand Palms vs Rancho Mirage) is LIVE. Both non-Thousand-Palms/duplicate entries should be removed/merged.
 - **Angi / HomeAdvisor** (Angi-owned) — W&SC listed as a SERVICE-AREA pro, 4.9 (17), across Rancho Mirage/Desert Hot Springs/Indio/Cathedral City/Bermuda Dunes/Hemet — no fixed street (NAP-safe on address). PHONE not shown in public snippet → verify on the claimed profile (DJ login).
 - **Nextdoor** — DJ's OWN business page is not publicly indexed (public search returns only an UNRELATED "FM Window & Solar Care" in Pasadena). The "still Hemet?" question can only be answered from **DJ's logged-in Nextdoor** — OPEN, needs DJ.
 - **Facebook / Instagram / X** — no public W&SC business page surfaced; current address/phone can't be verified without **DJ's logged-in sessions** — OPEN, needs DJ.
 - **Apple Maps** — no headless web surface; verify/correct via **Apple Business Connect** (Apple device / DJ login) — OPEN, needs DJ.
 
-**Net:** the "deceptive content" /reviews item is now genuinely fixed at the source. The remaining NAP drift is concentrated in Odoo-invoices (951 + Palm Desert), Yelp (855), and MapQuest (live dupes + Thousand-Palms-vs-Rancho-Mirage city conflict). The login/app-walled directories (Nextdoor/FB/IG/X/Apple) still need DJ's own sessions to verify — not reachable headlessly.
+**Net:** the /reviews "Cheryl J." item is fixed at the source; Yelp phone now 760 (done). Remaining PUBLIC NAP drift is the res.company PHONE on invoices (951→760, routed to Operator; the ADDRESS there is intentional — see [[project_wsc_address_do_not_publish]]) and MapQuest (live dupes + Thousand-Palms-vs-Rancho-Mirage city conflict). The login/app-walled directories (Nextdoor/FB/IG/X/Apple) still need DJ's own sessions to verify — not reachable headlessly.
+
+---
+
+## ★ CONFIRMED REASON + FILE-ONCE CAUTION (2026-09-26, via Lead/Dispatcher; DJ has read it — no new DJ decision needed):
+- **Suspension reason = "flagged for suspicious activity"** (Google's own words, DJ read the original email; primary source WSC-NAP-CHECKLIST.md §G). NOT "deceptive content" and NOT "no reason given" — those were earlier inferences. Fold this exact reason into the reinstatement/appeal narrative.
+- **★ FILE THE REINSTATEMENT ONCE, CLEAN.** A repeat or sloppy appeal risks the WHOLE `windowandsolarcare@gmail.com` Google account (not just the profile). So: get the NAP + evidence airtight FIRST, then submit a single clean appeal — do not fire off attempts iteratively.
+- Appeal package otherwise unchanged + correct (address linchpin: one provable address matching listing + registration + utility bill). Yelp phone → 760 is DONE.
