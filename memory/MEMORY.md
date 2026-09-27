@@ -77,6 +77,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_odoo_rpc_write_pattern.md](feedback_odoo_rpc_write_pattern.md) — odoo_rpc write(): vals dict INSIDE the args list — [[id],{vals}] — not a 4th kwarg.
 - [feedback_ported_means_twilio.md](feedback_ported_means_twilio.md) — "ported"/"ported numbers" = Twilio ported phone numbers (not a generic "port the data over").
 - [feedback_planning_constraints.md](feedback_planning_constraints.md) — Filter all architecture through 4 constraints: no new Odoo seats, no custom models, one Odoo instance, must scale across businesses.
+- [feedback_root_cause_not_just_instance.md](feedback_root_cause_not_just_instance.md) — ★ Handle ANY issue = fix the instance AND root-cause it (why did it happen? will it recur?) + route the systemic fix. A needed fix means it recurs until the cause is removed; don't pass a one-off patch off as the systemic fix.
 - [feedback_proactive_inefficiency_capture.md](feedback_proactive_inefficiency_capture.md) — I own catching trial-and-error patterns + saving the fix immediately — no asking, no waiting.
 - [feedback_python_patch_escaping.md](feedback_python_patch_escaping.md) — NEVER use '\\n' in Python patch replacement strings — embeds real newlines → SyntaxError.
 - [feedback_regression_guard_pushes.md](feedback_regression_guard_pushes.md) — READ before any push to dashboard.py / large files (stale-overwrite guard).
