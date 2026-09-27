@@ -174,3 +174,5 @@
 
 - [project_nav_telemetry_and_a19_back.md](project_nav_telemetry_and_a19_back.md) — ★ Nav/timing telemetry (nav + slow_api beacons via a TRANSPARENT idempotent window.fetch wrap; prev_page/nav_type cols; owner-gated /nav_stats; v2_apps.js-owned include, 10 stragglers direct incl NO FAB) + A19 shared wscBack cold-default v2_home→v2_hud (one edit fixed 34 Tier-C; history.back kept). SW v9, commit 7f74a217.
 - [project_payroll_employees_swr.md](project_payroll_employees_swr.md) — Clock-in crew list SWR-hardened + boot-prewarmed; dashboard.odoo_rpc raises httpx (not OdooBusy) on 429 → global 503 net misses it.
+
+- [project_prewarn_shadow_and_authz_diagnosis.md](project_prewarn_shadow_and_authz_diagnosis.md) — A39 warn-before-action inject half LIVE (endpoint /hook/prewarn + mem_prewarn_hook.py shadow-default + PG prewarn_shadow review store, only-on-match/bounded/fail-open). ★ REUSABLE: 401=authz-layer rejected (not in PUBLIC_EXACT) vs 403=reached endpoint but _hook_auth_ok denied — POST-no-secret vs a known sibling pinpoints the gate. Activation: authz=Specialists, settings wire=Lead update-config (never self/ DJ).
