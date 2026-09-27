@@ -1,6 +1,6 @@
 ---
 name: project_gbp_suspension_appeal
-description: "Google Business Profile SUSPENDED — reason CONFIRMED 'flagged for suspicious activity' (primary source: DJ read the original Google email verbatim, WSC-NAP-CHECKLIST.md §G; the earlier 'deceptive content' was an inference and is WRONG). NAP mismatch is the underlying driver. Full history + what was fixed + the appeal open-items. As of 2026-09-09: NOT filed, no action since Sep 4. Appeal linchpin = ONE provable address matching listing + registration + utility bill."
+description: "Google Business Profile SUSPENDED — reason CONFIRMED 'flagged for suspicious activity' (primary source: DJ read the original Google email verbatim, WSC-NAP-CHECKLIST.md §G; the earlier 'deceptive content' was an inference and is WRONG). NAP mismatch is the underlying driver. Full history + what was fixed + the appeal open-items. ★ APPEAL SUBMITTED 2026-09-27 (filed, awaiting Google response) — DO NOT re-file. Appeal linchpin = ONE provable address matching listing + registration + utility bill."
 metadata:
   node_type: memory
   type: project
@@ -8,7 +8,10 @@ metadata:
   modified: 2026-09-10T00:06:16.864Z
 ---
 
-**Window & Solar Care's Google Business Profile is SUSPENDED — CONFIRMED reason = "flagged for suspicious activity"** (★ CORRECTED 2026-09-26 via Lead/Dispatcher: DJ read the ORIGINAL Google suspension email verbatim; primary source now in WSC-NAP-CHECKLIST.md §G. The earlier "deceptive content" label was our INFERENCE, not what Google said — do not repeat it.) The underlying driver is still a NAP (Name/Address/Phone) mismatch across the places Google can see — primarily an inconsistent PHONE, compounded by an inconsistent ADDRESS. As of **2026-09-09 the appeal has NOT been filed; no action since 2026-09-04** (DJ confirmed). Investigation/fix work was 2026-09-03/04.
+
+> ## 🟩 STATUS: APPEAL SUBMITTED 2026-09-27 — FILED, awaiting Google response. **DO NOT RE-FILE** (a repeat/sloppy appeal risks the whole windowandsolarcare@gmail.com account). Reason on file: "flagged for suspicious activity."
+
+**Window & Solar Care's Google Business Profile is SUSPENDED — CONFIRMED reason = "flagged for suspicious activity"** (★ CORRECTED 2026-09-26 via Lead/Dispatcher: DJ read the ORIGINAL Google suspension email verbatim; primary source now in WSC-NAP-CHECKLIST.md §G. The earlier "deceptive content" label was our INFERENCE, not what Google said — do not repeat it.) The underlying driver is still a NAP (Name/Address/Phone) mismatch across the places Google can see — primarily an inconsistent PHONE, compounded by an inconsistent ADDRESS. ★ **APPEAL SUBMITTED 2026-09-27** (DJ filed it — a long time coming). Status: FILED, awaiting Google's response. DO NOT re-file (see file-once caution). Investigation/fix work was 2026-09-03/04.
 
 **★ Facts from the live Google appeal form (screenshot 2026-09-09, "Request review of suspended profile"):**
 - **Business Profile ID: `13507549370210966`**
