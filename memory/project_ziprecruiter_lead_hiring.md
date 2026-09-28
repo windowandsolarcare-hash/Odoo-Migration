@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 966146af-3679-41f5-a78f-cd180bf33806
-  modified: 2026-09-28T00:22:38.263Z
+  modified: 2026-09-28T01:24:49.798Z
 ---
 
 ## ZipRecruiter Lead Hire (started 2026-09-27)
@@ -44,3 +44,39 @@ Root cause was NOT the platform — **the post was written for an ASSISTANT/help
 The $250 employee referral ([[project_employee_referral_program]]) is a strong parallel channel (referred hires stay longer). NOTE: its send mechanism in memory is **Workiz-based = RETIRED** — a referral blast now goes via **Twilio**, not Workiz. Concept + message text still good.
 
 **Why:** first ZipRecruiter run — capture what works here so the next hire is faster. **How to apply:** reuse this profile + the deal-breaker screening set; log ZR results (response quality vs Indeed) back here.
+
+---
+
+## ★ ATS DECISION (DJ 2026-09-27): run hiring NATIVELY in ZipRecruiter — RETIRE the custom Odoo ATS
+DJ chose **Option A**: manage the pipeline inside ZipRecruiter's own tools; **stop using / retire** the Odoo custom ATS ([[project_hiring_ats]] — `hiring.py`/`hiring.html`). Flag Lead to deprecate/park it (don't rebuild).
+- **Why the custom ATS existed = the Indeed clunk:** Indeed MASKS contact info (`@indeedemail.com` relay), delivers unstructured PDF resumes + screening answers in a separate doc → we built bulk-JSON import + a fragile marker-parser + AI scoring just to wrangle it. That complexity IS the friction DJ wants gone.
+- **ZipRecruiter fixes it natively:** gives the applicant's REAL phone + email (no relay); dashboard IS a light ATS — Candidates list, AI rating/match, drag-through **hiring stages**, in-app messaging, **ZipIntro** (one-way video screening), **Schedule** tab; screening questions auto-filter. Matches DJ's ask: "less customized, just take applicants and move them through stages."
+- **No clean pull-out:** ZipRecruiter's automated candidate feed is a **Partner API (ATS-vendor only, formal agreement — atsintegrations@ziprecruiter.com)**, NOT available to a normal employer account. So a custom ATS would STILL need manual data entry → not worth it for occasional hiring. Revisit only if hiring becomes frequent/multi-role AND partner access is realistic.
+
+## ★ RECORD-KEEPING (DJ 2026-09-27) — the employer holds the duty, NOT the job board
+- **Correct DJ's assumption:** ZipRecruiter retains data per ITS OWN terms/policies (and can purge/close/delete) — it is NOT your legal record-keeper and does not discharge YOUR retention duty. If you ever need records for a claim, have your OWN copies; don't rely on ZR still having them.
+- **The law (not legal advice — confirm w/ an employment attorney/HR service, esp. once ≥5 employees):**
+  - **Federal (Title VII/ADA/ADEA):** keep applications/resumes/hiring records ≥ **1 year** from record date or hiring decision. (Applies at 15+ employees; ADEA 20+.)
+  - **California FEHA:** retain applications/personnel records **4 years** (from creation or the employment action). FEHA generally applies at **5+ employees** — DJ is currently below that, so the 4-yr rule may not strictly bind yet, but follow it as best practice as he grows.
+  - **For the HIRED person (regardless of size):** I-9 (retain 3 yrs after hire OR 1 yr after termination, whichever later), W-4, CA new-hire paperwork, offer letter — separate from application retention.
+- **Practical plan (keep it simple for a business this size):**
+  - **At hire:** download the FINAL candidate's resume + application + screening answers (+ later signed offer/I-9/W-4) → save to Google Drive / Saunders Vault. (HR/Operator can do this via the ZR dashboard when the hire lands.)
+  - **Anyone actually INTERVIEWED:** keep their resume/app ~1 yr (smaller set, highest claim risk).
+  - **Mass of unqualified applicants:** leaving on ZipRecruiter is an acceptable practical choice at this size — understanding it's convenience storage, not a guaranteed legal archive.
+
+## Candidate message templates (approved 2026-09-27) — NO promises of a call/timeline (the Indeed burn, [[project_hiring_screening_messages]])
+**First reply to a promising applicant (send in ZipRecruiter):**
+> Hi [Name], thanks for applying to the Lead Window & Solar Cleaning Technician role at Window & Solar Care — your background caught my eye. Quick one: tell me a bit about your experience with window or solar cleaning, or running a residential route (pool, pest control, landscaping, etc.), and what you're looking for. I'm reviewing applicants this week and will follow up with the strongest matches. Thanks! — Dan
+
+**Polite "not this round":**
+> Hi [Name], thank you for taking the time to apply — I appreciate it. We had a strong response and have moved forward with a small group for this round. I'll keep your information on file and reach out if something opens up. Thanks again for your interest in Window & Solar Care. — Dan
+
+## Interview scorecard (1–5 each, notes separate from score)
+Reliability (real tenure, owns mistakes, on time to interview) · Route/customer-facing (ran a route solo, homeowner stories) · Cleaning/trade skill · Heat & physical (sustained outdoor in a hot season) · Presentation (neat, professional, easy conversation — would you put them in a client's home?) · Leadership potential (can train/check a helper) · Trust ("I'd hand this person a truck").
+STAR Qs: unhappy customer + what you did · a job you stayed at long + why · hottest day of outdoor work · a time you noticed a customer needed something extra. Red flags: vague answers, blames every past boss, late/no-show, currently self-employed cleaner, job-hopper.
+
+## Screening-question set (to enter in ZR before posting — deal-breakers auto-filter)
+Deal-breakers: (1) valid CA license + clean driving record? (2) work outdoors 100°+ heat a full day? (3) comfortable on a ladder up to one story? (4) reliably commute to job / daily meet-up spot? · Info (not knockout): (5) short-answer route/homeowner experience; (6) currently running your own window cleaning business? (flag, not auto-no). Optional (DJ's call): Work Authorization; Background Check.
+
+## Draft state (2026-09-27)
+ZR job DRAFT id `2de9bdcf` (Window & Solar Care account, "Welcome back, Dan"): title "Lead Window & Solar Cleaning Technician (Route Driver)", Palm Desert CA on-site, within 50 mi + relocate OFF, Full-Time, $23–27/hr. Company "About" blurb fixed to established/steady. PENDING before DJ hits Post Job: enter screening questions; optional fix of the 140-char "Why work at this company?" one-liner (still says "growing local company" — only editable via company profile, not the job screen). Email draft of the full posting sent to Cheryl (cjcherylcj@gmail.com) for input. ⚠ ZR screening-questions page had repeated renderer timeouts + zoom glitches during automation — enter questions right before posting, don't force the glitchy page early.
