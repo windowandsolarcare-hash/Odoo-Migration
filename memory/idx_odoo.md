@@ -1,5 +1,7 @@
 # Odoo quirks & fields — memory index
 
+- [project_quote_line_clobber_fix.md](project_quote_line_clobber_fix.md) — ★ MONEY/DATA: quote-line writes must target ONLY the windows line (product_id ∈ {141 IN_OUT, 103 OUTSIDE}) + PRESERVE siblings — never blanket-zero/clear all priced lines. Fixed 2026-09-28: _replace_quote_line (EDIT) + accept_to_job_core (ACCEPT) were dropping added services ($350→$221). Accept now PRESERVES existing lines (DJ's rule). Constants: IN_OUT=141, OUTSIDE=103.
+
 - [project_odoo_get_param_returns_false_unset.md](project_odoo_get_param_returns_false_unset.md) — ir.config_parameter get_param returns bool `False` (NOT None/'') when a key is UNSET → a default-safe flag must treat False as "unset" or an unset flag misreads as 'false'/OFF. Caught in tech collect-only test mode.
 
 - [project_memory_read_fail_open_phantom_empty.md](project_memory_read_fail_open_phantom_empty.md) — A37 scare: memory_store `_load` `except:return []` swallowed a transient Odoo 429 → DJ's 61 decisions rendered "No decisions yet" = looked like a wipe, data was fine. User-facing reads must distinguish ERROR from EMPTY (retry-state, not "nothing yet") + migration read must retry+verify count>0. Same fail-open family as the money-allowlist.
