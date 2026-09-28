@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 7f93eb62-ab56-4528-a75a-3a6b108e7612
-  modified: 2026-09-28T00:58:31.743Z
+  modified: 2026-09-28T01:32:25.818Z
 ---
 
 Built 2026-09-27 (Specialists, DJ-approved v3.4, Lead-QC'd each stage). Plan: `3_Documentation/review/FLEET_SHIP_SYSTEM_BUILD_PLAN.md` (+ PROPOSAL). Turns DJ's spoken/typed thoughts into tracked ship cards on a board that shows what ACTUALLY shipped. **All app-side work is DETERMINISTIC (store/echo/serve/derive) + the existing whisper utility — NO Anthropic API here; decomposition/root-cause/QC run on the Max SUBSCRIPTION via fleet sessions (S4 bridge).**
@@ -28,4 +28,10 @@ Built 2026-09-27 (Specialists, DJ-approved v3.4, Lead-QC'd each stage). Plan: `3
 
 **Dogfood:** cards `ships1/ships2/ships3` (Shipped) + `ships4` (Captured) + `shipsys` (umbrella) track the system's own build on the board.
 
-**Pending: S4** = the subscription-session BRIDGE (pulls captures, decomposes transcript→cards IN its own session, marks decomposed) + M4 root-cause gate (HARD Building precondition) + M5 ship-by-default — Lead owns the bridge-decompose + M4 spec. Related: [[project_endpoint_map]], [[feedback_data_location_odoo_vs_postgres]], [[feedback_recordings_chunk_stream_durable]], [[feedback_hud_cards_live_not_inbox]].
+**S4 APP-SIDE — SHIPPED + verified (2026-09-27).** `POST /capture/status` (NOTIFY_SECRET; new→claimed→decomposed, ATOMIC claim `WHERE status='new'` so two bridge sessions can't double-decompose, loser gets 409) + `source_capture_id` card→capture backlink + `ship_root_causes` store + **owner-gated `POST /card/root_cause`** (DJ/proxy) + **owner-gated `POST /card/confirm {card_id,confirmed_by}`** (sets dj_confirmed). **★ M4 GATE (un-bypassable, proven live: headless Building attempt → 422):** `/card/state` target=='Building' is REJECTED unless the card's STORED `root_cause_ref` AND `dj_confirmed` are both set — and `/card/state` (headless NOTIFY_SECRET) can NOT write those gate fields (only `branch`+`source_capture_id`); both are set EXCLUSIVELY via the two OWNER-gated routes. So Captured→Building needs prior DJ/proxy (owner-cookie) action. Board gained `?scope=active|completed` (Completed Archive; Shipped leaves the working board, never deleted) + a definite top-level `git_ok` bool. Aging gained a `ship_capture_backlog` "N captures waiting to become cards" HUD card (the M3 backstop of the 3-layer decompose trigger).
+
+**BRIDGE = subscription session** (intelligent decompose transcript→cards runs OFF the app, NOT the Anthropic API in-app): pulls `/captures?status=new` → `/capture/status` claimed → decompose → `/card` (source_capture_id) → `/capture/status` decomposed. **3-layer TRIGGER (Dispatcher owns):** (a) Dispatcher pulls when active; (b) hub §3 manual "decompose N pending" control (Builder-2 UI); (c) M3 timer backstop.
+
+**SCHEDULER WINDOW (2026-09-27, DJ rule):** best_fit_plan defaults `early_days=7/late_days=14` → candidate window `[anchor−7, anchor+14]` (maintenance may shift ≤7d early / ≤14d late). Scoped to best_fit_plan ONLY (auto-spawn + regen); `rank_days`'s other callers (reactivation Book, city next-available) keep the wider symmetric ±window_days (None-path byte-identical). Recorded in `3_Documentation/review/SCHEDULING_RESERVE_DESIGN.md` — do NOT make it global.
+
+Related: [[project_endpoint_map]], [[feedback_data_location_odoo_vs_postgres]], [[feedback_recordings_chunk_stream_durable]], [[feedback_hud_cards_live_not_inbox]].
