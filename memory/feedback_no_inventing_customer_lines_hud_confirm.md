@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 90c41229-811c-4085-801e-7475f63f81b9
-  modified: 2026-09-26T08:59:41.555Z
+  modified: 2026-09-28T15:27:26.967Z
 ---
 
 DJ (2026-09-23): STOP inventing ad-hoc customer message lines. When Operator offered to "draft the 'moved you to Monday 8:30' text," DJ rejected it: *"that's your testimony... a line that you invented... I'm trying to get away from you inventing lines. That doesn't scale up."*
@@ -25,3 +25,22 @@ DJ (2026-09-23): STOP inventing ad-hoc customer message lines. When Operator off
 **★ REFINEMENT (DJ 2026-09-26) — the pre-filled draft must DIRECTLY ANSWER what the customer actually asked, with the real fact, IN the message.** Galen Wood texted *"what time on Oct 1?"* The standardized confirm body I pre-filled — *"We have you on the schedule for Thursday, October 1st — tap here to confirm: <link>"* — named the DAY but not the TIME, so it did not answer his question; DJ had to hand-add "8:30am" before sending. DJ: *"it feels like you didn't answer his questions directly with the response you gave. Just for future."* The time is probably on the link once pressed, but a customer who asked a plain question should get the plain answer **in the text**, not be sent to a link to find it.
 - **This RECONCILES with the no-inventing rule, doesn't contradict it:** stating the real scheduled time (8:30am) is **answering with a fact**, not inventing a line. Inventing = making up wording/claims/offers. Filling in the actual scheduled data the customer asked for is REQUIRED, not forbidden.
 - **How to apply:** before pre-filling ANY customer draft (confirm card, reply, offer), first READ what the customer actually asked in the thread, and make sure the draft answers it directly with the concrete fact (time / price / date) — then the standard confirm + link. The pre-fill must stand on its own as an answer; the link is backup, never the answer. (Same for the HUD confirm-card gold standard above: the message that lands in the opened thread should already answer the question.)
+
+---
+
+## ★★ ABSOLUTE, DAY-ONE RULE — DJ 2026-09-28 (angry; we broke it AGAIN)
+
+**This is NOT a new rule and never was.** DJ, emphatic: *"nothing leaves without me seeing the text... from day one, never ever ever send a text straight out without me seeing it and approving it and then hitting the send button. I want to be able to modify that."* The gold-standard above is the SAME rule stated day one — treat it as a **hard, non-negotiable governance rule**, not a preference.
+
+**THE RULE (memorize):** NOTHING goes to a customer — no text, nothing — unless DJ (1) **sees the exact copy** in front of him, (2) **can modify it**, and (3) **presses SEND himself**. There is NO one-tap-send anywhere in the app, ever. A green "Approve" that fires a text on one tap is a BUG, no matter who designed it or when.
+
+**THE INCIDENT:** The HUD "Send confirmation reply?" card (`reminders.py:2766 _queue_ack_approval` → `on_approve.href` POST `/owner/api/reminders/send_ack` → `messaging.send`; one-tap inline render `v2_hud.html:356-371`/`doApprove :598-631`) ONE-TAP-FIRED a canned *"Perfect — see you then! – Dan"* text to **Bruce Karp** (SO 17698) at 8:08 AM — with NO copy shown, NO edit, NO send-press. It landed **out of sequence** in a live conversation DJ was actively having with Bruce about other things. DJ: *"I would never have sent it and it p***** me off that we're again sending something without my approval."* An unreviewed, out-of-context text reached a real customer.
+
+**ROOT CAUSE OF THE RECURRENCE:** the 2026-09-23 gold-standard said to "audit existing approve-to-send cards to conform" — but that audit was never completed, so this one-tap ack card (a deliberate older 2026-08 design) survived. **A stated principle without an enforced audit does not hold.**
+
+**THE FIX (DJ-directed 2026-09-28, routed to Lead→Specialists, QC-hard):**
+1. **AUDIT EVERY HUD CARD** — grep ALL HUD card producers for any `on_approve`/action that hits a SEND/`messaging.send` endpoint (there are "a number" of these Approve cards). List every one.
+2. **CONVERT EVERY ONE** to the review-first pattern: Approve **OPENS the customer thread with the message pre-filled** (`v2_inbox.html?open=<pid>&draft=<urlenc>`) → DJ sees copy + context, edits, presses SEND. The card must NOT fire the text. (Action-less record-only cards like "X confirmed — no action needed" stay as-is.)
+3. **BAKE IT INTO THE BOOT PACKS (FLEET_GOVERNANCE)** as a hard rule so no session ever re-introduces a one-tap customer send. This supersedes ANY older "one-tap approve" design.
+
+**How to apply (every session, forever):** if you build or find a HUD/UI control that sends a customer message, it MUST route through see→edit→press-send. Never `messaging.send` straight off a button. When auditing, a one-tap send = a defect to convert, full stop. Ties to [[feedback_never_send_dj_to_odoo]], [[feedback_email_draft_first_always]], [[feedback_dj_operating_instincts]].
