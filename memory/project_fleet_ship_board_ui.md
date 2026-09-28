@@ -1,14 +1,18 @@
 ---
 name: project_fleet_ship_board_ui
-description: "Fleet Ship System S2 dashboard = static/owner/v2_ship_board.html (DJ's deploy-control board on GET /owner/api/ship/board). Flagged cards dedup rule: a false-done must never show under 'Recently live'."
+description: "Fleet Ship System UI: the board (GET /owner/api/ship/board) now lives as §2 of the unified 'App Building' hub (static/owner/v2_app_building.html). Flagged-card dedup: a false-done must never show under 'Recently live'."
 metadata: 
   node_type: memory
   type: project
   originSessionId: 93ae5c9a-b2db-49a9-8fa8-84d13000c2ae
-  modified: 2026-09-28T00:40:41.559Z
+  modified: 2026-09-28T01:05:51.995Z
 ---
 
-**What (shipped 2026-09-27, commit 6786fdc7):** `static/owner/v2_ship_board.html` — DJ's deploy-control tower, the productized version of the stage-and-trigger "ready board" ([[feedback_dj_deploy_control_stage_and_trigger]]). Reachable via the 🚀 launcher entry "Ship Board" in `v2_apps.js`. Owner: **Builder-2** owns the UI; **Specialists** owns the API (`routers/owner/ship.py`).
+**What (board shipped 2026-09-27, commit 6786fdc7):** DJ's deploy-control tower, the productized version of the stage-and-trigger "ready board" ([[feedback_dj_deploy_control_stage_and_trigger]]). Owner: **Builder-2** owns the UI; **Specialists** owns the API (`routers/owner/ship.py`).
+
+**★ UNIFIED into the "App Building" hub (2026-09-27, commit 675222e8):** DJ wanted ONE screen instead of bouncing between Capture + Ship Board. `static/owner/v2_app_building.html` — phone-first **accordion** (one open at a time, last-open persisted in localStorage try/catch): §1 🎙 Capture (S1 `v2_ship_capture.html` recorder logic REUSED VERBATIM — `wsc_recorder.js` + `/owner/api/ship/capture`), §2 📋 Board (the S2 `/board` fetch/render/dedup/SWR REUSED VERBATIM as the section layout), §3 🔍 Review & confirm = clean "coming soon" placeholder (awaiting DJ's shape). Record-lock: recording force-opens Capture + blocks switching away mid-record (durable chunk-stream, won't lose audio). Launcher: 🚀 **App Building** (fav) REPLACED the Ship Board entry AND removed the standalone 📥 Capture entry — one entry. The two standalone pages (`v2_ship_board.html`, `v2_ship_capture.html`) are **retired** (Field Day pattern: archive-move + repoint, reversible) as a COORDINATED follow-up.
+- **★ Merge-verbatim discipline:** merging two pages' scripts, the #1 risk is duplicate element ids / colliding helper names — Lead byte-QC explicitly checks "no duplicate ids." Define shared helpers (`$`, `esc`) ONCE; keep each feature's ids distinct; reuse the other page's functions unchanged. See [[feedback_reuse_function_follow_full_logic]].
+- **★ Cross-file ref that find-all-refs MISSED (retire lesson):** a stale local-mirror grep for `v2_ship_board` found only the launcher entry — but `routers/owner/feed_live.py:622` `_ship_aging_alerts` has an action href → `/static/owner/v2_ship_board.html` (a live aging-alert button). Lead caught it. At retire time that href must repoint to `v2_app_building.html` too, or the button 404s — it's Specialists' file, so his repoint + my archive-move land TOGETHER. Lesson: a retire's find-all-refs must sweep LIVE across ALL routers/static, not a stale mirror + the launcher — a recently-added cross-file href won't be in a stale mirror. Ties to [[feedback_staged_mirror_stale_base_refetch]].
 
 **Data source:** `GET /owner/api/ship/board` (owner-gated cookie; the static page itself is public, the DATA is gated — standard pattern). Per card: `{id,title,state,stored_state,owner_role,branch,branch_live,root_cause_ref,dj_confirmed,dep_on,shipped_at,flags[],created_at,state_changed_at}` + top-level `{ok,cards,as_of}`. `state` is git-derived (Shipped WINS over stored via a `card-<id>`/`ships #<id>` commit on main); middle states (Building/QC/Ready) are stored. `?refresh=1` forces a fresh git read (else server SWR ~60s).
 
