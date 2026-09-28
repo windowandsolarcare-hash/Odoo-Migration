@@ -1,5 +1,7 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_quote_save_endpoints_shadowed.md](project_quote_save_endpoints_shadowed.md) — ★ SHADOW MAP: /owner/api/quote/save + /update exist in BOTH quotes.py AND dashboard.py — dashboard's win (included first, main.py:1038<1045); quotes.py's are DEAD twins. Edit dashboard.py for the live save/update path. accept_to_job_core (quotes.py) IS live (route + voice tool). Verify file before editing quote-save code. Follow-up: retire the dead twins.
+
 - [project_memory_pillar_postgres_a35.md](project_memory_pillar_postgres_a35.md) — ★ A35: Memory Pillar store Odoo blob → Render Postgres (unified mem_records table, jsonb data + promoted sig/status, MEMORY_DB_URL STORE-gated flag, row-level writes, single-conn+Lock, idempotent migration + cutover runbook, psycopg[binary]==3.2.3). STAGED/dormant — flip gated on DB-up + Lead QC. + A37: _load retries then RAISES MemoryReadError (error≠empty) — fixes 429-renders-empty AND the reload-before-write STORE-WIPER; 16 endpoints → read_failed, hooks fail-soft, page tap-to-retry.
 
 - [project_pillar_warn_before_action.md](project_pillar_warn_before_action.md) — ★ Pillar payoff phase (DJ insight 2026-09-19): observe-only recall doesn't PREVENT mistakes (too late) → build a PRE-action hook that WARNS before a risky tool call (the inject half, gated OFF now). Needs separate DJ nod + tight matching (warn, don't nag). Queued.
