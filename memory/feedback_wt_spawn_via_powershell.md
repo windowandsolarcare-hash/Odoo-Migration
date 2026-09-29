@@ -16,6 +16,7 @@ The `wt` call returned exit 0 ("dispatched"), but **no tab opened** — DJ saw n
 
 **The rule:** **spawn fleet tabs via the PowerShell tool, not Bash.** PowerShell does no MSYS path conversion, so `/k` and `/be-<role>` pass through intact. This applies to the whole [[feedback_respawn_session_procedure]] step 2 ("the session launches the new tab itself") and any `wt`/`cmd`-with-slash-args launch.
 - PowerShell form (verified): `wt -w wscfleet new-tab --title <Role> -d "C:\Users\dj\Documents\Business\A Window and Solar Care\Migration to Odoo" cmd /k claude -n <Role> /be-<role>`
+- **Dispatcher spawns on Sonnet (DJ 2026-09-28, token conservation):** `... cmd /k claude --model sonnet -n Dispatcher /be-dispatcher`. Other roles keep their default model. pyflakes (`python -m pip install pyflakes`) is now part of the pre-push gate — see FLEET_GOVERNANCE §5.
 - If you MUST use git-bash, prefix `MSYS_NO_PATHCONV=1 ` (disables the conversion) — but PowerShell is simpler + is the standard now.
 - **Verify the spawn actually took:** `wt` exit 0 ≠ tab opened. Confirm the new session shows in `ListAgents` (or DJ sees the tab) before reporting it live.
 
