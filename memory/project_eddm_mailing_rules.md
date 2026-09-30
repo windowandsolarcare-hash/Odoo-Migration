@@ -1,8 +1,11 @@
 ---
 name: project_eddm_mailing_rules
-description: USPS Every Door Direct Mail rules a W&SC print piece must satisfy — flat-size minimum, indicia wording/placement, and the address-in-the-top-half rule. Design owns these.
+description: "USPS Every Door Direct Mail rules a W&SC print piece must satisfy — flat-size minimum, indicia wording/placement, and the address-in-the-top-half rule. Design owns these."
 metadata:
+  node_type: memory
   type: project
+  originSessionId: edbb1e65-a23a-493e-83d1-f6b164f0621e
+  modified: 2026-09-30T23:29:12.398Z
 ---
 
 DJ (2026-09-12) made it **Design's responsibility to know and apply the EDDM rules** — not his, and
@@ -63,6 +66,22 @@ Postal Customer
 No barcode clear zone and no bottom white band — EDDM is carrier-route bundled, not run through the
 letter-automation equipment, so the usual OCR/barcode keep-out areas don't apply. DJ raised this
 himself and he is right; a ghosted background running the full piece is fine.
+
+### ★ CORRECTION / NUANCE (Design, 2026-09-30) — checked current USPS/printer specs
+Sources VARY and lean more conservative than §4 above, so for a real mailed piece treat the address
+side (= the back) with these guardrails:
+- **Address side layout = indicia TOP-RIGHT + generic address block in the TOP HALF + keep the
+  BOTTOM ~5/8" (0.625" ≈ 187.5px @300dpi from trim) CLEAR** of copy/graphics. (Some printer guides
+  cite the larger 2.125" automation zone — that's for automation mail, not EDDM; 5/8" is the
+  EDDM-reasonable minimum. When unsure, keep more clear.)
+- **Marketing copy is NOT sanctioned inside the address/postal area.** Do NOT cram pricing/graphics
+  into the address panel to "use the wasted space."
+- **Right way to use the space:** WIDEN the message column and keep the address panel a clean,
+  NARROWER strip on the right (indicia + address block + clear bottom). That reclaims the room
+  compliantly. (Applied on the Del Webb Fall-Refresh back, `design/fall-refresh-eddm/`.)
+- The §4 "ghosted full-piece background is fine" still holds for the FRONT; on the address side keep
+  the address block + indicia legible and the bottom clear.
+- Verify against USPS directly for any NEW piece; note the date checked.
 
 ## 5. Volume
 EDDM Retail: up to **5,000 pieces per ZIP per day**, no permit. Target routes for this card are the
