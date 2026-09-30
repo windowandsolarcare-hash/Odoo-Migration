@@ -45,7 +45,7 @@ End to end:
 - `4 - Zoo Files (final print)` — the final PDFs; **DJ pulls from here to order at Zoo.**
 Write by COPYING to the mounted **G:** drive (auto-syncs) — never push binaries through the Drive MCP.
 
-**SOP for Cheryl:** Google Doc "SOP — How Cheryl Submits a New Card" in the design folder (id `1VhJdI4MOkHpbu-Oj91lGwojcqlz4XMaBiRVOqffT3Ys`) + `.md` copies at the design root and in each project folder.
+**SOP for Cheryl:** Google Doc "SOP — How Cheryl Submits a New Card" in the design folder (id `1phTAKl09bl9grVcXnB0ogQSGg9nb2ZIy1slsYVorXY4`) + `.md` copies at the design root and in each project folder.
 
 ★ Supersedes the earlier "Midjourney" note above — Cheryl now uses **ChatGPT**; Design still cannot drive her logged-in session, so the **Downloads handoff** stands. First live project built this way: `Del Webb Fall Refresh - Rancho Mirage EDDM`.
 
