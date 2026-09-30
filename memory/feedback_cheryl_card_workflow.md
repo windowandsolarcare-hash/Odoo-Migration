@@ -32,9 +32,9 @@ DJ set + refined this 2026-09-28. The standing procedure when Design works with 
 
 ## ★ FULL WORKFLOW + DRIVE STRUCTURE (DJ finalized 2026-09-30)
 End to end:
-1. Cheryl uses **ChatGPT** ($20 plan, under the Window & Solar Care account — she has access; OpenAI image engine, same family as Copilot). She makes the card, then saves **TWO files to her Downloads folder**: (a) the IMAGE by itself (no text), (b) the COMPLETED card, both sides (her layout/words — Design's blueprint only).
+1. Cheryl uses **ChatGPT** ($20 plan, under the Window & Solar Care account — she has access; OpenAI image engine, same family as Copilot). She makes the card, then puts **TWO files in the shared Google Drive "Design Inbox" folder**: (a) the IMAGE by itself (no text), (b) the COMPLETED card, both sides (her layout/words — Design's blueprint only).
 2. She reaches Design in chat (via DJ's account) and says "my next card is in my Downloads folder" + the project name + specifics (offer, prices, who it mails to).
-3. Design grabs both from `C:\Users\dj\Downloads`, rebuilds with real logo + real type + EDDM-correct layout, and presents a **front+back PROOF in the chat**.
+3. Design pulls both from the Drive **Design Inbox** at FULL resolution, rebuilds with real logo + real type + EDDM-correct layout, and presents a **front+back PROOF in the chat**.
 4. Cheryl reviews → plain-word change requests → Design re-proofs (v1, v2, v3…). On **"approved"**:
 5. Design AI-upscales the photo ([[project_realesrgan_upscaler]]), drops in the real type, and produces the **two Zoo PDFs** (CMYK/SWOP, .125 bleed, crop marks — [[project_wsc_print_build_pipeline]]).
 
@@ -45,6 +45,8 @@ End to end:
 - `4 - Zoo Files (final print)` — the final PDFs; **DJ pulls from here to order at Zoo.**
 Write by COPYING to the mounted **G:** drive (auto-syncs) — never push binaries through the Drive MCP.
 
-**SOP for Cheryl:** Google Doc "SOP — How Cheryl Submits a New Card" in the design folder (id `1SarWI7iQbdtRj-mx0FZPise5nJEJWp9udlFIeYofI0Q`) + `.md` copies at the design root and in each project folder.
+**SOP for Cheryl:** Google Doc "SOP — How Cheryl Submits a New Card" in the design folder (id `1VhJdI4MOkHpbu-Oj91lGwojcqlz4XMaBiRVOqffT3Ys`) + `.md` copies at the design root and in each project folder.
 
 ★ Supersedes the earlier "Midjourney" note above — Cheryl now uses **ChatGPT**; Design still cannot drive her logged-in session, so the **Downloads handoff** stands. First live project built this way: `Del Webb Fall Refresh - Rancho Mirage EDDM`.
+
+**HANDOFF = DRIVE, NOT CHAT (DJ 2026-09-30).** Do NOT take the source image via chat-paste — the chat DOWNSCALES + recompresses it (a tested paste landed at 1296x928 lossy WEBP vs the full 1536x1024 that comes through Drive/email); unacceptable for a print piece we then upscale. Cheryl drops the two files in the Drive **Design Inbox** (`G:\My Drive\Window & Solar Care — Design\Design Inbox`); Design pulls full-res via the Drive connector — works from ANY machine/session, unlike a per-machine local Downloads folder. Design files her originals into the project 1-Originals folder.
