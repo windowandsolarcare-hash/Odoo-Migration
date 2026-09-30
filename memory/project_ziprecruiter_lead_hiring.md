@@ -89,3 +89,5 @@ ZR job DRAFT id `2de9bdcf` (Window & Solar Care account, "Welcome back, Dan"): t
 
 ## ★ POSTED LIVE 2026-09-30
 Job `2de9bdcf` is **Active** on ZipRecruiter (Window & Solar Care account). Post went through the plan step cleanly. ⚠ Employment-type shows **Part-time** on the live post (was Full-Time when built — changed during the post/plan step; flagged to DJ to confirm intended vs revert to Full-Time). Next: applicants arrive pre-filtered by the 4 deal-breakers → new-candidate email alerts to windowandsolarcare@gmail.com → work them in the Candidates tab (rate/stage/message). HR to help triage: first reach-out to keepers, 'not this round' to passes; download the final hire's resume+application+I-9/W-4/offer to Drive at hire.
+
+**Employment-type DECISION (DJ 2026-09-30):** start **Part-time** (matches 32-hrs-to-start reality). ★ CONCRETE TRIGGER (not vague 'later'): if applicant volume is LOW by ~Oct 3 (~<5 qualified), switch to **Full-Time** (1-min edit — the fastest volume lever). HR to check the count ~Oct 3 (or on DJ ping) and flag.
