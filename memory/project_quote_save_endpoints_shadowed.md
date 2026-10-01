@@ -1,6 +1,6 @@
 ---
 name: project_quote_save_endpoints_shadowed
-description: "Route-shadow map for quote-save endpoints (2026-09-28): /owner/api/quote/save and /owner/api/quote/update exist in BOTH quotes.py and dashboard.py — dashboard.py's copies are LIVE (included first, main.py:1038 before quotes at 1045); quotes.py's are DEAD twins. Edit the dashboard.py copies for the live save/update path. accept_to_job_core (quotes.py) IS live. Verify before editing quote-save code."
+description: "[RESOLVED 2026-10-01: dead twins RETIRED from quotes.py, ENDPOINT_MAP current] Route-shadow map for quote-save endpoints (2026-09-28): /owner/api/quote/save and /owner/api/quote/update exist in BOTH quotes.py and dashboard.py — dashboard.py's copies are LIVE (included first, main.py:1038 before quotes at 1045); quotes.py's are DEAD twins. Edit the dashboard.py copies for the live save/update path. accept_to_job_core (quotes.py) IS live. Verify before editing quote-save code."
 metadata: 
   node_type: memory
   type: project
@@ -16,3 +16,5 @@ metadata:
 **Why it matters:** editing quotes.py's `api_quote_save`/`api_quote_update` to fix a *live* save-path bug does NOTHING (dead twin) — you must edit the **dashboard.py** copies. During the 2026-09-28 fix, the dashboard.py LIVE copies were already correct (the original 2026-08-01 clean-name fix), so only `accept_to_job_core` + a `_zelle_service_lines` display defense were the real live fix.
 
 **How to apply:** before editing any quote-save/update endpoint, confirm which file serves it (dashboard wins) — or check `ENDPOINT_MAP.md`'s LIVE column. FOLLOW-UP flagged 2026-09-28: retire quotes.py's dead `/api/quote/save`+`/api/quote/update` twins so a future edit can't land on dead code. See [[feedback_check_endpoint_map_first]].
+
+**RESOLVED 2026-10-01:** the dead `api_quote_save`/`api_quote_update` twins were RETIRED from quotes.py (leaving RETIRED breadcrumbs pointing to dashboard.py) and ENDPOINT_MAP regenerated — it now lists only the dashboard.py copies (LIVE). Only one copy exists, so the edit-the-wrong-file trap is closed for these two routes. The general dashboard-shadows-later-routers class remains for OTHER paths (check ENDPOINT_MAP).
