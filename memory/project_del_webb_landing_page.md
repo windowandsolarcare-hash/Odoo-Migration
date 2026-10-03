@@ -16,7 +16,8 @@ metadata:
 
 **Add-ons upsell (confirmation screen):** 6 items w/ qty steppers + running total, prices = Odoo list prices: Mirrors cleaned $10, Ceiling fans cleaned $5, Shower glass cleaned $25, Skylights cleaned $15, Hard-water stain removal $75, and Cobweb cleaning $55 (Standard/Essential) OR Garage door windows $10 (Signature, since Signature already includes cobweb-clean frames).
 - Button posts `POST /book/api/request/addons` `{so_id, so_name, phone, name, items[], addons_total, base_total}`. Specialists built it (phone-verified, adds sale.order.lines at the PRODUCT's price — client prices ignored, exact-label matching, idempotent). **★ CONTRACT: the 7 add-on labels above are matched EXACTLY — if you change ANY label text, tell Specialists first (unknown labels are dropped, never mis-mapped).**
-- Until the endpoint ships (needs Lead QC + DJ "deploy"), the page falls back to a pre-filled `sms:` "Text my extras to Dan" link — nothing is lost.
+- **LIVE + VERIFIED 2026-10-02** (hotfix a5e2fc76: res.partner has no `mobile` field — the first deploy 500'd on that): wrong phone → 403, right phone → 200 with sale.order.lines at product prices + [CUSTOMER ADD-ONS] chatter, repeat → already. The `sms:` "Text my extras to Dan" link remains only as an ERROR fallback.
+- **SMS consent checkbox (Review step):** UNCHECKED by default + the EXACT registered A2P wording ("Yes, please text me. I agree to receive text messages from Window & Solar Care about my appointments, service, and account… Reply STOP to opt out, HELP for help. Consent is not a condition of purchase."). Do NOT pre-check it or reword it — the server stores consent PROOF quoting that exact text, and carriers/Twilio require unchecked + affirmative. Spec: [[project_booking_sms_optin_a2p]].
 
 **Testing note:** never submit the live page to test (it creates a real contact + SO). Test the confirmation/upsell by loading the page and replacing the `LIVE` host regex in a document.write copy.
 
