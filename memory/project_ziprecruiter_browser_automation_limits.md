@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: e3071731-f37a-4440-a358-34be556223c2
-  modified: 2026-10-03T07:45:57.592Z
+  modified: 2026-10-03T07:52:52.679Z
 ---
 
 Working the ZipRecruiter employer candidate dashboard (ziprecruiter.com/emp/candidates?app_job=...) with the claude-in-chrome tools, 2026-10-02:
@@ -17,5 +17,7 @@ Working the ZipRecruiter employer candidate dashboard (ziprecruiter.com/emp/cand
 **Why it matters:** don't burn tokens fighting the resume viewer. The list summary is the ranking workhorse.
 
 **REMOTE-SEND LIMIT (2026-10-03):** When DJ is away and the computer screen is off/locked, the Chrome window does NOT render — `computer` screenshots fail with `Cannot take screenshot with 0 width` (resize_window does not fix it). So HR CANNOT safely send candidate messages via computer-use while DJ is away: you can't visually verify the recipient. Also: clicking a card's "Message" button opens a composer the find-tool labels a "BULK message composer" — do NOT blind-send (risk: blasting the 1-person note to all applicants). Only drive ZR sends when DJ is at the machine with the screen ON so each step is visually verifiable. True hands-off auto-outreach = a server-side app flow, not blind browser automation.
+
+**SEND WORKS (screen ON) + AMPERSAND GLITCH (2026-10-03):** With DJ at the machine (screen rendering), computer-use CAN send a candidate message end-to-end: list card "Message" button opens a 1:1 composer (header shows the candidate name + role = verify recipient here; it is NOT bulk despite the find-tool's "bulk composer" label), type in "Type message here...", click the paper-plane Send; thread then shows the sent bubble + timestamp. A passive Cloudflare "Verifying..." box may appear — it self-clears, do NOT interact with it (no CAPTCHA solving). ★ GLITCH: typing "&" gets DOUBLE-ENCODED -> the sent message displays "Window &amp; Solar Care". FIX: spell out "and" ("Window and Solar Care") in any typed ZR message. (First reach-out sent to Luis Del Toro 2026-10-03 12:52 AM w/ the &amp; artifact; remaining sends use "and".)
 
 **How to apply:** Rank from the LIST `get_page_text`. To read a FULL resume PDF, don't rely on automation — either (a) ask DJ to open "Full Application" and relay/paste it, or (b) use the resume's direct `protected-upload?upload_id=...&filter=pdf` link from the bulk-CSV export (login-gated; may still not text-extract). For "blank" applicants (no parsed work history on the card), the designed fix is the FIRST REACH-OUT message, which asks their experience — their reply places them (see [[project_ziprecruiter_lead_hiring]]). Relates to [[project_hiring_right_fit_not_top_talent]].
