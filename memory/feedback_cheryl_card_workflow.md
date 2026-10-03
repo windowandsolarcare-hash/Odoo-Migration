@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: edbb1e65-a23a-493e-83d1-f6b164f0621e
-  modified: 2026-09-29T02:38:47.252Z
+  modified: 2026-10-03T03:59:47.718Z
 ---
 
 DJ set + refined this 2026-09-28. The standing procedure when Design works with **Cheryl** on a card:
@@ -41,7 +41,7 @@ End to end:
 **DRIVE FILING — per project, inside `G:\My Drive\Window & Solar Care — Design\`** (Drive folder id `1jstgtIp6EWEvwjgIFruzh1uFn5AfcBqA`). Create a PROJECT folder named for the card, with FOUR subfolders:
 - `1 - Cheryls Originals` — the two files she submitted
 - `2 - Working Files (editable)` — Design's editable master (the `.html` artboards + source photos/logo/qr = the "PSD-equivalent"; type stays live, nothing flattened; edits are made by asking Design)
-- `3 - Proofs` — every reviewed version (Proof v1, v2, v3…)
+- `3 - Proofs` — every reviewed version (Proof v1, v2, v3…). ★ CONTINUOUS numbering across the WHOLE project, never reset, never ad-hoc local-only names: before saving, `ls` this folder, find the highest `Proof vN`, save the next as `Proof vN+1 - <SIDE> (short desc).png`. EVERY iteration DJ reviews gets saved here the moment it's rendered — the chronology is the point (this is a 300-DPI print piece, not a web page). If local iterations drifted off-sequence, BACKFILL them in order. (DJ corrected this 2026-10-02 after a session used local `dw5/dw6` names and skipped Drive saves — had to backfill v12/v13.)
 - `4 - Zoo Files (final print)` — the final PDFs; **DJ pulls from here to order at Zoo.**
 Write by COPYING to the mounted **G:** drive (auto-syncs) — never push binaries through the Drive MCP.
 
