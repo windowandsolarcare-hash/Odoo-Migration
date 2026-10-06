@@ -1,15 +1,19 @@
 ---
 name: project_gbp_suspension_appeal
-description: "Google Business Profile SUSPENDED — reason CONFIRMED 'flagged for suspicious activity' (primary source: DJ read the original Google email verbatim, WSC-NAP-CHECKLIST.md §G; the earlier 'deceptive content' was an inference and is WRONG). NAP mismatch is the underlying driver. Full history + what was fixed + the appeal open-items. ★ APPEAL SUBMITTED 2026-09-27 (filed, awaiting Google response) — DO NOT re-file. Appeal linchpin = ONE provable address matching listing + registration + utility bill."
+description: "✅ RESOLVED — Google Business Profile REINSTATED 2026-09-28 (appeal case 9-2903000041323; DO NOT re-file). Suspension reason was 'flagged for suspicious activity'; NAP mismatch the driver. Appeal won on Articles+EIN showing the Thousand Palms home address + phone 760-334-5355. ★ ONE OPEN DJ ACTION: a separate still-unread 2026-09-28 'Further verification required' email — DJ must complete Get-verified (business.google.com/n/13507549370210966/profile/verify) before his listing EDITS publish to customers. Full history + lesson [[reference_platform_appeal_file_once]] kept."
 metadata:
   node_type: memory
   type: project
   originSessionId: 7a4f4487-5a08-47dc-8b9b-7761235acbe9
-  modified: 2026-09-10T00:06:16.864Z
+  modified: 2026-10-06T04:41:52.471Z
 ---
 
 
-> ## 🟩 STATUS: APPEAL SUBMITTED 2026-09-27 — FILED, awaiting Google response. **DO NOT RE-FILE** (a repeat/sloppy appeal risks the whole windowandsolarcare@gmail.com account). Reason on file: "flagged for suspicious activity."
+> ## ✅ RESOLVED — PROFILE REINSTATED. Google confirmed reinstatement **2026-09-28** (DJ re-confirmed live 2026-10-05). Appeal case **[9-2903000041323]**. **DO NOT RE-FILE** — the appeal succeeded; any further filing only risks the account. History below kept for the record.
+>
+> **★ ONE OPEN DJ ACTION (NOT the appeal — a separate ownership-verification step):** a SECOND Google email the same day (2026-09-28, subject *"Further account verification is required for Window & Solar Care"*, **still UNREAD** in the inbox as of 2026-10-05) says: *"You must successfully verify your profile so your edits can be visible to customers."* So the profile is LIVE/reinstated, but until DJ completes **"Get verified"** (→ `https://business.google.com/n/13507549370210966/profile/verify`), any edits he makes to the listing will NOT publish to customers. The reinstatement email's "no further action to verify at this time" refers to the APPEAL; this manage/edit verification is a distinct Google step and is login-walled (DJ-only — his identity). **Until DJ finishes Get-verified, treat the listing as read-only to customers.**
+>
+> **Exact reinstatement wording (googlebusinessprofile-support@google.com, 2026-09-28 06:21 UTC):** *"I'm happy to confirm that we were able to reinstate the Business Profile for you. No further action is required on your part to verify at this time. After the profile is live again, it may take a few days for it to start appearing on Google."* Appeal docs accepted = `Articles.Windowandsolarcare.pdf` + `EIN.Windowandsolarcare.pdf` (both Thousand Palms address), phone `(760) 334-5355`, framed as home-based service-area business.
 
 **Window & Solar Care's Google Business Profile is SUSPENDED — CONFIRMED reason = "flagged for suspicious activity"** (★ CORRECTED 2026-09-26 via Lead/Dispatcher: DJ read the ORIGINAL Google suspension email verbatim; primary source now in WSC-NAP-CHECKLIST.md §G. The earlier "deceptive content" label was our INFERENCE, not what Google said — do not repeat it.) The underlying driver is still a NAP (Name/Address/Phone) mismatch across the places Google can see — primarily an inconsistent PHONE, compounded by an inconsistent ADDRESS. ★ **APPEAL SUBMITTED 2026-09-27** (DJ filed it — a long time coming). Status: FILED, awaiting Google's response. DO NOT re-file (see file-once caution). Investigation/fix work was 2026-09-03/04.
 
