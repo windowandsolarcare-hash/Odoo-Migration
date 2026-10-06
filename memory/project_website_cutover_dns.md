@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 62c57f62-79c0-4d47-9f2b-7e07e9e7d677
-  modified: 2026-09-04T02:51:48.372Z
+  modified: 2026-10-06T05:32:01.623Z
 ---
 
 **Cutover of windowandsolarcare.com from the old WordPress site → the new Odoo site (`window-solar-care.odoo.com`). Executed live by Lead 2026-09-03 (DJ authorized each outward step).**
@@ -29,3 +29,5 @@ metadata:
 
 
 **★ APEX / NAKED DOMAIN — Odoo REFUSES it (verified live 2026-09-03).** Odoo's "Use an existing domain name" Verify REJECTS the bare `windowandsolarcare.com`: *"This is not a valid domain, enter the full domain like www.example.com."* Odoo only accepts SUBDOMAINS (www) and its own dialog says the naked domain must be **redirected** to www, not hosted. So: (a) do NOT try to add the naked domain to Odoo — it won't take it; (b) an apex **ALIAS → Odoo** makes the bare domain return a **404** (Odoo reaches it but doesn't recognize the host) — worse than NXDOMAIN, so that ALIAS was a dead end. The ONLY clean naked→www fix is a **301 redirect at the DNS host (DreamHost "Redirect Domain")**, which is a whole-domain hosting-MODE change and risks disturbing the live `www` CNAME — deliberately NOT done. **Decision: www is canonical + live w/ SSL = cutover DONE; naked domain left as optional polish.** www is what Google/links/browsers use.
+
+**★ UPDATE — NAKED DOMAIN IS NOW LIVE & WORKING (verified live by Web 2026-10-05).** The "optional polish" got done: `windowandsolarcare.com` (apex) now has A → `173.236.253.155` (DreamHost) and a DreamHost **301 Redirect → `https://www.windowandsolarcare.com/`** with a **valid Let's Encrypt SSL cert (no browser warning)**. Verified: `https://windowandsolarcare.com/` → 301 → www (ssl verify OK); `http://windowandsolarcare.com/` → 301 → https; following all hops lands on the real Odoo site (HTTP 200, 51.8 KB, correct `<title>`, ZERO errors — no QWebException, no DreamHost `sni.dreamhost.com` placeholder, no "not private"). This matches [[reference_domain_dns_hosting_map]] (which already recorded the apex redirect + free Let's Encrypt cert added 2026-09-12). So BOTH apex and www resolve to the secure live site; apex canonicalizes to www. Earlier concern that the DreamHost redirect would disturb the live `www` CNAME did NOT materialize.
