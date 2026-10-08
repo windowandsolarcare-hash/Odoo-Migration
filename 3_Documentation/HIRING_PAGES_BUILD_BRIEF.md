@@ -11,6 +11,11 @@ Brand: dark-blue accent **#1e5aa8** (DJ's default), large-text / high-contrast /
 **Who uses it:** the 7 candidates who replied (external applicants, NOT logged into anything).
 **Goal:** each gets a personalized link, picks one phone-screen slot, and that slot **locks server-side instantly** so no one else can take it (no double-booking).
 
+**Job refresher at the top of the page** (DJ, 2026-10-08 — candidates applied to hundreds of jobs and don't remember us; remind them before they book). Condensed FROM THE ACTUAL ZR POSTING (full text: `4_Reference_Data/ziprecruiter_lead_job_posting_2de9bdcf.md`). Use this verbiage:
+> **About Window & Solar Care** — a premium residential window and solar panel cleaning company serving the Coachella Valley.
+> **The role — Lead Technician (Route Driver).** You'd clean windows and solar panels to a premium standard at homes across the valley, drive the company truck, and run a daily route — working directly with homeowners. You start out alongside the owner learning how we do things, then run the route yourself, with a path to leading your own assistant down the road. A real career track, not a dead-end job.
+> Each morning the crew meets near the first job — leave your car, ride in the truck, back to your car at day's end (no commute to a shop). Full-time and year-round, outdoors in the desert, comfortable on a one-story ladder. About 32–40 hrs/week, $23–27/hr depending on experience.
+
 **Per-candidate personalized link** (e.g. `wscare.pro/interview/<token>`): the token maps to the candidate so the page **greets them by name and pre-fills the name field** (editable). One token per candidate. The 7 (rank order):
 1. Fernando Marentes
 2. Norberto Villa
@@ -29,8 +34,10 @@ Brand: dark-blue accent **#1e5aa8** (DJ's default), large-text / high-contrast /
 1. **Best phone number** — the number we'll call. (No reliable pre-fill source; candidate enters/confirms it. This is also how we capture/confirm their number.)
 2. **Earliest you could start?** — short text.
 3. **"Any question you'd like us to answer on the call?"** — open text, optional.
-- (OPTIONAL, pending DJ's final word) a Yes/No: *"This role pays about $23–27/hr — does that work for you?"*
+- NO pay question (DJ 2026-10-08 — it's in the job description; dropped).
 - Static prep line on the page: *"Be ready to talk about working outdoors on ladders/roofs in desert heat, and why you're looking for a long-term position."*
+
+**Platform decision (DJ 2026-10-08):** ZipRecruiter has NO native phone-screen scheduling (only ZipIntro, which is video + AI-matched — doesn't fit our curated 7 + phone preference). So scheduling lives on OUR page. The booking LINK is sent to candidates through **ZipRecruiter messaging** (keep the conversation on-platform), and **DJ sends the links himself**. Confirmation page + callbacks use the **main line (760) 334-5355** (DJ chose main line over a spare).
 
 **Confirmation screen after they pick:**
 > "You're set — **[Day, Date] at [Time]**. We'll call you at **[their number]**. Caller ID will show our main line, **(760) 334-5355** — save it so you know it's us."
