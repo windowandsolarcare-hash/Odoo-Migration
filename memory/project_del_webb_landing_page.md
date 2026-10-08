@@ -5,12 +5,14 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a6200401-4a1b-4492-894c-629c161de653
-  modified: 2026-10-08T20:07:42.361Z
+  modified: 2026-10-08T23:40:34.326Z
 ---
 
 **Page:** `static/dw/index.html` (+ `dw_hero.jpg`, `dw_logo.png`) in `saunders-render-app`; QR target **wscare.pro/dw** (307 → `/static/dw/index.html`, route built by Specialists). Pure static, same-origin, books via `/book/api/*` (availability, addr, `POST /api/request` → a Submitted SO DJ prices/confirms, `quote_src=delwebb-eddm`). Build rule: real standalone page, own doctype+viewport, NOT artifact-first (see WEB.md).
 
 **Floor plans / prices (DJ 2026-10-02; Signature bumped 2026-10-08):** Premium is the level on the postcard. Bands: Sanctuary·Preserve·Haven·**Getaway** $210 | Refuge·Expedition·Solitude $260 | Serenity·Journey $290 | **Voyage** $380. **Signature = Premium + $65** (was +$50 until 2026-10-08, DJ raised it via Design → Web; live Signature column now 275 / 325 / 355 / 445). Essential = Premium − $35 (175/225/255/345; selectable, tagged "Not recommended", "Window cleaning only — too basic for a Del Webb home"). Prices live in the `plans:[…]` JS array at `static/dw/index.html` ~line 308 (one `signature:` value per band), rendered via `priceKey:"signature"` — change the array, not hardcoded text. Postcard shows Premium only, so a Signature change does NOT touch the card. **"Gateway" was a typo — the real plan is "Getaway"** (delwebb.com); fixed on page + card back. Voyage is not on the card yet (Design/DJ call).
+
+**Service-level cards (itemized 2026-10-08, DJ):** The `LEVELS` JS array (~line 313) drives the three cards; renderer at ~line 395. Each tier shows the services it includes, with a **thin gray divider** (`"__LINE__"` sentinel → `<li class="incdiv">`, border-top #cfc9bb) separating "what you already get" (above) from "what this step up adds" (below). **Essential:** no list — a split tag, `tagBlack`="Window cleaning only" (ink/bold) + `tagGray`="Too basic for a Del Webb home located in the harsh desert climate." (sage). **Premium:** Clean inside & outside glass · LINE · Vacuum inside tracks / Wipe down the sills / Brush the outside tracks / Dry-brush the screens. **Signature:** Clean inside & outside glass / Vacuum inside tracks / Wipe down the sills / Brush the outside tracks · LINE · Cobweb-clean the frames / Wet-wash screens in our screen machine (NOTE Signature deliberately DROPS dry-brush screens — the wet-wash replaces it). Edit the `includes` arrays + `tagBlack/tagGray`, not hardcoded HTML.
 
 **Flow:** floor plan → service level → address → day (live scheduler, growing load bar) → details → Review (chips tappable to go back; hint shown on Review only) → Request → "You're on the schedule, <name>!" + add-ons upsell. Address autocomplete: client appends " Rancho Mirage CA", keeps only California results, re-adds the typed house number. Defaults city Rancho Mirage / ZIP 92270.
 
