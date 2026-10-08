@@ -5,12 +5,12 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a6200401-4a1b-4492-894c-629c161de653
-  modified: 2026-10-03T03:20:11.358Z
+  modified: 2026-10-08T20:07:42.361Z
 ---
 
 **Page:** `static/dw/index.html` (+ `dw_hero.jpg`, `dw_logo.png`) in `saunders-render-app`; QR target **wscare.pro/dw** (307 → `/static/dw/index.html`, route built by Specialists). Pure static, same-origin, books via `/book/api/*` (availability, addr, `POST /api/request` → a Submitted SO DJ prices/confirms, `quote_src=delwebb-eddm`). Build rule: real standalone page, own doctype+viewport, NOT artifact-first (see WEB.md).
 
-**Floor plans / prices (DJ 2026-10-02):** Premium is the level on the postcard. Bands: Sanctuary·Preserve·Haven·**Getaway** $210 | Refuge·Expedition·Solitude $260 | Serenity·Journey $290 | **Voyage** $380. Signature = Premium + $50. Essential = Premium − $35 (selectable, tagged "Not recommended", "Window cleaning only — too basic for a Del Webb home"). **"Gateway" was a typo — the real plan is "Getaway"** (delwebb.com); fixed on page + card back. Voyage is not on the card yet (Design/DJ call).
+**Floor plans / prices (DJ 2026-10-02; Signature bumped 2026-10-08):** Premium is the level on the postcard. Bands: Sanctuary·Preserve·Haven·**Getaway** $210 | Refuge·Expedition·Solitude $260 | Serenity·Journey $290 | **Voyage** $380. **Signature = Premium + $65** (was +$50 until 2026-10-08, DJ raised it via Design → Web; live Signature column now 275 / 325 / 355 / 445). Essential = Premium − $35 (175/225/255/345; selectable, tagged "Not recommended", "Window cleaning only — too basic for a Del Webb home"). Prices live in the `plans:[…]` JS array at `static/dw/index.html` ~line 308 (one `signature:` value per band), rendered via `priceKey:"signature"` — change the array, not hardcoded text. Postcard shows Premium only, so a Signature change does NOT touch the card. **"Gateway" was a typo — the real plan is "Getaway"** (delwebb.com); fixed on page + card back. Voyage is not on the card yet (Design/DJ call).
 
 **Flow:** floor plan → service level → address → day (live scheduler, growing load bar) → details → Review (chips tappable to go back; hint shown on Review only) → Request → "You're on the schedule, <name>!" + add-ons upsell. Address autocomplete: client appends " Rancho Mirage CA", keeps only California results, re-adds the typed house number. Defaults city Rancho Mirage / ZIP 92270.
 
