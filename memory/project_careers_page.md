@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: f76e5ab2-b974-4483-8681-cf3a298418b6
-  modified: 2026-10-08T21:16:55.424Z
+  modified: 2026-10-08T21:25:08.499Z
 ---
 
 **Built 2026-10-08 by Web (DJ via Cheryl's idea: add a hiring link, evergreen, form → email, resume attachable).**
@@ -24,6 +24,14 @@ metadata:
 
 **Testing:** submit via a real browser OR a signed JS `fetch` from the page context (grab `website_form_signature` input value + `odoo.csrf_token`). A raw curl POST can't easily get a session-valid signature. Clean up test mail.mail after — BUT the API user (uid 2) **cannot unlink mail.mail** (cascades to mail.message → security restriction); you CAN unlink the ir.attachment. Gmail connector here is **read-only** (no trash scope) — test emails must be deleted by DJ.
 
-**OPEN (handed to Lead 2026-10-08, app-side):** DJ wants each new application to raise a **HUD card under "Hiring"** (ties to Portal's P1 interview page). Options: watch mail.mail, or create hr.applicant, or route the apply POST through an app endpoint that emails + creates hr.applicant + submits the feed card (Web repoints the form URL if so). See AGENT_MAIL.
+**OPEN — Web's next build (DECIDED 2026-10-08, non-blocking, no rush per Specialists):** Repoint the /careers form to create an **hr.applicant** natively in Odoo so new applications surface on DJ's HUD under Hiring. Decision by Lead (no app endpoint → avoids cross-origin; same Odoo instance as the applicant store). EXACT SPEC agreed with Specialists:
+- Flip `ir.model` hr.applicant (id 1028) **`website_form_access=True`** (currently False — form will 403 without it). Verify the needed fields aren't website_form_blacklisted.
+- Form `data-model_name="hr.applicant"`; map: Full name→**partner_name**, email→**email_from**, phone→**partner_phone**. hr.applicant has NO `description` field in this Odoo 19 — figure out where the experience text lands (chatter note / a field); verify before relying on it.
+- Stamp hidden **source_id=15** (utm.source "Careers Page" — CREATED 2026-10-08), **job_id=1** ("Window Cleaner" — the only hr.job, what the pipeline filters on). Records land at **stage_id=1** ("New"). Public forms may not allow setting m2o source/job directly → if blocked, stamp via a base.automation on create.
+- Resume file field → **ir.attachment** on the applicant (hr.applicant is a mail.thread → works).
+- **Keep the email-to-gmail** too (Lead: "if easy") — e.g. a base.automation/server action on hr.applicant create (source_id=15) emailing windowandsolarcare@gmail.com.
+- Repoint the inline submit script's fetch from `/website/form/mail.mail` → **`/website/form/hr.applicant`** (same signature+csrf mechanism).
+- **Specialists' HUD filter** (their deploy #2, after interview-roster card): `hr.applicant where source_id==15 AND stage_id==1` via /api/hiring/applicants; they add `{15:'Careers Page'}` to hiring.py SOURCE_LABELS. **PING Specialists when real careers applicants start landing** so they verify the filter end-to-end.
+- Until this ships, the form still works via mail.mail (emails DJ); no broken state.
 
 Related: [[project_del_webb_landing_page]], [[project_website_cutover_dns]], [[feedback_verify_limits_before_declaring]], [[project_hiring_applicant_shadow_partners]].
