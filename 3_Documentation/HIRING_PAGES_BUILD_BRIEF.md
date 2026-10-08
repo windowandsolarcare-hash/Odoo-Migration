@@ -1,53 +1,72 @@
-# HIRING PAGES — BUILD BRIEF (Lead Tech hire)
+# Hiring Pages — Build Brief (from HR, 2026-10-08)
 
-**Owner:** Portal (builds) · **Design** (styles) · **Started:** 2026-10-08 · DJ-directed via HR, routed by Dispatcher.
-**Deadline:** P1 staged + Lead-QC'd **Thu Oct 9**; DJ sends candidate links **Fri Oct 10**; interviews **Mon/Tue PM**.
-*(This file was missing from the repo when the task landed; Portal authored the build-side structure so Design and the build share one source. Content items marked **[HR/DJ]** are open — see §4.)*
+Two web pages for the Lead Window & Solar Cleaning Technician hire. Both on **wscare.pro / Render** (our own infra — real server-side state). DJ wants both **routed through Dispatcher**, who funnels to Portal (build) + Design (look). **Deadline driver:** interviews are **Mon Oct 12 and Tue Oct 13 afternoons**, so Page 1 must be live and links sent by **Fri Oct 10**. Page 2 is needed for the interview decisions right after.
 
-## Rules (from Dispatcher)
-- **Postgres for state** (NOT Odoo) — use the app's existing `psycopg` pattern (`memory_store.py` / `_MEM_DB_URL`). Interview bookings are operational/high-write + need a hard no-double-book lock → Postgres unique constraint.
-- **Feature-namespaced routes** (`/interview/...`, `/hiring/...`) — portal.py-class late-registration shadow risk; namespacing avoids it.
-- **DJ sends candidate links** (review-first) — pages never auto-send.
-- **main.py registration** — coordinate with Specialists (additive include).
-- **Deploy:** stage on branch; DJ types "deploy" in the Specialists tab.
-- Candidate confirmation phone: **(760) 334-5355**.
+Brand: dark-blue accent **#1e5aa8** (DJ's default), large-text / high-contrast / sunlight-readable, **mobile-first** (both DJ/Cheryl and candidates are on phones). Company name is **Window & Solar Care** (no "A"). Main line to display: **(760) 334-5355**.
 
 ---
 
-## P1 — `/interview/<token>` candidate slot-booking (PRIORITY)
+## PAGE 1 — Interview Booking Page (self-service, first-come slot lock)
 
-**Candidate-facing, mobile-first, no login, brand #1e5aa8, large-text/sunlight-readable (Design styles).**
-Per-candidate token (HMAC, like booking.make_token but candidate-scoped). Token → candidate record.
+**Who uses it:** the 7 candidates who replied (external applicants, NOT logged into anything).
+**Goal:** each gets a personalized link, picks one phone-screen slot, and that slot **locks server-side instantly** so no one else can take it (no double-booking).
 
-**Page sections (what the candidate sees / does):**
-1. Brand bar — logo + "Window & Solar Care".
-2. Hero — "You're invited to interview — **Lead Technician**" + 1–2 line warm intro **[HR/DJ copy]**.
-3. **Pick your interview time** — list of admin-defined open slots (Mon/Tue PM). Tap one. Slot is **locked server-side on submit** (unique constraint; if it was just taken → it drops out with "just filled, pick another").
-4. **Confirm your info** — name (prefilled from candidate record), phone (required), email (optional).
-5. **3 quick questions** **[HR/DJ: exact wording]** — short-answer/radio. Placeholder set until provided (e.g. years of experience · reliable transportation + valid license? · earliest start date).
-6. Submit → locks slot + saves answers to Postgres.
-7. **Confirmation screen** — "You're booked for <day/time>. We look forward to meeting you. Questions? Call or text **(760) 334-5355**." + add-to-calendar. **[HR/DJ: final confirm copy]**
+**Per-candidate personalized link** (e.g. `wscare.pro/interview/<token>`): the token maps to the candidate so the page **greets them by name and pre-fills the name field** (editable). One token per candidate. The 7 (rank order):
+1. Fernando Marentes
+2. Norberto Villa
+3. James Rose
+4. Joshua Bogle
+5. Brian Cummings
+6. Alfonso Sarabia
+7. Austin Moore
 
-**Admin view (DJ/HR, authed `/owner/...`):**
-- Create/edit **reusable** slots (date + time, capacity 1 each), open/close them.
-- See candidates, each one's booked slot + their 3 answers.
-- Generate a per-candidate `/interview/<token>` link to hand DJ (DJ sends).
+**Slot grid** — 30-min slots, candidate taps one, it locks and disappears for everyone else:
+- Mon Oct 12: 1:00, 1:45, 2:30, 3:15 PM
+- Tue Oct 13: 1:00, 1:45, 2:30, 3:15 PM
+(8 slots, 7 candidates. Admin needs a way to edit slots/dates for future hires — make it reusable, not hardcoded to these dates.)
 
-**Postgres tables (proposed):** `hiring_candidate` (id, name, phone, email, role, token, created) · `hiring_slot` (id, starts_at, label, is_open) · `hiring_booking` (id, candidate_id, slot_id UNIQUE, answers jsonb, booked_at) — UNIQUE(slot_id) = the no-double-book guarantee.
+**Fields when booking:**
+1. **Best phone number** — the number we'll call. (No reliable pre-fill source; candidate enters/confirms it. This is also how we capture/confirm their number.)
+2. **Earliest you could start?** — short text.
+3. **"Any question you'd like us to answer on the call?"** — open text, optional.
+- (OPTIONAL, pending DJ's final word) a Yes/No: *"This role pays about $23–27/hr — does that work for you?"*
+- Static prep line on the page: *"Be ready to talk about working outdoors on ladders/roofs in desert heat, and why you're looking for a long-term position."*
+
+**Confirmation screen after they pick:**
+> "You're set — **[Day, Date] at [Time]**. We'll call you at **[their number]**. Caller ID will show our main line, **(760) 334-5355** — save it so you know it's us."
+
+**Admin side (DJ):** a simple view of who booked which slot + their answers (phone, start date, their question). Could notify DJ on each booking.
 
 ---
 
-## P2 — compare grid (right after P1)
+## PAGE 2 — Candidate Comparison Page (editable by DJ + Cheryl)
 
-**DJ + Cheryl auth only.** Accordion by **dimension** (rows), candidates as columns; per-candidate comments.
-**Proposed dimensions [HR/DJ confirm]:** Experience (window/solar) · Reliability & transport (license/vehicle) · Availability / start date · Physical / ladder comfort · Customer-facing demeanor · Pay expectation · Interview impression · References.
+**Who uses it:** DJ and Cheryl only — **both can edit and leave comments.** Needs auth (magic-link or login) scoped to the two of them. This is Cheryl's request: compare candidates **visually, side by side**, instead of a doc that scrolls off-screen.
+
+**Layout:** side-by-side **compare grid / table** of candidates. Per candidate, these are visible/accessible in one place (the part DJ says isn't linkable today):
+- Tier (A/B/C/D), fit note
+- **Contacted?** / **Replied?**
+- **What we asked / reached out about** (the outreach + the phone-screen ask)
+- **Their reply** (full text)
+- **Skills**, **Experience** (from resume)
+- **Resume link**
+- **DJ notes** and **Cheryl notes** — editable, saved per candidate
+- A shared **comment field** per candidate
+
+**Interaction DJ/Cheryl want:** **expand/collapse by dimension** — e.g. open "Responses" and see everyone's responses together, collapse it, open "Skills" and see everyone's skills, then "Experience," etc. So it's grouped by attribute across candidates, collapsible to avoid clutter, leave-open if they want. Accordion-style.
+
+**Data source** — all content already assembled by HR; builder can pull from these:
+- Doc 1 (Evaluations, all 22 by tier): `https://docs.google.com/document/d/1UJFpnL0miP8s0GRZPkCI6HEaBxzrouQWVel5P12biCQ/edit`
+- Doc 2 (Responses ranked 1–7 + quotes): `https://docs.google.com/document/d/1vgZBp2B-QpUt4tZiCZEle-u3TgeyLouwcnCB9G_c6OQ/edit`
+- Resume PDFs folder (22 files): Google Drive folder ID `1I_Qe2oIXRUbzk9Eq4jpw6gr5Je2FnxXc`
+- Working CSV: `4_Reference_Data/ziprecruiter_lead_applicants_2026-10-02.csv`
+- Resume links are `https://drive.google.com/file/d/<FILE_ID>/view` (IDs are in Doc 1/Doc 2 after each person).
+
+Scope v1 can focus on the **9 contacted** (7 replied + 2 awaiting) since those are the live comparison; include all 22 if easy (backups C/D).
 
 ---
 
-## §4 OPEN — content needed from HR/DJ (gates final copy, NOT the backbone)
-1. The **3 screening questions** (exact wording + answer type).
-2. The **actual interview slots** (which Mon/Tue PM date-times, how many).
-3. Role **intro line** for the hero + **confirmation-screen copy**.
-4. **P2 dimensions** — confirm/adjust the proposed list above.
-
-*Backbone (routes, Postgres tables, slot-lock, admin slot editor) is content-agnostic and proceeds now; the above swap in as copy.*
+## Notes for the builders
+- Page 1 is the priority (interview deadline). Page 2 right behind it.
+- HR owns the candidate CONTENT (evaluations, responses, what-we-asked, tiers) — ping HR for any content questions. Portal/Design own the build + look.
+- Reusable for future hires where practical (don't hardcode this one job's dates/candidates any deeper than necessary).
