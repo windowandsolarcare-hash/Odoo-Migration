@@ -1,5 +1,7 @@
 # Outreach / reactivation / CRM — memory index
 
+- [project_careers_hud_applicants.md](project_careers_hud_applicants.md) — Careers-page applicants → HUD "📥 New applications" section. Locked IDs (Web 2026-10-08): utm.source "Careers Page"=15, stage_id=1 "New"(initial), hr.job 1 "Window Cleaner"(only job). Reuse GET /api/hiring/applicants, filter source_id==15 AND stage_id==1. Deploy #2 after the interview-roster card (never bundle; re-fetch live v2_hud.html at build).
+
 - [project_thumbtack_lead_webhook.md](project_thumbtack_lead_webhook.md) — Thumbtack leads → live app (Workiz dead). Phase 1 SHIPPED: POST /webhooks/thumbtack/<secret> (public, secret=ir.config wsc.thumbtack.webhook_secret; logs raw to wsc.thumbtack.raw_log, no records). Phase 2 PENDING DJ Test lead: parse→res.partner match by PHONE→crm.lead(company1,'Thumbtack')→idempotent on lead id→surface. Brief: THUMBTACK_WEBHOOK_BRIEF.md.
 
 - [project_thumbtack_webhook_lead_pipe.md](project_thumbtack_webhook_lead_pipe.md) — Thumbtack has a native FREE one-way webhook (Apps→Manage webhooks) → leads (name+phone, NO email)/msgs/reviews to any URL, additive. Dead Workiz still "Connected" + CANNOT self-disconnect. Spec to pipe TT leads into live app: THUMBTACK_WEBHOOK_BRIEF.md. 2026-09-10.
