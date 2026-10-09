@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: f76e5ab2-b974-4483-8681-cf3a298418b6
-  modified: 2026-10-09T06:52:00.602Z
+  modified: 2026-10-09T07:10:02.804Z
 ---
 
 **Site view map (Odoo ir.ui.view, website_id 1; edit arch via `ex('ir.ui.view','write',[[id],{'arch':...}])`, verify by CONTENT):**
@@ -22,6 +22,8 @@ metadata:
 6. **Request-a-Quote form** — built ONCE as shared snippet **`wsc.quote_form` = view 3858** (site=False), t-call'd on BOTH home (1559, before wsc.areas) and /quote (3839, bottom). Posts to `/website/form/mail.mail` → emails **windowandsolarcare@gmail.com**, subject "QUOTE REQUEST (website) - windowandsolarcare.com", fields "QUOTE REQUEST - name/phone/details" + email_from. Self-wired inline CDATA submit (same pattern as careers). **★ Unlike the careers page, `website_form_signature` IS injected for a t-call'd snippet form** — verified live (signature present, test submit mail id 1183, HTTP 200). Inline success message, no redirect.
 7. **Screen demo video** — inline `<video controls>` on the window-cleaning page (3835), src `https://wscare.pro/static/dw/screen-machine-demo.mp4` (cross-origin media plays fine, no CORS needed), placed by the "we wet wash the screens" bullet.
 8. **Cheryl review** — removed in TWO places: /reviews (view 3841, done 2026-09-18) AND the homepage 1559 testimonials grid (a second "Cheryl J." quote was still there — caught + removed 2026-10-08; grid now shows Bill W. + Kay M.). Both verified 0 live.
+
+**Thousand Palms / home address REMOVED from public site (2026-10-09, DJ "remove all references"):** The home address was leaking publicly in THREE views — footer `website.footer_custom` (2337, a "Thousand Palms, CA" line), `wsc.areas` (3831, a `<li>Thousand Palms</li>` served-city), and **`wsc.schema` (3854) JSON-LD** which exposed the FULL home PostalAddress (`32569 San Miguelito Dr, Thousand Palms, CA 92276`) as the business `address` AND an areaServed city. Removed the whole PostalAddress block (service-area biz → address optional, areaServed covers geo) + both city refs. Verified 0 of "Thousand Palms"/"San Miguelito"/"92276" across all views + live pages. Enforces [[project_wsc_address_do_not_publish]] (home/registered address NEVER on a public listing). /dw was already clean. ⚠ App repo (wscare.pro) + external directories (MapQuest #430179537 etc.) may still carry it — swept separately.
 
 **★ GOTCHA — Odoo qweb XML rejects named HTML entities** (`&mdash;`, `&nbsp;`, etc. → "Entity 'mdash' not defined" on write). Use the literal unicode char (— ) or a numeric entity (`&#8212;`). Only `&amp; &lt; &gt; &quot; &apos;` are safe.
 
