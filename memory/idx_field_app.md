@@ -83,3 +83,5 @@
 - [project_gate_snapshot_gap.md](project_gate_snapshot_gap.md) — Job screen reads SO gate SNAPSHOT not property master; editing master alone left jobs stale (Bruce/Galen). Fixed: gate editable in Customer Brain (cust_gate _fld) + save mirrors to SO x_studio_x_gate_snapshot.
 
 - [project_v2_job_doorway_transit.md](project_v2_job_doorway_transit.md) — Job-detail DOORWAYS now point at v2_job.html?open_so (fast host, lazy-Leaflet), NOT v2_field.html (Field-Day transit fix 2026-09-27). New open-a-job links emit v2_job.html. ★ TWO booking_requests.py — main.py serves routers/OWNER/booking_requests.py; routers/booking_requests.py is the dead shadow twin.
+
+- [project_voice_dial_caller_phone.md](project_voice_dial_caller_phone.md) — ★ /owner/voice/dial rings the LOGGED-IN user's own phone (not always DJ): _caller_phone resolves authz session → hr.employee phone or Cheryl's partner 23243 (…2822); caller-ID stays Main; DJ fallback. Roster=only 3 employees (DJ=1); Cheryl not an employee. Needs authz CHERYL_GRANTED_OWNER grant for /owner/voice/dial. STAGED 2026-10-10.
