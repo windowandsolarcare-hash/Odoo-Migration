@@ -1,5 +1,7 @@
 # Outreach / reactivation / CRM — memory index
 
+- [project_candidate_comparison_page.md](project_candidate_comparison_page.md) — Lead-Tech hire Page 2: Candidate Comparison at /owner/hiring/compare (401, DJ+Cheryl), routers/owner/hiring_compare.py + static/owner/hiring_compare.html. 3 views, chronological DIMS, dialer rings the LOGGED-IN user's phone (not hard-coded DJ), interview answers auto-fill from Twilio transcript. Built by exact mockup duplication (RULE #1). Live+verified 2026-10-10; dial-tested. Open: row-6 exact ZR copy (DJ pulls w/ HR). 
+
 - [project_careers_hud_applicants.md](project_careers_hud_applicants.md) — Careers-page applicants → HUD "📥 New applications" section. Locked IDs (Web 2026-10-08): utm.source "Careers Page"=15, stage_id=1 "New"(initial), hr.job 1 "Window Cleaner"(only job). Reuse GET /api/hiring/applicants, filter source_id==15 AND stage_id==1. Deploy #2 after the interview-roster card (never bundle; re-fetch live v2_hud.html at build).
 
 - [project_thumbtack_lead_webhook.md](project_thumbtack_lead_webhook.md) — Thumbtack leads → live app (Workiz dead). Phase 1 SHIPPED: POST /webhooks/thumbtack/<secret> (public, secret=ir.config wsc.thumbtack.webhook_secret; logs raw to wsc.thumbtack.raw_log, no records). Phase 2 PENDING DJ Test lead: parse→res.partner match by PHONE→crm.lead(company1,'Thumbtack')→idempotent on lead id→surface. Brief: THUMBTACK_WEBHOOK_BRIEF.md.
