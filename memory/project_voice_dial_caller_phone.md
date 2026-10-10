@@ -5,10 +5,12 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-10T08:25:05.475Z
+  modified: 2026-10-10T08:28:05.070Z
 ---
 
-**STAGED 2026-10-10 (branch specialists/dialer-caller-phone, voice.py e6cc4e84; held for Lead QC + an authz decision → DJ deploy).** Driver: Cheryl runs Lead-Technician phone interviews from HER phone Mon/Tue Oct 12-13 (Dispatcher/HR).
+**STAGED 2026-10-10 (branch specialists/dialer-caller-phone, voice.py 909f79c2; Lead QC-GREEN; code deploys independently for DJ/employees, Cheryl use waits on an authz grant → DJ deploy).** Driver: Cheryl runs Lead-Technician phone interviews from HER phone Mon/Tue Oct 12-13 (Dispatcher/HR).
+
+**The resolved `ring` is normalized to E.164** (`+1XXXXXXXXXX`) inside `_caller_phone`'s validator so a display-format employee phone ("(760) 334-8311") still rings via Twilio; non-dialable → '' → DJ fallback (Lead QC nit).
 
 **Change (surgical):** `routers/owner/voice.py` `voice_dial` rang `'To': DJ_PHONE_NUMBER` always. Now `ring = _caller_phone(request, p) or DJ_PHONE_NUMBER`; `'To': ring`. `From`/caller-ID the callee sees is UNCHANGED (still `biz` = the chosen Main line (760) 334-5355) — only who rings FIRST changes. No new routes.
 
