@@ -1,0 +1,720 @@
+<title>Candidate Comparison</title>
+<meta name="description" content="Lead Technician hiring — compare candidates side by side, for DJ and Cheryl.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: a mobile-first hiring comparison tool. Top controls, then either
+   collapsible topic sections (each listing every candidate) or per-person cards.
+   Brand dark-blue accent, large sunlight-readable type. */
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f6f8fb;
+  --fg:#15202b; --muted:#5a6b7b; --line:#d9e0e8;
+  --accent:#1e5aa8; --accent-weak:#e7eef8; --accent-ink:#13407a;
+  --tierA:#1b7f4b; --tierA-bg:#e3f4ea;
+  --tierB:#1e5aa8; --tierB-bg:#e7eef8;
+  --tierC:#9a6a12; --tierC-bg:#f8efdb;
+  --tierD:#6b6b6b; --tierD-bg:#ececec;
+  --good:#1b7f4b; --good-bg:#e3f4ea;
+  --warn:#9a6a12; --warn-bg:#f8efdb;
+  --book:#7a3ea8; --book-bg:#f0e7f8;
+  --radius:14px; --shadow:0 1px 3px rgba(20,40,70,.08),0 4px 14px rgba(20,40,70,.05);
+  --font:"Figtree",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f151c; --surface:#18212c; --surface-2:#141c25;
+  --fg:#eaf0f6; --muted:#9fb0c0; --line:#2a3744;
+  --accent:#6ea3e6; --accent-weak:#1c2b40; --accent-ink:#bcd6f6;
+  --tierA:#5fc98c; --tierA-bg:#13301f; --tierB:#6ea3e6; --tierB-bg:#1c2b40;
+  --tierC:#e0b765; --tierC-bg:#302714; --tierD:#aab4bd; --tierD-bg:#242c33;
+  --good:#5fc98c; --good-bg:#13301f; --warn:#e0b765; --warn-bg:#302714;
+  --book:#c89ae8; --book-bg:#271833;
+  --shadow:0 1px 3px rgba(0,0,0,.4);color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f151c; --surface:#18212c; --surface-2:#141c25;
+  --fg:#eaf0f6; --muted:#9fb0c0; --line:#2a3744;
+  --accent:#6ea3e6; --accent-weak:#1c2b40; --accent-ink:#bcd6f6;
+  --tierA:#5fc98c; --tierA-bg:#13301f; --tierB:#6ea3e6; --tierB-bg:#1c2b40;
+  --tierC:#e0b765; --tierC-bg:#302714; --tierD:#aab4bd; --tierD-bg:#242c33;
+  --good:#5fc98c; --good-bg:#13301f; --warn:#e0b765; --warn-bg:#302714;
+  --book:#c89ae8; --book-bg:#271833;
+  --shadow:0 1px 3px rgba(0,0,0,.4);color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);line-height:1.5;
+  font-size:16px;-webkit-text-size-adjust:100%}
+.wrap{max-width:900px;margin:0 auto;padding-block:18px 60px;padding-left:16px;padding-right:16px}
+h1,h2,h3{text-wrap:balance;margin:0}
+a{color:var(--accent-ink)}
+
+/* header */
+.head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.mark{display:inline-flex;align-items:center;gap:9px;font-weight:800;color:var(--accent-ink);
+  font-size:15px;letter-spacing:.2px}
+.mark .dot{width:26px;height:26px;border-radius:7px;background:var(--accent);display:inline-flex;
+  align-items:center;justify-content:center;color:#fff;font-size:15px}
+h1{font-size:26px;font-weight:800;letter-spacing:-.3px;margin-top:10px}
+.sub{color:var(--muted);font-size:15px;margin-top:3px}
+
+.banner{display:flex;gap:10px;align-items:flex-start;background:var(--accent-weak);
+  border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin:14px 0;font-size:13.5px;color:var(--accent-ink)}
+.banner b{font-weight:700}
+
+/* summary chips */
+.summary{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:8px 13px;
+  box-shadow:var(--shadow);min-width:0}
+.stat .n{font-size:21px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.stat .l{font-size:12px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+/* controls */
+.controls{background:var(--bg);
+  padding:10px 0;margin:6px 0 4px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:3px;box-shadow:var(--shadow)}
+.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font-family:inherit;
+  font-size:14px;font-weight:600;padding:7px 14px;border-radius:7px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:14px;color:var(--fg);cursor:pointer;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 12px;box-shadow:var(--shadow)}
+.toggle input{width:17px;height:17px;accent-color:var(--accent)}
+.expand-all{margin-left:auto}
+.linkbtn{appearance:none;border:0;background:transparent;color:var(--accent-ink);font-family:inherit;
+  font-size:13.5px;font-weight:600;cursor:pointer;padding:7px 4px;text-decoration:underline}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;
+  padding:3px 9px;border-radius:999px;white-space:nowrap;line-height:1.4}
+.tierA{color:var(--tierA);background:var(--tierA-bg)} .tierB{color:var(--tierB);background:var(--tierB-bg)}
+.tierC{color:var(--tierC);background:var(--tierC-bg)} .tierD{color:var(--tierD);background:var(--tierD-bg)}
+.c-good{color:var(--good);background:var(--good-bg)} .c-warn{color:var(--warn);background:var(--warn-bg)}
+.c-muted{color:var(--muted);background:var(--surface-2);border:1px solid var(--line)}
+.c-book{color:var(--book);background:var(--book-bg)}
+
+/* topic accordion */
+.dim{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);margin-bottom:12px;overflow:visible}
+.dim>summary{list-style:none;cursor:pointer;padding:15px 16px;display:flex;align-items:center;gap:10px;
+  font-size:17px;font-weight:700;user-select:none}
+.dim>summary::-webkit-details-marker{display:none}
+.dim>summary .caret{margin-left:auto;transition:transform .18s;color:var(--muted);font-size:14px}
+.dim[open]>summary .caret{transform:rotate(90deg)}
+.dim[open]>summary{border-bottom:1px solid var(--line)}
+.dim .body{padding:4px 16px 14px}
+.dimhint{font-size:13px;color:var(--muted);font-weight:500;margin-left:2px}
+
+.row{padding:13px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.rowhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:7px;
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--surface);
+  padding:6px 0;box-shadow:0 4px 8px -5px rgba(20,40,70,.25)}
+.rowhead .nm{font-weight:700;font-size:15.5px}
+.rowhead .rk{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:700;font-size:13px;
+  min-width:20px}
+.rowtext{font-size:15px;color:var(--fg)}
+.rowtext.muted{color:var(--muted)}
+.quote{border-left:3px solid var(--accent);background:var(--surface-2);padding:10px 13px;border-radius:0 9px 9px 0;
+  font-size:14.5px;color:var(--fg)}
+.skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.skill{font-size:12.5px;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:3px 8px;color:var(--fg)}
+.resume-link{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:14.5px;text-decoration:none;
+  background:var(--accent-weak);padding:7px 12px;border-radius:9px}
+.flag{font-size:13px;color:var(--warn);margin-top:4px}
+.flag::before{content:"⚑ "}
+
+/* person cards */
+.person{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);margin-bottom:14px;overflow:visible}
+.person>summary{list-style:none;cursor:pointer;padding:14px 16px;user-select:none;
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--surface-2);
+  border-radius:var(--radius) var(--radius) 0 0;box-shadow:0 3px 8px rgba(20,40,70,.12)}
+.person>summary::-webkit-details-marker{display:none}
+.phead{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.phead .rk{color:var(--muted);font-weight:800;font-variant-numeric:tabular-nums}
+.phead .nm{font-size:19px;font-weight:800;letter-spacing:-.2px}
+.phead .role{color:var(--muted);font-size:14px;width:100%}
+.pchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.pbody{padding:2px 16px 16px;border-top:1px solid var(--line)}
+.field{padding:11px 0;border-bottom:1px solid var(--line)}
+.field:last-child{border-bottom:0}
+.flabel{font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;margin-bottom:5px}
+/* per-person collapsible topics */
+.pdim{border-top:1px solid var(--line)}
+.pdim>summary{list-style:none;cursor:pointer;padding:13px 2px;display:flex;align-items:center;gap:8px;
+  font-weight:700;font-size:15.5px;user-select:none}
+.pdim>summary::-webkit-details-marker{display:none}
+.pdim>summary .caret{margin-left:auto;color:var(--muted);font-size:13px;transition:transform .18s}
+.pdim[open]>summary .caret{transform:rotate(90deg)}
+.pdbody{padding:0 2px 14px}
+
+/* notes */
+.notes{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-top:8px}
+.notes .nt{margin-bottom:9px}
+.notes .nt:last-child{margin-bottom:0}
+.notes label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.notes label .who{color:var(--accent-ink)}
+textarea{width:100%;font-family:inherit;font-size:14.5px;color:var(--fg);background:var(--surface);
+  border:1px solid var(--line);border-radius:9px;padding:9px 10px;resize:vertical;min-height:44px;line-height:1.45}
+textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+textarea::placeholder{color:var(--muted)}
+.booked{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:var(--book);
+  background:var(--book-bg);border-radius:9px;padding:6px 11px}
+.grouphd{font-size:13px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);
+  margin:18px 2px 8px}
+.qlist{margin:4px 0 2px;padding-left:22px}
+.qlist li{margin:6px 0;font-size:15px;line-height:1.5}
+.gcard{margin-top:14px;border-color:var(--accent)}
+.gcard>summary{color:var(--accent-ink)}
+.qgroup{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--accent-ink);margin:14px 0 2px}
+.qgroup:first-child{margin-top:4px}
+.qclose{margin-top:14px;padding-top:11px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.ans{color:var(--muted);font-style:italic;font-size:13.5px;margin-top:3px}
+.iv-note{font-size:13px;color:var(--accent-ink);background:var(--accent-weak);border-radius:8px;padding:7px 10px;margin:2px 0 9px}
+.iv-sub{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:13px 0 4px}
+.ivlist li{margin:12px 0}
+.ivq{font-size:15px;line-height:1.5;font-weight:500}
+.ivnote{min-height:34px;margin-top:6px;font-size:14px}
+.xlabel{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:2px 0 4px}
+/* sticky-header identity + call */
+.idrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.idloc{font-size:13px;color:var(--muted);font-weight:600}
+.gsub{font-size:12.5px;color:var(--muted);margin-top:3px}
+.gcall{margin-top:8px}
+.callbtn{appearance:none;border:0;background:var(--accent);color:#fff;font-family:inherit;font-weight:700;
+  font-size:13.5px;padding:7px 13px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.callbtn:hover{filter:brightness(1.07)}
+#calltoast{position:fixed;left:16px;right:16px;bottom:16px;max-width:560px;margin:0 auto;
+  background:var(--accent);color:#fff;border-radius:12px;padding:13px 16px;font-size:14px;
+  box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:30;line-height:1.45}
+#calltoast b{font-weight:800}
+/* grid view */
+.gridhint{font-size:13px;color:var(--muted);margin:2px 2px 9px}
+.gridwrap{overflow:auto;max-height:78vh;border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);background:var(--surface);-webkit-overflow-scrolling:touch}
+table.grid{border-collapse:separate;border-spacing:0;width:max-content}
+.grid th,.grid td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);
+  padding:11px 12px;vertical-align:top;text-align:left;word-break:break-word}
+.grid td{min-width:246px;max-width:300px;background:var(--surface)}
+.grid thead th{position:sticky;top:0;z-index:2;background:var(--surface-2)}
+.grid thead th.cand{min-width:246px;max-width:300px}
+.grid tbody th.rowlbl{position:sticky;left:0;z-index:1;background:var(--surface-2);
+  min-width:116px;max-width:140px;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--muted);font-weight:700}
+.grid th.corner{position:sticky;left:0;top:0;z-index:3;background:var(--surface-2);
+  min-width:116px;font-size:12px;font-weight:700;color:var(--muted)}
+.grid .gname{font-weight:800;font-size:15px;letter-spacing:-.1px}
+.grid .gchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.grid td .quote,.grid td .skills{min-width:0}
+.grid td textarea{min-height:40px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:420px){h1{font-size:23px}.phead .nm{font-size:17px}}
+</style>
+
+<div class="wrap">
+  <div class="head">
+    <span class="mark"><span class="dot">◇</span> WINDOW &amp; SOLAR CARE</span>
+  </div>
+  <h1>Lead Technician — candidate comparison</h1>
+  <div class="sub">Everyone in one place for DJ &amp; Cheryl. Open a topic to see all the candidates together, or switch to one card per person.</div>
+
+  <div class="banner">
+    <span>💡</span>
+    <span><b>Preview.</b> This is the look and feel for your sign-off. Your notes here save on this device only. In the live version they save for both of you and stay in sync, behind a private link just for the two of you.</span>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+  <details class="dim gcard" open>
+    <summary>📞 The 10 interview questions — ask everyone <span class="dimhint">· ~10–15 min</span><span class="caret">▶</span></summary>
+    <div class="body">
+      <div id="genq"></div>
+      <div class="qclose">Close: <em>"Any questions for me?"</em> &nbsp;·&nbsp; Each person's own couple of questions are on their row below, under "Phone interview — Q&amp;A."</div>
+    </div>
+  </details>
+
+  <div class="controls">
+    <div class="seg" role="group" aria-label="View">
+      <button id="v-topic" aria-pressed="true">By topic</button>
+      <button id="v-person" aria-pressed="false">By person</button>
+      <button id="v-grid" aria-pressed="false">Grid</button>
+    </div>
+    <label class="toggle"><input type="checkbox" id="showBackups"> Show backups</label>
+    <button class="linkbtn expand-all" id="expandAll">Expand all</button>
+  </div>
+
+  <div id="view"></div>
+</div>
+
+<script>
+const DATA=[
+ {id:"fernando",rank:1,name:"Fernando Marentes",role:"Installer / Foreman",loc:"Coachella (local)",tier:"B",group:"replied",
+  quick:"The standout. Thin résumé (8 yrs artificial-turf install), but his reply revealed he has actually cleaned solar panels — our exact work — with a water-fed purifier and brush. Local, 8 yrs at one employer, motivated.",
+  reply:"my experince i had was cleaning the solar pannels with water purifier machine with brush and taking my time so the pannel could be taken care of and im looking forward to grow with this company and learn more im motivated and ready for any obstacal… im a fast learner as well and im open anytime.",
+  skills:["Solar-panel cleaning (water-fed pole + brush)","Artificial-turf install","Crew / foreman lead","Outdoor residential projects"],
+  exp:"8 yrs foreman & installer, Hole in One Greens (turf), 2017–2025. Very stable — one employer.",
+  loc2:"Coachella — local, no commute concern.",
+  booked:{when:"Mon Oct 12 · 1:00 PM",phone:"(760) 799-6069"},
+  resume:"1xAPTwmI9Kum8IBngrOOD9syHwUYMKBqY"},
+
+ {id:"norberto",rank:2,name:"Norberto Villa",role:"Commercial Route Driver",loc:"Beaumont",tier:"A",group:"replied",
+  quick:"Textbook reliability. 8 yrs at the same employer running residential routes, CDL-B, clean record, bilingual. Exactly the long-term, dependable mindset we want.",
+  reply:"I'm looking for a long-term opportunity where I can build my skills, take on more responsibility, and be part of a dependable team… I enjoy hands-on work, working outdoors, and providing quality service to customers… I'm willing to learn and put in the work to become a strong member of your team.",
+  skills:["CDL-B + air brake","Route management","DOT compliance","Pre/post-trip inspections","Load securement","Bilingual","Clean driving record"],
+  exp:"8 yrs commercial route driver, Palm Springs Disposal (residential routes), 2017–present. Prior delivery + grounds maintenance.",
+  loc2:"Beaumont (~35 mi up the pass) — commute is proven: he drives Palm Springs routes today.",
+  booked:{when:"Mon Oct 12 · 2:30 PM",phone:"(760) 844-9054"},
+  resume:"1_vq3mDfzPGsvR5yqeQH-oRsb2hgmC4MN"},
+
+ {id:"james",rank:3,name:"James Rose",role:"A/C Tech & Sheet-Metal Fabricator",loc:"Palm Springs (local)",tier:"A",group:"replied",
+  quick:"Very stable (6+ yrs current employer), local, physical-trade background. His reply hits all the right notes — consistent, stable, local, pride in physical work.",
+  reply:"I'm looking for something consistent and stable with a local company. I'm interested because I can learn something new where my reliability and pride in heavy physical field work will show.",
+  skills:["A/C install & maintenance","Sheet-metal fabrication","Field diagnostics","Welding","Customer service"],
+  exp:"A/C tech + sheet-metal fab, Southern Air, 2019–present (6+ yrs). Sheet-metal fab/install, Andy Sheet Metal, 2015–2019.",
+  loc2:"Palm Springs — local.",
+  booked:{when:"Mon Oct 12 · 3:15 PM",phone:"(760) 844-2365"},
+  resume:"1jlhvZNcPDiE0Vbvj3UAG3vYn_Tvfv57G"},
+
+ {id:"joshua",rank:4,name:"Joshua Bogle",role:"HVAC Technician",loc:"Desert Hot Springs (local)",tier:"A",group:"replied",
+  quick:"Genuine, hands-on, growth-minded HVAC tech (EPA Universal, bilingual), local. One thing to probe: he leans toward challenge and growth over stability — ask how long he sees himself staying.",
+  reply:"I've always enjoyed working with my hands, learning new things, and growing my knowledge in the blue collar field… What I'm looking for in my next job is something challenging, hands on, and growth focused where I can continue learning.",
+  skills:["HVAC (EPA Universal)","Service / route calls","Ladders & rooftops","Bilingual","Customer contact"],
+  exp:"HVAC tech — 4 yrs All Seasons, currently Urban Worx. Good tenure.",
+  loc2:"Desert Hot Springs — local.",
+  flag:"Probe longevity — leans 'challenge/growth,' confirm he'd stay in the work.",
+  resume:"1jXvLraw3XVIFnaTaMbnY45kxGWLOkWgz"},
+
+ {id:"brian",rank:5,name:"Brian Cummings",role:"Maintenance Technician",loc:"Indio (works local)",tier:"B",group:"replied",
+  quick:"Dependable, detail-oriented, with more hands-on range than his résumé showed (landscaping, roofing, framing). Local. One caution: short recent tenures (~6 mo each) — probe the job-hopping.",
+  reply:"I've got experience with hands-on work, working independently, and making sure the job is done right. I'm dependable, pay attention to detail, and take pride in my work. I'm looking for something stable where I can grow… and becoming part of your team. — years of experience in sells, customer service/support as well as a multitude of things involving landscaping, roofing, framing…",
+  skills:["Maintenance & diagnostics (Toyota-certified)","Wastewater cert","Landscaping","Roofing","Framing","Sales / customer service"],
+  exp:"Certified maintenance technician. Recent stints have run short (~6 mo each).",
+  loc2:"Indio — works local.",
+  booked:{when:"Tue Oct 13 · 2:30 PM",phone:"(442) 236-1105"},
+  flag:"Probe job-hopping — recent jobs ~6 months each.",
+  resume:"1UzlEbkY701LMsvpcRdHqnEALZwpBNaDG"},
+
+ {id:"alfonso",rank:6,name:"Alfonso Sarabia",role:"Delivery Driver / Service",loc:"Cathedral City (local)",tier:"B",group:"replied",
+  quick:"Long-term, dependable, hardworking — and a real driver (CDL-A, current delivery driver). Local, realistic for the pay. Mild 'eventually a leadership role' note, but he's clear he wants to start in the actual work.",
+  reply:"…customer-facing and fast-paced environments… I'm looking for a long-term opportunity where I can learn new skills, take on more responsibility, and grow with the company. I'm dependable, hardworking, and willing to learn… interested in… window and solar cleaning and eventually take on a leadership role.",
+  skills:["CDL-A","Delivery / route driving","Service porter","Customer-facing","Manual transmission"],
+  exp:"Delivery driver, BMW Palm Springs (current). Amazon warehouse 3 yrs prior. Earlier hospitality/retail (some early hopping).",
+  loc2:"Cathedral City — local.",
+  booked:{when:"Mon Oct 12 · 1:45 PM",phone:"(760) 844-0877"},
+  resume:"1v3wUmmP7ENMQaAs4sKuUOWAfufRt5Zsc"},
+
+ {id:"austin",rank:7,name:"Austin Moore",role:"Construction / Maintenance",loc:"Palm Springs (local)",tier:"C",group:"replied",
+  quick:"Most responsive of anyone (left a voicemail, replied 27 min after we messaged). 14 yrs hands-on. But his reply is framed around owning a company and 'helping with growth and expansion' — reads as wanting management, not day-to-day cleaning — and he recently relocated. Worth a call, with that question up front.",
+  reply:"Previously I have worked in construction and maintenance. I have owned and operated a company which dealt with overseeing 10 employees, dealing with customers/sales, and marketing… looking for something long term with opportunity to help with company growth and expansion while maintaining good customer relations and top quality workmanship. Also I hold a California drivers license with a perfect driving record.",
+  skills:["Construction & maintenance","Electrical / carpentry / plumbing","Grounds","Business ops (sales, marketing)","Managed 10 employees"],
+  exp:"14 yrs hands-on. Owned & operated his own company. Clean CA driver's license.",
+  loc2:"Palm Springs — local, but recently relocated (settling / flight-risk watch).",
+  booked:{when:"Tue Oct 13 · 1:00 PM",phone:"(812) 581-0574"},
+  flag:"Clarify management-vs-hands-on up front; recently relocated.",
+  resume:"10XCMNgzaQCEB1aPWqPt4YtnTtbOgT4MC"},
+
+ {id:"luis",rank:null,name:"Luis Del Toro",role:"HVAC Service Technician",loc:"Palm Desert (local)",tier:"A",group:"awaiting",
+  quick:"The cleanest transferable fit in the pool — 10+ yrs HVAC service, EPA 608, residential + commercial field work. Excellent tenure. Reach-out sent; no reply yet. If he answers, he goes near the top.",
+  reply:"",
+  skills:["HVAC service (EPA 608)","Residential + commercial field","Ladders & rooftops","Diagnostics","Daily customer contact"],
+  exp:"10+ yrs HVAC service tech. Tenures of 5 yrs and 7 yrs — very stable.",
+  loc2:"Palm Desert — local.",
+  resume:"1nBYrivwQ9xXeFqlFD5PqkRI1oowgH4za"},
+
+ {id:"michael",rank:null,name:"Michael Beauchamp",role:"Property Care / Business Owner",loc:"Indio (local)",tier:"B",group:"awaiting",
+  quick:"Very relevant hands-on background — vacation-home property care (pools, landscape, plumbing, maintenance) — and the most engaged early on (voice intro, 'Very Interested'). Reach-out sent with the 'why leave your own business' question; no reply yet.",
+  reply:"",
+  skills:["Property care (pools, landscape)","Plumbing","General maintenance","Vacation-home upkeep"],
+  exp:"7+ yrs property care. Currently owns a business (Courtmasters).",
+  loc2:"Indio — local.",
+  flag:"Business owner — ask why he'd leave his own company and whether he'd stay.",
+  resume:"1x7PAW_B00_Al2WQcy4spoTXX3bjt0gT3"},
+
+ {id:"abel",rank:null,name:"Abel Castro",role:"Roofer / Field Maintenance",loc:"North Palm Springs (local)",tier:"B",group:"awaiting",
+  quick:"Strongest of the new applicants. Roofer for a local solar company (Renova) — comfortable on roofs and around panels — plus field/property maintenance and 3 steady years at Torre Nissan (promoted from porter for reliability). Reach-out sent today; no reply yet.",
+  reply:"",
+  skills:["Roofing (solar company)","Rooftop / panel-adjacent work","Field & property maintenance","Landscaping","Reliability (promoted)"],
+  exp:"Roofer at Renova Energy. Field maintenance at Rancho La Quinta. 3 yrs Torre Nissan, promoted from porter.",
+  loc2:"North Palm Springs — local.",
+  resume:"18ihYT07AA8JzKgTsBthr0XR-xA0JyLdb"},
+
+ {id:"christian",rank:null,name:"Christian Melchor",role:"Route Manager",loc:"La Quinta (local)",tier:"B",group:"backup",
+  quick:"Genuinely relevant — route manager at Interstate Batteries (30 accounts, clean record) plus Marriott maintenance trainer. Flag is in his own headline: 'seeking leadership role.' Recommend contacting, but only to probe whether he wants a hands-on field job.",
+  reply:"",
+  skills:["Route management (30 accounts)","Inventory","Clean driving record","Facility / maintenance training"],
+  exp:"Route manager, Interstate Batteries. Maintenance trainer, Marriott.",
+  loc2:"La Quinta — local.",
+  flag:"Résumé says 'Management Professional Seeking Leadership Role' — confirm he wants hands-on field work.",
+  recommend:"Recommend: contact (probe the leadership angle)",
+  resume:"1Pucu83tbfQfm94xhYhsFp5s_x2g634Uv"},
+
+ {id:"matthew",rank:null,name:"Matthew Harris",role:"Service / Driving",loc:"Palm Desert (local)",tier:"C",group:"backup",
+  quick:"Dependable service/reliability roles (patient transport, security) + driving, CPR. No trade background; mixed short tenures. A reliable generalist if we widen the pool.",
+  reply:"",skills:["Patient transport","Security","Driving","CPR"],exp:"Service & reliability roles; mixed short tenures.",loc2:"Palm Desert — local.",
+  resume:"1ISWSF3Y4X0g5fljyIbtLTex5Rv8_RduX"},
+
+ {id:"adrian",rank:null,name:"Adrian Aceves",role:"Construction Laborer / Operator",loc:"Banning (borderline)",tier:"C",group:"backup",
+  quick:"3 yrs construction laborer / heavy-equipment operator, some residential energy-upgrade service exposure. Strong back, eager. Confirm the up-the-pass commute and the string of jobs vs. one steady employer.",
+  reply:"",skills:["Construction labor","Heavy-equipment operation","Energy-upgrade service exposure"],exp:"3 yrs across construction jobs, 2022–present.",loc2:"Banning — confirm up-the-pass commute.",
+  resume:"13ircmQu0COJ77HvBFkdzMa5Ja8Pi0O7p"},
+
+ {id:"joe",rank:null,name:"Joe Rico",role:"Versatile Hands-on / Driver",loc:"Palm Desert (local)",tier:"C",group:"backup",
+  quick:"Versatile hands-on with driving, door install, DOT medical cert, bilingual. Local and capable. Flag is stability — many sub-1-yr stints (2023–26) plus a side IT business.",
+  reply:"",skills:["Door install","Driving (DOT medical)","Bilingual","Versatile hands-on"],exp:"Many short stints 2023–26; side IT business.",loc2:"Palm Desert — local.",
+  resume:"1V5OBJRmQTijC8rNRXiYr-Dwf_25G9eLR"},
+
+ {id:"steven",rank:null,name:"Steven Palmer",role:"Generalist / Route-Driving",loc:"Desert Hot Springs (local)",tier:"C",group:"backup",
+  quick:"Generalist: route driving, handyman, some leadership, CDL-C. Recent history leans retail/food; tenure mixed. Local with a driving background — a reasonable backup.",
+  reply:"",skills:["Route driving","Handyman","CDL-C","Some leadership"],exp:"Recent retail/food; mixed tenure.",loc2:"Desert Hot Springs — local.",
+  resume:"14ZnCJ5UaPhEp9rF8NHnraMFhOJif58sQ"},
+
+ {id:"nicholas",rank:null,name:"Nicholas Franks",role:"Eclectic / Outdoor",loc:"Palm Springs (local)",tier:"C",group:"backup",
+  quick:"Eclectic with relevant pieces — pool cleaning, landscaping, outdoor, driving all in his skills. Caution: hoppy history (currently a soap-making venture), so focus/staying power are the questions.",
+  reply:"",skills:["Pool cleaning","Landscaping","Outdoor work","Driving"],exp:"Eclectic; currently running a soap-making venture.",loc2:"Palm Springs — local.",
+  resume:"1mr1EONmcEpoRKeQwdn5kyyk55lrjO0xW"},
+
+ {id:"tovar",rank:null,name:"Andrew Tovar",role:"Landscape / Construction",loc:"La Quinta (local)",tier:"C",group:"backup",
+  quick:"New applicant. Local; one clear strength is stability — 5+ yrs at J&P Landscape (outdoor, physical, steady). Résumé is bare-bones with no trade depth. A reasonable backup; optional contact.",
+  reply:"",skills:["Landscape","Construction","Outdoor / physical"],exp:"5+ yrs, J&P Landscape.",loc2:"La Quinta — local.",
+  resume:"1NqbrdYc_aBKIe1Azu3HEAURVzF3qVoVQ"},
+
+ {id:"adam",rank:null,name:"Adam Ogeda",role:"Cleaning / Groundskeeping",loc:"Thousand Palms (local)",tier:"D",group:"backup",
+  quick:"Young; cleaning/groundskeeping and outdoor aptitude, eager — entry level. String of very short tenures (frequent hops). An entry flyer only.",
+  reply:"",skills:["Cleaning","Groundskeeping","Outdoor"],exp:"Very short tenures (hops).",loc2:"Thousand Palms — local.",
+  resume:"14D9wgmVk91N2wMmx2xeRpV0IMQmZM14r"},
+
+ {id:"ethan",rank:null,name:"Ethan Uzan",role:"Restaurant (LA)",loc:"Indio now (local)",tier:"D",group:"backup",
+  quick:"Very young; all experience is ~2 yrs LA restaurant work. Thin and not aligned with field/outdoor/ladder work. Recently relocated to Indio.",
+  reply:"",skills:["Restaurant / food service"],exp:"~2 yrs LA restaurants.",loc2:"Indio now — relocated.",
+  resume:"1tQ7LfN9DJTPtiCuf_4MyFlqmQyi7gLcL"},
+
+ {id:"kailee",rank:null,name:"Kailee Antisdel",role:"Caregiving / Domestic",loc:"Palm Desert (local)",tier:"D",group:"backup",
+  quick:"Caregiving, childcare, domestic work (3 yrs caregiver). Reliable, but least aligned with the physical field/outdoor/ladder basis of this job.",
+  reply:"",skills:["Caregiving","Childcare","Domestic"],exp:"3 yrs caregiver.",loc2:"Palm Desert — local.",
+  resume:"1mPsaS_BWFTNNSwwffaFHHR3cK_17iekx"},
+
+ {id:"perez",rank:null,name:"Andrew Perez",role:"Welder / Solar-Module Field",loc:"Calexico (~90 mi)",tier:"D",group:"backup",
+  quick:"Genuinely relevant skills — welder with actual solar-module field experience and forklift — but ~90 mi away and would need to relocate. Distance is the deal-breaker for a daily route job.",
+  reply:"",skills:["Welding","Solar-module field experience","Forklift"],exp:"Welder + solar-module field work.",loc2:"Calexico (~90 mi) — would need to relocate.",
+  flag:"~90 mi away — relocation required.",
+  resume:"1nVVetcCewkDrd8xXTJj4sxUcXBRoVkZF"},
+
+ {id:"sandy",rank:null,name:"Sandy Nielsen",role:"Sales / Phone (25 yrs)",loc:"Lake Elsinore (~55 mi)",tier:"D",group:"backup",
+  quick:"Long (25-yr) career, but sales and phone work (timeshare, solar-phone sales, flight attendant) plus Grubhub driving — not field trade. Not local; a workers-comp grievance noted. Lowest fit.",
+  reply:"",skills:["Sales","Phone / customer","Driving (Grubhub)"],exp:"25 yrs sales/phone; not field trade.",loc2:"Lake Elsinore (~55 mi) — not local.",
+  flag:"Not local; workers-comp grievance noted.",
+  resume:"1ILzS3DLZNF-H9tu3RmTDRlx8YHvnkjyC"}
+];
+
+const ASKED_INTRO="We reached out about the Lead Technician role and asked about their window/solar-cleaning or residential-route experience and what they're looking for in their next job — then offered a short phone screen.";
+
+// A few questions aimed at each person's one real question-mark (general set is at the top of the page).
+const Q={
+ fernando:[
+  "You said you’ve cleaned solar panels with a water-fed pole and brush — tell me more. Whose panels, how often, how many at a time?",
+  "Your background is artificial turf — what’s pulling you toward window and solar cleaning?",
+  "You ran a crew as a foreman — are you good going back to doing the hands-on work yourself, at least to start?",
+  "What’s your actual earliest start date? (It came through as just “6” — let’s pin it down.)"],
+ norberto:[
+  "Eight years at Palm Springs Disposal — what’s kept you there, and why leave now?",
+  "You’re in Beaumont and the meet-up is down in the valley — walk me through that commute and whether it holds up long-term.",
+  "This is hands-on cleaning and ladder work, not driving a route truck — are you good with that side of it?"],
+ james:[
+  "You’ve been in A/C and sheet metal 6+ years — why step out of that trade into window and solar cleaning?",
+  "Going from skilled HVAC/fab work to detailed cleaning — are you genuinely happy with that trade-off?",
+  "Comfortable on a ladder and around rooftop solar panels?"],
+ joshua:[
+  "You’re after something challenging and growth-focused — this is detailed, repetitive cleaning to a high standard. Is that work you’d enjoy day in, day out?",
+  "With your HVAC certs you’ve got options — how long do you see yourself in a role like this?",
+  "Why step away from HVAC right now?"],
+ brian:[
+  "The last couple of years the jobs have run short, around six months each — walk me through what happened.",
+  "What would keep you here long-term — what are you looking for?",
+  "You mentioned landscaping, roofing, framing — tell me about your most physical outdoor job and how it went."],
+ alfonso:[
+  "You mentioned eventually wanting a leadership role — this starts as hands-on cleaning and route work for a good while. Happy to commit to that?",
+  "Your early history jumped around before Amazon and BMW — are you looking to settle in now?",
+  "You’ve got a CDL-A and drive for BMW — why move to this kind of work?"],
+ austin:[
+  "You’ve owned and run your own company — this role is hands-on cleaning and running a route yourself, not managing. Straight answer: is that what you want right now?",
+  "Your message mentioned helping with ‘growth and expansion’ — what did you mean, and how does that fit a day-to-day field job?",
+  "You just relocated — are you settled here for the long haul?",
+  "Why leave running your own business for an hourly field role?"],
+ luis:[
+  "You’ve done HVAC service 10+ years with great tenure — why look at a window and solar role now?",
+  "This pays $23–27/hr — with your experience, is that going to work for you?",
+  "Comfortable going from diagnostics and service to detailed cleaning work?"],
+ michael:[
+  "You own Courtmasters — why leave your own business, and would you really stay in a role like this?",
+  "Your property-care background fits well — which parts (pools, maintenance, outdoor) did you enjoy most?",
+  "Are you after steady long-term work, or something in between?"]
+};
+
+// In the order it actually happened, start to finish.
+const DIMS=[
+ {key:"application",label:"1 · Application & screening Qs",hint:"the 4 deal-breakers"},
+ {key:"resume",label:"2 · Résumé"},
+ {key:"skills",label:"3 · Skills (from résumé)"},
+ {key:"exp",label:"4 · Experience (from résumé)"},
+ {key:"loc",label:"5 · Location & commute"},
+ {key:"exchange",label:"6 · Our message & their reply",hint:"what we asked, what they said"},
+ {key:"interview",label:"7 · Phone interview — Q&A",hint:"note as you go · recording carries the full answer"},
+ {key:"status",label:"8 · Status & next step"},
+ {key:"glance",label:"9 · Our read",hint:"the fit"},
+ {key:"notes",label:"10 · Your notes & comments",hint:"DJ, Cheryl, shared"}
+];
+const APP_Q=[
+ "Valid California license and a clean driving record?",
+ "Can you work outdoors in 100°+ heat a full day?",
+ "Comfortable on a ladder up to one story?",
+ "Can you reliably get to the daily meet-up spot, on time?"
+];
+// The ten questions for the phone interview (also shown in the card at the top).
+const INTERVIEW_Q=[
+ "Tell me about what you're doing now and why you're looking for something new.",
+ "What do you remember about this job, and what made you apply?",
+ "Walk me through any hands-on outdoor or field work you've done — ladders, rooftops, cleaning, or running a route.",
+ "Have you ever cleaned windows or solar panels, or anything close to it?",
+ "This is outdoors all day in desert heat, over 100 in summer, up and down a one-story ladder. How does that sit with you?",
+ "The most important thing here is showing up on time, every day. Tell me about your reliability.",
+ "Do you have a valid California license and a clean driving record? Any tickets or accidents the last few years?",
+ "Each morning the crew meets near the first job — you leave your car and ride in the truck. Reliable transportation to the meet-up, and are you good with that?",
+ "You'll be in clients' homes — particular desert homeowners. How do you handle working around customers and representing a company well?",
+ "This is long-term, with a path to leading your own assistant. Where do you want to be in a couple of years — and when could you start? (Pay is $23–27/hr, 32–40 hrs, no health insurance — does that work?)"
+];
+const OUTREACH_MSG="Hi [Name], thanks for applying for the Lead Window & Solar Cleaning Technician role at Window & Solar Care — looks like a possible fit. Before we go further, tell me a bit about your experience with window or solar cleaning, or running a residential route (pool, pest control, landscaping, etc.), and what you're looking for in your next job. — Dan";
+
+function appCell(c){
+  return '<ol class="qlist">'+APP_Q.map(q=>'<li>'+esc(q)+' <span class="chip c-good">Yes</span></li>').join("")+
+    '</ol><div class="rowtext muted" style="margin-top:5px">Cleared all four deal-breakers on the application.</div>';
+}
+function callqCell(c){
+  if(c.callq) return '<div class="quote">“'+esc(c.callq)+'”</div>';
+  if(c.booked) return '<div class="rowtext muted">No question submitted with their booking.</div>';
+  if(c.group==="replied") return '<div class="rowtext muted">Hasn’t booked a time yet.</div>';
+  return '<div class="rowtext muted">—</div>';
+}
+function ivNote(id,field){
+  return '<textarea class="ivnote" data-note="'+id+'" data-field="'+field+'" placeholder="Note while you ask (optional)">'+esc(getNote(id,field))+'</textarea>';
+}
+function ivItem(id,field,q){
+  return '<li><div class="ivq">'+esc(q)+'</div>'+ivNote(id,field)+'<div class="ans">— answer from the recording</div></li>';
+}
+function interviewCell(c){
+  const spec=Q[c.id]||[];
+  let h='<div class="iv-note">🎙️ The recording carries the full answer — the note line is just for anything you want to flag while you ask. Optional.</div>';
+  h+='<div class="iv-sub">The 10 questions</div><ol class="qlist ivlist">';
+  INTERVIEW_Q.forEach((q,i)=>{h+=ivItem(c.id,"q"+i,q);});
+  h+='</ol>';
+  if(spec.length){
+    h+='<div class="iv-sub">Just for them</div><ol class="qlist ivlist">';
+    spec.forEach((q,i)=>{h+=ivItem(c.id,"s"+i,q);});
+    h+='</ol>';
+  }
+  h+='<div class="iv-sub">Wrap up</div><div class="ivlist"><div class="ivq">Do they have any questions for us?</div>'+
+     ivNote(c.id,"close")+'<div class="ans">— answer from the recording</div></div>';
+  return h;
+}
+
+// ---- notes state (preview: localStorage only) ----
+let notes={};
+try{notes=JSON.parse(localStorage.getItem("wsc_notes")||"{}")}catch(e){notes={}}
+function saveNotes(){try{localStorage.setItem("wsc_notes",JSON.stringify(notes))}catch(e){}}
+function getNote(id,f){return (notes[id]&&notes[id][f])||""}
+function setNote(id,f,v){if(!notes[id])notes[id]={};notes[id][f]=v;saveNotes()}
+
+const state={view:"topic",showBackups:false,openDims:new Set(["interview"]),openPeople:new Set()};
+const pdimState={}; // per-person topic open/close in By-person view; defaults interview open
+function pdimOpen(cid,dkey){const k=cid+"::"+dkey; return (k in pdimState)?pdimState[k]:(dkey==="interview");}
+
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function resumeUrl(id){return "https://drive.google.com/file/d/"+id+"/view"}
+function tierChip(t){return '<span class="chip tier'+t+'">Tier '+t+'</span>'}
+function statusChips(c){
+  let h="";
+  if(c.group==="replied"){h+='<span class="chip c-good">✓ Replied</span>';}
+  else if(c.group==="awaiting"){h+='<span class="chip c-warn">Awaiting reply</span>';}
+  else{h+='<span class="chip c-muted">Not contacted</span>';}
+  if(c.booked){h+='<span class="chip c-book">📅 '+esc(c.booked.when)+'</span>';}
+  return h;
+}
+function visible(){return DATA.filter(c=>state.showBackups?true:c.group!=="backup")}
+function ivTimeChip(c){
+  if(c.booked) return '<span class="chip c-book">📅 '+esc(c.booked.when)+'</span>';
+  if(c.group==="replied") return '<span class="chip c-muted">No interview time yet</span>';
+  if(c.group==="awaiting") return '<span class="chip c-warn">Awaiting reply</span>';
+  return '<span class="chip c-muted">Not contacted</span>';
+}
+function callBtn(c){
+  if(!c.booked||!c.booked.phone) return '';
+  return '<button type="button" class="callbtn" data-call="'+esc(c.id)+'">📞 '+esc(c.booked.phone)+'</button>';
+}
+
+// ---------- BY TOPIC ----------
+function cellFor(c,key){
+  switch(key){
+    case "glance": return '<div class="rowtext">'+esc(c.quick)+'</div>'+(c.flag?'<div class="flag">'+esc(c.flag)+'</div>':'');
+    case "status":{
+      let s='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">'+statusChips(c)+'</div>';
+      if(c.booked){s+='<div class="rowtext">Interview booked — <b>'+esc(c.booked.when)+'</b>, call '+esc(c.booked.phone)+'.</div>';}
+      else if(c.group==="replied"){s+='<div class="rowtext muted">Booking link sent — hasn’t picked a time yet.</div>';}
+      else if(c.group==="awaiting"){s+='<div class="rowtext muted">Reach-out sent — waiting to hear back.</div>';}
+      else{s+='<div class="rowtext muted">Not yet contacted.</div>';}
+      return s;
+    }
+    case "reply": return c.reply?'<div class="quote">“'+esc(c.reply)+'”</div>':'<div class="rowtext muted">No reply yet.</div>';
+    case "application": return appCell(c);
+    case "interview": return interviewCell(c);
+    case "exchange":
+      return '<div class="xlabel">Our first message</div><div class="quote">“'+esc(OUTREACH_MSG)+'”</div>'+
+        '<div class="rowtext muted" style="margin:5px 0 12px">Standard first message — confirming each person’s exact sent copy from ZipRecruiter.</div>'+
+        '<div class="xlabel">Their reply</div>'+
+        (c.reply?'<div class="quote">“'+esc(c.reply)+'”</div>':'<div class="rowtext muted">No reply yet.</div>');
+    case "skills": return '<div class="skills">'+c.skills.map(s=>'<span class="skill">'+esc(s)+'</span>').join("")+'</div>';
+    case "exp": return '<div class="rowtext">'+esc(c.exp)+'</div>';
+    case "loc": return '<div class="rowtext">'+esc(c.loc2)+'</div>';
+    case "resume": return '<a class="resume-link" href="'+resumeUrl(c.resume)+'" target="_blank" rel="noopener">📄 Open résumé</a>';
+    case "notes": return notesBlock(c.id);
+    default: return "";
+  }
+}
+function notesBlock(id){
+  return '<div class="notes">'+
+   '<div class="nt"><label><span class="who">DJ</span> — notes</label>'+
+     '<textarea data-note="'+id+'" data-field="dj" placeholder="DJ’s notes on this candidate">'+esc(getNote(id,"dj"))+'</textarea></div>'+
+   '<div class="nt"><label><span class="who">Cheryl</span> — notes</label>'+
+     '<textarea data-note="'+id+'" data-field="cheryl" placeholder="Cheryl’s notes on this candidate">'+esc(getNote(id,"cheryl"))+'</textarea></div>'+
+   '<div class="nt"><label>Shared comment</label>'+
+     '<textarea data-note="'+id+'" data-field="shared" placeholder="A note you both can see">'+esc(getNote(id,"shared"))+'</textarea></div>'+
+   '</div>';
+}
+function renderTopic(){
+  const list=visible();
+  return DIMS.map(d=>{
+    const open=state.openDims.has(d.key);
+    const rows=list.map(c=>{
+      const rk=c.rank?'<span class="rk">#'+c.rank+'</span>':'<span class="rk"></span>';
+      return '<div class="row"><div class="rowhead">'+rk+'<span class="nm">'+esc(c.name)+'</span>'+tierChip(c.tier)+
+        '<span class="idloc">📍 '+esc(c.loc)+'</span>'+ivTimeChip(c)+callBtn(c)+
+        '</div>'+cellFor(c,d.key)+'</div>';
+    }).join("");
+    return '<details class="dim" data-dim="'+d.key+'"'+(open?" open":"")+'><summary>'+esc(d.label)+
+      (d.hint?' <span class="dimhint">· '+esc(d.hint)+'</span>':'')+'<span class="caret">▶</span></summary>'+
+      '<div class="body">'+rows+'</div></details>';
+  }).join("");
+}
+
+// ---------- BY PERSON ----------
+function field(label,html){return '<div class="field"><div class="flabel">'+esc(label)+'</div>'+html+'</div>'}
+function renderPerson(){
+  const groups=[["replied","Replied — ranked by fit"],["awaiting","Contacted — awaiting a reply"],["backup","Backups"]];
+  let out="";
+  groups.forEach(([g,title])=>{
+    const list=visible().filter(c=>c.group===g);
+    if(!list.length)return;
+    out+='<div class="grouphd">'+esc(title)+' · '+list.length+'</div>';
+    out+=list.map(c=>{
+      const open=state.openPeople.has(c.id);
+      const rk=c.rank?'<span class="rk">#'+c.rank+'</span>':'';
+      const body=DIMS.map(d=>{
+        const op=pdimOpen(c.id,d.key);
+        return '<details class="pdim" data-pd="'+c.id+'::'+d.key+'"'+(op?" open":"")+'>'+
+          '<summary>'+esc(d.label)+(d.hint?' <span class="dimhint">· '+esc(d.hint)+'</span>':'')+
+          '<span class="caret">▶</span></summary>'+
+          '<div class="pdbody">'+cellFor(c,d.key)+'</div></details>';
+      }).join("");
+      return '<details class="person" data-person="'+c.id+'"'+(open?" open":"")+'><summary>'+
+        '<div class="phead">'+rk+'<span class="nm">'+esc(c.name)+'</span>'+tierChip(c.tier)+'</div>'+
+        '<div class="role">'+esc(c.role)+'</div>'+
+        '<div class="idrow"><span class="idloc">📍 '+esc(c.loc)+'</span>'+ivTimeChip(c)+callBtn(c)+'</div>'+
+        '</summary>'+
+        '<div class="pbody">'+body+'</div></details>';
+    }).join("");
+  });
+  return out;
+}
+
+// ---------- GRID (candidates as columns, topics as rows) ----------
+function renderGrid(){
+  const list=visible();
+  const head='<tr><th class="corner">Topic ↓ / Person →</th>'+list.map(c=>{
+    const rk=c.rank?'#'+c.rank+' ':'';
+    return '<th class="cand"><div class="gname">'+esc(rk+c.name)+'</div>'+
+      '<div class="gsub">'+esc(c.role)+' · '+esc(c.loc)+'</div>'+
+      '<div class="gchips">'+tierChip(c.tier)+ivTimeChip(c)+'</div>'+
+      '<div class="gcall">'+callBtn(c)+'</div></th>';
+  }).join("")+'</tr>';
+  const rows=DIMS.map(d=>'<tr><th class="rowlbl">'+esc(d.label)+'</th>'+
+      list.map(c=>'<td>'+cellFor(c,d.key)+'</td>').join("")+'</tr>').join("");
+  return '<div class="gridhint">Scroll sideways to see everyone, down for more topics. The name row and topic column stay put. →</div>'+
+    '<div class="gridwrap"><table class="grid"><thead>'+head+'</thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function renderSummary(){
+  const replied=DATA.filter(c=>c.group==="replied").length;
+  const booked=DATA.filter(c=>c.booked).length;
+  const awaiting=DATA.filter(c=>c.group==="awaiting").length;
+  const backups=DATA.filter(c=>c.group==="backup").length;
+  const S=[[replied,"Replied"],[booked,"Interviews booked"],[awaiting,"Awaiting reply"],[backups,"Backups"]];
+  document.getElementById("summary").innerHTML=S.map(([n,l])=>
+    '<div class="stat"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>').join("");
+}
+
+function render(){
+  const v=document.getElementById("view");
+  v.innerHTML = state.view==="topic"?renderTopic():state.view==="person"?renderPerson():renderGrid();
+  document.getElementById("v-topic").setAttribute("aria-pressed",state.view==="topic");
+  document.getElementById("v-person").setAttribute("aria-pressed",state.view==="person");
+  document.getElementById("v-grid").setAttribute("aria-pressed",state.view==="grid");
+  document.getElementById("expandAll").hidden = state.view==="grid";
+}
+
+// events
+document.getElementById("v-topic").onclick=()=>{state.view="topic";render()};
+document.getElementById("v-person").onclick=()=>{state.view="person";render()};
+document.getElementById("v-grid").onclick=()=>{state.view="grid";render()};
+document.getElementById("showBackups").onchange=e=>{state.showBackups=e.target.checked;render()};
+document.getElementById("expandAll").onclick=function(){
+  if(state.view==="topic"){
+    const allOpen=state.openDims.size>=DIMS.length;
+    state.openDims=allOpen?new Set(["glance"]):new Set(DIMS.map(d=>d.key));
+    this.textContent=allOpen?"Expand all":"Collapse all";
+  }else{
+    const vis=visible();
+    const allOpen=state.openPeople.size>=vis.length;
+    state.openPeople=allOpen?new Set():new Set(vis.map(c=>c.id));
+    this.textContent=allOpen?"Expand all":"Collapse all";
+  }
+  render();
+};
+// track open/close so re-renders keep position; save notes on input
+const view=document.getElementById("view");
+view.addEventListener("toggle",e=>{
+  const t=e.target;
+  if(t.classList.contains("dim")){const k=t.dataset.dim; t.open?state.openDims.add(k):state.openDims.delete(k);}
+  if(t.classList.contains("person")){const k=t.dataset.person; t.open?state.openPeople.add(k):state.openPeople.delete(k);}
+  if(t.classList.contains("pdim")){pdimState[t.dataset.pd]=t.open;}
+},true);
+view.addEventListener("input",e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.note){setNote(t.dataset.note,t.dataset.field,t.value);}
+});
+// Call button — in the live app this rings DJ's phone then bridges the candidate (recorded).
+// In this preview it just shows what it will do.
+const toast=document.createElement("div");toast.id="calltoast";toast.hidden=true;document.body.appendChild(toast);
+view.addEventListener("click",e=>{
+  const b=e.target.closest(".callbtn"); if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const c=DATA.find(x=>x.id===b.dataset.call); if(!c||!c.booked) return;
+  const first=c.name.split(" ")[0];
+  toast.innerHTML='📞 <b>Call '+esc(first)+' — '+esc(c.booked.phone)+'</b><br>'+
+    'In the live app: your phone rings from the Main line <b>(760) 334-5355</b>, you answer and you’re connected — recorded and transcribed automatically. <span style="opacity:.8">(Preview — nothing dials here.)</span>';
+  toast.hidden=false;
+  clearTimeout(toast._t); toast._t=setTimeout(()=>{toast.hidden=true},6500);
+});
+
+document.getElementById("genq").innerHTML='<ol class="qlist">'+INTERVIEW_Q.map(q=>'<li>'+esc(q)+'</li>').join("")+'</ol>';
+renderSummary();
+render();
+</script>
