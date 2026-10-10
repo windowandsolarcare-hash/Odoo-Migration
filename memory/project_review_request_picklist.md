@@ -5,10 +5,10 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-10T10:13:06.162Z
+  modified: 2026-10-10T14:20:57.317Z
 ---
 
-**STAGED 2026-10-10 (branch specialists/review-picklist; held for Lead QC → DJ deploy). DJ-approved full build.** Part of the reviews / service-recovery program (replaces the old gated funnel). SEND is HARD-GATED on DJ's GBP "Get verified" — nothing can go to a customer until that + approved wording land.
+**DEPLOYED 2026-10-10 to main (DJ "deploy" trigger; QC-GREEN by Lead). Live commit e0e5b824. DJ-approved full build.** Part of the reviews / service-recovery program (replaces the old gated funnel). SEND is HARD-GATED on DJ's GBP "Get verified" — nothing can go to a customer until that + approved wording land.
 
 **Files:** `routers/owner/review_requests.py` (NEW) + `static/owner/v2_review_requests.html` (NEW) + feed_live.py (live HUD producer) + main.py (register, prefix /owner).
 
