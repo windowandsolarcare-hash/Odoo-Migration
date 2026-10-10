@@ -92,3 +92,5 @@
 - [project_cheryl_cloud_profile.md](project_cheryl_cloud_profile.md) — Cheryl's-cloud (8th session) full profile: identity, role evolution, exact access map, how to reach it (ref churns/one-way/no watcher), 4 fleet fixes + security items.
 
 - [project_modal_inline_display_defeats_hide_class.md](project_modal_inline_display_defeats_hide_class.md) — Modal toggled by `.hide` class BUT with inline display:flex = broken (inline beats class, .hide never applies) → stuck/undismissable. A42 fixed #shmodal; #ack-pill (v2_field) flagged. Drive visibility by ONE mechanism.
+
+- [project_candidate_comparison_entrypoints.md](project_candidate_comparison_entrypoints.md) — ZipRecruiter Candidate Comparison = GET /owner/hiring/compare (Portal, hiring_compare.py:73), cheryl-reachable (under /owner/hiring, no new grant). Entry points: DJ v2_apps 🧮 tile + Cheryl index.html WSC Hire chooser (Old ATS / New — ZipRecruiter, both set wsc_ac). Call button needs /owner/voice/dial grant. STAGED 2026-10-10.
