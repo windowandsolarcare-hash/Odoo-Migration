@@ -5,10 +5,12 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 71d8a955-480c-46cd-92bf-c963ba9d5a16
-  modified: 2026-10-11T08:24:29.992Z
+  modified: 2026-10-11T16:52:21.771Z
 ---
 
 The Candidate Comparison page (`static/owner/hiring_compare.html`, Portal-owned, served at `/owner/hiring/compare`) stores every per-question interview note in Render Postgres table `hiring_compare_note`, one row per `(candidate_id, field)`. For the main interview questions the `field` is the **array index** of `INTERVIEW_Q` — `q0`, `q1`, … `qN` (see `ivItem(id,"q"+i,q)` + `INTERVIEW_Q.forEach((q,i)=>…)`). The candidate-specific "just for them" questions use `s0..sN` and the wrap-up uses `close`. The DJ/Cheryl/shared candidate notes use `dj`/`cheryl`/`shared` and are NOT question-indexed.
+
+**★ 2026-10-11 — a SECOND table now shares this exact keying: `hiring_compare_answer`** (same `(candidate_id, field)` PK, same `q0..qN`/`s0..sN`/`close` fields). It holds the PARSED interview answers filled from the call recording by the "Fill answers from recording" button (`POST /owner/api/hiring/compare/fill` → `from .sms import get_latest_transcript` → Claude parse → persist by qid), and is separately editable (`GET/POST /owner/api/hiring/compare/answers`). So a reorder/insert/remove of `INTERVIEW_Q` now mis-attributes BOTH the notes AND the parsed answers — the stability rule below covers both tables. (The manual note boxes are the "optional highlight" layer; the parsed answers are the real record of what each candidate said.)
 
 **Why it matters:** because the note key is the position, any change to `INTERVIEW_Q` that **adds, removes, or reorders** an item shifts every later index — a note saved under the old `qK` then renders under a *different* question. This is silent mis-attribution, not a crash.
 
