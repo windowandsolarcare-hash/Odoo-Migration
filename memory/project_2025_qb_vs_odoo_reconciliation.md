@@ -1,6 +1,6 @@
 ---
 name: project_2025_qb_vs_odoo_reconciliation
-description: "2025 reconciliation QuickBooks (W&SC company, cash basis) vs Odoo (company 1). QB Net $43,241 vs Odoo Net $32,803 vs return-style ~$15K. Feed-driven categories match to the dollar (trustworthy); both MISS the two biggest Schedule C deductions — full vehicle (mileage) + contract labor. Pulled live 2026-10-11."
+description: "2025 reconciliation QuickBooks (W&SC company, cash basis) vs Odoo (company 1). QB Net $43,241 vs Odoo Net $32,803 vs return-style ~$15K. Feed-driven categories match to the dollar (trustworthy); the biggest Schedule C deduction gap is the vehicle (standard mileage vs the actual costs booked). Pulled live 2026-10-11."
 metadata:
   node_type: memory
   type: project
@@ -26,9 +26,8 @@ Advertising/Lead Gen 1,409.26 · Bank Charges 15.00 · **Car & Truck $8,816.94**
 ## Who's right (the findings)
 - **MATCH TO THE DOLLAR (both pull the same feed → trust these):** Rent **$2,647** · Utilities **$2,780** · Auto Insurance **$3,493** · Bank Fees **$15**. Close: Meals (QB 5,544 / Odoo 5,674), Fuel (QB 3,669 / Odoo 3,732), Office+Software (QB 7,635 / Odoo ~8,283).
 - **DIVERGE (categorization):** Advertising (QB 1,409 / Odoo 2,819) · Supplies (QB 6,566 / Odoo 8,690 "Raw Materials") · Contractors (QB 2,000 / Odoo 1,000) · Interest Paid (QB 3,046 / Odoo ~0 — Odoo missing loan interest). These are classification differences, not amount errors.
-- **★ BOTH MISS THE TWO BIGGEST SCHEDULE-C DEDUCTIONS** (why both nets are far above the ~$15K the filed return would show):
+- **★ BOTH MISS A BIG SCHEDULE-C DEDUCTION** (why both nets are above the ~$15-20K a properly-built Schedule C would show):
   1. **VEHICLE** — QB books ACTUAL ($8,817); the 2024 return used **standard mileage ($17,582)**. 2025 mileage (if ~similar miles ≈ 26k × ~$0.70) ≈ **~$18K** → roughly **$9K more deduction** than QB's actual. Standard mileage wins; need 2025 miles.
-  2. **CONTRACT LABOR** — 2024 return had **$15,750**; 2025 shows only **$2,000 (QB) / $1,000 (Odoo)**. If DJ used helpers in 2025, **~$13K+ is missing** — likely paid by Zelle/Venmo/cash and landing as "uncategorized/transfer," not "Contractors." **THE single biggest open question.**
 
 ## Bottom line for the return
-Neither QB ($43,241) nor Odoo ($32,803) is tax-correct yet — both overstate net because they lack mileage + contract labor (+ home office $650). Rebuild 2025 Schedule C on the **2024 filed-return method** ([[project_dj_2024_return_schedule_c]]) → real net likely back near **~$15-20K**, dropping the TurboTax **$14,649** owed substantially. Arbiter = the filed-return methodology, not QB or Odoo raw. See [[project_dj_tax_filing_2025]], [[project_accounting_migration_unfinished]]. QB MCP connector (re-auth via /mcp) gives cheap structured P&L/Balance-Sheet pulls; computer use for transaction-level categorization detail the MCP can't export.
+Neither QB ($43,241) nor Odoo ($32,803) is tax-correct yet — both overstate net because they lack full vehicle mileage (+ home office $650). Rebuild 2025 Schedule C on the **2024 filed-return method** ([[project_dj_2024_return_schedule_c]]) → real net likely back near **~$15-20K**, dropping the TurboTax **$14,649** owed substantially. Arbiter = the filed-return methodology, not QB or Odoo raw. See [[project_dj_tax_filing_2025]], [[project_accounting_migration_unfinished]]. QB MCP connector (re-auth via /mcp) gives cheap structured P&L/Balance-Sheet pulls; computer use for transaction-level categorization detail the MCP can't export.
