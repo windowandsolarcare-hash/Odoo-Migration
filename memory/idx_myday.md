@@ -40,3 +40,4 @@
 - [project_myday_task_creators.md](project_myday_task_creators.md) — TWO My Day creators: /api/myday/add (canonical rich) + /api/todos/create (note→promote when dated); share myday_deadline_utc. My Day needs user_ids=[DJ] AND (project_id=False OR pinned OR dated-goal); user_ids=[] = never surfaces (the todos/create field-mismatch bug).
 
 - [project_dj_assigned_provenance_tag.md](project_dj_assigned_provenance_tag.md) — "DJ Assigned" project.tags tag stamped on Cheryl tasks DJ assigns (goals.py dj_assigned_tag_id + myday.py + feed_live _cheryl_assigned "🤝 DJ gave you") vs tasks she makes herself. DEPLOYED 2026-10-10.
+- [project_cheryl_task_checklist.md](project_cheryl_task_checklist.md) — Cheryl Tasks shows + ticks + full-CRUD-edits the My Day checklist (x_myday_checklist); list returns checklist/chk_total/done, /cheryl/api/tasks/checklist + /edit persist the [{t,d}] array (IDOR-guarded, sanitized) → auto DJ↔Cheryl sync. DEPLOYED 2026-10-11.
