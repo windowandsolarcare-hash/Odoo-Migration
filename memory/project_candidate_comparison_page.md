@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: e3071731-f37a-4440-a358-34be556223c2
-  modified: 2026-10-10T15:21:31.761Z
+  modified: 2026-10-11T08:54:09.148Z
 ---
 
 Page 2 of the 2026 Lead Window & Solar Cleaning Technician hire (the HR/ZipRecruiter round). Built + deployed 2026-10-10, ahead of the Oct 12–13 phone interviews. Cheryl + DJ use it to compare candidates and run the phone screens.
@@ -26,4 +26,8 @@ Page 2 of the 2026 Lead Window & Solar Cleaning Technician hire (the HR/ZipRecru
 
 **Dial test (2026-10-10):** Operator seeded a "TEST - Dial Check" candidate with Cheryl's # (909-821-2822); DJ confirmed the dial rang through + bridged; Operator cleared it. Page is clean.
 
-**Open item (DJ's side):** Row 6 "Our message & their reply" shows standard outreach copy as a placeholder — DJ pulls the exact per-person ZipRecruiter first-message copy WITH HR when he can access ZR (ZR UI glitches under browser automation). Page works fully without it.
+**Row 6 (RESOLVED 2026-10-11):** The exact per-person ZipRecruiter first messages for the 6 booked were pulled (DJ had ZR logged in; read each thread via Claude-in-Chrome) and wired in — NOT one template: Fernando/Alfonso/Brian got the standard template, Norberto/James/Austin got personalized openers (résumé reference / "thanks for reaching out"). Verbatim text saved at `4_Reference_Data/zr_first_messages_6_booked.md`. Live code: `FIRST_MSG[c.id] || OUTREACH_MSG` — each candidate shows their real message; the generic `OUTREACH_MSG` (which was NEVER actually sent) is only a fallback for not-yet-pulled candidates (Joshua/awaiting/backup).
+
+**Interview questions (as of 2026-10-11 deploy):** 10 general INTERVIEW_Q (count labels derive from `INTERVIEW_Q.length` — dynamic, won't drift) + per-candidate `Q[id]` arrays + a "Don't ask (CA law)" reminder box. CA-compliance edits made: dropped the desert-heat Q (redundant w/ app screening), #7 asks on-time-to-meet-up (not "reliable transportation" — car-ownership proxy risk), the no-insurance line is a factual statement not a probe, added a 32–40 hrs-range expectations Q.
+
+**★ CONSTRAINT — per-question notes are keyed by position (q0..qN).** Reordering/adding/removing an interview question AFTER notes are saved misaligns the saved answers. Once the Oct 12–13 interviews save notes, do NOT renumber questions without flagging Portal to migrate the notes first. Free to change before any notes exist.
