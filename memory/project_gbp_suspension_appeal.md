@@ -5,10 +5,14 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 7a4f4487-5a08-47dc-8b9b-7761235acbe9
-  modified: 2026-10-06T04:41:52.471Z
+  modified: 2026-10-11T17:15:38.735Z
 ---
 
 
+> ## ✅✅ FULLY VERIFIED + LIVE (2026-10-11, Web checked the GBP Manager live). The profile now shows **"1 business · 100% verified" / Window & Solar Care · ✓ Verified**, service-area based (Indio/La Quinta +6 areas, NO street address shown — home address stays private), live on Maps (map pin, 19 views). So the "Get verified" step below is DONE. **Business Profile ID 13507549370210966; Maps place id `/g/11r7_dn0f4` (CID 0x80dafd495b67bb5d:0x6e53586900b3236).**
+> **★ GOOGLE REVIEW DEEP-LINK (from the verified dashboard's "Get more reviews," Web-verified opens the review composer): `https://g.page/r/CTYyC5CGNeUGEBM/review`** — the canonical mobile review link; handed to Lead/Specialists/Operator for the review-request program. See [[reference_google_review_link]].
+> **⚠ TWO GBP EDITS STUCK PENDING (2026-10-11):** in the editor → Contact → both the removal of old number **760-334-5350** (CURRENT still lists 5355+5350; PENDING shows 5350 struck) AND the **text Chat** (sms:+17603345355) show Google's *"Your edit is taking longer than expected. Contact support."* banner. **FIX: DJ clicks "Contact support" in the editor for each — do NOT resubmit.**
+>
 > ## ✅ RESOLVED — PROFILE REINSTATED. Google confirmed reinstatement **2026-09-28** (DJ re-confirmed live 2026-10-05). Appeal case **[9-2903000041323]**. **DO NOT RE-FILE** — the appeal succeeded; any further filing only risks the account. History below kept for the record.
 >
 > **★ ONE OPEN DJ ACTION (NOT the appeal — a separate ownership-verification step):** a SECOND Google email the same day (2026-09-28, subject *"Further account verification is required for Window & Solar Care"*, **still UNREAD** in the inbox as of 2026-10-05) says: *"You must successfully verify your profile so your edits can be visible to customers."* So the profile is LIVE/reinstated, but until DJ completes **"Get verified"** (→ `https://business.google.com/n/13507549370210966/profile/verify`), any edits he makes to the listing will NOT publish to customers. The reinstatement email's "no further action to verify at this time" refers to the APPEAL; this manage/edit verification is a distinct Google step and is login-walled (DJ-only — his identity). **Until DJ finishes Get-verified, treat the listing as read-only to customers.**
