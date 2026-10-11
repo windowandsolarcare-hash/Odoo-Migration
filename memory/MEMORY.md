@@ -106,6 +106,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_workiz_no_job_all.md](feedback_workiz_no_job_all.md) — NEVER use the Workiz job/all/ endpoint (DJ's rule).
 - [feedback_saunders_printing_never_send.md](feedback_saunders_printing_never_send.md) — NEVER send any Saunders Printing invoice/email without DJ's explicit OK.
 - [feedback_auditor_user_perspective_gapfinder.md](feedback_auditor_user_perspective_gapfinder.md) — ★ Auditor = USER-perspective gap-finder: hunts what the PLAN missed (edit/delete/edge/Add).
+- [feedback_architect_server_revalidate_bulk_mutations.md](feedback_architect_server_revalidate_bulk_mutations.md) — ★ Architect lens: any BULK/mutating action must re-validate submitted ids server-side vs the SAME canonical domain (shared helper), never trust the client list — per-row approval is the gate, server re-check is the backstop; both must hold.
 - [feedback_dj_owns_cheryl_erp_access.md](feedback_dj_owns_cheryl_erp_access.md) — ★ DJ progressively grants Cheryl more ERP access as HE chooses. Surface a scope concern ONCE.
 - [feedback_drop_link_table.md](feedback_drop_link_table.md) — ★ DROP the end-of-reply link TABLE. Keep ONE relevant link + the OVER line.
 - [feedback_hud_cards_live_not_inbox.md](feedback_hud_cards_live_not_inbox.md) — ★ HUD/status cards LIVE-DERIVED every render, never a stored inbox that goes stale.
