@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-12T13:54:28.038Z
+  modified: 2026-10-12T14:00:24.956Z
 ---
 
 Triage from Lead: booking-approve for Kathy Sell SO 17758 (→265029) stored `date_order` 2026-10-22 20:23 UTC = **1:23 PM PT**, customer requested **12:30**. DJ says he's seen it before → RECURRING class. Diagnosed worst-first (Specialists owns scheduler.py + booking_requests.py).
@@ -38,4 +38,10 @@ RULED OUT for the 20:23 (all firsthand / Operator): the approve handler itself; 
 3. Per-`so_id` idempotency guard on `/approve` (no-op a 2nd approve within N s) + wrap `approve()` in try/finally so the button can't lock.
 4. For the PHANTOM: enable Odoo field tracking on `sale.order.date_order` (and/or a temporary write-trace) to catch the next occurrence BEFORE closing — the :23 is unexplained and must not be closed on assumption.
 
-See [[feedback_dj_operating_instincts]] (tap-to-book, review-then-send), [[feedback_builders_dont_sequence_or_defer]], [[feedback_audit_stamp_confirm_firsthand]].
+## STATUS / Lead fix-shape (2026-10-12) — bug stays OPEN until the phantom is caught
+Lead accepted the FINAL triage (independently QC'd `maint_resolve_needs` reminders.py:1509 = inbox-label event only, no date_order — confirms "no traceable path"). Plan:
+- **PHASE 1 = INSTRUMENT NOW.** (i) GREENLIT: temporary best-effort **LOG-ONLY write-trace** at `booking_requests.py:333` + `scheduler.py:1130` (try/except, can't break the mover; non-behavioral → **NO §15**; build+stage → Lead byte-QC → QC-green → DJ deploy picker). I added a **read-back verify** in `schedule_odoo_so` (write → re-read → log `PHANTOM` if stored ≠ written) as the one cheap in-code chance to catch it in-window. Branch `specialists/dateorder-write-trace`. ⚠ EFFECTIVENESS FLAG (raised to Lead): the two-line trace logs the approve's own (correct, 19:30) writes but likely WON'T capture the phantom — we proved 20:23 doesn't route through those lines and Operator saw only the approve POST at 13:27, so the phantom is probably Odoo-side or another session writing date_order directly. (ii) **date_order field-tracking is DJ-GATED** (Lead put yes/no to DJ, recommended temporary yes) — the comprehensive catch (logs EVERY change w/ user+ts+old→new regardless of source). The trace ships regardless; **(ii) is the real catch — push the yes.**
+- **Do NOT close on A/B.** Bug stays OPEN until the phantom is caught.
+- **PHASE 2 = real fix after the catch → §15.** Finding **A** (front-end about-to-book-time display + SOFT off-grid confirm) may move on its own §15 track now; **HOLD B** (idempotency + try/finally) until Phase 2 so we don't churn the traced write path.
+
+See [[feedback_dj_operating_instincts]] (tap-to-book, review-then-send), [[feedback_builders_dont_sequence_or_defer]], [[feedback_audit_stamp_confirm_firsthand]], [[feedback_dj_deploy_control_stage_and_trigger]].
