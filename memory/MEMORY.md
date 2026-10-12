@@ -138,3 +138,4 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_restart_sessions_at_fleet_idle.md](feedback_restart_sessions_at_fleet_idle.md) — ★ Restart long sessions during a FLEET-IDLE window, not mid-sprint.
 - [feedback_windows_curl_unicode_use_utf8_file.md](feedback_windows_curl_unicode_use_utf8_file.md) — Windows curl + non-ASCII = false 500 (cp1252). POST from a UTF-8 file / Python.
 - [feedback_adopt_ideas_token_bounded.md](feedback_adopt_ideas_token_bounded.md) — ★ Adopting outside ideas: implement the BOUNDED token-cheap version; state the token ceiling.
+- [feedback_archive_statements_on_pull.md](feedback_archive_statements_on_pull.md) — ★ Accounting: every statement/export pulled → SAVE to Financial_Statements/<Business>/<Account>/<Year>/ (+ Drive), never just chat/Downloads; so no re-pull. Candidate yearly archive pass. Belongs in Accounting boot pack.
