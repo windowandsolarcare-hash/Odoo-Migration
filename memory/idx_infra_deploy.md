@@ -53,6 +53,7 @@
 - [project_v1v2_retirement_plan.md](project_v1v2_retirement_plan.md) — ★ PLAN (audit done 2026-07-30, NOT executed): retire ~30 legacy V1 owner pages w/ V2 twin via archive+redirect (keep API sub-routes + /tech/*). 5 must-keep (field/hiring/quote_rates/library/index_classic). BLOCKED on DJ's 4 decisions + "every v2 is Preview" parity Q. Map artifact linked inside.
 
 - [project_owner_page_nostore_cache.md](project_owner_page_nostore_cache.md) — Owner HTML pages served via f.read() with NO Cache-Control get stale-cached on DJ's phone (PWA, no service worker). Fix: HTMLResponse(..., headers={'Cache-Control':'no-store, must-revalidate'}). Immediate unstick: load ?fresh=1 once. 2026-07-30.
+- [project_static_owner_revalidate_vestigial_vparam.md](project_static_owner_revalidate_vestigial_vparam.md) — ★ main.py _owner_assets_revalidate stamps no-cache+must-revalidate on EVERY /static/owner/*.js|*.html (+ SW network-first for .js/.css, + CF DYNAMIC) → a changed v2_apps.js revalidates fresh via ETag. The '?v=N' cache-busters (?v=2 on 49 pages) are VESTIGIAL — do NOT mass-bump ?v= (rule-9 churn). Verified live 2026-10-11.
 
 - [project_stripe_duplicate_payments_dashboard.md](project_stripe_duplicate_payments_dashboard.md) — ★ Stripe endpoints exist TWICE (payments.py + dashboard.py) and shadow inconsistently — payment_link served by payments.py, tip_page by dashboard.py. Editing only one silently does nothing. If an endpoint edit has no live effect, grep for a 2nd copy. (payments.py's missing urllib import broke all Stripe links 2026-07-27.)
 
