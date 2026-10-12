@@ -1,5 +1,7 @@
 # Odoo quirks & fields — memory index
 
+- [project_wsc_odoo_opening_balances.md](project_wsc_odoo_opening_balances.md) — ★ W&SC migration imported FULL transactions, not a 1/1/2025 opening-balance entry. Bank/AR derive OK; credit-card balances, real loan payoff, fixed assets MISSING. No tax impact (cash-basis Sch C). Pull card/loan 12/31/2024 balances → Operator posts opening JE.
+
 - [project_quote_line_clobber_fix.md](project_quote_line_clobber_fix.md) — ★ MONEY/DATA: quote-line writes must target ONLY the windows line (product_id ∈ {141 IN_OUT, 103 OUTSIDE}) + PRESERVE siblings — never blanket-zero/clear all priced lines. Fixed 2026-09-28: _replace_quote_line (EDIT) + accept_to_job_core (ACCEPT) were dropping added services ($350→$221). Accept now PRESERVES existing lines (DJ's rule). Constants: IN_OUT=141, OUTSIDE=103.
 
 - [project_odoo_get_param_returns_false_unset.md](project_odoo_get_param_returns_false_unset.md) — ir.config_parameter get_param returns bool `False` (NOT None/'') when a key is UNSET → a default-safe flag must treat False as "unset" or an unset flag misreads as 'false'/OFF. Caught in tech collect-only test mode.
