@@ -27,6 +27,7 @@
 - [project_draft_booking_link_placeholder.md](project_draft_booking_link_placeholder.md) — AI reply drafts wrote literal "[booking tool link]" (would send as-is). Fixed on Follow-ups: _fill_booking_link swaps placeholder → real wscare.pro/c/<token>; /api/ai/rewrite preserves it. Source (_draft_reply/_inbox_brain) still emits placeholder → inbox may show it (flagged lead). 2026-08-07.
 
 - [project_zelle_copy_pushes_phone.md](project_zelle_copy_pushes_phone.md) — Zelle pay-page Copy tap = strong "paying now" → HUD card + web PUSH/buzz (_notify, vibrate). Page OPEN = quiet chatter only (link auto-preview could be a bot). Tracking in ir.config_parameter wsc.zelle.track.<so>. 2026-08-06.
+- [project_paypage_wording_and_job_day_draft.md](project_paypage_wording_and_job_day_draft.md) — Zelle pay page = payments.py `/api/zelle/pay` single render ("use our email, not a phone number" line, apostrophes as &#39; entities). "thanks for having us out today" draft = specialist_billing.py `_zelle_request_text` (ONE builder, NOT sms.py) — now says the real job day from date_order (UTC→PT: today/future→"today", past→"on Friday, Oct 9", missing→omit). Deployed 2026-10-11.
 
 - [project_inbound_mms_dropped.md](project_inbound_mms_dropped.md) — Inbound MMS (picture texts) DROPPED: sms_incoming early-returns on empty Body + never reads NumMedia/MediaUrl. Needs media capture + auth'd proxy to display. Emoji inbound works fine. Routed to specialist 2026-08-05.
 
