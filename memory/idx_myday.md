@@ -41,3 +41,4 @@
 
 - [project_dj_assigned_provenance_tag.md](project_dj_assigned_provenance_tag.md) — "DJ Assigned" project.tags tag stamped on Cheryl tasks DJ assigns (goals.py dj_assigned_tag_id + myday.py + feed_live _cheryl_assigned "🤝 DJ gave you") vs tasks she makes herself. DEPLOYED 2026-10-10.
 - [project_cheryl_task_checklist.md](project_cheryl_task_checklist.md) — Cheryl Tasks shows + ticks + full-CRUD-edits the My Day checklist (x_myday_checklist); list returns checklist/chk_total/done, /cheryl/api/tasks/checklist + /edit persist the [{t,d}] array (IDOR-guarded, sanitized) → auto DJ↔Cheryl sync. DEPLOYED 2026-10-11.
+- [project_myday_assign_checkboxes.md](project_myday_assign_checkboxes.md) — My Day Assign-to = 2 CHECKBOXES Dan+Cheryl; both=SHARED via 'Shared Both' tag + x_owner=Cheryl canonical (her list/auth/HUD unchanged; Dan-side 2b/CC widened, 2c dedup); goals.make_personal = ONE unshare helper for both to-Dan paths; CRUD parity add/edit/⋯menu. Deployed 2026-10-11.
