@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-12T15:59:13.071Z
+  modified: 2026-10-12T16:07:43.047Z
 ---
 
 **DJ exported from QuickBooks Pro 2010 Desktop (Saunders Printing, co3) on 2026-10-12** — two files: a Transaction Detail CSV and a full-list IIF (chart of accounts). QB can't API; export path = report→CSV (transactions) + File→Utilities→Export→Lists to IIF (lists). Accountant's Copy (.QBX/.QBA/.QBY), backup (.QBB), portable (.QBM) are all proprietary binary = NOT readable by me; only IIF (tab-delimited text) and report CSV are.
@@ -22,8 +22,10 @@ metadata:
 
 **★ ACCOUNTS: DJ says Chase + Amex are the only two accounts used now** (2026-10-12), despite COA also listing Costco Visa + CitiBank with stale nonzero balances. BUILD on Chase + Amex; but CONFIRM nothing ran through Costco/Citi in tax years 2024–26 before declaring expenses complete. (old act's card-pull playbook had assumed Amex + Amazon/Prime Visa(Chase) + Costco Visa(Citi) — that list was W&SC-flavored; Saunders = Chase + Amex per DJ.)
 
-**OPEN DECISIONS before building Saunders Schedule C:**
-1. **Cash vs accrual basis** — QB was accrual; NBHOF pays months after invoice so the two bases differ across year boundaries. Match whatever prior Saunders returns used (CPA question). Build BOTH views.
-2. Costco/Citi used in 24–26? (see above).
+**★ BASIS = CASH, CONFIRMED (2026-10-12).** DJ's 2024 filed return (both Schedule Cs) = cash method ([[project_dj_2024_return_schedule_c]]). STAY CASH for consistency (DJ initially guessed accrual — wrong; the return settles it). Proof: 2024 Saunders return gross = $19,755 (cash collected) vs QB 2024 invoiced = ~$22,141 (accrual) — the gap is cash-vs-accrual timing. IMPLICATION: rebuild ANY year PURELY from Chase+Amex (revenue=deposits collected, expenses=card/bank spend); QB journal entries NOT needed for taxes. DJ's long-time method (total the Amex for what applied to Saunders = his "cost of goods") was valid cash-basis accounting. COGS vs Supplies line is just presentation — the printer payments are the cost of goods either way; same dollars, same deduction.
+
+**★ SCOPE DECISION (DJ wrestling 2026-10-12; my rec): split two goals.** (1) TAXES = only need 2024/2025/2026 → Chase+Amex cash-basis rebuild. (2) PRESERVE QB DATA before abandoning QB = do NOT re-key 5yrs of JEs; instead run QB **Transaction Detail, date range = All → one CSV export** (+ P&L by year) — captures every year QB has incl. the accurate Cheryl-era years (pre-~2022, when JEs were done) — archive to Drive, I read it forever. (3) SKIP re-entering never-recorded dead years into Odoo (filed/closed, no tax benefit). WHY recent years are revenue-only in QB: only invoices were entered, never the expense JEs (DJ: "too lazy"); older Cheryl-era years have BOTH sides.
+
+**OPEN:** Costco/Citi used in 24–26? (COA lists them with stale balances; DJ says Chase+Amex only now — confirm before declaring expenses complete).
 
 **Files:** Detail_TX.CSV + QB_DJ.IIF in uploads/d70db154-.../. See [[project_accounting_next_priorities]] (#1 Saunders setup), [[project_saunders_printing_migration_plan]], [[project_2025_schedule_c_categorized]] (W&SC, separate). Amex is mostly Saunders co3 — watch attribution vs W&SC. Reconstruction = QB revenue + Amex/Chase expenses → QB COA → Schedule C. Money writes via Operator/app, never raw RPC.
