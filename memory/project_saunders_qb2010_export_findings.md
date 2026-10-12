@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-12T16:07:43.047Z
+  modified: 2026-10-12T17:00:40.713Z
 ---
 
 **DJ exported from QuickBooks Pro 2010 Desktop (Saunders Printing, co3) on 2026-10-12** — two files: a Transaction Detail CSV and a full-list IIF (chart of accounts). QB can't API; export path = report→CSV (transactions) + File→Utilities→Export→Lists to IIF (lists). Accountant's Copy (.QBX/.QBA/.QBY), backup (.QBB), portable (.QBM) are all proprietary binary = NOT readable by me; only IIF (tab-delimited text) and report CSV are.
@@ -27,5 +27,11 @@ metadata:
 **★ SCOPE DECISION (DJ wrestling 2026-10-12; my rec): split two goals.** (1) TAXES = only need 2024/2025/2026 → Chase+Amex cash-basis rebuild. (2) PRESERVE QB DATA before abandoning QB = do NOT re-key 5yrs of JEs; instead run QB **Transaction Detail, date range = All → one CSV export** (+ P&L by year) — captures every year QB has incl. the accurate Cheryl-era years (pre-~2022, when JEs were done) — archive to Drive, I read it forever. (3) SKIP re-entering never-recorded dead years into Odoo (filed/closed, no tax benefit). WHY recent years are revenue-only in QB: only invoices were entered, never the expense JEs (DJ: "too lazy"); older Cheryl-era years have BOTH sides.
 
 **OPEN:** Costco/Citi used in 24–26? (COA lists them with stale balances; DJ says Chase+Amex only now — confirm before declaring expenses complete).
+
+**★★ 2025 SAUNDERS SCHEDULE C FINALIZED (cash, both sides pulled 2026-10-12 via computer-use).** Chase 8356 CSV (back to 10/15/2024) + Amex 11003 CSV. Revenue (deposits collected) = **$39,724.68** — TIES EXACTLY to QB 2025 invoiced. DJ answers 2026-10-12: freight is folded INTO the Zoo invoice/COGS (no separate line); Desert Aire (~$2,239, Cheryl's name) = PERSONAL exclude; phone+internet ALL business; check #2375 $159 → Other/misc. DRAFT:
+- Gross receipts 39,725 · COGS (Zoo print+4over, freight incl) 8,536 · Gross profit 31,189
+- Expenses: Rent/storage 2,452 · Utilities (AT&T+Frontier+Spectrum) 1,344 · Office (software/web) 622 · Interest (Amex finance chg) 680 · Other (bank fees+$159 chk) 223 = Total 5,321
+- **NET ≈ $25,870** (vs 2024 filed net $5,642 — 2025 is a ~2x revenue year → more Saunders tax). No vehicle/home-office/wages (matches 2024 return).
+- OPEN: confirm no Zoo charges on Amex 11003 are actually W&SC EDDM postcards (W&SC uses Citi/Amazon cards → likely clean). Source files: C:\Users\dj\Downloads\Chase8356_Activity_20261012.csv + activity.csv (Amex 11003 2025). Scratchpad: saunders_chase_8356_raw.md + saunders_amex_11003_raw.md.
 
 **Files:** Detail_TX.CSV + QB_DJ.IIF in uploads/d70db154-.../. See [[project_accounting_next_priorities]] (#1 Saunders setup), [[project_saunders_printing_migration_plan]], [[project_2025_schedule_c_categorized]] (W&SC, separate). Amex is mostly Saunders co3 — watch attribution vs W&SC. Reconstruction = QB revenue + Amex/Chase expenses → QB COA → Schedule C. Money writes via Operator/app, never raw RPC.
