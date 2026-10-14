@@ -1,5 +1,7 @@
 # Infra / deploy / GitHub / Render — memory index
 
+- [project_atomic_multifile_deploy_git_data_api.md](project_atomic_multifile_deploy_git_data_api.md) — ★ Atomic MULTI-file commit to main via git Data API (blobs/tree inline-content → 1 commit → PATCH refs/heads/main) WORKS; ruleset accepts it (verified 2026-10-13, 4-file gateway deploy). Use for deploy-ORDERING deps (server-before-client) = one Render deploy, zero mixed window. Contents API is 1-file/commit = N deploys. Fallback: server-first + live-serve-confirm before client.
+
 - [project_memory_pillar_utf8_cold_connect_500.md](project_memory_pillar_utf8_cold_connect_500.md) — ★ wsc-memory-pillar Postgres is UTF8/UTF8 + psycopg3 (always UTF8 client enc) → Unicode stores fine (1067 non-ASCII rows already in mem_records). A "Unicode 500" is usually the CLIENT sending cp1252 bytes (Windows curl/PowerShell), not a server bug — reproduce with a UTF-8 client before touching server code. render MCP workspace = tea-d78l9fqdbo4c7388n9og.
 
 - [project_quote_save_endpoints_shadowed.md](project_quote_save_endpoints_shadowed.md) — ★ SHADOW MAP: /owner/api/quote/save + /update exist in BOTH quotes.py AND dashboard.py — dashboard's win (included first, main.py:1038<1045); quotes.py's are DEAD twins. Edit dashboard.py for the live save/update path. accept_to_job_core (quotes.py) IS live (route + voice tool). Verify file before editing quote-save code. Follow-up: retire the dead twins.
