@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T05:16:54.686Z
+  modified: 2026-10-14T05:22:00.084Z
 ---
 
 **DJ 2026-10-13: formed `Window & Solar Care, LLC` (CA SOS B20260293155) ~July 2026 — STATE filing only, NO IRS Form 2553.** **It is a SINGLE-MEMBER LLC (DJ is the only owner, confirmed 2026-10-13).** So as of now the LLC is a **disregarded entity taxed as a sole proprietorship** (Schedule C) — forming an LLC does NOT by itself make it an S corp; the S election is a separate IRS filing (Form 2553). Liability shell exists; tax treatment is unchanged from before.
@@ -21,7 +21,7 @@ metadata:
 - **★ CRITICAL CAVEAT — S-corp locks the split:** an S corp has ONE class of stock ⇒ ALL profit AND distributions must be allocated **strictly pro-rata to ownership %** — NO special allocations. So 75/25 means 75% of every dollar to DJ, 25% to Cheryl, rigidly. Flexible/creative income splits are a **PARTNERSHIP** feature, lost once you elect S corp. So the 50/50-vs-25/75 choice rigidly governs every dollar.
 - **Both working owners must take a reasonable W-2 salary** before distributions under the S corp.
 - **SEQUENCING:** amend the operating agreement to add Cheryl FIRST, then file the 2553 (both sign as consenting shareholders), effective Jan 1, 2027.
-- **OPEN Q — marital status:** 2025 return was filed **SINGLE**. Need to confirm if DJ + Cheryl are married — a married couple owning a CA (community-property) LLC has extra options/wrinkles (qualified joint venture / disregarded-vs-partnership default). Affects setup, not the core S-corp path.
+- **Marital status RESOLVED (DJ 2026-10-13): DJ + Cheryl are NOT married.** So adding Cheryl = a straightforward 2-owner multi-member LLC — NO community-property / qualified-joint-venture wrinkle. Under the S election it's a normal 2-shareholder S corp (strict pro-rata split still applies).
 - **Recommend:** a late-2026 CPA planning session to line up the split %, salaries, and timing before pulling both triggers.
 
 ## Key points (DJ's plan is correct)
