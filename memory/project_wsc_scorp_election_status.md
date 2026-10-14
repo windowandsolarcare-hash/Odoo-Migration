@@ -1,14 +1,28 @@
 ---
 name: project_wsc_scorp_election_status
-description: "Window & Solar Care, LLC was formed with CA SOS only (~July 2026, B20260293155) — NO Form 2553 filed, so it's a disregarded entity taxed as sole prop (Schedule C). DJ intends an S-corp election in a FUTURE year when W&SC profit justifies payroll. Clean path: file Form 2553 by Mar 15 of the target year. Missed the ~Sept 2026 new-entity window (fine). S-corp would cover the W&SC LLC ONLY; Saunders Printing (EIN 87-3872426) is a separate sole prop."
+description: "Window & Solar Care, LLC = SINGLE-MEMBER (DJ only), CA SOS only (~July 2026, B20260293155), NO Form 2553 → disregarded, taxed as sole prop (Schedule C, NO 1065). DJ's PLAN (confirmed 2026-10-13): early 2027 elect S-corp (file 2553 by Mar 15, 2027) AND add Cheryl as 2nd member (split 50/50 or 25/75 TBD, set in the OPERATING AGREEMENT). S-corp forces strictly pro-rata splits + reasonable W-2 salary for both working owners. S-corp covers W&SC LLC ONLY; Saunders Printing (EIN 87-3872426) separate sole prop."
 metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T05:07:13.094Z
+  modified: 2026-10-14T05:16:54.686Z
 ---
 
-**DJ 2026-10-13: formed `Window & Solar Care, LLC` (CA SOS B20260293155) ~July 2026 — STATE filing only, NO IRS Form 2553.** So as of now the LLC is a **disregarded entity taxed as a sole proprietorship** (Schedule C) — forming an LLC does NOT by itself make it an S corp; the S election is a separate IRS filing (Form 2553). Liability shell exists; tax treatment is unchanged from before.
+**DJ 2026-10-13: formed `Window & Solar Care, LLC` (CA SOS B20260293155) ~July 2026 — STATE filing only, NO IRS Form 2553.** **It is a SINGLE-MEMBER LLC (DJ is the only owner, confirmed 2026-10-13).** So as of now the LLC is a **disregarded entity taxed as a sole proprietorship** (Schedule C) — forming an LLC does NOT by itself make it an S corp; the S election is a separate IRS filing (Form 2553). Liability shell exists; tax treatment is unchanged from before.
+
+## ★ Filing-form roadmap (DJ confirmed single-member 2026-10-13)
+- **Single-member LLC, no election (NOW + all of 2026):** disregarded ⇒ **Schedule C on the 1040. NO Form 1065.** Part-year 2026 formation does NOT split anything — the whole year's W&SC income is one Schedule C; no short-year return. (DJ's instinct correct: no 1065 needed.)
+- **Multi-member LLC (2+ owners), no election:** defaults to partnership ⇒ **Form 1065 + K-1s.**
+- **LLC electing S corp (Form 2553):** **Form 1120-S + K-1s**, payroll/reasonable salary required. (NOT a 1065.)
+
+## ★ DJ'S PLAN for early 2027 (confirmed 2026-10-13) — two moves at once
+1. **Elect S corp effective 2027** — file Form 2553 by **Mar 15, 2027**; ALL members at election time must consent + sign.
+2. **Add Cheryl as a 2nd member** of the LLC. **Ownership split TBD — 50/50 or 25/75 — and it's set at the LLC level in the OPERATING AGREEMENT** (DJ correct; the CA SOS filing does NOT list %; the operating agreement + capital accounts do).
+- **★ CRITICAL CAVEAT — S-corp locks the split:** an S corp has ONE class of stock ⇒ ALL profit AND distributions must be allocated **strictly pro-rata to ownership %** — NO special allocations. So 75/25 means 75% of every dollar to DJ, 25% to Cheryl, rigidly. Flexible/creative income splits are a **PARTNERSHIP** feature, lost once you elect S corp. So the 50/50-vs-25/75 choice rigidly governs every dollar.
+- **Both working owners must take a reasonable W-2 salary** before distributions under the S corp.
+- **SEQUENCING:** amend the operating agreement to add Cheryl FIRST, then file the 2553 (both sign as consenting shareholders), effective Jan 1, 2027.
+- **OPEN Q — marital status:** 2025 return was filed **SINGLE**. Need to confirm if DJ + Cheryl are married — a married couple owning a CA (community-property) LLC has extra options/wrinkles (qualified joint venture / disregarded-vs-partnership default). Affects setup, not the core S-corp path.
+- **Recommend:** a late-2026 CPA planning session to line up the split %, salaries, and timing before pulling both triggers.
 
 ## Key points (DJ's plan is correct)
 - **2025 return is UNAFFECTED.** The LLC didn't exist in 2025, so TY2025 is sole prop no matter what. The S-corp question is strictly **2026-and-forward**. See [[project_2025_turbotax_entry_status]].
