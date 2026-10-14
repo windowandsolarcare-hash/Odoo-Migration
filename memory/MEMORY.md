@@ -25,6 +25,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - [feedback_raise_bar_on_dj_alerts.md](feedback_raise_bar_on_dj_alerts.md) — ★ Reach DJ only when REALLY needed; else decide+proceed; cross-stream→Lead.
 - [feedback_alert_dj_when_input_needed.md](feedback_alert_dj_when_input_needed.md) — ★ Input genuinely needed → ALERT him (banner/HUD/text), never ask-then-wait; keep working.
 - [feedback_ready_and_unfinished_ask_picker.md](feedback_ready_and_unfinished_ask_picker.md) / [feedback_blocked_build_ask_with_options.md](feedback_blocked_build_ask_with_options.md) — ★ (§11/§12) BLOCKED/READY/UNFINISHED → AskUserQuestion PICKER; a DJ tap IS the deploy trigger. Never silently stall.
+- [feedback_picker_leads_with_plain_synopsis.md](feedback_picker_leads_with_plain_synopsis.md) — ★ Every picker to DJ LEADS with a 2-3 line plain synopsis (what he asked / what we changed / what each tap does) BEFORE options. No lingo/codes. (DJ taps Deploy blind otherwise.)
 - [feedback_dj_operating_instincts.md](feedback_dj_operating_instincts.md) — ★ DJ instincts: words warm/one-push; dates batch-by-geo tight; 2 quote types, review-then-send, tap-to-book, price-TBD.
 - [feedback_operator_followup_verify.md](feedback_operator_followup_verify.md) — ★ Operator: any action with an expected OUTCOME gets a scheduled follow-up to VERIFY.
 - [feedback_activity_notes_self_contained.md](feedback_activity_notes_self_contained.md) — Activity notes embed memory content; any URL = proper <a href>.
