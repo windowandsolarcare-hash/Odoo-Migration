@@ -5,10 +5,10 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T05:22:00.084Z
+  modified: 2026-10-14T13:54:39.554Z
 ---
 
-**DJ 2026-10-13: formed `Window & Solar Care, LLC` (CA SOS B20260293155) ~July 2026 — STATE filing only, NO IRS Form 2553.** **It is a SINGLE-MEMBER LLC (DJ is the only owner, confirmed 2026-10-13).** So as of now the LLC is a **disregarded entity taxed as a sole proprietorship** (Schedule C) — forming an LLC does NOT by itself make it an S corp; the S election is a separate IRS filing (Form 2553). Liability shell exists; tax treatment is unchanged from before.
+**DJ 2026-10-13: formed `Window & Solar Care, LLC` (CA SOS B20260293155) — STATE filing only, NO IRS Form 2553.** **★ EXACT FORMATION DATE CONFIRMED 2026-10-14 from the Articles of Organization in Drive: filed with CA SOS 06/23/2026, approved 06/25/2026** (EIN 42-3461012 issued 06/27/2026). This is the trigger date for the CA $800 franchise tax + Statement of Information + the from-inception S-election window — see [[project_accounting_todo_log]]. **It is a SINGLE-MEMBER LLC (DJ is the only owner, confirmed 2026-10-13).** So as of now the LLC is a **disregarded entity taxed as a sole proprietorship** (Schedule C) — forming an LLC does NOT by itself make it an S corp; the S election is a separate IRS filing (Form 2553). Liability shell exists; tax treatment is unchanged from before.
 
 ## ★ Filing-form roadmap (DJ confirmed single-member 2026-10-13)
 - **Single-member LLC, no election (NOW + all of 2026):** disregarded ⇒ **Schedule C on the 1040. NO Form 1065.** Part-year 2026 formation does NOT split anything — the whole year's W&SC income is one Schedule C; no short-year return. (DJ's instinct correct: no 1065 needed.)
@@ -28,7 +28,7 @@ metadata:
 - **2025 return is UNAFFECTED.** The LLC didn't exist in 2025, so TY2025 is sole prop no matter what. The S-corp question is strictly **2026-and-forward**. See [[project_2025_turbotax_entry_status]].
 - **DJ wants S corp in a LATER year** (not 2026) — when the W&SC side grows enough to justify paying himself a reasonable salary + running payroll. This is the right call; W&SC 2025 Sch C net ≈ $24,417 is likely **below** the threshold where S-corp payroll-tax savings beat the added payroll/1120-S/bookkeeping cost (rule-of-thumb ~mid-5-figures+ net).
 - **Clean election timing (no late relief needed):** to be an S corp for year X, file **Form 2553 by March 15 of year X** (effective back to Jan 1 of X), OR anytime during the prior year. He does NOT have to file on Jan 1 — mid-March of that year still makes it retroactive to Jan 1. e.g. S-corp for 2027 = file 2553 anytime now → Mar 15, 2027.
-- **Missed window = no problem.** For a NEW entity, a from-inception election needs 2553 within ~2mo15d of the entity starting (≈ late Sept 2026 for a July formation). That's passed → can't be S-corp for 2026, but that's fine given the profit level. (Late-election relief under Rev. Proc. 2013-30 exists with reasonable cause if ever needed.)
+- **Missed window = no problem.** For a NEW entity, a from-inception election needs 2553 within ~2mo15d of the entity starting (≈ Sept 7, 2026 for the 06/23/2026 formation). That's passed → can't be S-corp for 2026, but that's fine given the profit level. (Late-election relief under Rev. Proc. 2013-30 exists with reasonable cause if ever needed.)
 - **Scope:** the LLC is **Window & Solar Care only**. An S election on it covers the window/solar business ONLY. **Saunders Printing is a SEPARATE sole prop** (EIN 87-3872426 — the entity that currently runs W&SC as a DBA and issued DJ's 2025 W-2). Don't blur the two.
 - **EINs (two, keep straight):** W&SC LLC has its own EIN **42-3461012** (per Twilio A2P reg; see [[project_wsc_legal_name]]). Saunders Printing sole prop = **87-3872426** (DJ's 2025 Gusto W-2 employer).
 - **Solo 401(k) + SE tax tie-in:** as a sole prop, neither the employee NOR employer side of the solo 401(k) reduces SE tax (15.3% is on Sch C net, before the retirement deduction). The S corp is the structure that *could* shave payroll tax on the distribution portion — the main reason to eventually elect it.
