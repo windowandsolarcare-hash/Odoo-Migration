@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T14:40:21.625Z
+  modified: 2026-10-14T23:23:02.289Z
 ---
 
 **2026-10-14 — DJ: "keep a running list of things that we need to get done in accounting."** The living log is a real file: **`C:\Users\dj\Documents\Business\Financial_Statements\Accounting_TODO.md`** (mirror-synced to Google Drive, so DJ can see it). Every Accounting session KEEPS IT CURRENT — add items as DJ raises them, move finished ones to DONE. This memory is the pointer + snapshot.
@@ -24,12 +24,14 @@ metadata:
 1. **File + pay 2025 taxes** — Fed $5,890 + CA $1,966, by Thu Oct 15, 2026.
 2. **Pay the $800** CA LLC franchise tax → https://www.ftb.ca.gov/pay/ (Web Pay → Form 3522, entity B20260293155).
 3. **Deal with the EDD** (payroll cleanup).
+4. **Saunders Printing sales tax (CDTFA)** — get current (item 8).
 (Keep the $800 pay link in the sign-off. DJ will say e.g. "drop taxes" / "stop reminding me" to remove an item.)
 
 ## ⏰ TIMELY — DO NOW (DJ's running short list, 2026-10-14) — the 3 time-sensitive items in order; the rest can wait:
 1. **Pay taxes** — file + pay 2025 return: Fed $5,890 + CA $1,966 by Thu Oct 15, 2026 (extension deadline).
 2. **Pay the $800** CA LLC franchise tax (past due) — https://www.ftb.ca.gov/pay/.
 3. **Deal with the EDD** (item 5).
+4. **Saunders Printing sales tax (CDTFA)** — get current; find frequency + any past-due returns (item 8; company_id 3).
 
 ## Status flags (DJ 2026-10-14)
 - **$800 franchise tax: NOT PAID** (item 4). Pay link https://www.ftb.ca.gov/pay/ → Web Pay → LLC Annual Tax (Form 3522), entity B20260293155, $800.
