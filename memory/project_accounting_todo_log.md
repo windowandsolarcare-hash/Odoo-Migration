@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T14:09:53.164Z
+  modified: 2026-10-14T14:13:18.769Z
 ---
 
 **2026-10-14 — DJ: "keep a running list of things that we need to get done in accounting."** The living log is a real file: **`C:\Users\dj\Documents\Business\Financial_Statements\Accounting_TODO.md`** (mirror-synced to Google Drive, so DJ can see it). Every Accounting session KEEPS IT CURRENT — add items as DJ raises them, move finished ones to DONE. This memory is the pointer + snapshot.
@@ -21,6 +21,11 @@ metadata:
 7. **LLC RECURRING-COMPLIANCE CALENDAR (DJ 2026-10-14)** — set reminders once: $800 franchise tax (Form 3522) every yr Apr 15; **Form 568 LLC return annually even for a disregarded SMLLC** (easy to miss); Form 3536 gross-receipts fee ONLY if income ≥ $250K (N/A at ~$80K); Statement of Information (LLC-12) every 2 yrs (~2028); registered agent address current (DJ is agent); local business license renewal (Riverside Co / Thousand Palms); FinCEN BOI/CTA — VERIFY (March-2025 interim rule exempted US domestic LLCs, but volatile); payroll filings 941/940/DE9/DE9C/W-2 once S-corp in 2027.
 
 ## ★★ STANDING OVER-LINE REMINDER = ACTIVE (DJ 2026-10-14) — every Accounting reply MUST append to its OVER status line a "$800 CA LLC franchise tax still owed" nudge WITH the pay link (https://www.ftb.ca.gov/pay/), EVERY turn, until DJ explicitly says to stop. DJ's intent: a persistent nag so the next important thing actually gets done; he'll tell me to stop once he pays. Keep this active across sessions until then.
+
+## ⏰ TIMELY — DO NOW (DJ's running short list, 2026-10-14) — the 3 time-sensitive items in order; the rest can wait:
+1. **Pay taxes** — file + pay 2025 return: Fed $5,890 + CA $1,966 by Thu Oct 15, 2026 (extension deadline).
+2. **Pay the $800** CA LLC franchise tax (past due) — https://www.ftb.ca.gov/pay/.
+3. **Deal with the EDD** (item 5).
 
 ## Status flags (DJ 2026-10-14)
 - **$800 franchise tax: NOT PAID** (item 4). Pay link https://www.ftb.ca.gov/pay/ → Web Pay → LLC Annual Tax (Form 3522), entity B20260293155, $800.
