@@ -1,11 +1,11 @@
 ---
 name: project_wsc_cash_revenue_undeposited_funds
-description: "2025 CASH revenue (W&SC) ≈ $37,157 — DERIVED from the QuickBooks Undeposited Funds growth (12/31/24 $113,441.83 → 12/31/25 $150,598.84 = +$37,157). DJ's cash goes to a home safe, never deposited, so it piles up in Undeposited Funds. Caveat: assumes ONLY cash stayed undeposited. ★ BIG FLAG: $150K stuck in Undeposited Funds = a QB bookkeeping cleanup needed (overstates assets; part of why payment-method didn't migrate to Odoo). None of this affects the tax return (income all reported)."
+description: "★ No reliable 2025 CASH figure exists. QB UF growth was +$37,157 (12/31/24 $113,441.83 → 12/31/25 $150,598.84) but DJ says that's WAY too high → the Undeposited Funds account is a JUNK DRAWER (stray unmatched non-cash items), NOT a clean cash number. Real cash lives with DJ/the safe. DECISION (DJ 2026-10-13): do NOT clean up retired QuickBooks — it corrupted nothing in the Odoo migration (income is correct; only payment-method didn't carry, unfixable now), so zero upside. Real cash-on-hand gets set up in ODOO before the 2027 balance sheet. No tax impact."
 metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T06:02:50.109Z
+  modified: 2026-10-14T06:07:59.176Z
 ---
 
 **2026-10-13 — answered DJ's standing question "how much 2025 revenue was CASH" (W&SC), using the newly-granted QuickBooks MCP connector (read-only).**
@@ -16,9 +16,12 @@ metadata:
 - **Why that ≈ cash:** DJ's cash receipts go to a **home safe and are NEVER deposited to the bank**, so when recorded in QB they land in Undeposited Funds and never clear. Checks/cards/Zelle that WERE deposited clear out of UF. So the 2025 UF growth ≈ cash received + recorded in 2025. ~$37K of ~$80K gross ≈ ~46% cash (plausible for residential service work).
 - **Caveats:** assumes the ONLY thing left undeposited was cash (a stray undeposited check would overstate it); and it's GROSS cash received, not net of any cash spent directly out of the safe. Confirm against DJ's own sense of the safe.
 
-## ★ BIG BOOKKEEPING FLAG (not tax) — Undeposited Funds pile-up
-- **$150,598.84 sits in Undeposited Funds @ 12/31/2025** — years of payments marked "received" but never reconciled to actual bank deposits. Overstates assets; a real QB hygiene problem and part of why payment data didn't migrate cleanly. **Cleanup project:** match historical deposits + move the genuine cash-in-safe portion into its own **"Cash on Hand / Safe" asset account**, and record cash as income-when-received into that account going forward.
-- Tax impact: NONE — income is fully reported (DJ confirmed all jobs are invoiced/on the books). This is purely bookkeeping. See [[project_2025_turbotax_entry_status]].
+## ★ DECISION (DJ 2026-10-13): do NOT clean up QuickBooks
+- DJ says ~$37K cash is **way too high** → the $150,598.84 Undeposited Funds balance is a **junk account** (stray unmatched non-cash items piled up over years), not real cash. So it's NOT a usable cash proxy.
+- **QB is RETIRED/obsolete — nobody files from it, and the 2027 balance sheet will be built in ODOO, not QB. So scrubbing QB now buys nothing.**
+- **It did NOT corrupt the Odoo migration:** what migrated = invoices + payments + paid status, and the INCOME totals are verified correct. The UF mess never made Odoo income wrong. The only thing that didn't carry = payment-method detail — and **cleaning QB now would NOT fix that** (migration already happened; can't re-migrate). → **zero upside to touching QB. Leave it.**
+- **The ONLY real cleanup lives in ODOO, going forward (small, ~2027 setup):** before the 2027 balance sheet, set up a **"Cash on Hand / Safe" asset in Odoo** carrying the ACTUAL cash balance — **the honest number comes from DJ/the safe** (QB can't tell us). Accounting owns keeping Odoo's ducks in a row so 2027 is clean. See [[project_wsc_scorp_election_status]] (why 2027 balance sheet matters) + [[project_2025_turbotax_entry_status]].
+- Tax impact: NONE — income is fully reported (all jobs invoiced/on the books).
 
 ## Other QB observations (2026-10-13 pull, cash basis)
 - QB 2025 Net Income (cash) = **$23,755.45** — ties closely to the W&SC Schedule C net ($24,417) on the return. 2024 was $28,632.
