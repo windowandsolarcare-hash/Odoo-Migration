@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T05:03:59.505Z
+  modified: 2026-10-14T05:07:13.094Z
 ---
 
 **DJ 2026-10-13: formed `Window & Solar Care, LLC` (CA SOS B20260293155) ~July 2026 — STATE filing only, NO IRS Form 2553.** So as of now the LLC is a **disregarded entity taxed as a sole proprietorship** (Schedule C) — forming an LLC does NOT by itself make it an S corp; the S election is a separate IRS filing (Form 2553). Liability shell exists; tax treatment is unchanged from before.
@@ -19,6 +19,12 @@ metadata:
 - **EINs (two, keep straight):** W&SC LLC has its own EIN **42-3461012** (per Twilio A2P reg; see [[project_wsc_legal_name]]). Saunders Printing sole prop = **87-3872426** (DJ's 2025 Gusto W-2 employer).
 - **Solo 401(k) + SE tax tie-in:** as a sole prop, neither the employee NOR employer side of the solo 401(k) reduces SE tax (15.3% is on Sch C net, before the retirement deduction). The S corp is the structure that *could* shave payroll tax on the distribution portion — the main reason to eventually elect it.
 
-**Why:** DJ asked "did I do the S-corp right?" — he did step one (LLC) but not the 2553, and next tax season this status must be remembered exactly (election done or not, which EIN, which business).
+## Entity structure — 2025 vs 2026 (DJ confirmed 2026-10-13)
+- **2025 (the return we're filing):** W&SC operated as a **DBA under Saunders Printing** (sole prop, EIN 87-3872426) — but on the 1040 the two were still reported as **TWO separate Schedule Cs**. "DBA" = the legal/registration relationship, NOT one combined tax filing.
+- **2026 forward:** W&SC is now its **own legal entity** — Window & Solar Care, LLC (own EIN 42-3461012) — legally separate from Saunders Printing. BUT single-member + no 2553 ⇒ **disregarded ⇒ still a Schedule C on DJ's personal 1040** (no separate return until an S election).
+- **Saunders Printing is still a plain SOLE PROPRIETORSHIP** — a separate *business* of DJ's, but NOT a registered separate entity (no LLC). Making it its own entity would be a separate LLC filing.
+- **★ 2026 CLEANUP (actionable):** now that W&SC has its own LLC + EIN (42-3461012), W&SC **payroll + W-2s should move onto the LLC's EIN** instead of Saunders Printing's (87-3872426). That old structure is exactly why DJ's 2025 W-2 printed "Saunders Printing." Not a 2025-return change — a 2026 ops cleanup. See [[project_2025_turbotax_entry_status]] (W-2-employer flag).
+
+**Why:** DJ asked "did I do the S-corp right?" — he did step one (LLC) but not the 2553, and next tax season this status + entity structure must be remembered exactly (election done or not, which EIN, which business).
 
 **How to apply:** before treating W&SC as an S corp, confirm a Form 2553 was actually filed + its effective date. Until then it's Schedule C. Analysis only — DJ's CPA confirms before filing any election.
