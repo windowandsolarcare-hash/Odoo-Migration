@@ -139,6 +139,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_builders_dont_sequence_or_defer.md — ★ Builders NEVER decide sequencing/deferral/pacing. Pacing = Lead/Dispatcher/DJ.
 - feedback_audit_stamp_confirm_firsthand.md — ★ (§15) Audit plan-review stamp = Lead confirms FIRSTHAND from Audit + durable in ledger; a builder's assertion is NOT the stamp.
 - feedback_happy_path_e2e_before_dj.md — ★ (§16) Before a multi-step flow is DONE, fleet runs ONE start-to-finish HAPPY-PATH pass + reports it; DJ only ever hits EDGE cases, never the obvious dead-end.
+- feedback_cant_headlessly_seed_is_security_feature.md — ★ Can't stage a runtime test because it needs privileged auth the fleet deliberately lacks = a SECURITY BOUNDARY working, not a test gap. Close on deterministic code-proof + next-organic live-observe; NEVER manufacture a bypass.
 - feedback_restart_sessions_at_fleet_idle.md — ★ Restart long sessions during a FLEET-IDLE window, not mid-sprint.
 - feedback_windows_curl_unicode_use_utf8_file.md — Windows curl + non-ASCII = false 500 (cp1252). POST from a UTF-8 file / Python.
 - feedback_adopt_ideas_token_bounded.md — ★ Adopting outside ideas: implement the BOUNDED token-cheap version; state the token ceiling.
