@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: c357000c-2b48-423f-90ce-2e1b8f1f9669
-  modified: 2026-10-13T23:57:55.047Z
+  modified: 2026-10-14T00:08:26.086Z
 ---
 
 Diagnosed 2026-10-13 after DJ hit a 502 confirming a customer (Patty) at 23:52Z / 4:52 PM PT — three independent reads (Lead events, Dispatcher events, Specialists logs) reconciled. wsc-field-assistant: starter plan, `numInstances=2`, `healthCheckPath=/healthz`, `startCommand=uvicorn main:app --host 0.0.0.0 --port 8000` (single worker per instance).
@@ -22,3 +22,10 @@ Diagnosed 2026-10-13 after DJ hit a 502 confirming a customer (Patty) at 23:52Z 
 **Fix (the durable one): transparent client auto-retry on gateway errors (502/503/504/network-timeout) for IDEMPOTENT POSTs in the shared send path (`window.wscSend`) + the confirm POST.** The confirm/send actions are idem-keyed, so a silent resend to a healthy instance makes the recycle window invisible to the user. This is the SAME class as the inbox "lost signal" false-failure — see [[project_inbox_false_failure_plain_path]] — so COMBINE them into one send-path fix. Secondary (foundation, surface tradeoff per [[feedback_durable_foundation_over_shortcut]]): graceful SIGTERM drain so a recycling instance leaves rotation a beat before it stops answering `/healthz`. NOT fixes: more instances (halves, doesn't erase), deploy-batching (no deploy near the 502), `/healthz` changes (already dependency-free — it only "timed out" because the whole process was mid-restart).
 
 **How to apply:** when DJ reports a one-off 502 (esp. confirm/send), don't assume a crash or a deploy. Pull Render `list_events` (look for `server_failed` + the paired `server_available`/`restarted` ~15s later) AND the instance's app logs (clean `Shutting down→READY`?), and check the sibling stayed healthy. If so it's a recycle blip → the answer to DJ is "normal host restart, your tap hit the 12s window, a retry works, and we're adding silent auto-retry." Ties [[project_render_static_deploy_propagation_window]] (the other Render zero-downtime window — that one is the deploy swap; this one is the unplanned recycle), [[feedback_odoo_verify_content_not_status]], [[feedback_sporadic_bugs_repeat_test]].
+
+**Triage order (5 steps, to tell a recycle blip from a real crash) — service `srv-d78le0fkijhs738dsli0`:**
+1. `list_events` — any `build`/`deploy_started` near the time? No → not a deploy.
+2. App logs for `INFO: Shutting down` → `Application shutdown complete` → `uvicorn running` → `[boot] ... READY` = graceful recycle (not a crash).
+3. Sibling instance served `/healthz` 200 throughout → single-instance blip only.
+4. The endpoint's own request log shows 200 / no 5xx → the code didn't fail; the 502 was edge-level (request hit the draining instance).
+5. ONLY a traceback / SIGKILL / OOM (`evicted:true`) = a real crash — handle as such, not a recycle.
