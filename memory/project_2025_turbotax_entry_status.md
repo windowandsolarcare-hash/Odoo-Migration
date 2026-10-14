@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T04:42:29.928Z
+  modified: 2026-10-14T05:22:15.676Z
 ---
 
 **2026-10-13 — Accounting filled out DJ's 2025 TurboTax Online ("Do It Yourself Premium") via Claude-in-Chrome, at DJ's explicit direction ("fill this out as best you can and then you and me review it at the end"; he confirmed Premium handles both Schedule Cs; 2024 return WAS transferred in, which created both businesses).** NOT filed — saved as draft pending DJ review. Figures are from the finalized builds in [[project_2025_schedule_c_categorized]] (W&SC) + [[project_saunders_qb2010_export_findings]] (Saunders), with the mileage corrected to DJ's 2026-10-13 odometer. Entry worksheet: `Financial_Statements/Tax_2025/2025_TurboTax_entry_worksheet.md`.
@@ -25,11 +25,15 @@ metadata:
 ## Running tax meter (as entered NOW, after W-2 + $4k)
 **Federal due $5,890 · CA due $1,966.** (History: $14,649 fed at start → $9,840 after both Sch Cs → $9,890 after W-2 → $5,890 after $4k extension pmt.) Standard deduction kept ($15,750).
 
-## OPEN — still to do (told DJ 2026-10-14)
-1. **★ FLAG — W-2 employer mismatch:** the owner W-2 is issued by **Saunders Printing** (EIN 87-3872426), but the $2,700 owner-wage DEDUCTION sits on the **Window & Solar Care** Sch C (L26). Dollars wash on the 1040 either way, but ideally the deduction belongs on the Saunders Printing Sch C. Also a sole-prop issuing a W-2 to its own owner is non-standard — DJ + CPA to confirm at review.
-2. **SEP / solo-401k** — none assumed; if DJ funded one, biggest remaining reducer.
-3. **SE health insurance** — none assumed (DJ earlier said none); confirm.
-4. **CA (FTB)** — $1,966 shown; confirm any CA estimated payments made (would reduce it).
-5. **Sanity-check W&SC gross $79,877** — 2024 Odoo ran ~$15K higher than the filed return gross; verify 2025 gross isn't overstated.
+## ★ DJ DECISIONS 2026-10-13 (draft now essentially FINAL)
+- **Solo 401(k): SKIP for 2025.** DJ decided NOT to fund — needs the cash for the tax bill, no extra funds. So no retirement deduction. (Mechanics confirmed to DJ: a 401(k) is a deduction not a credit → saves ~18-20¢/$ income tax only, and NEITHER employee nor employer side cuts SE tax for a sole prop.)
+- **Home office $650 — KEEP, it's worth ~$186 combined tax** (≈$92 SE + ~$58 fed + ~$36 CA). It's a Sch C deduction so it DOES cut SE tax (unlike the 401k). Simplified method ($5 × 130 sqft), no receipts/depreciation, zero added cost → clear keep.
+- **→ Draft is FINAL pending review: Federal $5,890 · CA $1,966. File by the Oct 15, 2026 extension deadline.**
+
+## OPEN — still to confirm at final review
+1. **★ FLAG — W-2 employer mismatch:** the owner W-2 is issued by **Saunders Printing** (EIN 87-3872426), but the $2,700 owner-wage DEDUCTION sits on the **Window & Solar Care** Sch C (L26). Dollars wash on the 1040 either way, but ideally the deduction belongs on the Saunders Printing Sch C. Also a sole-prop issuing a W-2 to its own owner is non-standard — DJ + CPA to confirm. (Going fwd, W&SC payroll should move to the new LLC EIN 42-3461012 — see [[project_wsc_scorp_election_status]].)
+2. **SE health insurance** — none assumed (DJ said none); confirm.
+3. **CA (FTB)** — $1,966 shown; confirm any CA estimated payments made (would reduce it).
+4. **Sanity-check W&SC gross $79,877** — 2024 Odoo ran ~$15K higher than the filed return gross; verify 2025 gross isn't overstated.
 
 DRAFT — DJ reviews + files. See [[project_dj_tax_filing_2025]].
