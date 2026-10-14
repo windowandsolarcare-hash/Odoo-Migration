@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T05:22:15.676Z
+  modified: 2026-10-14T05:46:22.466Z
 ---
 
 **2026-10-13 — Accounting filled out DJ's 2025 TurboTax Online ("Do It Yourself Premium") via Claude-in-Chrome, at DJ's explicit direction ("fill this out as best you can and then you and me review it at the end"; he confirmed Premium handles both Schedule Cs; 2024 return WAS transferred in, which created both businesses).** NOT filed — saved as draft pending DJ review. Figures are from the finalized builds in [[project_2025_schedule_c_categorized]] (W&SC) + [[project_saunders_qb2010_export_findings]] (Saunders), with the mileage corrected to DJ's 2026-10-13 odometer. Entry worksheet: `Financial_Statements/Tax_2025/2025_TurboTax_entry_worksheet.md`.
@@ -27,8 +27,10 @@ metadata:
 
 ## ★ DJ DECISIONS 2026-10-13 (draft now essentially FINAL)
 - **Solo 401(k): SKIP for 2025.** DJ decided NOT to fund — needs the cash for the tax bill, no extra funds. So no retirement deduction. (Mechanics confirmed to DJ: a 401(k) is a deduction not a credit → saves ~18-20¢/$ income tax only, and NEITHER employee nor employer side cuts SE tax for a sole prop.)
-- **Home office $650 — KEEP, it's worth ~$186 combined tax** (≈$92 SE + ~$58 fed + ~$36 CA). It's a Sch C deduction so it DOES cut SE tax (unlike the 401k). Simplified method ($5 × 130 sqft), no receipts/depreciation, zero added cost → clear keep.
-- **→ Draft is FINAL pending review: Federal $5,890 · CA $1,966. File by the Oct 15, 2026 extension deadline.**
+- **Home office 2025 = KEEP AS IS: 130 sqft in-house room, $650 simplified** (worth ~$186 combined tax: ≈$92 SE + ~$58 fed + ~$36 CA; a Sch C deduction so it DOES cut SE tax, unlike the 401k). **NO ADU upgrade for 2025** — see below.
+- **★ ADU office is a 2026 item, NOT 2025:** DJ's real office is now a standalone ~800 sqft ADU on his property, BUT Danny (son) lived in it (rent-free; DJ informally adjusted Danny's pay for the housing → NO Schedule E rental income to report) until **early July 2026**. So the ADU only became DJ's EXCLUSIVE business office in July 2026 → it has ZERO effect on the 2025 return. For all of 2025 the office was the 130 sqft in-house room.
+- **★ 2026 OPPORTUNITY (tee up for next year's return):** from ~July 2026 the ADU = a SEPARATE structure used 100% for business (detached-structure test is relaxed — qualifies easily). Simplified caps at 300 sqft = $1,500/yr (prorate ~6 mo ≈ $750). But because it's 100%-business and 800 sqft, the **ACTUAL-EXPENSE method (utilities/insurance/prop-tax/repairs + DEPRECIATION) can beat simplified** — model it for 2026. Tradeoff: bookkeeping + depreciation RECAPTURE on sale. DJ keeping ADU cost records from July 2026 fwd. (Backdating the office to earlier-2025 was raised + declined — rental history on own return would contradict it, penalty-of-perjury, small $.)
+- **→ 2025 Draft is FINAL pending review: Federal $5,890 · CA $1,966. File by the Oct 15, 2026 (Thursday) extension deadline.**
 
 ## OPEN — still to confirm at final review
 1. **★ FLAG — W-2 employer mismatch:** the owner W-2 is issued by **Saunders Printing** (EIN 87-3872426), but the $2,700 owner-wage DEDUCTION sits on the **Window & Solar Care** Sch C (L26). Dollars wash on the 1040 either way, but ideally the deduction belongs on the Saunders Printing Sch C. Also a sole-prop issuing a W-2 to its own owner is non-standard — DJ + CPA to confirm. (Going fwd, W&SC payroll should move to the new LLC EIN 42-3461012 — see [[project_wsc_scorp_election_status]].)
