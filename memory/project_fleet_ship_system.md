@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 7f93eb62-ab56-4528-a75a-3a6b108e7612
-  modified: 2026-10-14T06:01:53.940Z
+  modified: 2026-10-14T06:20:17.851Z
 ---
 
 Built 2026-09-27 (Specialists, DJ-approved v3.4, Lead-QC'd each stage). Plan: `3_Documentation/review/FLEET_SHIP_SYSTEM_BUILD_PLAN.md` (+ PROPOSAL). Turns DJ's spoken/typed thoughts into tracked ship cards on a board that shows what ACTUALLY shipped. **All app-side work is DETERMINISTIC (store/echo/serve/derive) + the existing whisper utility — NO Anthropic API here; decomposition/root-cause/QC run on the Max SUBSCRIPTION via fleet sessions (S4 bridge).**
@@ -54,6 +54,8 @@ Built 2026-09-27 (Specialists, DJ-approved v3.4, Lead-QC'd each stage). Plan: `3
 - **B1 day-one backfill** in `_ensure` (idempotent): `UPDATE … SET flame_reset_at=now(), last_activity_at=now() WHERE flame_reset_at IS NULL AND archived IS NOT TRUE AND state<>'Shipped'` → open cards burn from DEPLOY not ancient created_at.
 - **`POST /api/ship/card/touch {card_id, decision}`** — OWNER-gated (NOT in PUBLIC_EXACT → owner-cookie by construction, no authz change; headless fleet can't reset a flame). commit→reset+unpark; park→reset+parked=true; delete→`archived=true` (reuses soft-archive). Writes ONLY flame/parked/archived — never state/state_changed_at (Shipped git-derive + shipped_no_record undisturbed).
 - **OUT alert = sibling `ship_flame_alerts()`** (NOT a branch into ship_aging_alerts → AGING_HOURS byte-identical): Captured + flame_state 'out' + not parked. **DEFAULT = board rise-to-top (client), ZERO text wired** (Lead steer — tokens/alert fatigue); `last_flame_alert_at` col + the producer are reserved for an off-by-default text knob. `_derive_board` emits `flame_pct/flame_state/flame_age_h/parked`.
+**★ NUMBER-NAMED NEW CARDS — SHIPPED 2026-10-13 (card-number, commit 282778dc; Audit e233b19b + Lead QC 61dc9dfc).** DJ: his first recorded sentence is rarely the real point, so it's a bad title. Now `_birth_card` titles a new VOICE card **"New idea #N"** via `card_no` (new column) from `CREATE SEQUENCE ship_card_no_seq` (nextval before the INSERT), NOT `_card_title_from(transcript)` (kept, just uncalled — rule-10). Transcript stays attached (description + raw_audio_ref). The Layer-2 enricher then fills the real title + `proposed_problem` (existing — no new code); §3 review approves/edits. `card_no` is emitted in board + `/card/{id}` (r[25]/row[25]). **★ `card_no`/"#N" is DISPLAY-ONLY** — the Shipped-derive + branch convention still key on the real hex/explicit id (a commit tagged `card-5` would NEVER flip Shipped). `ship_card_create` (explicit-id cards) UNCHANGED; existing cards stay NULL/current-title (NEW-only). Dogfood card `number`.
+
 - Dogfood card id **`flame`**. **PENDING (next branch card-flame-viewer):** the `v2_app_building.html` render — flame visual + rise-to-top sort + commit/park/delete buttons + the still-owed deploy-to-card record-field/review-chip render. Until it ships, flame is data-only (behavior-neutral, DJ sees no change yet).
 
 Related: [[project_endpoint_map]], [[feedback_data_location_odoo_vs_postgres]], [[feedback_recordings_chunk_stream_durable]], [[feedback_hud_cards_live_not_inbox]], [[feedback_dj_deploy_control_stage_and_trigger]], [[feedback_audit_stamp_confirm_firsthand]], [[feedback_auto_deploy_and_picker_synopsis]], [[project_atomic_multifile_deploy_git_data_api]], [[project_messaging_idempotency_cas]], [[project_fleet_ship_board_ui]].
