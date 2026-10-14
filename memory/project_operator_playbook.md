@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a2c61606-e81d-478f-b7ff-3a0b8fb045a8
-  modified: 2026-09-09T23:47:34.227Z
+  modified: 2026-10-14T03:26:59.516Z
 ---
 
 Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; only read code for something not listed. First stop for any endpoint = [[project_endpoint_map]].
@@ -38,12 +38,21 @@ Operator's ready recipes (all PROVEN live 2026-09-03/04). Execute from here; onl
 
 **★ ANCHOR DAYS (CITY_WEEKDAYS in scheduler.py = single source of truth; ref WSC-ANCHOR-DAYS.md; Mon=0):** Hemet/Menifee/Banning/Beaumont = **Tue** [1]; Indio/La Quinta = **Wed** [2]; Indian Wells/Cathedral City = **Wed/Thu** [2,3]; Palm Desert = **Thu** [3]; Rancho Mirage = **Thu/Fri** [3,4]; Palm Springs = **Fri** [4]. Batch/schedule a job on its city's anchor day. NEVER quote a service day from anywhere but this table.
 
+**★ USAGE LOG (the `/usage` auto-watcher — DJ runs `/usage` in the Operator window; the `<local-command-stdout>` block IS the trigger).** Parse session %, week (all models) %, week (Fable) %, and each reset, then POST to `/owner/api/usage/log`. **This endpoint is NOT cookie-gated — it's NOTIFY_SECRET-gated (fail-closed):** send header `X-Notify-Secret: <from C:/Users/dj/_notify_secret.txt>` (never inline the secret), NO cookie needed. **EXACT body (field names matter — anything misnamed is silently shunted to `payload` and ignored by the pace):**
+```
+{"source":"usage",
+ "session_pct":<int>, "session_reset":"YYYY-MM-DD HH:MM:SS -07:00",
+ "week_all_pct":<int>, "week_all_reset":"YYYY-MM-DD HH:MM:SS -07:00",
+ "week_fable_pct":<int>, "week_fable_reset":"YYYY-MM-DD HH:MM:SS -07:00"}
+```
+★★ **TWO TRAPS that make the POST return `ok:true` yet NEVER reach the pace (burned 2026-10-13):** (1) `source` MUST be `"usage"` — the pace/readings default-filter `source=usage`; a `source:"operator"` (or any other) row is stored but EXCLUDED from the verdict. (2) the week field is **`week_all_pct`**, NOT `week_pct` — a wrong name lands in `payload` as null and the week value is lost. **VERIFY by content, not the 200:** after logging, `GET /owner/api/usage/pace` and confirm `current_pct` == the week % you just sent (and `latest_captured_ts` is your timestamp). usage_pace.py router; `/owner/api/usage/readings?limit=N` lists rows; multiple reads/day are welcome (it appends, never dedupes). There is NO delete endpoint — a mis-tagged row just sits inert under its wrong source, so just re-log correctly.
+
 **Common product IDs:** 103 Outside Windows And Screens · 141 Windows In & Out - Full Service · 90 Garage Door Windows Cleaned-No Cut Outs · 98 Lights and Ceiling Fan Cleaned · 99 Mirrors Cleaned · 634 Quote ($0 placeholder) · 100 Miscellaneous · 2 Tip.
 
 **HUD deep-links:** confirm (routes through confirm machinery + auto-clears): `/static/owner/v2_inbox.html?open=<pid>&confirm_so=<so>&draft=<urlenc>`. Plain prefill: same without `confirm_so`. Job detail: `/static/owner/v2_field.html?open_so=<so>`. (`open=` path applies the draft; `?c=` does NOT.) Card ids: `operator:confirm:<so>` / `:offer:<so>` / `:photos:<so>` / `:reply:<so>`.
 
 **★ MAINT-ADVANCE TIGHTENING (2026-09-05, learned the hard way):** NEVER use `/api/schedule/reschedule` to tighten a maintenance-advance (Submitted, in-pile) job's time — reschedule AUTO-PROMOTES Submitted→Scheduled/sale, dropping it off `_maint_pending_rows()` and marking it confirmed BEFORE the customer was contacted (double-message risk). Use the dedicated **`POST /owner/api/maint/advance/set_time {so_id,date,time}`** (Submitted-only guard, keeps it in the pile) to tighten maint times. reschedule is only for real (confirmed/to-be-confirmed) jobs. Rule: understand a mover's side effects before batch-acting.
 
-**GOTCHAS:** ASCII-only in curl `-d` (em-dash 0x97 → UTF-8 500). Python file writes use `C:/Users/dj/…` not `/c/Users/…`. `/tmp` doesn't persist across Bash calls → use `/c/Users/dj/`. feed/submit reusing an id keeps old 'seen' status → delete+new id to force 'new'. reschedule auto-un-confirms so the 4-day re-fires for the new date. Confirm flow (Path-B, live 2026-09-04): confirm card `confirm_so` → Send → state='sent' + arm reply + 4-day skip (no double-text) + card auto-clears.
+**GOTCHAS:** ASCII-only in curl `-d` (em-dash 0x97 → UTF-8 500). Python file writes use `C:/Users/dj/…` not `/c/Users/…`. `/tmp` doesn't persist across Bash calls → use `/c/Users/dj/`. feed/submit reusing an id keeps old 'seen' status → delete+new id to force 'new'. reschedule auto-un-confirms so the 4-day re-fires for the new date. Confirm flow (Path-B, live 2026-09-04): confirm card `confirm_so` → Send → state='sent' + arm reply + 4-day skip (no double-text) + card auto-clears. usage/log: `source` MUST be `"usage"` and the week field is `week_all_pct` (not `week_pct`) or the pace silently ignores an `ok:true` write — ALWAYS read back `/owner/api/usage/pace` to confirm `current_pct` matches (see USAGE LOG recipe above).
 
 Related: [[project_endpoint_map]], [[feedback_assistant_use_app_workflow_not_raw_api]], [[project_new_job_via_app_endpoints]].
