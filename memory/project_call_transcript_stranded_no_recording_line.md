@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-15T15:05:53.535Z
+  modified: 2026-10-15T15:18:59.543Z
 ---
 
 A call's `📄 … call transcript` can exist in a phone's inbox thread yet NOT show on the Candidate-Compare card. Discovered 2026-10-15 via HR's Norberto Villa task (candidate_id 'norberto', phone 7608449054, Oct-12 interview): the compare card showed only Cheryl's earlier voicemail recording, but `compare_fill` had parsed q0–q8 correctly — proving the real interview transcript WAS in his thread.
@@ -18,7 +18,7 @@ A call's `📄 … call transcript` can exist in a phone's inbox thread yet NOT 
 
 **How to apply:**
 - To READ a stranded transcript now: open that number's inbox conversation — the `📄 Outgoing/Incoming call transcript:` msg is in `data->'msgs'` (source defaults to 'text', so it shows in the thread). No backfill/code needed.
-- Durable fix (sms.py accessor, Specialists' lane): after building the recording-anchored list, append any UNPAIRED `📄` call-transcript as a transcript-only "call" (`audio_url=''`, id=tsid), deduped by tsid, chronological. Additive; existing paired entries unchanged; fixes the whole class. Behavior change → §15 (Lead). Unit-testable offline with synthetic msgs.
+- Durable fix (sms.py accessor, Specialists' lane): after building the recording-anchored list, append any UNPAIRED `📄` call-transcript as a transcript-only "call" (`audio_url=''`, `no_recording:True`, id=tsid), emission-deduped by non-None tsid (consumed_idx by index + consumed_tsids internal), None-safe sort. Additive; paired entries byte-unchanged (no key added); fixes the whole class. **SHIPPED 2026-10-15** (Lane A commit c0968db4, deploy dep-db8erjjm live 15:15:56 UTC; §15 full gate: Audit plan-review → Lead firsthand confirm → byte-QC → B-first deploy). Lane B (Frontdoor, same ship): `hiring_compare.py _all_calls` whitelist now passes `no_recording` through (it was a 4-field whitelist that stripped it — see F1 gotcha) + `hiring_compare.html` 3-way audio branch ("No recording for this call"). Plan: saunders-render-app `3_Documentation/review/compare_stranded_transcript/PLAN.md`.
 - Audio-on-card for a stranded call needs a separate `📞`-line backfill (Twilio has the recording — VI was kicked, so a rec_sid existed) — low value; the transcript is the deliverable.
 
 **F1 gotcha (non-obvious, durable):** `hiring_compare.py _all_calls` (~:334-340) re-maps each call through a **4-field whitelist `{id, when, audio_url, transcript}`** — so ANY new field the sms.py accessor returns (e.g. `no_recording`) is SILENTLY STRIPPED before the page sees it. A unit test on `get_all_calls` directly is BLIND to this (it asserts one layer upstream of the whitelist). Adding a field to the accessor requires a matching pass-through in `_all_calls`, and QC must cross the full `get_all_calls → _all_calls → render` seam.
