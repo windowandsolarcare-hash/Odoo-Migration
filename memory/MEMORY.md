@@ -75,6 +75,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_no_re_listing.md — Don't re-print tables across turns. Write to 4_Reference_Data/, reference by name.
 - feedback_odoo_verify_content_not_status.md — ★ Odoo HTTP 200 ≠ success (denial serves placeholder at 200). Verify by CONTENT.
 - feedback_verify_collection_and_live_pipe.md — ★ Green deploy ≠ works: AST-verify membership + fire the real LIVE request post-deploy.
+- feedback_field_whitelist_strip_silent_inert.md — ★ A new field crossing accessor→endpoint→render can be SILENTLY stripped by a field-whitelisting layer → feature ships INERT while LOOKING done; accessor-level test is blind. QC/tests must trace the FULL pipe.
 - feedback_odoo_html_field_colors.md — Colored status = HTML field type + Bootstrap classes (text-success/danger/warning).
 - feedback_odoo_reserved_variable_names.md — NEVER name a var `response`/`result` in Odoo 19 server actions (reserved → crash).
 - feedback_odoo_rpc_write_pattern.md — odoo_rpc write(): vals dict INSIDE args — [[id],{vals}] — not a 4th kwarg.
