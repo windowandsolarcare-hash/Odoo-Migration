@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-14T05:46:22.466Z
+  modified: 2026-10-16T06:25:31.956Z
 ---
 
 **2026-10-13 — Accounting filled out DJ's 2025 TurboTax Online ("Do It Yourself Premium") via Claude-in-Chrome, at DJ's explicit direction ("fill this out as best you can and then you and me review it at the end"; he confirmed Premium handles both Schedule Cs; 2024 return WAS transferred in, which created both businesses).** NOT filed — saved as draft pending DJ review. Figures are from the finalized builds in [[project_2025_schedule_c_categorized]] (W&SC) + [[project_saunders_qb2010_export_findings]] (Saunders), with the mileage corrected to DJ's 2026-10-13 odometer. Entry worksheet: `Financial_Statements/Tax_2025/2025_TurboTax_entry_worksheet.md`.
@@ -22,8 +22,15 @@ metadata:
 - **New car-loan-interest deduction (OBBB 2025) — DECLINED** in the guided D&C flow: Tacoma interest is already a BUSINESS deduction in the Sch C vehicle section (double-dip), and the truck is USED + bought 2024 so it doesn't qualify anyway.
 - **★ NAVIGATION NOTE:** "Deductions and credits summary" submenu dumps you into the guided "find tax breaks" walkthrough (moving → student loan → education → car loan int → educator → 1095-A health ins → then the "Your tax breaks" summary page). From that summary → **Add more tax breaks** → search box → the category groups appear with Start buttons. The top "Ask AI anything" search opens a HELP panel, not a jump-to. W-2 auto-fill by EIN failed (payroll import) → used "Type it in myself".
 
-## Running tax meter (as entered NOW, after W-2 + $4k)
-**Federal due $5,890 · CA due $1,966.** (History: $14,649 fed at start → $9,840 after both Sch Cs → $9,890 after W-2 → $5,890 after $4k extension pmt.) Standard deduction kept ($15,750).
+## ★★ FILED 2026-10-15 — DJ's 2025 return E-FILED & ACCEPTED (both federal + CA transmitted via TurboTax)
+- **FINAL: Federal owed $5,890 · California owed $972** (CA dropped from $1,966 → $972 when DJ's Medi-Cal full-year coverage was confirmed in the CA interview, removing an assumed individual-mandate penalty ≈ $994 saved).
+- Accounting drove the TurboTax e-file end-to-end via computer-use (DJ: "you have my return take over"). Steps done: entered W-2 situations = none apply, digital-asset = No, 2024 AGI = **$17,369** (from DJ's 2024 1040 in Drive, for IRS identity verify), skipped the optional CA driver's-license, selected both returns. DJ personally did the final two steps I can't: the "I'm not a robot" CAPTCHA + "Transmit my returns now."
+- **★ PHANTOM VEHICLE BUG FIXED:** a leftover **Honda CR-V** (placed-in-service 2019) was orphaned on the **Printing** Sch C from a prior-year transfer — $0 deduction but blocking the CA e-file with blank required fields. Could NOT be removed via Delete-a-Form or the review loop; fixed by adding the Vehicle expense category to the Printing business → opening the Vehicle Summary → deleting the CR-V. Printing net unchanged ($25,868). The REAL W&SC vehicle is the Toyota Tacoma (correct).
+- **★ BALANCES NOT YET PAID BY TURBOTAX** — e-file filed the RETURNS only. Accounting could NOT set up direct debit (can't enter bank account numbers). DJ must pay **$5,890 federal (IRS Direct Pay) + $972 CA (FTB Web Pay)** separately, by today Oct 15, from the Saunders Printing account → book as OWNER'S DRAW (not an expense). CONFIRM paid.
+- TurboTax product fee $203 ($139 fed + $64 CA) already paid on DJ's Visa *1688.
+
+## Running tax meter (pre-file history)
+**Federal $5,890 · CA $1,966→$972.** (History: $14,649 fed at start → $9,840 after both Sch Cs → $9,890 after W-2 → $5,890 after $4k extension pmt.) Standard deduction kept ($15,750).
 
 ## ★ DJ DECISIONS 2026-10-13 (draft now essentially FINAL)
 - **Solo 401(k): SKIP for 2025.** DJ decided NOT to fund — needs the cash for the tax bill, no extra funds. So no retirement deduction. (Mechanics confirmed to DJ: a 401(k) is a deduction not a credit → saves ~18-20¢/$ income tax only, and NEITHER employee nor employer side cuts SE tax for a sole prop.)
