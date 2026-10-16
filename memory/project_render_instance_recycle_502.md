@@ -5,8 +5,10 @@ metadata:
   node_type: memory
   type: project
   originSessionId: c357000c-2b48-423f-90ce-2e1b8f1f9669
-  modified: 2026-10-14T00:08:26.086Z
+  modified: 2026-10-16T15:32:46.868Z
 ---
+
+★ CONTRADICTED 2026-10-16 (Audit independent 30-day dig — PENDING Lead synthesis + DJ approval): the "platform recycles ~every 2-3h, health-timeout is a SIDE-EFFECT" framing below is NOT supported by a full 30-day Render event pull. The `server_failed` events do NOT occur on a 2-3h cadence (they cluster — e.g. 2026-10-16 02:04, 02:42, 15:09, 15:14 — then gap 12h+); and Render's own reason string is "health check FAILED (timed out 5s)", which means `/healthz` (dependency-free, main.py:1010) did not answer = the single uvicorn event loop was FROZEN >5s. So the health-timeout is the CAUSE, not a side-effect — a blocking `odoo_rpc` (requests.post timeout=30, shared/odoo.py:23) called from an `async def` handler freezes the loop when Odoo is slow. Full proof: [[project_render_502_event_loop_freeze_blocking_odoo]]. This note's CLIENT-RETRY mitigation (below) is still a valid band-aid (it hides the 502 from the user) but does NOT fix the freeze. ⚠ This "harmless 2-3h recycle" framing likely ANCHORED the fleet away from the real cause for a month — a memory-induced mis-diagnosis (cf. the inert-launcher bug root-caused to a memory note). Read the new note as the current root cause.
 
 Diagnosed 2026-10-13 after DJ hit a 502 confirming a customer (Patty) at 23:52Z / 4:52 PM PT — three independent reads (Lead events, Dispatcher events, Specialists logs) reconciled. wsc-field-assistant: starter plan, `numInstances=2`, `healthCheckPath=/healthz`, `startCommand=uvicorn main:app --host 0.0.0.0 --port 8000` (single worker per instance).
 
