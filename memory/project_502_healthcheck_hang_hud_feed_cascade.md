@@ -1,14 +1,16 @@
 ---
 name: project_502_healthcheck_hang_hud_feed_cascade
-description: "Repeated 502s on wsc-field-assistant are a /healthz-timeout HANG cascade (not deploys, not OOM): the HUD ~18-producer Odoo feed build bogs the single uvicorn worker past Render's 5s health window → restart → cold cache → resync rebuild → restart again."
+description: "Repeated 502s on wsc-field-assistant are a /healthz-timeout HANG (confirmed: not deploys, not OOM). WHAT bogs the single worker is CONTESTED — HUD ~18-producer Odoo feed build is ONE trigger under active use, but the both-instances-down outage window shows NO feed build (scheduler/idle); DJ: 'a month + extra instance didn't help' → likely SHARED Odoo-upstream throttle. Root cause under Lead's independent proof dig; fix NOT approved/shipped."
 metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-16T15:14:55.738Z
+  modified: 2026-10-16T15:23:53.048Z
 ---
 
-Diagnosed 2026-10-16 (DJ hitting "way too many" 502s; relayed via Dispatcher, Lead pulled same telemetry independently → converged). Render service **srv-d78le0fkijhs738dsli0** (wsc-field-assistant), starter plan, **numInstances=2**, startCommand `uvicorn main:app` (NO `--workers` → ONE async worker per instance), healthCheckPath `/healthz`.
+**⚠ STATUS 2026-10-16: CONTESTED — do NOT treat the feed-build as the confirmed root cause, and the fix is NOT approved/shipped.** DJ rejected the "simple fix": it has been happening ~a MONTH and adding an EXTRA INSTANCE DIDN'T HELP (both facts fit a SHARED-upstream Odoo 429 throttle — which hurts ALL workers regardless of instance count, and a 2nd web instance ADDS Odoo load via per-instance prewarm — better than my per-instance cold-build cascade). Honest log check DISCONFIRMS feed-build for the worst window: at the both-instances-down outage (02:03–04 UTC) the worker answered /healthz 200 right up to the miss with NO feed/live_list/Odoo/heavy-build logged — only per-minute `_scheduled_*` jobs. Feed+Odoo load WAS present before a DIFFERENT restart (02:42, during active DJ use). So feed-build is at most ONE contributing trigger, not proven root. Lead owns an INDEPENDENT root-cause dig with proof; §15 build is gated behind Lead's proof → DJ approval. [[feedback_root_cause_not_just_instance]], [[feedback_no_conclusion_from_single_test_sporadic]].
+
+Diagnosed 2026-10-16 (DJ hitting "way too many" 502s; relayed via Dispatcher, Lead pulled same telemetry independently → converged on the HANG, diverged on the WHAT). Render service **srv-d78le0fkijhs738dsli0** (wsc-field-assistant), starter plan, **numInstances=2**, startCommand `uvicorn main:app` (NO `--workers` → ONE async worker per instance), healthCheckPath `/healthz`.
 
 **It is a HANG, not a crash/deploy/OOM/scale problem:**
 - ZERO deploys in ~24h; 502s have no deploy behind them.
@@ -19,7 +21,7 @@ Diagnosed 2026-10-16 (DJ hitting "way too many" 502s; relayed via Dispatcher, Le
 
 **The CASCADE (why "way too many"):** last-good feed cache is **in-memory only** (`_LIVE_LASTGOOD`, `_LIVE_CACHE`) → every restart wipes it → next HUD load does a **synchronous cold rebuild** capped at `_LIVE_COLD_CAP = 8.0s` (ABOVE the 5s health window) → re-bog → another health-check-fail → restart → cold again. Self-feeding. Clustering ~02:00/~15:00 UTC = prewarm-on-boot + cold-after-restart in lockstep across both instances.
 
-**Cheapest fix (no plan bump, no money) — recommended, NOT yet shipped (needs §15 + Lead QC + DJ go; live-ops blocker so expedites):**
+**Candidate fix IF the feed path is confirmed as a real contributor (NOT yet shipped; HELD behind Lead's independent proof → DJ approval → §15). Guard against fixing the wrong cause — if root is shared Odoo throttle, this does NOT solve it:**
 - Lower the cold *synchronous* build cap BELOW the 5s health window (so a cold build can never miss a ping) + always serve last-good/empty instantly and refresh in the background (single-flight). Small, low-risk, in `feed.py`.
 - Durable follow-on: **persist last-good to PG** (the "deferred durability follow-on" the code already notes) so a restart serves instantly instead of cold-building → kills the cascade at the root.
 - Add/verify a tight timeout on the feed-path Odoo calls so no single call parks a worker past the health window.
