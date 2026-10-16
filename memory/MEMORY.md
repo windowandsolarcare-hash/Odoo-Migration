@@ -34,6 +34,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_lead_roster_restamp.md — ★ Lead re-stamps SESSION_ROSTER row (ref+UTC) at start/every tick + heartbeat cron (churned ref = dead address).
 - feedback_agent_mail_autowatch.md — ★ Session start: arm mail-watcher cron (offset min; check CronList). Session-local, re-arm each start.
 - feedback_render_design_before_presenting.md — ★ Never present a math-built design: render to PNG, LOOK, send the IMAGE. No hardcoded ref in heartbeat.
+- feedback_binary_upload_disk_not_inline.md — ★ Never hand-inline a big base64/binary blob into an upload tool (corrupts bytes); upload from DISK (Artifact files/asset) + sha256 round-trip verify.
 - project_eddm_mailing_rules.md — ★★ EDDM: W&SC 9×6.5in (Zoo); 9×6 NOT eligible; address block TOP HALF. Design owns.
 - project_wsc_print_build_pipeline.md — `_design_build.py`: .dc.html → proofs + Zoo CMYK press PDFs (2775×2025, SWOP, crop/TrimBox/BleedBox).
 - feedback_design_end_to_end_workflow.md — ★ "design X" → Design does it all → ONE Drive link per piece; dev proofs carry trim/safe guides.
@@ -76,6 +77,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_odoo_verify_content_not_status.md — ★ Odoo HTTP 200 ≠ success (denial serves placeholder at 200). Verify by CONTENT.
 - feedback_verify_collection_and_live_pipe.md — ★ Green deploy ≠ works: AST-verify membership + fire the real LIVE request post-deploy.
 - feedback_field_whitelist_strip_silent_inert.md — ★ A new field crossing accessor→endpoint→render can be SILENTLY stripped by a field-whitelisting layer → feature ships INERT while LOOKING done; accessor-level test is blind. QC/tests must trace the FULL pipe.
+- feedback_binary_upload_sha_roundtrip_verify.md — ★ Large base64 hand-inlined into an MCP upload (e.g. Drive create_file) byte-corrupts the binary (PDF: some streams fail Flate adler → renders broken on SOME pages, fine on others). Upload from DISK; QC a binary by sha256 ROUND-TRIP + decode-every-stream + RENDER the data-bearing pages, never text/snippet.
 - feedback_odoo_html_field_colors.md — Colored status = HTML field type + Bootstrap classes (text-success/danger/warning).
 - feedback_odoo_reserved_variable_names.md — NEVER name a var `response`/`result` in Odoo 19 server actions (reserved → crash).
 - feedback_odoo_rpc_write_pattern.md — odoo_rpc write(): vals dict INSIDE args — [[id],{vals}] — not a 4th kwarg.
