@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 80181d32-eaf0-44dc-ad58-3287cd412a94
-  modified: 2026-10-16T15:31:27.601Z
+  modified: 2026-10-16T15:35:03.494Z
 ---
 
 **The month-long wsc-field-assistant 502s are an EVENT-LOOP FREEZE, not a slow feed, not OOM, not (only) deploys.** Independent dig by Audit 2026-10-16 (Render events/metrics/logs + live code). DJ rejected the "HUD feed too slow, missing the 5s health check" explanation; the evidence proves him right.
@@ -19,7 +19,10 @@ metadata:
 - `routers/owner/dashboard.py`: 69 `async def` handlers, 625 `odoo_rpc` calls, 0 `run_in_threadpool`. A synchronous call inside an `async def` runs ON the loop → freezes it (+healthz) for the call duration. (Same in feed.py `async def api_feed_submit/_delete`.)
 - ★ The feed route + scheduler are ALREADY loop-safe — NOT the healthz vector: `GET /api/feed/list` is a sync `def` (feed.py:610 → Starlette threadpool); `_sched_singleton` (main.py:705) returns a plain `def` → AsyncIOScheduler runs it via `run_in_executor` (threadpool). Threadpool Odoo calls release the GIL on socket I/O, so they do NOT freeze the loop. This is why logs show NO feed build at the misses and healthz 200s right up to them.
 
-**STRONGLY INFERRED:** trigger = Odoo slowness / 429s (CLAUDE.md documents Odoo rate-limiting from polling). Both instances health-fail within the same ~1-min window (02:04:15+02:04:58; 20:56:08+20:56:57) = ONE Odoo slowdown freezing BOTH loops → the paid 2nd instance gives no relief (a 2nd instance only covers INDEPENDENT faults, never a shared-backend freeze). This answers "why wasn't it found in a month" (failure always reads 'health timed out' = looks like a deploy blip) and "why didn't the extra instance help."
+**STRONGLY INFERRED + an OPEN second path (be honest — DJ distrusts tidy single-cause answers):**
+- **ACTIVE-TRAFFIC failures (PROVEN mechanism):** the async-on-loop freeze REQUIRES an in-flight request. It explains the daytime/evening failures during normal use (e.g. 20:56, 15:09) — a user/app request hits an async handler, its blocking odoo_rpc freezes the loop when Odoo is slow (429s — CLAUDE.md documents Odoo rate-limiting from polling).
+- **IDLE-WINDOW failures (OPEN — do NOT claim async-on-loop covers these):** the 2026-10-16 02:04 BOTH-instances-down event had NO user request and NO feed build logged (idle + scheduler, and the scheduler is threadpooled OFF the loop) — so async-on-loop does NOT explain it. Specialists proposed a complementary CPU-SHARE / prewarm-burst path (GIL-contending CPU work in a threadpool thread starving the loop thread on the 0.5-core cap). BUT get_metrics (60s resolution, MAX) showed CPU only ~0.10–0.14 at 02:03–02:04 — NOT pegged — so CPU-share is a NON-DISCONFIRMED CANDIDATE, not confirmed. Discriminator = FINE-RES (30s) CPU at the exact failure minutes (Lead pulling): a peg ⟹ CPU-share; idle ⟹ something else (brief platform/network blip, or a GIL burst too short for 60s-MAX). TREAT AS TWO COMPLEMENTARY STARVATION PATHS, both rooted in "one small single-worker 0.5-core process doing heavy Odoo work," not one tidy cause.
+- **Why the 2nd instance doesn't help / why not found in a month:** both instances share the Odoo backend + both take traffic, so a shared slowdown hits both within the same ~1-min window (observed 02:04:15+02:04:58; 20:56:08+20:56:57) — a 2nd instance only covers INDEPENDENT faults. And the failure always reads 'health check timed out' (looks like a deploy blip), and [[project_render_instance_recycle_502]] mis-framed it as a harmless 2-3h recycle — so the real cause stayed un-pinned.
 
 **Caveat:** no single captured ">5s healthz gap then death" log line — a frozen loop logs nothing during the freeze. 100% confirm = pull the LAST app log line on each instance before each `server_failed`; it should repeatedly be an async Odoo endpoint (not healthz, not feed).
 
