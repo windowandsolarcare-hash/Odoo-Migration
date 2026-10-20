@@ -33,7 +33,6 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - project_agent_mail_channel.md — ★ Cross-session comms = AGENT_MAIL.md (app repo). DJ's "mail" = go read it. Read at start + after each task.
 - feedback_lead_roster_restamp.md — ★ Lead re-stamps SESSION_ROSTER row (ref+UTC) at start/every tick + heartbeat cron (churned ref = dead address).
 - feedback_agent_mail_autowatch.md — ★ Session start: arm mail-watcher cron (offset min; check CronList). Session-local, re-arm each start.
-- feedback_post_then_nudge_every_bootpack.md — ★ STANDING (every role/boot pack): POST-THEN-NUDGE — write to mail, then DIRECTLY nudge the agent to read it NOW (don't wait for ticks).
 - feedback_render_design_before_presenting.md — ★ Never present a math-built design: render to PNG, LOOK, send the IMAGE. No hardcoded ref in heartbeat.
 - feedback_binary_upload_disk_not_inline.md — ★ Never hand-inline a big base64/binary blob into an upload tool (corrupts bytes); upload from DISK (Artifact files/asset) + sha256 round-trip verify.
 - project_eddm_mailing_rules.md — ★★ EDDM: W&SC 9×6.5in (Zoo); 9×6 NOT eligible; address block TOP HALF. Design owns.
