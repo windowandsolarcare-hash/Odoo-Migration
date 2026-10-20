@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-20T22:49:06.705Z
+  modified: 2026-10-20T23:00:10.060Z
 ---
 
 **Problem (DJ, 2026-10-20, via Frontdoor):** the public marketing site (windowandsolarcare.com `/quote` pane-counter) had its OWN hardcoded unit prices, while DJ edits the real ones in the app's quote-rates screen (`/owner/quote-rates` → `POST /owner/api/quote/rates/save` → `ir.config_parameter` `quote.rates.override`, merged over `QUOTE_RATES` defaults by `_get_quote_config()`). Two copies drift. DJ wanted to edit ONCE in the app and have the website follow.
@@ -24,3 +24,5 @@ metadata:
 **Frontdoor's half (marketing site, Odoo website module):** fetch this feed on `/quote` load, override the calculator's RATES, keep today's numbers as fallback. The BINDING CORS check is Frontdoor's IN-BROWSER fetch from the live www page (curl only proves the header is emitted, never that a browser accepts it). See [[feedback_odoo_verify_content_not_status]], [[feedback_verify_collection_and_live_pipe]].
 
 **Commits (2026-10-20):** dashboard.py b8d0997e (+45 additive), authz.py 9773bc58 (+6, EXACT entry), ENDPOINT_MAP.md 26e558f5. §15: Audit fresh-eyes GREEN → Lead firsthand confirm → build+stage → Lead byte-QC PASS → auto-deploy → Lead post-push live-diff PASS. PLAN: saunders-render-app `3_Documentation/review/public_quote_rates/PLAN.md`.
+
+**Marketing-site wiring (Frontdoor's half, DONE 2026-10-20):** the `/quote` page is the Odoo marketing view **`wsc.quote` (`ir.ui.view` id 3839)** — its single source. Frontdoor edited it to fetch this feed on load and override its RATES, keeping a (now-corrected: over_panes 9→10, ss_panes 10.5→11) hardcoded fallback for feed-unreachable. **E2E VERIFIED LIVE in a real browser on www.windowandsolarcare.com/quote:** on-load GET → 200 ×3, zero CORS/console errors, in-page fetch returns ok:true + live rates, and an Oversized pane rendered $10 (the live app rate, was $9 hardcoded). The one-price-source loop is fully live: DJ edits in the app quote-rates screen → site follows within ~5min.
