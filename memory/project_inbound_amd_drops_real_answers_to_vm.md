@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-20T16:41:39.922Z
+  modified: 2026-10-20T16:44:47.262Z
 ---
 
 **Symptom (DJ 2026-10-20, via Dispatcher):** customers calling EITHER number (855 toll-free + 760) can't be answered — the call drops to the in-app voicemail the moment DJ picks up. Both numbers, identical failure.
@@ -19,7 +19,7 @@ This drops on **`unknown`** too. Twilio returns `unknown` when it can't classify
 
 **NOT:** a Twilio account/number setting (webhook already reached `/voice/incoming` — the greeting plays + DJ's phone rings); NOT a 502 (a 502 on the webhook errors/drops the call, it does NOT cleanly land the caller in our voicemail — different fingerprint); NOT a regression (this inbound gate has been unchanged since the 2026-06-27 AMD rebuild — real-world AMD outcomes on DJ's field answers are what surfaced the always-present fragility).
 
-**The fix (2026-10-20, surgical, inbound only — staged, through expedited §15 Audit→Lead):**
+**The fix (2026-10-20, surgical, inbound only — SHIPPED, commit 9dec2817; Lead firsthand §15-confirmed at sha 3020d622 + byte-QC):**
 1. voice.py:263 gate → `if answered_by.startswith('machine') or answered_by == 'fax':` → connect `human`/`unknown`/empty, hang up only a CONFIRMED machine. **This mirrors the already-shipped, proven OUTBOUND gate** `/voice/outbound-bridge` (voice.py:735, live since 2026-08-04 click-to-call AMD commit) — the inbound gate was simply never brought in line. `answered_by` is `(AnsweredBy or '').lower()`, so empty → connect.
 2. voice.py:238 `MachineDetectionTimeout` `'5'` → `'15'` (< `RING_SECS`=20) so AMD can classify a human before timing out. Outbound dial (:709/:713) + outbound gate left untouched (not the reported bug; gate already correct).
 
