@@ -5,10 +5,10 @@ metadata:
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-10-23T23:45:36.759Z
+  modified: 2026-10-23T23:50:09.117Z
 ---
 
-**★ LIVE-STATE CORRECTION (Lead firsthand, 2026-10-23): ENFORCEMENT IS NOW ON — the 2026-08-22 P0 anon-leak described below is CLOSED.** Unauthenticated `curl`: `GET /owner/api/inbox/list` → **401 `auth required`**, `GET /owner/api/authz/report` → **401**. `inbox_list` (sms.py:2384) takes no `request` and has NO in-handler auth, so that 401 can ONLY come from the global `_authz_gate` → `authz.enforcing()` is TRUE → **`AUTH_ENFORCE=1` is set on Render.** The whole `/owner` (and `/tech`/`/cheryl`) surface now rejects anonymous requests; the make-safe (give the V2 app a real `wsc_session` + fix the PWA cookie jar) was completed and the flip done sometime 2026-08-22→2026-10-23. **Do NOT repeat "the owner API is open / P0 leaking" as current — it is not.** (This stale belief resurfaced 2026-10-23 when two sessions cited this memory's old body on the inbox-compose ticket; re-verify with an anon curl if in doubt — HTTP 200 vs 401 by CONTENT.)
+**★ LIVE-STATE CORRECTION (Lead firsthand, 2026-10-23): ENFORCEMENT IS NOW ON — the 2026-08-22 P0 anon-leak described below is CLOSED.** Unauthenticated `curl`: `GET /owner/api/inbox/list` → **401 `auth required`**, `GET /owner/api/authz/report` → **401**. `inbox_list` (sms.py:2384) takes no `request` and has NO in-handler auth, so that 401 can ONLY come from the global `_authz_gate` → `authz.enforcing()` is TRUE → **`AUTH_ENFORCE=1` is set on Render.** The whole `/owner` (and `/tech`/`/cheryl`) surface now rejects anonymous requests; the make-safe (give the V2 app a real `wsc_session` + fix the PWA cookie jar) was completed and the flip done sometime 2026-08-22→2026-10-23. **Do NOT repeat "the owner API is open / P0 leaking" as current — it is not.** (This stale belief resurfaced 2026-10-23 when two sessions cited this memory's old body on the inbox-compose ticket; re-verify with an anon curl if in doubt — HTTP 200 vs 401 by CONTENT.) Canonical pair with [[project_owner_api_auth_enforced]] — that's the crisp "enforced, verify-by-request" standing note; THIS file = the mechanism + make-safe history.
 
 **The auth layer (discovered 2026-08-22 during the P0 security task — PRE-enforcement history below).**
 - **Middleware:** `main.py` `_authz_gate` (@app.middleware http) calls `authz.check(request)` on every request. Protected prefixes = `/owner`, `/tech`, `/cheryl`.
