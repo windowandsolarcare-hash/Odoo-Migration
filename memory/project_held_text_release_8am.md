@@ -4,7 +4,7 @@ description: "Overnight customer texts (held during 8pm-8am quiet hours) auto-re
 metadata:
   node_type: memory
   type: project
-  modified: 2026-10-22T16:04:07.372Z
+  modified: 2026-10-23T22:58:53.789Z
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
 ---
 
@@ -21,3 +21,9 @@ metadata:
 **Test boundary (important):** you CANNOT headlessly stage a live drain test — `release_holds()` → `send()` → Twilio sends a REAL customer SMS. Do not inject a test hold against a real customer number to "prove" it; the at-most-once is closed by deterministic code + the idem claim; the authoritative live confirm is the organic 8:00 drain. See [[feedback_cant_headlessly_seed_is_security_feature]].
 
 **Architecture note:** the scheduler runs IN-PROCESS on the web tier (`RUN_SCHEDULER` default-on, numInstances=2), NOT in a separate Render Background Worker — `worker.py` exists as the intended sole-scheduler owner but the zero-downtime STEP-2 flip was never done; no worker service is deployed. The `_sched_singleton` PG advisory lock (needs `MEMORY_DB_URL`, FAIL-CLOSED) keeps the 2 web instances from double-firing. §15: Audit plan-review → Lead firsthand confirm → Lead byte-QC → auto-deploy. See [[feedback_durable_watcher_not_session_cron]].
+
+**Verify method (Lead firsthand, 2026-10-23) — TWO separate stores, don't conflate:** the hold QUEUE is the Odoo param `wsc.msg.holdqueue` (`_sms._pget/_pset` = `ir.config_parameter` get/set_param, sms.py:103/109; shared by BOTH web instances + survives redeploys → the singleton drain is safe, NO per-instance in-memory orphan — an early worry, ruled out on bytes). The idem/sent LEDGER is Render PG `wsc-memory-pillar` (`dpg-danl5vqjnfac7390g8g0-a`) table `wsc_msg_sent(idem,kind,to_norm,sid,status,created_at)`, written by `_claim_send` (messaging.py:428). To confirm the job FIRED: Render logs (srv-d78le0fkijhs738dsli0) filter `_scheduled_release_holds` → `lock acquired -> running` (one instance) + `lock held elsewhere -> standing by` (other). To confirm a real DRAIN actually SENT: query `wsc_msg_sent` for `created_at` in the 8am-PT window (**15:00 UTC during PDT / 16:00 UTC during PST**); idem-less held sends carry `idem LIKE 'hold:%'`.
+
+**2026-10-23 firsthand:** the 15:00:00 UTC (8:00 AM PDT) fire ran exactly on time, singleton clean — but the queue was EMPTY (0 rows in `wsc_msg_sent` for 14:55–15:10 UTC; 3 sends all day, none in-window). So BOTH observed fires (10/22, 10/23) were empty-queue no-ops → **mechanism proven firing, but a REAL drain of actual held texts STILL unobserved** (needs a morning with genuine overnight holds).
+
+**Observability gap (Lead routed to Specialists 2026-10-23):** `release_holds()` RETURNS `{'released':N,'requeued':M}`, but the main.py `_scheduled_release_holds` wrapper swallows it in a silent try/except and logs only "running" → a real drain shows NO count in logs (that's why confirming it needs the PG dig above). One-line fix = log the return so the next real 8am drain self-reports. See [[feedback_cant_headlessly_seed_is_security_feature]].
