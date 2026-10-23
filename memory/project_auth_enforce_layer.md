@@ -1,14 +1,16 @@
 ---
 name: project_auth_enforce_layer
-description: "The app's session-auth layer (routers/authz.py + main.py middleware). AUTH_ENFORCE env gates the whole /owner,/tech,/cheryl surface; currently OFF (monitor mode) so EVERY /owner endpoint answers anonymous — a P0 leak (customer PII + portal links public). Flipping needs make-safe first: the would-block report proves DJ's PWA isn't reliably cookied. DO NOT flip blind."
+description: "The app's session-auth layer (routers/authz.py + main.py middleware). AUTH_ENFORCE env gates the whole /owner,/tech,/cheryl surface. ★ As of 2026-10-23 ENFORCEMENT IS LIVE (AUTH_ENFORCE=1): anon GET /owner/api/inbox/list + /owner/api/authz/report both return 401 (Lead firsthand) — the 2026-08-22 P0 anon-leak is CLOSED. The body below (monitor-mode / leak-open) is PRE-enforcement history; do not repeat it as current."
 metadata: 
   node_type: memory
   type: project
   originSessionId: fd3d7991-aec7-45dc-97e5-4f403efbe28b
-  modified: 2026-08-22T17:37:19.741Z
+  modified: 2026-10-23T23:45:36.759Z
 ---
 
-**The auth layer (discovered 2026-08-22 during the P0 security task).**
+**★ LIVE-STATE CORRECTION (Lead firsthand, 2026-10-23): ENFORCEMENT IS NOW ON — the 2026-08-22 P0 anon-leak described below is CLOSED.** Unauthenticated `curl`: `GET /owner/api/inbox/list` → **401 `auth required`**, `GET /owner/api/authz/report` → **401**. `inbox_list` (sms.py:2384) takes no `request` and has NO in-handler auth, so that 401 can ONLY come from the global `_authz_gate` → `authz.enforcing()` is TRUE → **`AUTH_ENFORCE=1` is set on Render.** The whole `/owner` (and `/tech`/`/cheryl`) surface now rejects anonymous requests; the make-safe (give the V2 app a real `wsc_session` + fix the PWA cookie jar) was completed and the flip done sometime 2026-08-22→2026-10-23. **Do NOT repeat "the owner API is open / P0 leaking" as current — it is not.** (This stale belief resurfaced 2026-10-23 when two sessions cited this memory's old body on the inbox-compose ticket; re-verify with an anon curl if in doubt — HTTP 200 vs 401 by CONTENT.)
+
+**The auth layer (discovered 2026-08-22 during the P0 security task — PRE-enforcement history below).**
 - **Middleware:** `main.py` `_authz_gate` (@app.middleware http) calls `authz.check(request)` on every request. Protected prefixes = `/owner`, `/tech`, `/cheryl`.
 - **`authz.check()` passes if:** path in `PUBLIC_PREFIXES` (`/api/login`,`/api/logout`,`/healthz`,`/static`,`/book`,`/c/`,`/sw.js`, plus machine/automation `/owner/api/owntracks/webhook`,`/owner/api/cron/`,`/owner/api/payroll/cron`,`/owner/api/tasker/`,`/owner/api/sms/incoming`, and customer-facing `/owner/api/booking/intake`,`/owner/api/stripe/tip_page|logo|check_payment`,`/owner/api/zelle/pay|track`) OR path in `PUBLIC_EXACT` (Twilio voice TwiML callbacks + `/owner/api/job/gallery`,`/owner/api/job/photo`) OR it carries a valid `wsc_session` cookie whose role allows the path (**owner opens everything**; tech→/tech; cheryl→/cheryl).
 - **`AUTH_ENFORCE` env** (`authz.enforcing()` = `os.environ['AUTH_ENFORCE']=='1'`): when set, a failed check → 401 (or redirect to `/` for HTML). **When UNSET (current state) = MONITOR MODE:** the request is ALLOWED anyway, and the would-block is recorded. ★ So right now the ENTIRE /owner surface answers anonymous requests — that's the P0 (Portal found `/owner/api/portal/link` + `/owner/api/intake/search` leaking customer PII + working portal links to plain curl).
