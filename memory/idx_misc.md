@@ -1,5 +1,7 @@
 # Misc — memory index
 
+- [project_hiring_compare_round2_answer_placeholder.md](project_hiring_compare_round2_answer_placeholder.md) — PARKED cosmetic (Lead+Audit 2026-10-23): Round-2 (Zoom) answer boxes in hiring_compare.html still show the "fills in from the recording" placeholder, but Round 2 is MANUAL. Fix on the NEXT touch of that file — round-2 placeholder or drop the ivAns box for r2q* rows. Keep additive (don't touch INTERVIEW_Q/q*/#ivqcount). Frontdoor owns.
+
 - [project_payment_options_zelle_venmo_vision.md](project_payment_options_zelle_venmo_vision.md) — ★ ROADMAP (DJ 2026-09-21, scope AFTER the Venmo journal fix): branded payment page w/ Zelle-vs-Venmo breakout (sections/buttons per method) + outbound payment-request offering both. Inbound method-detection already done. Pairs w/ per-method journal routing (DJ-corrected: Zelle STAYS j6/Chase like a normal deposit, NOT j19; only Venmo→j29). Lead scopes + flags Dispatcher.
 
 - [project_sonnet5_rejects_temperature.md](project_sonnet5_rejects_temperature.md) — ★ API gotcha: model claude-sonnet-5 REJECTS the `temperature` param → 400. Found in Mom's Care compose (drop temperature; determinism via prompt/input-constraint/post-check). W&SC unaffected (sonnet-4-6, no temperature). Sibling of the anthropic==0.122.0 pin.
