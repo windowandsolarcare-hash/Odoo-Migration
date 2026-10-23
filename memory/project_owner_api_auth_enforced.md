@@ -1,0 +1,15 @@
+---
+name: project_owner_api_auth_enforced
+description: "/owner (and /tech /cheryl /printing /list /recurring) API is ACTIVELY auth-enforced live (AUTH_ENFORCE=1) — unauth returns 401; authz.py's 'monitor-only until AUTH_ENFORCE=1' COMMENT is stale. Verify live posture by request, not by a code comment."
+metadata:
+  node_type: memory
+  type: project
+  originSessionId: 80181d32-eaf0-44dc-ad58-3287cd412a94
+  modified: 2026-10-23T23:47:09.359Z
+---
+
+**The `_authz_gate` is LIVE-ENFORCING now (verified 2026-10-23).** `AUTH_ENFORCE=1` is set on Render, so the global middleware (`main.py` `_authz_gate` → `routers/authz.py` `check()` / `enforcing()`) HARD-DENIES unauthenticated requests to the `PROTECTED_PREFIXES` = `('/owner','/tech','/cheryl','/printing','/list','/recurring')`, except the explicit `PUBLIC_PREFIXES`/`PUBLIC_EXACT` carve-outs (Twilio webhooks `/owner/api/sms/incoming`, voice webhooks, owntracks, cron/tasker, stripe/zelle public pages, `/owner/api/public/quote-rates`, `fleet/register`, job gallery/photo). Firsthand proof: unauth `GET /owner/api/inbox/list` AND `/owner/api/authz/report` both return **HTTP 401 `{"ok":false,"error":"auth required"}`** (`inbox_list` sms.py:2384 has NO in-handler auth → the 401 IS the global gate with `enforcing()`=True). So owner-router endpoints with no in-body token (e.g. `inbox_send`, a new `inbox/compose`) are genuinely owner-cookie-gated, not open.
+
+**Why this matters / the trap:** `authz.py`'s own header + inline comments still read *"with AUTH_ENFORCE unset it only counts what WOULD be blocked… monitor-only until AUTH_ENFORCE=1"*. That text describes the pre-flip SOAK state (R1 soak, ~2026-09) and is now STALE — the flag has since been flipped live. I (Audit, this session) inferred "monitor-mode, owner API effectively open" from the gate's code path + those comments while reviewing the compose ticket, and stated it as the current posture. Lead corrected it firsthand with a live unauth curl (401), and I re-verified. The posture is STRONGER than the comment implies.
+
+**How to apply:** a flag-/env-gated behavior's CODE COMMENT describes the state when it was written, not necessarily now. For any live-posture claim (auth enforced? feature flag on? soak vs enforce?), VERIFY BY A LIVE REQUEST or the live env value — never declare it from a code comment or the branch logic alone. One unauth `curl -s -o /dev/null -w '%{http_code}'` against a PROTECTED, no-in-handler-auth endpoint (e.g. `/owner/api/authz/report`) settles "is /owner enforced?" in one call. See [[feedback_verify_limits_before_declaring]], [[feedback_verify_collection_and_live_pipe]], [[feedback_odoo_verify_content_not_status]].
