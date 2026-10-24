@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 90c41229-811c-4085-801e-7475f63f81b9
-  modified: 2026-09-28T15:27:26.967Z
+  modified: 2026-10-24T07:32:54.768Z
 ---
 
 DJ (2026-09-23): STOP inventing ad-hoc customer message lines. When Operator offered to "draft the 'moved you to Monday 8:30' text," DJ rejected it: *"that's your testimony... a line that you invented... I'm trying to get away from you inventing lines. That doesn't scale up."*
@@ -44,3 +44,16 @@ DJ (2026-09-23): STOP inventing ad-hoc customer message lines. When Operator off
 3. **BAKE IT INTO THE BOOT PACKS (FLEET_GOVERNANCE)** as a hard rule so no session ever re-introduces a one-tap customer send. This supersedes ANY older "one-tap approve" design.
 
 **How to apply (every session, forever):** if you build or find a HUD/UI control that sends a customer message, it MUST route through see→edit→press-send. Never `messaging.send` straight off a button. When auditing, a one-tap send = a defect to convert, full stop. Ties to [[feedback_never_send_dj_to_odoo]], [[feedback_email_draft_first_always]], [[feedback_dj_operating_instincts]].
+
+---
+
+## ★ OPERATOR RECURRENCE + GAP — DJ 2026-10-24 (one-off custom messages)
+
+**What happened:** DJ approved a one-off custom message to Anne Sandberg (a pricing explanation + $150 Zelle request). Operator STAGED the send itself by POSTing `/owner/api/inbox/send`, which during quiet hours HELD it in the overnight queue (`wsc.msg.holdqueue`) to AUTO-RELEASE at 8:00 AM. **That violates the rule** — an auto-release fires WITHOUT DJ pressing Send in the thread. DJ (calm, corrective): *"that's not normally how we do it… It's a Hud that you create that I click on, and then it brings me to a text box in the inbox so I could see everything that was sent to that person, and then I send it. And since it's after [8pm], it'll get queued up to be sent the next morning."* (He let this one fire since it was already done, but set the standard going forward.)
+
+**THE CORRECT OPERATOR FLOW for ANY customer message (one-off OR standard):**
+1. Operator places a **review-first HUD card** (`submit_item`, `kind:'attention'`, NO `on_approve`/send endpoint) whose `action.href` opens the customer's inbox thread PRE-FILLED: `/static/owner/v2_inbox.html?open=<pid>&draft=<urlencoded body>` (add `&confirm_so=<so>` only for a confirm).
+2. DJ taps the card → lands in the thread, sees the WHOLE conversation + the pre-filled draft, edits freely.
+3. **DJ presses Send himself.** The quiet-hours hold then applies to HIS send (held → 8am release) — the queuing happens AFTER his press, never before it. Operator never pre-stages the send.
+
+**THE GAP (routed to Lead 2026-10-24):** the only Operator-reachable HTTP card endpoint, `POST /owner/api/confirm_card` (reminders.py:2962), hardcodes the CANONICAL confirm body (`_confirm_page_body`) — it takes `{so_id}` only, no custom-text param. The custom-draft review-first cards (`_queue_ack_approval`, `review_requests`) are internal funcs with no generic HTTP trigger. So Operator has **no clean HTTP way to place a HUD card carrying an arbitrary one-off draft**, which is why the wrong tool got used. **Needed:** an endpoint (e.g. `/owner/api/operator/message_card {partner_id|so_id, body}`) that `submit_item`s a review-first card with `action.href = v2_inbox.html?open=<pid>&draft=<body>` and NO send. Until it exists, if DJ wants a HUD card for a custom message, route the card-placement need — do NOT fall back to `inbox/send`/hold-queue (that auto-fires). (A chat deep-link opens the same prefilled thread but is NOT the HUD card DJ wants.)
