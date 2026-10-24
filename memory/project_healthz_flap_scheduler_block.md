@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: c357000c-2b48-423f-90ce-2e1b8f1f9669
-  modified: 2026-10-24T03:51:06.709Z
+  modified: 2026-10-24T03:52:24.353Z
 ---
 
 **Symptom.** Render `server_failed` events on `srv-d78le0fkijhs738dsli0`, reason `"HTTP health check failed (timed out after 5 seconds)"` or `"...connect: connection refused"` against `:8000/healthz`. One instance at a time; self-heals (`server_available`) in ~8-24s. `numInstances=2` behind the LB → the other instance stays up → **no user-facing outage** (why DJ sees no matching downtime). Clusters at night (00:35-01:57 PT) and midday.
@@ -19,4 +19,6 @@ metadata:
 
 **Related thread — eMudhra CA advisory (firsthand, Lead 2026-10-23).** `certifi` is UNPINNED (transitive via `requests` → `certifi>=2023.5.7`) and Render `cache: no-cache` resolves the freshest each build. The running deploy's build log shows `Successfully installed … certifi-2026.10.23` ≥ advisory floor **2026.10.19** → the compromised eMudhra root removal IS on deployed bytes; no emergency bump. Optional hygiene floor pin `certifi>=2026.10.19` approved (floor not ceiling; makes "patched" explicit + durable).
 
-See [[project_held_text_release_8am]] (same in-process APScheduler on the web tier, same singleton lock), [[feedback_durable_watcher_not_session_cron]], [[feedback_verify_collection_and_live_pipe]], [[feedback_cant_headlessly_seed_is_security_feature]].
+**Closes an open item.** [[project_render_502_event_loop_freeze_blocking_odoo]] proved the active-traffic 502s are the same single-worker event-loop freeze but left the "02:04 idle path OPEN" — these idle/night health-check flaps ARE that idle path: the minute-boundary SCHEDULER ticks block the loop with no traffic needed. Same root (single uvicorn worker + blocking Odoo I/O on the loop); same fix family (threadpool the blocking call).
+
+See [[project_render_502_event_loop_freeze_blocking_odoo]] (canonical event-loop-freeze note), [[project_502_healthcheck_hang_hud_feed_cascade]], [[project_held_text_release_8am]] (same in-process APScheduler on the web tier, same singleton lock), [[feedback_durable_watcher_not_session_cron]], [[feedback_verify_collection_and_live_pipe]], [[feedback_cant_headlessly_seed_is_security_feature]].
