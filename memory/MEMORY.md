@@ -1,6 +1,6 @@
 # Memory Index (TOC)
 
-Detail lives in topic files. Sharded by domain — open the matching `idx_<domain>.md` or `Grep` the memory dir. 288 topic memories / 11 domains + 83 standing rules.
+Detail lives in topic files. Sharded by domain — open the matching `idx_<domain>.md` or `Grep` the memory dir. 288 topic memories / 11 domains + 82 standing rules.
 
 > **Maintaining:** new hooks → the matching `idx_<domain>.md`, NOT here. Touch THIS file only for a `feedback_*` standing rule or a new domain shard. Standing-rule hooks are BARE SLUG + one tight line (Read `<slug>.md` for detail); keep <17 KB so it fully loads (~24.4 KB hard cap).
 
@@ -20,136 +20,136 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 
 ## ★ Standing rules (how DJ wants me to work) — always honor
 
-- feedback_next_not_later_ai_blindspots.md — ★★ KEYSTONE: deferring with a TIMEFRAME ("later/over time/someday") = a lie; no trigger = NEVER.
-- feedback_notify_dj_channels.md — Reach DJ: Push=FYI (flaky); TEXT=when INPUT needed. Cell in /c/Users/dj/dj_cell.txt.
+- feedback_next_not_later_ai_blindspots.md — ★★ KEYSTONE: deferring with a TIMEFRAME ("later/someday") = a lie; no trigger = NEVER.
+- feedback_notify_dj_channels.md — Reach DJ: Push=FYI (flaky); TEXT=input needed. Cell in /c/Users/dj/dj_cell.txt.
 - feedback_raise_bar_on_dj_alerts.md — ★ Reach DJ only when REALLY needed; else decide+proceed; cross-stream→Lead.
-- feedback_alert_dj_when_input_needed.md — ★ Input genuinely needed → ALERT him (banner/HUD/text), never ask-then-wait; keep working.
-- feedback_ready_and_unfinished_ask_picker.md / feedback_blocked_build_ask_with_options.md — ★ (§11/§12) BLOCKED/READY/UNFINISHED → AskUserQuestion PICKER; a DJ tap IS the deploy trigger. Never silently stall.
-- feedback_picker_leads_with_plain_synopsis.md — ★ Every picker to DJ LEADS with a 2-3 line plain synopsis (what he asked / what we changed / what each tap does) BEFORE options. No lingo/codes. (DJ taps Deploy blind otherwise.)
-- feedback_dj_operating_instincts.md — ★ DJ instincts: words warm/one-push; dates batch-by-geo tight; 2 quote types, review-then-send, tap-to-book, price-TBD.
-- feedback_operator_followup_verify.md — ★ Operator: any action with an expected OUTCOME gets a scheduled follow-up to VERIFY.
+- feedback_alert_dj_when_input_needed.md — ★ Input needed → ALERT (banner/HUD/text), never ask-then-wait; keep working.
+- feedback_ready_and_unfinished_ask_picker.md / feedback_blocked_build_ask_with_options.md — ★ (§11/§12) BLOCKED/READY/UNFINISHED → AskUserQuestion PICKER; DJ tap = deploy trigger; never silently stall.
+- feedback_picker_leads_with_plain_synopsis.md — ★ Every picker LEADS with a 2-3 line plain synopsis before options; no lingo.
+- feedback_dj_operating_instincts.md — ★ DJ instincts: words warm/one-push; dates batch-by-geo; 2 quote types, review-then-send, tap-to-book, price-TBD.
+- feedback_operator_followup_verify.md — ★ Operator: any action with an expected OUTCOME gets a scheduled VERIFY follow-up.
 - feedback_activity_notes_self_contained.md — Activity notes embed memory content; any URL = proper <a href>.
-- feedback_agent_handoff_via_doc.md — Agent handoffs: instructions in a *_BRIEF.md doc; DJ gets a 1–2 sentence paste + path.
-- project_agent_mail_channel.md — ★ Cross-session comms = AGENT_MAIL.md (app repo). DJ's "mail" = go read it. Read at start + after each task.
-- feedback_lead_roster_restamp.md — ★ Lead re-stamps SESSION_ROSTER row (ref+UTC) at start/every tick + heartbeat cron (churned ref = dead address).
-- feedback_agent_mail_autowatch.md — ★ Session start: arm mail-watcher cron (offset min; check CronList). Session-local, re-arm each start.
-- feedback_render_design_before_presenting.md — ★ Never present a math-built design: render to PNG, LOOK, send the IMAGE. No hardcoded ref in heartbeat.
-- feedback_binary_upload_disk_not_inline.md — ★ Never hand-inline a big base64/binary blob into an upload tool (corrupts bytes); upload from DISK (Artifact files/asset) + sha256 round-trip verify.
+- feedback_agent_handoff_via_doc.md — Agent handoffs: instructions in a *_BRIEF.md; DJ gets a 1-2 sentence paste + path.
+- project_agent_mail_channel.md — ★ Cross-session comms = AGENT_MAIL.md (app repo); "mail"=go read it; read at start + after each task.
+- feedback_lead_roster_restamp.md — ★ Lead re-stamps SESSION_ROSTER row (ref+UTC) at start/every tick + heartbeat (churned ref=dead).
+- feedback_agent_mail_autowatch.md — ★ Session start: arm mail-watcher cron (offset min; CronList); session-local, re-arm each start.
+- feedback_render_design_before_presenting.md — ★ Never present a math-built design: render PNG, LOOK, send the IMAGE.
+- feedback_binary_upload_disk_not_inline.md — ★ Never hand-inline big base64 into an upload (corrupts); upload from DISK + sha256 verify.
 - project_eddm_mailing_rules.md — ★★ EDDM: W&SC 9×6.5in (Zoo); 9×6 NOT eligible; address block TOP HALF. Design owns.
-- project_wsc_print_build_pipeline.md — `_design_build.py`: .dc.html → proofs + Zoo CMYK press PDFs (2775×2025, SWOP, crop/TrimBox/BleedBox).
-- feedback_design_end_to_end_workflow.md — ★ "design X" → Design does it all → ONE Drive link per piece; dev proofs carry trim/safe guides.
-- feedback_cheryl_uses_djs_account.md — ★ Person on DJ's account may be CHERYL — plain language for design/card work; ASK if ambiguous.
-- feedback_cheryl_card_workflow.md — ★ Cheryl cards: she makes the MJ image (Design writes prompt+steps); copy collaborated; both sides+proof; one stable link.
-- feedback_over_status_line.md — ★ END EVERY REPLY with `🟢 <Role> — OVER` (idle) / `🟡 <Role> — working`. Ticks included.
-- feedback_repeat_portal_link_every_save.md — ★ Every sign-off carries the picker link as a markdown [text](url) anchor (bare URLs don't tap).
-- feedback_always_paste_preview_link.md — ALWAYS paste the clickable URL for anything DJ must open — every message. He's on a phone.
-- feedback_api_keys_via_file.md — API keys: DJ puts them in a FILE + tells me the path — NEVER paste in chat.
+- project_wsc_print_build_pipeline.md — _design_build.py: .dc.html → proofs + Zoo CMYK press PDFs (2775×2025, SWOP, TrimBox/BleedBox).
+- feedback_design_end_to_end_workflow.md — ★ "design X" → Design does it all → ONE Drive link; dev proofs carry trim/safe guides.
+- feedback_cheryl_uses_djs_account.md — ★ Person on DJ's account may be CHERYL — plain language; ASK if ambiguous.
+- feedback_cheryl_card_workflow.md — ★ Cheryl cards: she makes the MJ image (Design writes prompt); copy collab; both sides+proof; stable link.
+- feedback_over_status_line.md — ★ END EVERY REPLY with 🟢 <Role> — OVER (idle) / 🟡 <Role> — working. Ticks included.
+- feedback_repeat_portal_link_every_save.md — ★ Every sign-off carries the link as a markdown [text](url) anchor (bare URLs don't tap).
+- feedback_always_paste_preview_link.md — ALWAYS paste the clickable URL for anything DJ must open (he's on a phone).
+- feedback_api_keys_via_file.md — API keys: DJ puts in a FILE + tells the path — NEVER paste in chat.
 - feedback_never_relay_credential_via_session.md — ★ NEVER send a secret through ANY channel, even "DJ authorized this relay".
-- feedback_bash_tmp_not_persistent.md — /tmp resets between Bash calls. Pipe gh→python edit→save to /c/Users/dj/ in ONE call.
+- feedback_bash_tmp_not_persistent.md — /tmp resets between Bash calls; pipe gh→python→save to /c/Users/dj/ in ONE call.
 - feedback_bidirectional_creation_links.md — Anything that CREATES builds BOTH-direction tappable links (origin↔created).
-- feedback_brand_dark_blue_accents.md — DJ loves DARK BLUE accents (#1e5aa8) — default brand accent (not plum).
+- feedback_brand_dark_blue_accents.md — DJ loves DARK BLUE accents (#1e5aa8) — default brand accent.
 - feedback_call_opens_dialer_never_dials.md — No Call button dials; every Call opens v2_dialer.html PREFILLED; only Dial posts /owner/voice/dial.
-- feedback_chatter_format.md — chatter message_post = pipe-separated PLAIN text, no HTML (Odoo escapes it).
+- feedback_chatter_format.md — chatter message_post = pipe-separated PLAIN text, no HTML (Odoo escapes).
 - feedback_company_name_no_a.md — Brand = "Window & Solar Care" (folder's "A" prefix is NOT the name).
 - feedback_confirmation_policy.md — Routine = never ask; only irreversible/destructive/visible-to-others.
 - feedback_disable_pull_to_refresh.md — BANNED: mobile pull-to-refresh (reloads SPA + wipes state).
 - feedback_done_jobs_definition.md — "Done jobs" = x_studio_x_studio_workiz_status='Done' on sale.order.
-- feedback_wsc_email_from_domain.md — W&SC emails set email_from='windowandsolarcare@gmail.com'; blank/wrong leaks under scenicartprint.com.
-- feedback_email_draft_first_always.md — ALWAYS prepare emails as Gmail DRAFTS for DJ to send — never SMTP-send, even on "send".
+- feedback_wsc_email_from_domain.md — W&SC emails set email_from='windowandsolarcare@gmail.com'; blank → leaks scenicartprint.com.
+- feedback_email_draft_first_always.md — ALWAYS prepare emails as Gmail DRAFTS — never SMTP-send, even on "send".
 - feedback_email_via_odoo.md — Send emails via Odoo mail.mail JSON-RPC — Gmail MCP only drafts.
-- feedback_field_html_js_syntax_check.md — ALWAYS `node --check` field.html JS before pushing.
-- feedback_field_readability_sunlight.md — DJ limited vision + bright sun → all field/owner UI large-text, high-contrast.
-- feedback_gh_push_empty_file_guard.md — Before any raw gh api PUT, verify b64 len (<1000→abort) — empty push crashes boot.
-- feedback_compile_gate_before_push.md — ★ CHAIN py_compile/node--check into the SAME && as the push (separate line won't abort it).
-- feedback_github_deploy_from_bash.md — GitHub deploy needs a `powershell -Command` wrapper, not raw bash/Python.
-- feedback_github_deploy_python_fallback.md — If base64 gives "Problems parsing JSON" 400, switch to Python (b64encode+json.dump).
+- feedback_field_html_js_syntax_check.md — ALWAYS node --check field.html JS before pushing.
+- feedback_field_readability_sunlight.md — DJ limited vision + sun → all field/owner UI large-text, high-contrast.
+- feedback_gh_push_empty_file_guard.md — Before any raw gh PUT, verify b64 len (<1000→abort) — empty push crashes boot.
+- feedback_compile_gate_before_push.md — ★ CHAIN py_compile/node--check into the SAME && as the push.
+- feedback_github_deploy_from_bash.md — GitHub deploy needs a powershell -Command wrapper, not raw bash.
+- feedback_github_deploy_python_fallback.md — base64 "Problems parsing JSON" 400 → switch to Python (b64encode+json.dump).
 - feedback_github_deployment_bash.md — CANONICAL: bash + base64 + temp file for GitHub deploys.
-- feedback_hist_modal_activejob_null.md — Never setTimeout-clear activeJob after openNoteModal() — submitNote() checks it first.
+- feedback_hist_modal_activejob_null.md — Never setTimeout-clear activeJob after openNoteModal() — submitNote() checks it.
 - feedback_ios_date_input_appearance.md — iOS: styled <input type=date> with -webkit-appearance:none won't open.
-- feedback_local_vs_deployed_drift.md — Local Saunders Render App copy can lag deployed — fetch the live file before a push.
-- feedback_multiagent_collision_field_html.md — 2-agent field.html collision: small change reverted by bigger concurrent push (guard misses it).
-- feedback_never_send_dj_to_odoo.md — ★ GOVERNING: DJ/users NEVER touch Odoo; the app is THE UI. "Go into Odoo" = a bug.
+- feedback_local_vs_deployed_drift.md — Local app copy can lag deployed — fetch the live file before a push.
+- feedback_multiagent_collision_field_html.md — 2-agent field.html collision: small change reverted by a bigger concurrent push.
+- feedback_never_send_dj_to_odoo.md — ★ GOVERNING: DJ/users NEVER touch Odoo; app is THE UI. "Go into Odoo"=a bug.
 - feedback_assistant_use_app_workflow_not_raw_api.md — ★ GOVERNING: ops via the app's OWN endpoints, never raw Odoo writes.
-- feedback_never_remove_working_code.md — NEVER comment out/delete working code without DJ's explicit OK — adding is fine.
-- feedback_no_guessing_on_fields.md — NEVER guess Odoo field names — verify in CLAUDE.md/memory, or query Odoo.
-- feedback_no_mutating_smoketest_payroll.md — Never POST a mutating payroll endpoint to test existence — use read-only routes.
-- feedback_no_re_listing.md — Don't re-print tables across turns. Write to 4_Reference_Data/, reference by name.
-- feedback_odoo_verify_content_not_status.md — ★ Odoo HTTP 200 ≠ success (denial serves placeholder at 200). Verify by CONTENT.
-- feedback_verify_collection_and_live_pipe.md — ★ Green deploy ≠ works: AST-verify membership + fire the real LIVE request post-deploy.
-- feedback_field_whitelist_strip_silent_inert.md — ★ A new field crossing accessor→endpoint→render can be SILENTLY stripped by a field-whitelisting layer → feature ships INERT while LOOKING done; accessor-level test is blind. QC/tests must trace the FULL pipe.
-- feedback_binary_upload_sha_roundtrip_verify.md — ★ Large base64 hand-inlined into an MCP upload (e.g. Drive create_file) byte-corrupts the binary (PDF: some streams fail Flate adler → renders broken on SOME pages, fine on others). Upload from DISK; QC a binary by sha256 ROUND-TRIP + decode-every-stream + RENDER the data-bearing pages, never text/snippet.
+- feedback_never_remove_working_code.md — NEVER comment/delete working code without DJ's explicit OK — adding is fine.
+- feedback_no_guessing_on_fields.md — NEVER guess Odoo field names — verify CLAUDE.md/memory, or query Odoo.
+- feedback_no_mutating_smoketest_payroll.md — Never POST a mutating payroll endpoint to test — use read-only routes.
+- feedback_no_re_listing.md — Don't re-print tables across turns; write to 4_Reference_Data/, reference by name.
+- feedback_odoo_verify_content_not_status.md — ★ Odoo HTTP 200 ≠ success (denial serves placeholder); verify by CONTENT.
+- feedback_verify_collection_and_live_pipe.md — ★ Green deploy ≠ works: AST-verify membership + fire the real LIVE request.
+- feedback_field_whitelist_strip_silent_inert.md — ★ A new field can be SILENTLY stripped by a whitelist layer → ships INERT; QC the FULL pipe, not the accessor.
+- feedback_binary_upload_sha_roundtrip_verify.md — ★ Hand-inlined base64 into an upload byte-corrupts binaries; upload from DISK + sha256 round-trip + render data pages.
 - feedback_odoo_html_field_colors.md — Colored status = HTML field type + Bootstrap classes (text-success/danger/warning).
-- feedback_odoo_reserved_variable_names.md — NEVER name a var `response`/`result` in Odoo 19 server actions (reserved → crash).
+- feedback_odoo_reserved_variable_names.md — NEVER name a var response/result in Odoo 19 server actions (reserved→crash).
 - feedback_odoo_rpc_write_pattern.md — odoo_rpc write(): vals dict INSIDE args — [[id],{vals}] — not a 4th kwarg.
 - feedback_ported_means_twilio.md — "ported"/"ported numbers" = Twilio ported phone numbers.
-- feedback_planning_constraints.md — Architecture constraints: no new Odoo seats, no custom models, one instance, scale across businesses.
-- feedback_root_cause_not_just_instance.md — ★ Fix the instance AND root-cause it + route the systemic fix (never pass a patch as the fix).
+- feedback_planning_constraints.md — Constraints: no new Odoo seats, no custom models, one instance, scale across businesses.
+- feedback_root_cause_not_just_instance.md — ★ Fix the instance AND root-cause it + route the systemic fix.
 - feedback_proactive_inefficiency_capture.md — I own catching trial-and-error patterns + saving the fix immediately.
-- feedback_python_patch_escaping.md — NEVER use '\\n' in Python patch replacement strings (embeds real newlines → SyntaxError).
+- feedback_python_patch_escaping.md — NEVER use '\\n' in Python patch replacement strings (→ SyntaxError).
 - feedback_regression_guard_pushes.md — READ before any push to dashboard.py / large files (stale-overwrite guard).
-- feedback_staged_mirror_stale_base_refetch.md — ★ NEVER push a staged review-MIRROR file (reverts anything shipped after it was built).
+- feedback_staged_mirror_stale_base_refetch.md — ★ NEVER push a staged review-MIRROR file (reverts later-shipped work).
 - feedback_push_compare_and_swap.md — PUT with the sha you READ at (concurrent change 409s instead of clobbering).
-- feedback_question_when_big_picture_wrong.md — ★ TOP judgment: repetition across files = STOP + ASK (not duplicate NOR unilateral refactor).
-- feedback_reuse_canonical_endpoint.md — Don't duplicate logic for a new UI entry — call the canonical endpoint (extend if needed).
-- feedback_reuse_function_follow_full_logic.md — ★ Reusing a function = follow its FULL logic, every step (never a simplified re-impl).
+- feedback_question_when_big_picture_wrong.md — ★ TOP judgment: repetition across files = STOP + ASK (not duplicate NOR refactor).
+- feedback_reuse_canonical_endpoint.md — Don't duplicate logic for a new UI entry — call the canonical endpoint.
+- feedback_reuse_function_follow_full_logic.md — ★ Reusing a function = follow its FULL logic, never a simplified re-impl.
 - feedback_removing_element_leaves_dangling_ref.md — Removing an HTML element but leaving a JS getElementById ref crashes init.
-- feedback_render_claude_number_options.md — Render Claude presents choices as a NUMBERED list (DJ replies with a number).
+- feedback_render_claude_number_options.md — Render Claude presents choices as a NUMBERED list.
 - feedback_render_cron_autodeploy.md — Render cron autoDeploy=yes fires on every push → duplicate emails.
-- feedback_render_env_var_patch_not_put.md — NEVER PUT Render env-vars (wipes unspecified). POST per-var, or fetch+merge+PUT full list.
-- feedback_report_gray_lines.md — Every emailed financial report needs a light-gray line under each item (phone readability).
-- feedback_route_work_to_claude_code.md — Default ALL work to Claude Code (flat Max sub, no marginal $).
-- feedback_mirror_memory_to_github.md — ★ Write/edit ANY memory → also mirror to Odoo-Migration/memory/<name> via gh api PUT (fetch sha first).
-- feedback_save_filter.md — DJ wants auto-saves; filter SHARED_MEMORY writes to runtime-relevant facts only.
-- feedback_script_insertion_anchor.md — Never rfind('</script>') — it hits the last external script tag.
+- feedback_render_env_var_patch_not_put.md — NEVER PUT Render env-vars (wipes unspecified); POST per-var or fetch+merge+PUT.
+- feedback_report_gray_lines.md — Emailed financial reports need a light-gray line under each item (phone readability).
+- feedback_route_work_to_claude_code.md — Default ALL work to Claude Code (flat Max sub).
+- feedback_mirror_memory_to_github.md — ★ Write/edit ANY memory → mirror to Odoo-Migration/memory/<name> via gh PUT (fetch sha first).
+- feedback_save_filter.md — DJ wants auto-saves; filter SHARED_MEMORY writes to runtime-relevant facts.
+- feedback_script_insertion_anchor.md — Never rfind('</script>') — hits the last external script tag.
 - feedback_send_email_with_attachment.md — Pattern for email + PDF attachment via Odoo JSON-RPC.
-- feedback_status_update_format.md — "status update" = condensed ~3–4hr recap grouped Shipped / Waiting-on-you / Open.
-- feedback_spoken_friendly_responses.md — DJ has replies read aloud → PLAIN spoken style: short sentences, no bold/tables/symbols.
-- feedback_test_like_real_app_before_delivering.md — App mimicking a product (Vault=Evernote): TEST against its core behaviors first.
+- feedback_status_update_format.md — "status update" = condensed ~3-4hr recap: Shipped / Waiting-on-you / Open.
+- feedback_spoken_friendly_responses.md — DJ reads replies aloud → PLAIN spoken style: short sentences, no bold/tables/symbols.
+- feedback_test_like_real_app_before_delivering.md — App mimicking a product → TEST against its core behaviors first.
 - feedback_verify_limits_before_declaring.md — Before "I can't do X" (esp. cloud reach), TEST the call first.
 - feedback_use_sonnet_for_routine.md — OPUS for Render-app edits + accounting; Sonnet for routine.
-- feedback_workiz_no_job_all.md — NEVER use the Workiz job/all/ endpoint (DJ's rule).
-- feedback_saunders_printing_never_send.md — NEVER send any Saunders Printing invoice/email without DJ's explicit OK.
-- feedback_auditor_user_perspective_gapfinder.md — ★ Auditor = USER-perspective gap-finder: hunts what the PLAN missed (edit/delete/edge/Add).
-- feedback_nav_bug_is_the_consumer_not_the_string_source.md — ★ A street-ish string is a nav bug ONLY if its CONSUMER is a Navigate; trace forward to navUrlForJob, don't rank the build site.
-- feedback_architect_server_revalidate_bulk_mutations.md — ★ Architect lens: any BULK/mutating action must re-validate submitted ids server-side vs the SAME canonical domain (shared helper), never trust the client list — per-row approval is the gate, server re-check is the backstop; both must hold.
-- feedback_dj_owns_cheryl_erp_access.md — ★ DJ progressively grants Cheryl more ERP access as HE chooses. Surface a scope concern ONCE.
-- feedback_drop_link_table.md — ★ DROP the end-of-reply link TABLE. Keep ONE relevant link + the OVER line.
-- feedback_hud_cards_live_not_inbox.md — ★ HUD/status cards LIVE-DERIVED every render, never a stored inbox that goes stale.
-- feedback_no_ai_offered_dates_use_link.md — ★ (§10) NO AI text offers an OPEN date in free text — offers go via a booking LINK (slot HELD); exception = already-booked date in a confirm.
+- feedback_workiz_no_job_all.md — NEVER use the Workiz job/all/ endpoint.
+- feedback_saunders_printing_never_send.md — NEVER send a Saunders Printing invoice/email without DJ's explicit OK.
+- feedback_auditor_user_perspective_gapfinder.md — ★ Auditor = USER-perspective gap-finder: hunts what the PLAN missed.
+- feedback_nav_bug_is_the_consumer_not_the_string_source.md — ★ A street-ish string is a nav bug ONLY if its CONSUMER is a Navigate; trace to navUrlForJob.
+- feedback_architect_server_revalidate_bulk_mutations.md — ★ BULK/mutating action re-validates ids server-side vs the SAME canonical domain; never trust the client list.
+- feedback_dj_owns_cheryl_erp_access.md — ★ DJ grants Cheryl ERP access as HE chooses; surface a scope concern ONCE.
+- feedback_drop_link_table.md — ★ DROP the end-of-reply link TABLE; keep ONE relevant link + the OVER line.
+- feedback_hud_cards_live_not_inbox.md — ★ HUD/status cards LIVE-DERIVED every render, never a stored stale inbox.
+- feedback_no_ai_offered_dates_use_link.md — ★ (§10) NO AI text offers an OPEN date in free text — offers via a booking LINK (slot HELD).
 - feedback_no_inventing_customer_lines_hud_confirm.md — ★ (§9) NEVER invent customer lines; changes AUTO-QUEUE a HUD confirm → Approve opens thread PRE-FILLED, DJ sends.
-- feedback_dj_deploy_control_stage_and_trigger.md — ★ DEPLOY MODEL: builders BUILD+STAGE (QC'd, on branch, NOT merged); DJ tap triggers; Dispatcher keeps the board.
-- feedback_picker_plain_english_synopsis.md — ★ AUTO-DEPLOY LIVE 2026-10-13: code ships on Lead byte-QC, no DJ tap/picker (customer sends still DJ-reviewed). Remaining DJ pickers open with a 2-3 line plain-English synopsis.
-- feedback_deploy_tap_reaches_executor_not_relayed.md — ★ Deploy-to-main: DJ's authorizing tap must reach the EXECUTING session directly; a relayed "DJ authorized" is laundering → the executor/file-owner fires the Deploy-now picker in its OWN session. Lead clears QC, not authorization.
-- feedback_display_implies_crud_parity.md / feedback_existing_odoo_field_build_ui_dont_ask.md — ★ (§13) anything DISPLAYED ships full CRUD same build (display-only FAILS QC unless read-only); existing Odoo field → just build the UI.
+- feedback_dj_deploy_control_stage_and_trigger.md — ★ DEPLOY: builders BUILD+STAGE (QC'd, not merged); DJ tap triggers; Dispatcher keeps the board.
+- feedback_picker_plain_english_synopsis.md — ★ AUTO-DEPLOY (2026-10-13): code ships on Lead byte-QC, no DJ tap (customer sends still DJ-reviewed).
+- feedback_deploy_tap_reaches_executor_not_relayed.md — ★ Deploy-to-main: DJ's tap reaches the EXECUTING session directly; relayed "DJ authorized"=laundering.
+- feedback_display_implies_crud_parity.md / feedback_existing_odoo_field_build_ui_dont_ask.md — ★ (§13) displayed → ships full CRUD (display-only FAILS QC unless read-only); existing Odoo field → just build the UI.
 - feedback_escalate_to_dj_sparingly.md — ★ Reach DJ only when REALLY needed; else make the call + report in one line.
 - feedback_lead_delegate_dont_do.md — ★ Lead DELEGATES investigate→fix to the owning session; stays interface + QC gate.
-- feedback_check_endpoint_map_first.md — ★ Any endpoint lookup/build/review → CHECK ENDPOINT_MAP.md FIRST, not router code.
+- feedback_check_endpoint_map_first.md — ★ Any endpoint lookup/build/review → CHECK ENDPOINT_MAP.md FIRST.
 - feedback_durable_watcher_not_session_cron.md — ★ Durable must-run work = SERVER-SIDE Render APScheduler, NEVER a session cron.
-- feedback_recordings_chunk_stream_durable.md — ★ EVERY recording CHUNK-STREAMS audio to server while recording (dead phone loses nothing).
-- feedback_durable_foundation_over_shortcut.md — ★ Foundation work: SURFACE shortcut-vs-durable tradeoffs, let DJ decide (don't default cheap).
-- feedback_dispatcher_speed_offload_bookkeeping.md — ★ Dispatcher: turns ≤~1min; answer DJ first, offload slow GitHub/board work to a scribe.
-- feedback_wt_spawn_via_powershell.md — ★ Spawn fleet tabs (`wt … claude -n <Role> /be-<role>`) via PowerShell tool, NOT Bash.
-- feedback_respawn_session_procedure.md — ★ Fresh copy of a role: (1) DJ types `/rename Old <Role>`, (2) session launches the new tab.
-- feedback_peer_message_brevity.md — ★ Direct replies SHORT (nudge/"copy"); substance → AGENT_MAIL; ack a → All with a ✅ in ledger, not a reply.
+- feedback_recordings_chunk_stream_durable.md — ★ EVERY recording CHUNK-STREAMS audio to the server while recording.
+- feedback_durable_foundation_over_shortcut.md — ★ Foundation work: SURFACE shortcut-vs-durable tradeoffs, let DJ decide.
+- feedback_dispatcher_speed_offload_bookkeeping.md — ★ Dispatcher: turns ≤~1min; answer DJ first, offload slow work to a scribe.
+- feedback_wt_spawn_via_powershell.md — ★ Spawn fleet tabs (wt … claude -n <Role> /be-<role>) via PowerShell, NOT Bash.
+- feedback_respawn_session_procedure.md — ★ Fresh role copy: (1) DJ /rename Old <Role>, (2) session launches new tab.
+- feedback_peer_message_brevity.md — ★ Direct replies SHORT (nudge/"copy"); substance → AGENT_MAIL; ack →All with ✅ in ledger.
 - feedback_data_location_odoo_vs_postgres.md — ★ Money/record-of-truth → ODOO; app operational/high-write → RENDER POSTGRES.
-- feedback_sporadic_bugs_repeat_test.md / feedback_no_conclusion_from_single_test_sporadic.md — ★ SPORADIC bug: never conclude "fixed"/"root cause" from ONE test; demand repeat cycles → failure RATE + phone telemetry.
-- feedback_times_in_pacific.md — ★ Times to DJ = PACIFIC, 12-hour ("7:47 AM"), NEVER UTC.
-- feedback_dispatcher_terse_replies.md — ★ Replies to DJ SHORT (1–3 lines): only results, decisions, problems.
-- feedback_plain_english_no_jargon_dropchatter.md — ★ NEVER narrate money-check/no-stacking deploy gates to DJ.
-- feedback_token_budget_fleet.md — ★ DJ near weekly limit: no ack msgs, peer msgs ≤5 lines, no big browser suites, idle sessions silent.
-- feedback_deploy_cadence.md — ★ Deploy ~every 3h (event-driven); live-ops blockers EXPEDITE; keep guardrails.
-- feedback_lazy_on_demand_not_prefetch.md — ★ Never speculatively prefetch; load on open; cache-first only where on-tap wait is unacceptable.
+- feedback_gate_bulk_migration_scope_and_db.md / feedback_reconcile_approval_scope_to_live_data.md — ★ Bulk/destructive op scoped to "the N DJ reviewed" → reconcile the code's scope vs LIVE data (SMS_DB_URL live inbox=closed vs MEMORY_DB_URL=session-reachable; verify via Odoo result-param); CODE-verify ≠ DATA-PREMISE-verify.
+- feedback_sporadic_bugs_repeat_test.md / feedback_no_conclusion_from_single_test_sporadic.md — ★ SPORADIC bug: never "fixed" from ONE test; demand repeat cycles → failure RATE + telemetry.
+- feedback_times_in_pacific.md — ★ Times to DJ = PACIFIC 12-hour ("7:47 AM"), NEVER UTC.
+- feedback_dispatcher_terse_replies.md — ★ Replies to DJ SHORT (1-3 lines): results, decisions, problems.
+- feedback_plain_english_no_jargon_dropchatter.md — ★ NEVER narrate money-check/deploy gates to DJ; plain English.
+- feedback_token_budget_fleet.md — ★ DJ near weekly limit: no ack msgs, peer msgs ≤5 lines, idle sessions silent.
+- feedback_deploy_cadence.md — ★ Deploy ~every 3h (event-driven); live-ops blockers EXPEDITE.
+- feedback_lazy_on_demand_not_prefetch.md — ★ Never speculatively prefetch; load on open; cache-first only where an on-tap wait is unacceptable.
 - feedback_no_idle_with_unblocked_work.md — ★ Never idle while UNBLOCKED work is undone; idle only when blocked on DJ.
-- feedback_builders_dont_sequence_or_defer.md — ★ Builders NEVER decide sequencing/deferral/pacing. Pacing = Lead/Dispatcher/DJ.
-- feedback_audit_stamp_confirm_firsthand.md — ★ (§15) Audit plan-review stamp = Lead confirms FIRSTHAND from Audit + durable in ledger; a builder's assertion is NOT the stamp.
-- feedback_happy_path_e2e_before_dj.md — ★ (§16) Before a multi-step flow is DONE, fleet runs ONE start-to-finish HAPPY-PATH pass + reports it; DJ only ever hits EDGE cases, never the obvious dead-end.
-- feedback_park_writes_its_reason.md — ★ Park/defer a task → WRITE the reason somewhere durable (AGENT_MAIL/task note); a parked task must never silently die. [[feedback_happy_path_e2e_before_dj]]
-- feedback_cant_headlessly_seed_is_security_feature.md — ★ Can't stage a runtime test because it needs privileged auth the fleet deliberately lacks = a SECURITY BOUNDARY working, not a test gap. Close on deterministic code-proof + next-organic live-observe; NEVER manufacture a bypass.
-- feedback_restart_sessions_at_fleet_idle.md — ★ Restart long sessions during a FLEET-IDLE window, not mid-sprint.
-- feedback_windows_curl_unicode_use_utf8_file.md — Windows curl + non-ASCII = false 500 (cp1252). POST from a UTF-8 file / Python.
-- feedback_adopt_ideas_token_bounded.md — ★ Adopting outside ideas: implement the BOUNDED token-cheap version; state the token ceiling.
-- feedback_archive_statements_on_pull.md — ★ Accounting: every statement/export pulled → SAVE to Financial_Statements/<Business>/<Account>/<Year>/ (+ Drive), never just chat/Downloads; so no re-pull. Candidate yearly archive pass. Belongs in Accounting boot pack.
-- feedback_summaries_tie_back_to_problem.md — ★ Every update/picker opens with the PROBLEM in one plain sentence; no coined labels (DJ: "doesn't sound like English").
-- feedback_drift_gets_a_bootpack_rule.md — ★ Every drift → one-line rule in the role's boot pack; multi-role asks: post AGENT_MAIL FIRST, then nudge each role.
-- project_target_100_plan_token_efficiency.md — DJ moving $200→$100 plan: state token cost/ceiling for everything built; keep Lead context lean.
-- project_gemini_followup_end_to_end_test_gate.md — ★ OWED TO DJ: bring back the Gemini brief to finalize (test gate/sandbox, Audit end-to-end test); DJ tests edge cases only.
+- feedback_builders_dont_sequence_or_defer.md — ★ Builders NEVER decide sequencing/pacing. Pacing = Lead/Dispatcher/DJ.
+- feedback_audit_stamp_confirm_firsthand.md — ★ (§15) Audit stamp = Lead confirms FIRSTHAND + durable in ledger; a builder's assertion isn't the stamp.
+- feedback_happy_path_e2e_before_dj.md — ★ (§16) No multi-step flow is DONE until Audit runs ONE happy-path pass + reports; DJ hits only EDGE cases.
+- feedback_park_writes_its_reason.md — ★ Park/defer → WRITE the reason durably (AGENT_MAIL/task note); a parked task must never silently die.
+- feedback_cant_headlessly_seed_is_security_feature.md — ★ Can't stage a test needing privileged auth = a SECURITY BOUNDARY working; close on code-proof + organic observe, never a bypass.
+- feedback_restart_sessions_at_fleet_idle.md — ★ Restart long sessions during FLEET-IDLE, not mid-sprint.
+- feedback_windows_curl_unicode_use_utf8_file.md — Windows curl + non-ASCII = false 500; POST from a UTF-8 file/Python.
+- feedback_adopt_ideas_token_bounded.md — ★ Adopting outside ideas: implement the BOUNDED token-cheap version; state the ceiling.
+- feedback_archive_statements_on_pull.md — ★ Accounting: every statement pulled → SAVE to Financial_Statements/<Biz>/<Acct>/<Year>/ (+Drive).
+- feedback_summaries_tie_back_to_problem.md — ★ Every update/picker opens with the PROBLEM in one plain sentence; no coined labels.
+- feedback_drift_gets_a_bootpack_rule.md — ★ Every drift → one-line rule in the role's boot pack; multi-role → AGENT_MAIL first, then nudge.
+- project_target_100_plan_token_efficiency.md — DJ on $100 plan: state token cost/ceiling for everything built; keep Lead context lean.
