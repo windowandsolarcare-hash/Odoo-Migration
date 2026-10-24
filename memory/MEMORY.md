@@ -110,6 +110,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_workiz_no_job_all.md — NEVER use the Workiz job/all/ endpoint (DJ's rule).
 - feedback_saunders_printing_never_send.md — NEVER send any Saunders Printing invoice/email without DJ's explicit OK.
 - feedback_auditor_user_perspective_gapfinder.md — ★ Auditor = USER-perspective gap-finder: hunts what the PLAN missed (edit/delete/edge/Add).
+- feedback_nav_bug_is_the_consumer_not_the_string_source.md — ★ A street-ish string is a nav bug ONLY if its CONSUMER is a Navigate; trace forward to navUrlForJob, don't rank the build site.
 - feedback_architect_server_revalidate_bulk_mutations.md — ★ Architect lens: any BULK/mutating action must re-validate submitted ids server-side vs the SAME canonical domain (shared helper), never trust the client list — per-row approval is the gate, server re-check is the backstop; both must hold.
 - feedback_dj_owns_cheryl_erp_access.md — ★ DJ progressively grants Cheryl more ERP access as HE chooses. Surface a scope concern ONCE.
 - feedback_drop_link_table.md — ★ DROP the end-of-reply link TABLE. Keep ONE relevant link + the OVER line.
@@ -142,6 +143,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_builders_dont_sequence_or_defer.md — ★ Builders NEVER decide sequencing/deferral/pacing. Pacing = Lead/Dispatcher/DJ.
 - feedback_audit_stamp_confirm_firsthand.md — ★ (§15) Audit plan-review stamp = Lead confirms FIRSTHAND from Audit + durable in ledger; a builder's assertion is NOT the stamp.
 - feedback_happy_path_e2e_before_dj.md — ★ (§16) Before a multi-step flow is DONE, fleet runs ONE start-to-finish HAPPY-PATH pass + reports it; DJ only ever hits EDGE cases, never the obvious dead-end.
+- feedback_park_writes_its_reason.md — ★ Park/defer a task → WRITE the reason somewhere durable (AGENT_MAIL/task note); a parked task must never silently die. [[feedback_happy_path_e2e_before_dj]]
 - feedback_cant_headlessly_seed_is_security_feature.md — ★ Can't stage a runtime test because it needs privileged auth the fleet deliberately lacks = a SECURITY BOUNDARY working, not a test gap. Close on deterministic code-proof + next-organic live-observe; NEVER manufacture a bypass.
 - feedback_restart_sessions_at_fleet_idle.md — ★ Restart long sessions during a FLEET-IDLE window, not mid-sprint.
 - feedback_windows_curl_unicode_use_utf8_file.md — Windows curl + non-ASCII = false 500 (cp1252). POST from a UTF-8 file / Python.
