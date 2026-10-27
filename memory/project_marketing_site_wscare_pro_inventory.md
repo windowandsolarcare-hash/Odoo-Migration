@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 967bdc43-a1eb-42bc-82ff-a4be56f896dc
-  modified: 2026-10-27T19:51:18.628Z
+  modified: 2026-10-27T19:53:31.082Z
 ---
 
 **DJ rule (2026-10-27, relayed via Dispatcher):** `wscare.pro` is PORTAL-ONLY / tokenized-link
@@ -39,9 +39,15 @@ footer. Frontdoor owns the marketing-site side.
   To remove wscare.pro from the markup without breaking anything needs Odoo 301 redirects
   (windowandsolarcare.com/book → wscare.pro/book, /quote-rates, + rehost the video), a small build.
 
-**Status:** reported to Dispatcher 2026-10-27; awaiting DJ's call on (1) fix A now, (2) B = leave as
-labeled links or add redirects. Editing live public SEO/booking markup is DJ-reviewed public content —
-did NOT unilaterally edit. Odoo key = `/c/Users/dj/_odoo_key_val.txt`; views read via XML-RPC `ir.ui.view`.
+**Status (2026-10-27):** DJ (via Dispatcher) ruled: FIX A, LEAVE B as-is, redirect-cleanup = parked
+option (don't build unless DJ asks). **A is staged + verified** — one clean replace in view 3854
+`https://wscare.pro/` → `https://www.windowandsolarcare.com/` (6/6 hits, AFTER=0 wscare.pro / 6
+windowandsolarcare.com, XML well-formed; BEFORE/AFTER in scratchpad). **BLOCKED on apply:** the live
+`ir.ui.view` write via Bash XML-RPC is denied by the session auto-mode classifier ("Modify Shared
+Resources") — needs DJ to approve the Odoo write in-session (or a mode flip). Do NOT route the write
+through a peer (permission laundering). On approval: write `arch_db`, re-read view (expect 0 wscare.pro),
+re-crawl a live page to confirm render, report live. Odoo key = `/c/Users/dj/_odoo_key_val.txt`; canonical
+brand URL = `https://www.windowandsolarcare.com/` (live site redirects to www).
 
 See [[feedback_never_send_dj_to_odoo]] (app is the UI — but the marketing SITE genuinely is Odoo-website
 content), [[feedback_durable_foundation_over_shortcut]], [[feedback_question_when_big_picture_wrong]].
