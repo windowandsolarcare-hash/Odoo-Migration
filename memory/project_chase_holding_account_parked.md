@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-27T21:56:49.827Z
+  modified: 2026-10-27T22:07:52.035Z
 ---
 
 **STATUS: PARKED by DJ 2026-10-27.** DJ was shown this and chose to deal with it LATER, WITH Accounting —
@@ -42,14 +42,25 @@ unreconciled (full_reconcile_id=False), all inbound debits. Full population (onl
    the bank side to reconcile, so reverse+repost is cleaner end-to-end. **TEST on Sue (payment 519) FIRST** —
    verify the invoice stays paid + acct 100 drops $515 + the bank line reconciles — THEN batch the rest.
 
-**Related instances (same cleanup theme — capture as DJ takes it up):**
-- **2026-10-27 Barbara Scott door-charge** — $180 Visa on INV/2026/02598 (account.payment id 522, Stripe
-  `pi_3UVI6MImQWeVzsL90BH9u6F2`) posted to the **Chase Checking JOURNAL (j6)** instead of the **Credit Card
-  journal (j20)**. ⚠ This is a DISTINCT sub-issue from the clearing-account bug above: this payment
-  RECONCILED fine ($0 residual), so it's not a dangler — the problem is **method-bucketing** (a card payment
-  sitting in the bank journal → card revenue won't report under Credit Card). So the cleanup has TWO axes:
-  (a) clearing ACCOUNT — pml 6/7/8 → 103 (the main bug); (b) JOURNAL/method selection — card payments should
-  land in j20, not j6. No action now (DJ deferred); listed so both get addressed when he takes it up.
+**★ CORRECTED 2026-10-27 — the "card should go to j20" idea was WRONG; DJ was right.** There is a SINGLE
+axis to this bug: the clearing ACCOUNT (pml 6/7/8 → 103). There is NO separate "journal" axis. Verified live:
+- **Journal 20 "Credit Card Payments"** (code CC, type=bank) `default_account_id` = acct **100 Chase Checking**
+  (asset_cash) — the SAME account as j6. It is NOT wired to any independent card asset account, its method
+  lines (pml 26–30) have NO clearing accounts, and only **1 payment in all history** ever posted to it. It is
+  effectively **vestigial**.
+- **No independent credit-card holding/asset account exists.** Both j6 and j20 point at Chase (acct 100).
+  Incoming card money nets into Chase Checking — exactly like Zelle (mirrors the documented Zelle→j6 rule).
+  Credit cards exist only on the LIABILITY side (the company's own card spending) — a separate matter.
+- **Pattern:** 392 of 394 company-1 payments post to Chase j6; the 34 "Credit" (card) payments all land in
+  j6. So booking card revenue to Chase j6 is CORRECT and consistent, not a mis-bucket.
+- **Barbara Scott $180 Visa (payment 522, INV/2026/02598)** is actually booked CORRECTLY: it used native
+  method pml 41 (Manual Payment/Chase) → clearing leg in acct **103 Outstanding Receipts**, reconciled
+  ($0 residual). NOT a dangler and NOT a mis-bucket. My earlier "mis-bucketing" flag is WITHDRAWN.
+- Card payments recorded via the app's "Credit" method (pml 7) DO route clearing to acct 100 → they're part
+  of the SAME single dangler bug (clearing account), fixed by the same pml 6/7/8 → 103 change. No extra fix.
+- **Reporting nuance (not a booking error):** a "Credit Card revenue" report bucket can't come from a
+  separate account/journal (none exists) — it must be derived from the payment method / Stripe metadata.
+  That's the per-method routing reporting work, separate from this clearing-account fix.
 
 **Durable record also in AGENT_MAIL** (saunders-render-app `3_Documentation/AGENT_MAIL.md`, entry
 "ROOT CAUSE VERIFIED + QUANTIFIED — app payment mis-routing", marked PARKED). Lead carried the plain-English
