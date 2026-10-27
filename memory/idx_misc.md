@@ -1,6 +1,7 @@
 # Misc — memory index
 
 - [project_hiring_compare_round2_answer_placeholder.md](project_hiring_compare_round2_answer_placeholder.md) — PARKED cosmetic (Lead+Audit 2026-10-23): Round-2 (Zoom) answer boxes in hiring_compare.html still show the "fills in from the recording" placeholder, but Round 2 is MANUAL. Fix on the NEXT touch of that file — round-2 placeholder or drop the ivAns box for r2q* rows. Keep additive (don't touch INTERVIEW_Q/q*/#ivqcount). Frontdoor owns.
+- [project_marketing_site_wscare_pro_inventory.md](project_marketing_site_wscare_pro_inventory.md) — ★ DJ rule 2026-10-27: wscare.pro = portal-only, never a bare/typeable domain customer-facing (brand = windowandsolarcare.com). Marketing site = Odoo-website (nginx/session_id), NOT app repo. wscare.pro in 6 ir.ui.view: A) wsc.schema #3854 JSON-LD brand/service URLs = the violation → FIX (staged, write permission-gated); B) footer/home/contact/quote/video href+src = FUNCTIONAL (windowandsolarcare.com 404s book/quote-rates/mp4) → LEAVE (labeled links, not bare). Email templates + report_footers CLEAN. Redirect-cleanup parked.
 
 - [project_payment_options_zelle_venmo_vision.md](project_payment_options_zelle_venmo_vision.md) — ★ ROADMAP (DJ 2026-09-21, scope AFTER the Venmo journal fix): branded payment page w/ Zelle-vs-Venmo breakout (sections/buttons per method) + outbound payment-request offering both. Inbound method-detection already done. Pairs w/ per-method journal routing (DJ-corrected: Zelle STAYS j6/Chase like a normal deposit, NOT j19; only Venmo→j29). Lead scopes + flags Dispatcher.
 
