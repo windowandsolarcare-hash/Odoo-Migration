@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-27T22:07:52.035Z
+  modified: 2026-10-27T22:09:34.327Z
 ---
 
 **STATUS: PARKED by DJ 2026-10-27.** DJ was shown this and chose to deal with it LATER, WITH Accounting —
@@ -61,6 +61,11 @@ axis to this bug: the clearing ACCOUNT (pml 6/7/8 → 103). There is NO separate
 - **Reporting nuance (not a booking error):** a "Credit Card revenue" report bucket can't come from a
   separate account/journal (none exists) — it must be derived from the payment method / Stripe metadata.
   That's the per-method routing reporting work, separate from this clearing-account fix.
+- **Corroborated by Operator (read-only sweep, 2026-10-27):** detecting Stripe by memo ("Stripe"/"pi_"),
+  2026 YTD = 9 Stripe payments / $1,253 ALL on Chase j6; ZERO Stripe on j20 (j20 has just 1 inbound all
+  year, $148.77, non-Stripe). 100% of Stripe card money lands in Chase j6 → systemic in the Stripe
+  reconciliation wiring, not per-job. (Caveat: memo-text detection, so a Stripe payment without those
+  tokens wouldn't be caught — but it confirms the pattern.)
 
 **Durable record also in AGENT_MAIL** (saunders-render-app `3_Documentation/AGENT_MAIL.md`, entry
 "ROOT CAUSE VERIFIED + QUANTIFIED — app payment mis-routing", marked PARKED). Lead carried the plain-English
