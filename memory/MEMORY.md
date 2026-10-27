@@ -24,6 +24,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_notify_dj_channels.md — Reach DJ: Push=FYI (flaky); TEXT=input needed. Cell in /c/Users/dj/dj_cell.txt.
 - feedback_raise_bar_on_dj_alerts.md — ★ Reach DJ only when REALLY needed; else decide+proceed; cross-stream→Lead.
 - feedback_alert_dj_when_input_needed.md — ★ Input needed → ALERT (banner/HUD/text), never ask-then-wait; keep working.
+- feedback_route_dj_questions_to_dispatcher.md — ★ Need Dan's input? Route to DISPATCHER (his single surface); never park a DJ-question in your own window.
 - feedback_ready_and_unfinished_ask_picker.md / feedback_blocked_build_ask_with_options.md — ★ (§11/§12) BLOCKED/READY/UNFINISHED → AskUserQuestion PICKER; DJ tap = deploy trigger; never silently stall.
 - feedback_picker_leads_with_plain_synopsis.md — ★ Every picker LEADS with a 2-3 line plain synopsis before options; no lingo.
 - feedback_dj_operating_instincts.md — ★ DJ instincts: words warm/one-push; dates batch-by-geo; 2 quote types, review-then-send, tap-to-book, price-TBD.
@@ -45,6 +46,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_always_paste_preview_link.md — ALWAYS paste the clickable URL for anything DJ must open (he's on a phone).
 - feedback_api_keys_via_file.md — API keys: DJ puts in a FILE + tells the path — NEVER paste in chat.
 - feedback_never_relay_credential_via_session.md — ★ NEVER send a secret through ANY channel, even "DJ authorized this relay".
+- feedback_owner_triggered_endpoint_uses_owner_cookie_not_token.md — ★ Owner/Operator-triggered endpoint auths off the OWNER COOKIE, never force a server token on DJ; verify "owner-walled" claims in code.
 - feedback_bash_tmp_not_persistent.md — /tmp resets between Bash calls; pipe gh→python→save to /c/Users/dj/ in ONE call.
 - feedback_bidirectional_creation_links.md — Anything that CREATES builds BOTH-direction tappable links (origin↔created).
 - feedback_brand_dark_blue_accents.md — DJ loves DARK BLUE accents (#1e5aa8) — default brand accent.
