@@ -117,6 +117,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_dj_owns_cheryl_erp_access.md — ★ DJ grants Cheryl ERP access as HE chooses; surface a scope concern ONCE.
 - feedback_drop_link_table.md — ★ DROP the end-of-reply link TABLE; keep ONE relevant link + the OVER line.
 - feedback_hud_cards_live_not_inbox.md — ★ HUD/status cards LIVE-DERIVED every render, never a stored stale inbox.
+- feedback_dan_requested_cards_top_pinned_lane.md — ★ A card Dan ASKS for → TOP pinned lane (single, immediate, drops when actioned); system-generated cards stay in the feed.
 - feedback_no_ai_offered_dates_use_link.md — ★ (§10) NO AI text offers an OPEN date in free text — offers via a booking LINK (slot HELD).
 - feedback_no_inventing_customer_lines_hud_confirm.md — ★ (§9) NEVER invent customer lines; changes AUTO-QUEUE a HUD confirm → Approve opens thread PRE-FILLED, DJ sends.
 - feedback_dj_deploy_control_stage_and_trigger.md — ★ DEPLOY: builders BUILD+STAGE (QC'd, not merged); DJ tap triggers; Dispatcher keeps the board.
