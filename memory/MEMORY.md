@@ -117,6 +117,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_architect_server_revalidate_bulk_mutations.md — ★ BULK/mutating action re-validates ids server-side vs the SAME canonical domain; never trust the client list.
 - feedback_dj_owns_cheryl_erp_access.md — ★ DJ grants Cheryl ERP access as HE chooses; surface a scope concern ONCE.
 - feedback_drop_link_table.md — ★ DROP the end-of-reply link TABLE; keep ONE relevant link + the OVER line.
+- feedback_wscare_pro_portal_only_no_bare_domain.md — ★ wscare.pro = PORTAL-ONLY (tokenized links only); NEVER a bare/typeable domain on customer-facing receipts/texts/emails/footers. Marketing site = windowandsolarcare.com (Frontdoor).
 - feedback_hud_cards_live_not_inbox.md — ★ HUD/status cards LIVE-DERIVED every render, never a stored stale inbox.
 - feedback_dan_requested_cards_top_pinned_lane.md — ★ A card Dan ASKS for → TOP pinned lane (single, immediate, drops when actioned); system-generated cards stay in the feed.
 - feedback_no_ai_offered_dates_use_link.md — ★ (§10) NO AI text offers an OPEN date in free text — offers via a booking LINK (slot HELD).
