@@ -1,5 +1,7 @@
 # Outreach / reactivation / CRM — memory index
 
+- [project_customer_brain_dossier_index_vs_id_desync.md](project_customer_brain_dossier_index_vs_id_desync.md) — Customer Brain showed McDonald's header/stats w/ Gauthier's JOBS (DJ live 2026-10-27). NOT data (Odoo clean, no mis-parent). Frontend v2_customers.html rendered dossier jobs by ARRAY INDEX; doSearch reassigns CUSTS w/o resetting OPEN_I + no id-check after the customer_jobs await → stale response painted under another card. Fix (branch feat/custbrain-dossier-idguard): bind fetch/render to c.id. Rule: async per-row detail must re-verify the row's id before painting.
+
 - [project_candidate_comparison_page.md](project_candidate_comparison_page.md) — Lead-Tech hire Page 2: Candidate Comparison at /owner/hiring/compare (401, DJ+Cheryl), routers/owner/hiring_compare.py + static/owner/hiring_compare.html. 3 views, chronological DIMS, dialer rings the LOGGED-IN user's phone (not hard-coded DJ), interview answers auto-fill from Twilio transcript. Built by exact mockup duplication (RULE #1). Live+verified 2026-10-10; dial-tested. Open: row-6 exact ZR copy (DJ pulls w/ HR). 
 
 - [project_careers_hud_applicants.md](project_careers_hud_applicants.md) — Careers-page applicants → HUD "📥 New applications" section. Locked IDs (Web 2026-10-08): utm.source "Careers Page"=15, stage_id=1 "New"(initial), hr.job 1 "Window Cleaner"(only job). Reuse GET /api/hiring/applicants, filter source_id==15 AND stage_id==1. Deploy #2 after the interview-roster card (never bundle; re-fetch live v2_hud.html at build).
