@@ -53,6 +53,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_call_opens_dialer_never_dials.md — No Call button dials; every Call opens v2_dialer.html PREFILLED; only Dial posts /owner/voice/dial.
 - feedback_chatter_format.md — chatter message_post = pipe-separated PLAIN text, no HTML (Odoo escapes).
 - feedback_company_name_no_a.md — Brand = "Window & Solar Care" (folder's "A" prefix is NOT the name).
+- feedback_wscare_pro_portal_link_only_never_public.md — ★ wscare.pro = PORTAL/app domain, tokenized-LINK access only; NEVER print the bare domain publicly (receipts/texts/emails/marketing). Public brand site = windowandsolarcare.com.
 - feedback_confirmation_policy.md — Routine = never ask; only irreversible/destructive/visible-to-others.
 - feedback_disable_pull_to_refresh.md — BANNED: mobile pull-to-refresh (reloads SPA + wipes state).
 - feedback_done_jobs_definition.md — "Done jobs" = x_studio_x_studio_workiz_status='Done' on sale.order.
