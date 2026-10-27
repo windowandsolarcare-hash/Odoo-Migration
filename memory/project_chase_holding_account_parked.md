@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: d70db154-b1dd-424c-b2a7-f87afca1d69d
-  modified: 2026-10-27T17:37:35.568Z
+  modified: 2026-10-27T21:56:49.827Z
 ---
 
 **STATUS: PARKED by DJ 2026-10-27.** DJ was shown this and chose to deal with it LATER, WITH Accounting —
@@ -41,6 +41,15 @@ unreconciled (full_reconcile_id=False), all inbound debits. Full population (onl
    lets each reconcile against the bank feed). A grouped reclass JE (DR 103 / CR 100) is lighter but leaves
    the bank side to reconcile, so reverse+repost is cleaner end-to-end. **TEST on Sue (payment 519) FIRST** —
    verify the invoice stays paid + acct 100 drops $515 + the bank line reconciles — THEN batch the rest.
+
+**Related instances (same cleanup theme — capture as DJ takes it up):**
+- **2026-10-27 Barbara Scott door-charge** — $180 Visa on INV/2026/02598 (account.payment id 522, Stripe
+  `pi_3UVI6MImQWeVzsL90BH9u6F2`) posted to the **Chase Checking JOURNAL (j6)** instead of the **Credit Card
+  journal (j20)**. ⚠ This is a DISTINCT sub-issue from the clearing-account bug above: this payment
+  RECONCILED fine ($0 residual), so it's not a dangler — the problem is **method-bucketing** (a card payment
+  sitting in the bank journal → card revenue won't report under Credit Card). So the cleanup has TWO axes:
+  (a) clearing ACCOUNT — pml 6/7/8 → 103 (the main bug); (b) JOURNAL/method selection — card payments should
+  land in j20, not j6. No action now (DJ deferred); listed so both get addressed when he takes it up.
 
 **Durable record also in AGENT_MAIL** (saunders-render-app `3_Documentation/AGENT_MAIL.md`, entry
 "ROOT CAUSE VERIFIED + QUANTIFIED — app payment mis-routing", marked PARKED). Lead carried the plain-English
