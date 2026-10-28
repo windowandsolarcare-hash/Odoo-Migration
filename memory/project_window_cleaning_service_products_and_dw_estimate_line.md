@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-28T20:26:47.838Z
+  modified: 2026-10-28T20:40:48.487Z
 ---
 
 **Verified via Odoo `product.product` search 2026-10-28 (Specialists).** W&SC has NO single "Window Cleaning — whole home" product. A real window job is assembled from multiple per-pane / per-service lines. The window-SERVICE product IDs (all `type=service`, sale_ok, active):
@@ -18,4 +18,4 @@ metadata:
 
 **Off-host silent-fail rescue (`POST /book/api/demo-alert`, added 2026-10-28):** the /dw page host-gates its live API (`LIVE = /wscare\.pro|onrender\.com/`). If ever served off another host (e.g. windowandsolarcare.com, which 404s /book/*), a real customer's submit would fake-succeed and lose the lead. Fix = the page `navigator.sendBeacon`s an ABSOLUTE `https://wscare.pro/book/api/demo-alert` with the lead's info (string body → text/plain = a CORS-simple request, no preflight) and shows a call/text fallback. The endpoint parses `await request.body()` (NOT `.json()` — content-type is text/plain), creates NO SO, rate-limits (12 pushes/hr) + keeps a 50-row `ir.config_parameter` audit (`booking.demo_alerts`), and pushes DJ via `myday._broadcast`. Intentional previews (file://localhost/?demo=1) stay silent (client KNOWN_PREVIEW flag) — no beacon. **Why NOT CORS on `/api/request`:** that endpoint CREATES SOs+contacts; opening it cross-origin = a junk-record/spam vector. A rescue-ping endpoint that creates nothing is the lower-risk architecture for "nothing should silently fail."
 
-`routers/booking.router` is mounted `prefix="/book"` (main.py:1076) — handlers are defined `/api/...`, served `/book/api/...`. See [[project_new_job_via_app_endpoints]], [[feedback_odoo_verify_content_not_status]].
+`routers/booking.router` is mounted `prefix="/book"` (main.py:1076) — handlers are defined `/api/...`, served `/book/api/...`. **LIVE 2026-10-28 (main aaad5476, dual-GREEN Lead+Audit, §16-closed); deploy dep-dbh5pju1egvs73bceu90; GET /book/api/demo-alert=405 verified.** est-line is organic-observe on the next real Del Webb booking (not POST-smoked — would false-alarm DJ). Supersedes the prior behavior in [[project_delwebb_dw_landing_price_passthrough]]. See [[project_new_job_via_app_endpoints]], [[feedback_odoo_verify_content_not_status]].
