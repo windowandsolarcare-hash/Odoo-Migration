@@ -1,12 +1,14 @@
 ---
 name: project_delwebb_dw_landing_price_passthrough
-description: "How the Del Webb / Rancho Mirage EDDM landing page (wscare.pro/dw) passes the customer's quoted dollar amount into Odoo — as a shown-estimate chatter note + review-queue, NOT a billable SO line. Plus the LIVE-hostname gotcha."
+description: "How the Del Webb / Rancho Mirage EDDM landing page (wscare.pro/dw) passes the customer's quoted dollar amount into Odoo — as a shown-estimate chatter note + review-queue; AS OF 2026-10-28 (LIVE) it ALSO lands as a real verify-flagged SO line (carrier product 120) and the off-host silent-fail is rescued via POST /book/api/demo-alert. Plus the LIVE-hostname gotcha."
 metadata:
   node_type: memory
   type: project
   originSessionId: 967bdc43-a1eb-42bc-82ff-a4be56f896dc
-  modified: 2026-10-28T19:53:23.011Z
+  modified: 2026-10-28T20:40:39.983Z
 ---
+
+**★ UPDATE 2026-10-28 (LIVE, main aaad5476) — the design CHANGE flagged at the bottom of this note SHIPPED** (Specialists + Frontdoor, dual-GREEN Lead+Audit). Two things below are now SUPERSEDED: (1) the /dw online estimate NOW lands as a REAL `sale.order.line` — carrier product **120** (Single Story Window Panes), qty 1, `price_unit` = client `est_price` (new JSON field), name "(online estimate — verify)", guarded against double-pricing (skips if any window-service line exists → a known-customer SEED's real prices win). The 🧮 chatter note is KEPT alongside it. Still a verify-flagged STARTING point; request lands Submitted, DJ re-prices (NOT an auto-charge). (2) the off-host silent-fail is FIXED: a real customer on a non-LIVE host no longer fake-succeeds — the page beacons `POST /book/api/demo-alert` (rescue ping: no SO, rate-limited 12/hr, pushes DJ to call them back) + shows a call/text fallback; intentional previews (file://localhost or `?demo=1`, client KNOWN_PREVIEW) stay silent. Product IDs + full detail → [[project_window_cleaning_service_products_and_dw_estimate_line]]. The chain below is the PRIOR (pre-2026-10-28) behavior, kept for history.
 
 **Verified 2026-10-28 (Frontdoor), live, in answer to DJ "make sure rancho mirage landing booking
 is passing the dollar amount."** It IS. Full chain:
@@ -33,7 +35,7 @@ is passing the dollar amount."** It IS. Full chain:
 - **Add-ons** are the exception: `/book/api/request/addons` (:1676) DOES create real priced SO lines
   (solar tiered via `_solar_price`, quote-only $0 price-TBD for pressure washing prod 108, catalog addons).
 
-So "passing the dollar amount" = YES, as the shown-estimate note + queue. If DJ wants the quoted base
-price as an actual SO line/total, that's a deliberate design CHANGE: client side (Frontdoor,
-static/dw/index.html payload) + server line-write (Specialists, booking.py). Offered to DJ 2026-10-28.
+So "passing the dollar amount" originally = the shown-estimate note + queue only. **That design CHANGE
+(quoted base price as a real SO line) SHIPPED 2026-10-28 (LIVE, main aaad5476, §16-closed)** — see the
+UPDATE block at top + [[project_window_cleaning_service_products_and_dw_estimate_line]].
 Ownership: landing HTML = Frontdoor (public surface); booking.py = Specialists.
