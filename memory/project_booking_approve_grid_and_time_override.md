@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-28T21:47:44.505Z
+  modified: 2026-10-28T22:23:12.172Z
 ---
 
 ## ★★ RESOLVED 2026-10-28 (Specialists re-trace, SO 17777 Terence Maguire / 265042) — read THIS first, the 10-12 section below is superseded
@@ -17,7 +17,9 @@ Same LMT misuse on other WRITE paths: **scheduler.py:762, 1414, 1598, 1665** (`r
 
 **(b) DISPLAY +1h (DJ sees 1:23 not 12:23) = client-JS wrong-date offset.** The open-job screen is `static/owner/v2_job.html` (NOT v2_field.html — that's 404/archived now; in-place detail = `_job_detail_panel.js` which reuses the host's `toPT`). `toPT(hhmm)` (v2_job.html:957): `var d=new Date(); d.setUTCHours(hh,mm); d.toLocaleTimeString(...,{timeZone:'America/Los_Angeles'})` — it stamps the UTC HH:MM onto **today's** date, so `toLocaleTimeString` applies **today's** DST offset. Today (Oct 28) is PDT (−7) → 20:23 UTC renders 1:23 PM; on the job's real date (Nov 19, PST −8) the correct render is 12:23. Off by 1h for any Nov job viewed before Nov 1. The 2026-10-27 DST fix (shared.py `to_pt_naive`/`pt_day_bounds_utc`, main 620b22e8) was **Python-only** and never touched this client JS. Same wrong-date pattern: v2_job.html:958, field.html:6898 + `_endFromUtc`:6938, v2_quote.html:531, _job_detail_panel.js:659. FIX = build the instant on the JOB's date (`new Date(Date.UTC(y,mo-1,d,hh,mm))`) so the correct DST offset is chosen.
 
-**QC ORDER (Lead flagged, confirmed):** fixing the stored :23→:30 while (b) is live would make DJ see 1:30, not 12:30 — so the DISPLAY fix (b) must land first/with any data correction. Data backfill of LMT-corrupted SOs (20:23→20:30) is HELD per DJ. Build/write HELD pending Lead firsthand QC + DJ. See [[feedback_windows_python_msys_path_and_crlf_files]] (pytz localize-vs-replace is the write-side twin of that display class).
+**QC ORDER (Lead flagged, confirmed):** fixing the stored :23→:30 while (b) is live would make DJ see 1:30, not 12:30 — so the DISPLAY fix (b) must land first/with any data correction.
+
+**★ SHIPPED LIVE 2026-10-28 — CODE ONLY (main b45c46d8, deploy dep-dbh7a4g473hc73asj1f0, dual-GREEN Lead+Audit §15, auto-deploy no-send/money/route).** Both halves live + content-verified on wscare.pro: (a) booking_requests.py:310 `.replace(tzinfo=_PT)`→`_PT.localize()` (pytz fix — NEW approves now store the correct UTC; see [[project_pt_timezone_pytz_vs_zoneinfo_split]] — scheduler.py was correctly LEFT as-is, its _PT is zoneinfo); (b) client `toPT`/`_endFromUtc` anchor to the job date across v2_job.html/_job_detail_panel.js/field.html(/tech/field)/v2_quote.html/quote.html(/tech/quote). So the open-job screen now renders future jobs at the correct hour. **STILL DJ-GATED (did NOT ride this deploy): the DATA correction** — existing LMT-corrupted SOs only self-heal on re-save/reschedule; Terence's 17777 now DISPLAYS 12:23 (honest read of the still-stored 20:23), and the 20:23→20:30 backfill (+ 17777) is a separate DJ-approved step, LMT-signature-targeted (intended +7:53, season-independent :23). See [[feedback_windows_python_msys_path_and_crlf_files]].
 
 ---
 ## (10-12 ORIGINAL TRIAGE — SUPERSEDED by the RESOLVED block above; kept for history)
