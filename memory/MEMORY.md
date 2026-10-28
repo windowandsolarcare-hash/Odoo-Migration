@@ -32,6 +32,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_activity_notes_self_contained.md — Activity notes embed memory content; any URL = proper <a href>.
 - feedback_agent_handoff_via_doc.md — Agent handoffs: instructions in a *_BRIEF.md; DJ gets a 1-2 sentence paste + path.
 - project_agent_mail_channel.md — ★ Cross-session comms = AGENT_MAIL.md (app repo); "mail"=go read it; read at start + after each task.
+- project_cheryl_cloud_mail_channel.md — ★ "Check Cheryl cloud mail" = pull cheryl-workspace (branch claude/cheryl-idea-organizer-yzv19x), open AGENT-MAIL-OUT.md, read the BOTTOM. Inbound to it = post fleet AGENT_MAIL + NUDGE (nudge wakes it; no watcher).
 - feedback_lead_roster_restamp.md — ★ Lead re-stamps SESSION_ROSTER row (ref+UTC) at start/every tick + heartbeat (churned ref=dead).
 - feedback_agent_mail_autowatch.md — ★ Session start: arm mail-watcher cron (offset min; CronList); session-local, re-arm each start.
 - feedback_render_design_before_presenting.md — ★ Never present a math-built design: render PNG, LOOK, send the IMAGE.
