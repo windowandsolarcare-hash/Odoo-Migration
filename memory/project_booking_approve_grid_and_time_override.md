@@ -1,13 +1,26 @@
 ---
 name: project_booking_approve_grid_and_time_override
-description: "Root-cause (2026-10-12, SO 17758 odd-minute 1:23): the app scheduler is a RIGID 90-min grid (8:00/9:30/11:00/12:30/2:00/3:30) and can NEVER emit an off-grid minute like :23; and the booking-approve review screen (v2_booking.html) auto-selects the route-tightest SUGGESTED slot on load, silently overriding the customer's requested TIME. /approve has no idempotency. The exact 20:23 writer is UNRESOLVED — the one logged approve (chatter 12:30) wrote 19:30, so a non-approve writer set 20:23; request bodies aren't in Render logs."
+description: "RESOLVED 2026-10-28 (SO 17777 re-trace): the odd-minute :23 drift is NOT a phantom — it's the pytz LMT anti-pattern `.replace(tzinfo=_PT)` in the booking-approve write (booking_requests.py:310), which attaches America/Los_Angeles LMT (−07:52:58) instead of PST/PDT, so a 12:30 PM slot stores 20:23:00 UTC on ANY date (date-independent → the 'constant 20:23' both SOs showed). Correct is `_PT.localize()`. Separate live bug: the +1h DISPLAY on the open-job screen is a CLIENT-JS wrong-date offset (toPT stamps UTC HH:MM onto new Date()=today, picking today's DST). Old notes below (grid-only, phantom-unresolved) kept for history."
 metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-12T14:00:24.956Z
+  modified: 2026-10-28T21:47:44.505Z
 ---
 
+## ★★ RESOLVED 2026-10-28 (Specialists re-trace, SO 17777 Terence Maguire / 265042) — read THIS first, the 10-12 section below is superseded
+DJ hit it again on 17777: provisional **12:30 PM** (afternoon), stored `date_order` **2026-11-19 20:23:00 UTC**, write_uid Dan, last write 10-27 08:01:13 (the approve/confirm). `date_order` field-tracking = **0 (never enabled)**; the 10-12 write-trace **did** ship (live main: booking_requests.py:334/433 + scheduler.py:1134-1142) but was not needed — code + empirical repro nailed it.
+
+**(a) MINUTE DRIFT :30→:23 = pytz LMT bug (NOT a phantom).** `routers/owner/booking_requests.py:310`:
+`dt_pt = (base + timedelta(minutes=start_min)).replace(tzinfo=_PT)` where `_PT = pytz.timezone('America/Los_Angeles')`. On a **pytz** zone, `.replace(tzinfo=_PT)` (and `datetime(...,tzinfo=_PT)` / `combine(...,tzinfo=_PT)`) attaches the zone's **LMT offset −07:52:58**, not PST/PDT. So 12:30 → +7:52:58 → **20:23:00 UTC**. Empirically reproduced: `.replace(tzinfo=_PT)` on 12:30 gives 20:23:00 for BOTH 2026-11-19 (PST) AND 2026-10-22 (PDT) — LMT is a fixed historical offset, **date-independent**, which is exactly why 17758 and 17777 both stored the identical 20:23. `_PT.localize(12:30)` gives the correct 20:30 (PST) / 19:30 (PDT). The chatter label is right (`_slot_label(start_min)` = 12:30) because it's computed from the grid minute, not the corrupted UTC — that mismatch is the whole bug. The create path (booking.py:1479) correctly uses `_PT.localize` → wrote 20:30 at 10-24; the approve at 10-27 **rewrote** it to the LMT 20:23. **The 10-12 "phantom" conclusion ("approve wrote 19:30, something else set 20:23") was the error: it assumed the approve localized correctly — it does not.**
+Same LMT misuse on other WRITE paths: **scheduler.py:762, 1414, 1598, 1665** (`replace(tzinfo=_PT)` / `tzinfo=_PT` in set_slot / reschedule / suggest). Day-BOUND query combines (booking.py 217/218/253/254/668/669; scheduler many) also use `combine(...,tzinfo=_PT)` → ~7-min-shifted bounds (mostly harmless since bounds are midnight/23:59, but wrong). Correct sites already use `_PT.localize()` (booking.py:1029/1030/1085/1479, booking_requests.py:70). FIX = converge every pytz-zone attach onto `_PT.localize(naive)`.
+
+**(b) DISPLAY +1h (DJ sees 1:23 not 12:23) = client-JS wrong-date offset.** The open-job screen is `static/owner/v2_job.html` (NOT v2_field.html — that's 404/archived now; in-place detail = `_job_detail_panel.js` which reuses the host's `toPT`). `toPT(hhmm)` (v2_job.html:957): `var d=new Date(); d.setUTCHours(hh,mm); d.toLocaleTimeString(...,{timeZone:'America/Los_Angeles'})` — it stamps the UTC HH:MM onto **today's** date, so `toLocaleTimeString` applies **today's** DST offset. Today (Oct 28) is PDT (−7) → 20:23 UTC renders 1:23 PM; on the job's real date (Nov 19, PST −8) the correct render is 12:23. Off by 1h for any Nov job viewed before Nov 1. The 2026-10-27 DST fix (shared.py `to_pt_naive`/`pt_day_bounds_utc`, main 620b22e8) was **Python-only** and never touched this client JS. Same wrong-date pattern: v2_job.html:958, field.html:6898 + `_endFromUtc`:6938, v2_quote.html:531, _job_detail_panel.js:659. FIX = build the instant on the JOB's date (`new Date(Date.UTC(y,mo-1,d,hh,mm))`) so the correct DST offset is chosen.
+
+**QC ORDER (Lead flagged, confirmed):** fixing the stored :23→:30 while (b) is live would make DJ see 1:30, not 12:30 — so the DISPLAY fix (b) must land first/with any data correction. Data backfill of LMT-corrupted SOs (20:23→20:30) is HELD per DJ. Build/write HELD pending Lead firsthand QC + DJ. See [[feedback_windows_python_msys_path_and_crlf_files]] (pytz localize-vs-replace is the write-side twin of that display class).
+
+---
+## (10-12 ORIGINAL TRIAGE — SUPERSEDED by the RESOLVED block above; kept for history)
 Triage from Lead: booking-approve for Kathy Sell SO 17758 (→265029) stored `date_order` 2026-10-22 20:23 UTC = **1:23 PM PT**, customer requested **12:30**. DJ says he's seen it before → RECURRING class. Diagnosed worst-first (Specialists owns scheduler.py + booking_requests.py).
 
 ## DECISIVE: the scheduling engine is GRID-ONLY — it cannot produce an odd minute
