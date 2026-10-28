@@ -103,6 +103,7 @@ Detail lives in topic files. Sharded by domain — open the matching `idx_<domai
 - feedback_report_gray_lines.md — Emailed financial reports need a light-gray line under each item (phone readability).
 - feedback_route_work_to_claude_code.md — Default ALL work to Claude Code (flat Max sub).
 - feedback_mirror_memory_to_github.md — ★ Write/edit ANY memory → mirror to Odoo-Migration/memory/<name> via gh PUT (fetch sha first).
+- feedback_windows_python_msys_path_and_crlf_files.md — Windows python3 can't open /c/ MSYS paths (use C:/ — else silent no-op push); AGENT_MAIL.md is pure CRLF → byte-insert, never LF-normalize.
 - feedback_save_filter.md — DJ wants auto-saves; filter SHARED_MEMORY writes to runtime-relevant facts.
 - feedback_script_insertion_anchor.md — Never rfind('</script>') — hits the last external script tag.
 - feedback_send_email_with_attachment.md — Pattern for email + PDF attachment via Odoo JSON-RPC.
