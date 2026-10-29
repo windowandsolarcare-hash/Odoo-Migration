@@ -1,0 +1,22 @@
+---
+name: project_quote_send_review_first
+description: "Send Quote (v2_quote.html -> brain.py job_send_quote /owner/api/job/send_quote) is REVIEW-FIRST for BOTH methods as of 2026-10-29: TEXT opens the inbox thread pre-filled (v2_inbox open=<pid>&draft=) and EMAIL saves a Gmail DRAFT via the NEW server-side helper _gmail_draft (IMAP APPEND to [Gmail]/Drafts using GMAIL_WSC_APP_PASSWORD). Neither auto-sends; DJ presses Send himself. Gated on the client `draft` flag (additive: no flag = legacy auto-send)."
+metadata:
+  node_type: memory
+  type: project
+  originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
+  modified: 2026-10-29T16:57:34.717Z
+---
+
+**Shipped 2026-10-29 (Specialists; dual-GREEN Lead+Audit, DJ-approved). Two commits on main: TEXT = 516b128d, EMAIL = 85fe0931.** Before this, the field Send Quote button auto-fired to the customer on OK — TEXT via `messaging.send`, EMAIL via Odoo `mail.mail` create+send(). DJ wanted both to be review-first like confirmations: nothing leaves without his own Send.
+
+**The `draft` flag (client → server), additive & opt-in:** `v2_quote.html` `sendQuote()` now sends `{..., send:true, draft:true}` for BOTH methods (price `amount_override` still applied by the top gate so the quote link shows DJ's rounded number). `brain.py job_send_quote` (`POST /owner/api/job/send_quote`) branches:
+- **TEXT + draft** → returns `{ok, draft:true, draft_url:'/static/owner/v2_inbox.html?open=<pid>&draft=<urlenc sms_body>'}`, NO `messaging.send`. Client does `location.href=draft_url` → the proven `openByPartner(pid,draft)` path (backfills a conv for a never-texted customer, prefills `#reply`; only DJ's Send sends). Same pattern as the confirm card.
+- **EMAIL + draft** → calls the NEW helper `_gmail_draft(subj, bhtml, email)`; on success returns `{ok, via:'email', gmail_draft:true}`, NO `mail.mail` send. Client shows "Draft saved in Gmail — open Gmail to review & send". If the helper FAILS it returns an error and **never falls back to auto-send** (both draft returns precede the `mail.mail` create — verified).
+- **No `draft` flag** = the original auto-send paths, byte-unchanged (legacy/other callers; v2_quote is in fact the only caller).
+
+**★ NEW REUSABLE SERVER-SIDE Gmail-draft capability — `_gmail_draft(subject, body_html, to_addr)` in `routers/owner/brain.py`.** This is the FIRST server-side way to honor [[feedback_email_draft_first_always]] (previously only session-side IMAP/Gmail-MCP could make a draft; the Render app runtime couldn't). It `imaplib.IMAP4_SSL('imap.gmail.com')` → `login('windowandsolarcare@gmail.com', os.environ['GMAIL_WSC_APP_PASSWORD'])` → `append('[Gmail]/Drafts', '\\Draft', imaplib.Time2Internaldate(...), MIMEText(html).as_bytes())`. **Same account + env var + connection pattern as the Vault email poller (`vault.py` `_pull_email_docs`)** — no new secret, no new integration. Returns `{ok}` / `{ok:False,error}`; missing `GMAIL_WSC_APP_PASSWORD` → `{ok:False}`. **Reuse this helper for any future "email as a Gmail draft DJ sends" need** instead of session-side IMAP. No route change (no ENDPOINT_MAP regen).
+
+**Parked follow-ups (Lead+Audit agreed, NOT in this diff — don't expand without a decision):** (1) a draft that DJ sends from the inbox/Gmail writes NO in-app `_log_quote_sent` "quote sent" SO chatter/timeline marker (the send happens outside the app now; the thread/Gmail IS the record) — batch a quote-aware re-log later. (2) `_gmail_draft` has no IMAP idempotency → a retap after a slow append could make 2 drafts; mitigated by the client disabling the button until response; residual is a non-destructive DUPLICATE DRAFT (never an auto-send). Both durable in Audit's AGENT_MAIL post.
+
+See [[feedback_email_draft_first_always]], [[feedback_no_inventing_customer_lines_hud_confirm]] (open=<pid>&draft= review-first pattern), [[feedback_email_via_odoo]] (that rule is for SENDING; a DRAFT uses IMAP APPEND, not mail.mail).
