@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-29T16:57:34.717Z
+  modified: 2026-10-29T17:05:30.977Z
 ---
 
 **Shipped 2026-10-29 (Specialists; dual-GREEN Lead+Audit, DJ-approved). Two commits on main: TEXT = 516b128d, EMAIL = 85fe0931.** Before this, the field Send Quote button auto-fired to the customer on OK — TEXT via `messaging.send`, EMAIL via Odoo `mail.mail` create+send(). DJ wanted both to be review-first like confirmations: nothing leaves without his own Send.
@@ -18,5 +18,7 @@ metadata:
 **★ NEW REUSABLE SERVER-SIDE Gmail-draft capability — `_gmail_draft(subject, body_html, to_addr)` in `routers/owner/brain.py`.** This is the FIRST server-side way to honor [[feedback_email_draft_first_always]] (previously only session-side IMAP/Gmail-MCP could make a draft; the Render app runtime couldn't). It `imaplib.IMAP4_SSL('imap.gmail.com')` → `login('windowandsolarcare@gmail.com', os.environ['GMAIL_WSC_APP_PASSWORD'])` → `append('[Gmail]/Drafts', '\\Draft', imaplib.Time2Internaldate(...), MIMEText(html).as_bytes())`. **Same account + env var + connection pattern as the Vault email poller (`vault.py` `_pull_email_docs`)** — no new secret, no new integration. Returns `{ok}` / `{ok:False,error}`; missing `GMAIL_WSC_APP_PASSWORD` → `{ok:False}`. **Reuse this helper for any future "email as a Gmail draft DJ sends" need** instead of session-side IMAP. No route change (no ENDPOINT_MAP regen).
 
 **Parked follow-ups (Lead+Audit agreed, NOT in this diff — don't expand without a decision):** (1) a draft that DJ sends from the inbox/Gmail writes NO in-app `_log_quote_sent` "quote sent" SO chatter/timeline marker (the send happens outside the app now; the thread/Gmail IS the record) — batch a quote-aware re-log later. (2) `_gmail_draft` has no IMAP idempotency → a retap after a slow append could make 2 drafts; mitigated by the client disabling the button until response; residual is a non-destructive DUPLICATE DRAFT (never an auto-send). Both durable in Audit's AGENT_MAIL post.
+
+**§16 status (Lead firsthand):** TEXT = fully closed (code-proof on live main 516b128d + the served v2_quote.html carries the marker; the actual customer SMS send is auth-walled so it closes on code-proof + organic observe, same as any owner-walled send). EMAIL = closed on code-proof (live main 85fe0931: draft branch returns `{gmail_draft:true}` BEFORE the `mail.mail` create; served file carries both markers) + **one open organic-observe item**: the IMAP APPEND actually landing a draft could NOT be synthetically tested — Operator's session is (correctly) blocked from firing `send:true` by its real-world-transaction classifier (a security boundary; do NOT weaken it for a test, do NOT launder it through another session), and no session can headlessly seed owner auth. So **the FIRST real email quote DJ sends is the live confirmation — Lead to verify that draft lands via Gmail `list_drafts` and route a fix if the APPEND/folder name fails.** Per [[feedback_cant_headlessly_seed_is_security_feature]].
 
 See [[feedback_email_draft_first_always]], [[feedback_no_inventing_customer_lines_hud_confirm]] (open=<pid>&draft= review-first pattern), [[feedback_email_via_odoo]] (that rule is for SENDING; a DRAFT uses IMAP APPEND, not mail.mail).
