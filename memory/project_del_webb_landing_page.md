@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: a6200401-4a1b-4492-894c-629c161de653
-  modified: 2026-10-28T20:48:58.686Z
+  modified: 2026-10-31T06:01:18.732Z
 ---
 
 **Page:** `static/dw/index.html` (+ `dw_hero.jpg`, `dw_logo.png`) in `saunders-render-app`; QR target **wscare.pro/dw** (307 → `/static/dw/index.html`, route built by Specialists). Pure static, same-origin, books via `/book/api/*` (availability, addr, `POST /api/request` → a Submitted SO DJ prices/confirms, `quote_src=delwebb-eddm`). Build rule: real standalone page, own doctype+viewport, NOT artifact-first (see WEB.md).
@@ -30,4 +30,6 @@ metadata:
 
 **Testing note:** never submit the live page to test (it creates a real contact + SO). Test the confirmation/upsell by loading the page and replacing the `LIVE` host regex in a document.write copy.
 
-Related: [[project_wscare_pro_email_routing]], [[reference_domain_dns_hosting_map]], [[project_wsc_address_do_not_publish]].
+**⏸ PARKED FAST-FOLLOW (2026-10-31, Specialists→Frontdoor; NOT a blocker — /dw keeps working on its current hardcode):** Specialists built a canonical public endpoint **`GET /api/dw/prices`** (`routers/dw_prices.py`, shape `{groups:[{plans,good,better,best}], first_time_add}`) as the SINGLE SOURCE OF TRUTH for the DW price table (staged for Lead byte-QC, DJ triggers deploy; durably noted in `3_Documentation/review/dw_prices/BUILD_NOTE.md`). Once it's LIVE, the fast-follow is MINE: swap `/dw`'s hardcoded `GROUPS` array (static/dw/index.html ~line 308) to FETCH `/api/dw/prices` so the page + endpoint can't drift (they already diverged once). **★ Resilience requirement when I do it:** keep the baked-in GROUPS as a fallback default and only OVERRIDE from the fetched values — never leave the price cards empty on a slow/failed/no-signal fetch (phone edge cases, CLAUDE.md rule 13). Mechanism-only change (displayed numbers must stay identical) but it's a public surface → stage + Lead QC + confirm prices unchanged. Blocked until the endpoint deploys; ping Specialists to confirm the contract when picking it up.
+
+Related: [[project_wscare_pro_email_routing]], [[reference_domain_dns_hosting_map]], [[project_wsc_address_do_not_publish]], [[project_del_webb_dw_visit_counter]].
