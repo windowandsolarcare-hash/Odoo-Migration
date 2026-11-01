@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-10-31T06:08:42.637Z
+  modified: 2026-11-01T15:10:27.066Z
 ---
 
 **What:** owner-facing launcher tile **"Del Webb Prices"** — a phone-call price lookup (type/tap a floor plan → Good/Better/Best, base price big + "1st-time $X" muted under each). Visual by Design (artifact X1C57dYySiqRMEcKPLyMLj); Specialists built the page + endpoint + tile. Shipped 2026-10-30 (Lead byte-QC GREEN; auto-deploy policy = code ships on Lead QC, no DJ trigger).
@@ -13,6 +13,8 @@ metadata:
 **★ SINGLE SOURCE OF TRUTH = `routers/dw_prices.py`** (Lead ruling 2026-10-30, rule 9: DW prices drift ~3x/month and our own memory had already diverged, so NO 2nd hardcoded copy). Canonical `GROUPS` + `FIRST_TIME_ADD=50` live there; `GET /api/dw/prices` returns `{groups:[{plans,good,better,best}], first_time_add}`. Public read-only (whitelisted in authz `PUBLIC_ROOT_EXACT` — prices are already public on /dw). Static business data, no Odoo/DB — **to change a DW price, edit GROUPS in dw_prices.py and every reader updates.** Prices verified byte-for-byte vs static/dw/index.html GROUPS on 2026-10-30: 175/210/285 · 225/260/335 · 255/290/365 · 315/350/425 (good/better/best = Essential/Premium/Signature; Premium = postcard price).
 
 **Files (commits 2026-10-30):** routers/dw_prices.py (new, 5061a59b) · static/owner/v2_dw_prices.html (new, 76fe01f4) · routers/authz.py (+1 whitelist line, d9acc81c) · static/owner/v2_apps.js (+tile 🏷️ "Del Webb Prices" fav:true, 2ba2a676) · main.py (import + include_router, 89cfe293). Pushed boot-safe: dw_prices.py FIRST, main.py (imports it) LAST.
+
+**/dw jump button (added 2026-11-01, commit c01bbf9c):** a top-of-page accent button `<a class="gobtn" href="/dw">Del Webb page →</a>` beside the ‹ Back button, so the owner can hop from the price screen to the public /dw landing page (relative same-origin link, same-tab jump; DJ req via Dispatcher). `.backrow` became a flex row. CSS+1 anchor only — no JS/route/main.py change. (A small footer text-link to wscare.pro/dw already existed; this is the prominent button DJ asked for.)
 
 **Owner page behavior:** fetches /api/dw/prices (10s timeout). **Fetch-fail → "Reload" prompt, NO hardcoded fallback** — deliberate: a stale price read aloud on a call is the harm, so better nothing than wrong. Chrome mirrors v2_prices.html (wsc_telemetry.js + wsc_back.js + ‹Back → v2_hud.html). No whoami gate (page shows only public prices; /static is public shells anyway). NOTE: the page's `var FIRST_TIME_ADD=50` is a benign DEFAULT, always overridden by the fetched value.
 
