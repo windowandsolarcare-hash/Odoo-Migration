@@ -1,17 +1,15 @@
 ---
 name: project_intake_property_ok_to_text_selection
-description: "res.partner x_studio_x_studio_ok_to_text is a SELECTION field, not boolean — /api/intake/property passes the raw ok_to_text value straight through, so sending True errors \"Wrong value for ...ok_to_text: True\". Omit it (or send the correct selection string)."
+description: "res.partner x_studio_x_studio_ok_to_text is a Yes/No SELECTION field, not boolean. Bug FIXED 2026-11-02 (commit c6beb100): /api/intake/property used to 500 on ok_to_text=true; now coerces bool->Yes/No and still accepts 'Yes'/'No'. Verified firsthand."
 metadata:
   node_type: memory
   type: project
   originSessionId: c4c6184d-7f8f-4870-868c-f108044fcc77
-  modified: 2026-11-02T21:24:11.102Z
+  modified: 2026-11-02T21:31:08.040Z
 ---
 
-Hit 2026-11-02 (Operator) creating a new customer property via `POST /owner/api/intake/property`. Passing `{"ok_to_text": true}` → HTTP 500, Odoo `ValueError: Wrong value for res.partner.x_studio_x_studio_ok_to_text: True`.
+**FIXED 2026-11-02 (commit c6beb100, Specialists) — verified firsthand by Operator.** `POST /owner/api/intake/property` with `{"ok_to_text": true}` now returns HTTP 200 and stores `'Yes'` (confirmed: created a throwaway test property, read back `x_studio_x_studio_ok_to_text == 'Yes'`, cleaned up). The endpoint coerces boolean `true`→'Yes', `false`→'No', and still accepts the 'Yes'/'No' strings the UI sends. No need to omit the field any more.
 
-**Why:** `x_studio_x_studio_ok_to_text` on res.partner is a **selection** field (its valid values are selection strings, e.g. "Yes"/"No" — not a Python bool). The endpoint (`routers/owner/new_job.py` `api_intake_create_property`) sets `vals['x_studio_x_studio_ok_to_text'] = body.get('ok_to_text') or False` — it forwards the raw value, so a boolean `True` reaches a selection column and is rejected. `False` is accepted only because Odoo reads it as "unset."
+**Original bug (history):** `x_studio_x_studio_ok_to_text` is a **selection** field (valid values "Yes"/"No", not a Python bool). The endpoint (`routers/owner/new_job.py` `api_intake_create_property`) did `vals['x_studio_x_studio_ok_to_text'] = body.get('ok_to_text') or False`, forwarding a raw bool, so `true` → HTTP 500 `ValueError: Wrong value for res.partner.x_studio_x_studio_ok_to_text: True`. Worked around a live booking (Betty Hanna, Del Webb RM) by omitting the field.
 
-**How to apply:** When creating a property through `/api/intake/property`, **omit `ok_to_text`** (safe — stores as unset) rather than sending `true`. To actually set it, send the correct selection string, not a bool.
-
-**Systemic (flagged to Specialists 2026-11-02):** the endpoint should map a truthy `ok_to_text` to the proper selection value instead of forwarding a raw bool — otherwise the New Job / new-customer UI's "OK to text" toggle 500s whenever it's checked. Instance worked around by omitting; root-cause fix is Specialists' (owns `new_job.py`). See [[feedback_root_cause_not_just_instance]], [[feedback_assistant_use_app_workflow_not_raw_api]].
+**Remaining small gap (noted to Specialists):** there is NO clean REST path to set `ok_to_text` on an EXISTING partner — `/api/customer/edit` whitelists only name/phone/email/street/city/zip, and `update_odoo_contact` is a `/ask` voice-assistant tool, not a plain endpoint. Setting it post-create needs the voice tool or a raw write. Also: `ok_to_text` does NOT gate outbound SMS — `messaging.send` blocks only on opt-out (STOP), do-not-contact, and quiet hours; an unset ok_to_text does not hold a confirmation. See [[feedback_root_cause_not_just_instance]], [[feedback_assistant_use_app_workflow_not_raw_api]].
