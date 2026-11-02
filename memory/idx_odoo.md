@@ -1,5 +1,7 @@
 # Odoo quirks & fields — memory index
 
+- [project_ok_to_text_is_selection_not_bool.md](project_ok_to_text_is_selection_not_bool.md) — `x_studio_x_studio_ok_to_text` (res.partner) is a Yes/No SELECTION, NOT bool — a raw bool 500s Odoo. UI sends 'Yes'/'No' strings; API callers may send a bool. Fixed /owner/api/intake/property (new_job.py, c6beb100) to coerce. Trap: naive `'Yes' if v else 'No'` breaks on string 'No' (truthy). Don't hand any x_studio_* selection a bool.
+
 - [project_app_payments_outstanding_acct100_unreconcilable.md](project_app_payments_outstanding_acct100_unreconcilable.md) — ★ MONEY/systemic: `_execute_payment` pml 6/7/8 → payment_account_id=100 "Chase Checking" (reconcile=FALSE) not 103 "Outstanding Receipts" (reconcile=TRUE) → every app payment double-debits Chase + can NEVER bank-reconcile. Blocks matcher MODE A. Reconcile API = `account.bank.statement.line.reconcile([[id],[{'id':aml_in_103}]])` (move-line level, no widget). Fix = Accounting+DJ call.
 
 - [project_wsc_odoo_opening_balances.md](project_wsc_odoo_opening_balances.md) — ★ W&SC migration imported FULL transactions, not a 1/1/2025 opening-balance entry. Bank/AR derive OK; credit-card balances, real loan payoff, fixed assets MISSING. No tax impact (cash-basis Sch C). Pull card/loan 12/31/2024 balances → Operator posts opening JE.
@@ -70,3 +72,4 @@
 
 - [project_payment_paths_thread_capture.md](project_payment_paths_thread_capture.md) — 3 payment paths: dashboard _execute_payment (job-detail, threads 💵) · payments.py _stripe_record_and_close (Stripe self-pay→finalize_payment, now threads too, idempotent on payment_intent) · field.py _execute_payment = DEAD shadow twin. Timeline captures index=False + best-effort.
 - [project_odoo_jsonrpc_adhoc_wrapper_argwrap.md](project_odoo_jsonrpc_adhoc_wrapper_argwrap.md) — ad-hoc Odoo JSON-RPC helper: pass domain/ids/param-key as ONE arg (don't double-wrap); get_param key is a string; read ids=[id] not [[id]].
+- [project_intake_property_ok_to_text_selection.md](project_intake_property_ok_to_text_selection.md) — /api/intake/property 500s on ok_to_text=true; x_studio_x_studio_ok_to_text is a SELECTION field not bool. Omit it; Specialists to map truthy→selection string.
