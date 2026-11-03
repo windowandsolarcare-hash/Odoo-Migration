@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 9e757d4b-c2ad-4e84-9c81-2f3aa11f1c2e
-  modified: 2026-11-03T20:40:39.617Z
+  modified: 2026-11-03T20:47:41.684Z
 ---
 
 **Concept (DJ via Dispatcher, 2026-11-03): get rid of QuarkXPress as the NBHOF plaque-card layout program.** Front of each card = a TIFF (image, picked up as-is). Back = DATA (the copy as data points, not a Quark layout). Extract all back-of-card data out of the existing Quark files, STORE it, and have **Design become the layout engine** that rebuilds the back from stored data + the front TIFF. Then routine changes (print date each run, copyright year) are just data edits — no Quark. This supersedes the per-card date-patch automation in [[project_nbhof_plaque_card_applescript]] (that tool stays useful meanwhile).
@@ -28,4 +28,9 @@ metadata:
 - **Still needed (one-time, tiny):** (1) ONE real sample back (an archived print PDF is fine, or read one card via Quark) to build the template with EXACT fixed wording/fonts/logo/layout — can't invent the boilerplate. (2) A validation pass: generate ~6–8 cards, DJ compares to the real printed cards. **RISK FIELD = COMMITTEE** — HOF committee names changed over the decades (BBWAA / Veterans Committee / Era committees / Negro Leagues Committee); online naming may not match the card's exact phrasing. Name format (full plaque name) is a smaller version of the same risk. Validate, build a mapping if needed, then batch.
 - **Cannot parse .qxd directly** (proprietary binary) — any Quark read runs through Quark/AppleScript on the Mac; this path mostly avoids it (only the one reference back).
 
-Status 2026-11-03: refined feasibility + leanest-path recommendation relayed to DJ via Dispatcher. Design ready to build the template the moment DJ sends ONE sample back + greenlights, then a sample validation (esp. committee wording) before the full run. Related: [[project_nbhof_plaque_card_applescript]], [[project_saunders_printing_odoo]], [[project_wsc_print_build_pipeline]].
+**★ VERIFIED online-data source (2026-11-03, real players pulled — not assumed):** all 3 fields ARE published + retrievable for every inductee. **PRIMARY SOURCE = Baseball-Reference** — each player page carries Full Name + induction year + exact voting body, structured (Aaron page shows Full Name "Henry Louis Aaron" and verbatim "Inducted as Player in 1982. (Voted by BBWAA on 406/415 ballots)"). Confirmed on 3 (incl. two committee-inducted): Aaron = Henry Louis Aaron / 1982 / BBWAA; Phil Rizzuto = Philip Francis Rizzuto / 1994 / Veterans Committee; Josh Gibson = Joshua Gibson / 1972 / Negro Leagues Committee.
+- **NAME FORMAT — two versions exist online:** Baseball-Reference "Full Name" = formal name WITHOUT nickname ("Henry Louis Aaron") — matches DJ's stated example. The Hall's own site (baseballhall.org) prints the actual PLAQUE name WITH nickname in quotes ("Henry Louis 'Hammerin' Hank' Aaron", "Philip Francis 'Scooter' Rizzuto"). Which one the card uses = confirm against one real card (BBREF's Full Name is the likely match).
+- **Committee is on Baseball-Reference, NOT on the HOF plaque page** (the HOF plaque page has name+year only). So BBREF is the one source with all three.
+- **COMMITTEE WORDING risk stands:** BBREF says "BBWAA"/"Veterans Committee"; the card may spell it out / use an older committee's formal name → match the card's phrasing at validation, small wording map if needed.
+
+Status 2026-11-03: refined feasibility + leanest-path recommendation + REAL-DATA VERIFICATION relayed to DJ via Dispatcher. Design ready to build the template the moment DJ sends ONE sample back + greenlights, then a sample validation (esp. committee wording) before the full run. Related: [[project_nbhof_plaque_card_applescript]], [[project_saunders_printing_odoo]], [[project_wsc_print_build_pipeline]].
