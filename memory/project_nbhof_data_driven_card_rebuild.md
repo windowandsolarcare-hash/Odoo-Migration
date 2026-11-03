@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 9e757d4b-c2ad-4e84-9c81-2f3aa11f1c2e
-  modified: 2026-11-03T20:47:41.684Z
+  modified: 2026-11-03T21:09:40.557Z
 ---
 
 **Concept (DJ via Dispatcher, 2026-11-03): get rid of QuarkXPress as the NBHOF plaque-card layout program.** Front of each card = a TIFF (image, picked up as-is). Back = DATA (the copy as data points, not a Quark layout). Extract all back-of-card data out of the existing Quark files, STORE it, and have **Design become the layout engine** that rebuilds the back from stored data + the front TIFF. Then routine changes (print date each run, copyright year) are just data edits — no Quark. This supersedes the per-card date-patch automation in [[project_nbhof_plaque_card_applescript]] (that tool stays useful meanwhile).
@@ -33,4 +33,8 @@ metadata:
 - **Committee is on Baseball-Reference, NOT on the HOF plaque page** (the HOF plaque page has name+year only). So BBREF is the one source with all three.
 - **COMMITTEE WORDING risk stands:** BBREF says "BBWAA"/"Veterans Committee"; the card may spell it out / use an older committee's formal name → match the card's phrasing at validation, small wording map if needed.
 
-Status 2026-11-03: refined feasibility + leanest-path recommendation + REAL-DATA VERIFICATION relayed to DJ via Dispatcher. Design ready to build the template the moment DJ sends ONE sample back + greenlights, then a sample validation (esp. committee wording) before the full run. Related: [[project_nbhof_plaque_card_applescript]], [[project_saunders_printing_odoo]], [[project_wsc_print_build_pipeline]].
+Status 2026-11-03: refined feasibility + leanest-path recommendation + REAL-DATA VERIFICATION relayed to DJ via Dispatcher. Design ready to build the template the moment DJ sends ONE sample back + greenlights, then a sample validation (esp. committee wording) before the full run.
+
+**★ READ-ONLY SPOT-CHECK SCRIPT BUILT (Lead, 2026-11-03) — the validation-pass tool.** DJ greenlit (via Dispatcher) a safe read-only variant of NBHOF Auto to dump actual-printed back copy from a random sample of cards, so Design can compare NAME/YEAR/COMMITTEE against Baseball-Reference BEFORE committing to the rebuild. Script `NBHOF_BackCopy_SpotCheck.applescript` (Lead-authored; DJ runs it on the Mac in Script Editor): prompts for N (~50) → shuffles the `C[0-9]{5,6}` folders under `/Volumes/Seagate Backup Plus Drive/NBHOF Full` (perl shuffle — macOS `sort -R` unreliable) → for the first N with a modern `<cardnum>.qxd`: open (alias-coerce gotcha), read every `text of story 1 of text box i of document 1`, **`close … saving no` — NO save/export/edit, the delete-on-save bug is never reachable** → writes Design's delimiter format to **`/Users/Saunders/nbhof_spotcheck_dump.txt`**: `===CARD <Cnum>===` blocks (full back text, all boxes concatenated, line breaks preserved — Design parses the 3 fields), then `===SKIPPED===` with `<Cnum>\t<reason>` ("no .qxd" / "FC-BU legacy" / "open-failed: …"). DNU/B-prefix excluded at enumeration. **CAVEAT: a missing-font card can pop a Quark dialog that pauses the hands-off run** (best-effort System Events sheet-dismiss included, needs Script Editor Accessibility). This dump ALSO answers the memo's "ONE sample back" need + the uniform-layout question in bulk. Post-run: DJ sends the dump to Design for the compare.
+
+Related: [[project_nbhof_plaque_card_applescript]], [[project_saunders_printing_odoo]], [[project_wsc_print_build_pipeline]].
