@@ -1,5 +1,7 @@
 # Odoo quirks & fields — memory index
 
+- [project_accept_to_job_amount_override.md](project_accept_to_job_amount_override.md) — accept_to_job_core (quotes.py) now takes optional amount_override (agreed/rounded price on accept, parity w/ send_quote) by REUSING brain._apply_quote_override; honors refusal; single-windows-line only (add-ons refuse). ★ x_studio_x_studio_pricing_snapshot is a TEXT memo, NOT the quote amount — job carries the number via the windows line price_unit→amount_total, never a snapshot write. Commits ca1c9d52 / 1e604df7 / a16ae471.
+
 - [project_ok_to_text_is_selection_not_bool.md](project_ok_to_text_is_selection_not_bool.md) — `x_studio_x_studio_ok_to_text` (res.partner) is a Yes/No SELECTION, NOT bool — a raw bool 500s Odoo. UI sends 'Yes'/'No' strings; API callers may send a bool. Fixed /owner/api/intake/property (new_job.py, c6beb100) to coerce. Trap: naive `'Yes' if v else 'No'` breaks on string 'No' (truthy). Don't hand any x_studio_* selection a bool.
 
 - [project_app_payments_outstanding_acct100_unreconcilable.md](project_app_payments_outstanding_acct100_unreconcilable.md) — ★ MONEY/systemic: `_execute_payment` pml 6/7/8 → payment_account_id=100 "Chase Checking" (reconcile=FALSE) not 103 "Outstanding Receipts" (reconcile=TRUE) → every app payment double-debits Chase + can NEVER bank-reconcile. Blocks matcher MODE A. Reconcile API = `account.bank.statement.line.reconcile([[id],[{'id':aml_in_103}]])` (move-line level, no widget). Fix = Accounting+DJ call.
