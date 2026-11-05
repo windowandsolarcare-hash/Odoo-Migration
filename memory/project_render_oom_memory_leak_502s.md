@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 4e67b763-0811-48ad-9309-a03b9da13378
-  modified: 2026-11-05T16:22:57.548Z
+  modified: 2026-11-05T16:31:25.355Z
 ---
 
 **★ RECONCILE WITH [[project_502_healthcheck_hang_hud_feed_cascade]] FIRST — there are TWO 502 mechanisms, don't conflate them:**
@@ -34,6 +34,8 @@ metadata:
 - Lower: `dashboard.py` `_OT_TID_CACHE` (has expiry, bounded by devices), `_SCHED_CACHE`, `reactivation.py _TL_CACHE`, `authz.py _MONITOR/_FAILS` — probably bounded, confirm before capping.
 - Lead's prime lead (SEPARATE item, not a leak cap): the in-process scheduler + prewarm run on BOTH instances = double baseline + double-fire risk → candidate for a single server-side Render Cron; scope separately + loop Lead+DJ (new infra).
 
-**swr cap #1 STATUS:** staged at `C:/Users/dj/swr_staged.py`, diff handed to Lead for byte-QC (2026-11-05); 138→162 lines, py_compile OK; NOT pushed — awaiting Lead GREEN, then re-fetch-live+apply+push, watch both-instance boot + 1–2 day memory trend.
+**swr cap #1 STATUS: SHIPPED + boot-GREEN.** Pushed commit f1a27d40 (2026-11-05 16:24Z); deploy_ended succeeded 16:26Z; both instances booted healthy ~165–173MB, instance_count=2, healthz 200 (Lead WATCH #1 firsthand). **★ VERIFY ~2026-11-07 (Lead + Specialists both check): confirm the Render memory sawtooth CEILING is LOWER than the pre-fix ~490MB — a slow leak is NOT proven fixed off a clean boot (feedback_no_conclusion_from_single_test_sporadic). If the ceiling still climbs to ~490+, the swr cap wasn't the dominant accumulator → escalate the next increments (sms caches, _HOOK_SEEN).**
+
+**INCREMENT #2 STATUS (2026-11-05, Lead Rule-9 + atomic-commit APPROVED, staged for byte-QC):** new shared primitive `routers/owner/cachecap.py` `bounded_set(d,key,val,cap)` (pure single-dict count-LRU, caller holds its lock) + swr._store retrofit to call it ×2 (BEHAVIOR-IDENTICAL to live f1a27d40, same 128/256 caps/LRU/lock scope) + sms.py caps `_THREAD_CACHE`(300)/`_SUMS_LASTGOOD`(300) via the helper under a new `_CAP_LOCK` on their 3 write sites (phone-keyed + payloads). Left uncapped by design: `_CONV_TS`/`_PARTNER_TS` (single-timestamp = negligible), `_INBOX_LASTGOOD` (filter-keyed = bounded). `_SUMS_LASTGOOD` is a STANDALONE last-good (no paired in-memory fresh cache — fresh = per-call local + PG param store), so no ≥-cap constraint. All 3 files py_compile OK; staged at C:/Users/dj/{cachecap_staged,swr_staged2,sms_staged}.py. Ships as ONE atomic git-Data-API commit (module + importers together = no import-crash window). NOT pushed — awaiting Lead byte-QC GREEN.
 
 **Status:** app HEALTHY again since 16:06:48 UTC (both instances serving 200s). Fix is PREVENTIVE — staged work, no emergency deploy. Related: [[feedback_durable_watcher_not_session_cron]], [[feedback_money_adjacent_staging_risk_calibrated]], [[feedback_builders_dont_sequence_or_defer]], [[feedback_reuse_canonical_endpoint]].
