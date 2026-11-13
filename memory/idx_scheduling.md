@@ -20,6 +20,7 @@
 - [project_offer_link_resolver.md](project_offer_link_resolver.md) — Slot-offer customer booking-link half (Lead 2026-08-17): make_token carries offer_id; /book/api/offer/{get,book,decline} in booking.py. Token secret server-side → Reserve mints link via booking.make_token. Customer /book/c page render still TODO.
 
 - [project_slot_offers_reserve_design.md](project_slot_offers_reserve_design.md) — ★ DJ's LOCKED design for pending offers (don't offer a slot twice): Reserve BUTTON bolted onto the existing shared scheduling picker (not a new screen) + booking link, 3 editable slots (manual override wins, conflict=soft warn), 48h expiry, NO AI text parsing. slot_offers.py store. Not built — contract pending lead. 2026-08-15.
+- [project_slot_offer_hold_leak_fix.md](project_slot_offer_hold_leak_fix.md) — ★ Stray-hold leak fix A LIVE 2026-11-13: offer box frees the 48h hold on backdrop/Don't-send/true-unload (visibilitychange NOT wired — return-after-sleep keeps the hold); confirmed-today guard refuses offering on a job scheduled today. Fix-B (reserve-at-send) DEFERRED — its go/no-go trigger is GET /owner/api/offers/leak_stats expired_unsent residual; DON'T build B until it's material. Lead byte-QC.
 
 - [project_slot_finder_gaps.md](project_slot_finder_gaps.md) — 3 slot gaps (2026-08-15): AI drafter (open_days_for_partner, day-level) ≠ reschedule modal (_find_scheduling_openings, route-optimized) on TIME; no offered-slot tracking → double-offer; finder ignores x_job_length_min (fixed 90 min). Brief: SCHEDULING_OFFERS_BRIEF.md.
 
